@@ -26,6 +26,13 @@ package mobile.backend;
  * A storage class for mobile.
  * @author Karim Akra and Homura Akemi (HomuHomu833)
  */
+ 
+import haxe.io.Path;
+#if sys
+import sys.FileSystem;
+import sys.io.File;
+#end
+
 class StorageUtil
 {
 	#if sys
@@ -50,7 +57,55 @@ class StorageUtil
 			else
 				trace('$fileName couldn\'t be saved. (${e.message})');
 	}
+	
+	public static function getStorageRootDirectory():String
+		return #if android Path.addTrailingSlash(getExternalStorageDirectory()) #elseif ios Path.addTrailingSlash(lime.system.System.documentsDirectory) #else Path.addTrailingSlash(Sys.getCwd()) #end;
 
+	public static function getModsDirectory():String
+		return getStorageRootDirectory() + 'mods/';
+
+	public static function getModpackCacheDirectory():String
+		return getStorageRootDirectory() + 'modpack-cache/';
+
+	public static function getModpackDownloadDirectory():String
+		return getModpackCacheDirectory() + 'downloads/';
+
+	public static function getModpackTempDirectory():String
+		return getModpackCacheDirectory() + 'temp/';
+
+	public static function getModpackInstalledDirectory():String
+		return getModpackCacheDirectory() + 'installed/';
+
+	public static function ensureDirectory(path:String):Void
+	{
+		if (!FileSystem.exists(path))
+			FileSystem.createDirectory(path);
+	}
+
+	public static function ensureModpackDirectories():Void
+	{
+		final dirs:Array<String> = [
+			getStorageRootDirectory(),
+			getModsDirectory(),
+			getModpackCacheDirectory(),
+			getModpackDownloadDirectory(),
+			getModpackTempDirectory(),
+			getModpackInstalledDirectory()
+		];
+
+		for (dir in dirs)
+		{
+			try
+			{
+				ensureDirectory(dir);
+			}
+			catch (e:Dynamic)
+			{
+				trace('Directory create failed: $dir (${e.message})');
+			}
+		}
+	}
+	
 	#if android
 	// always force path due to haxe
 	public static function getExternalStorageDirectory():String
@@ -70,8 +125,8 @@ class StorageUtil
 			&& !AndroidPermissions.getGrantedPermissions().contains('android.permission.READ_MEDIA_IMAGES'))
 			|| (AndroidVersion.SDK_INT < AndroidVersionCode.TIRAMISU
 				&& !AndroidPermissions.getGrantedPermissions().contains('android.permission.READ_EXTERNAL_STORAGE')))
-			CoolUtil.showPopUp(Language.getPhrase('permissions_message', 'If you accepted the permissions you are all good!\nIf you didn\'t then expect a crash\nPress OK to see what happens'),
-				Language.getPhrase('mobile_notice', "Notice!"));
+			CoolUtil.showPopUp(Language.getPhrase('permissions_message', 'İzinleri kabul ettiyseniz oyununuz sorunsuz açılacaktır, etmediyseniz izinler bölümünden tüm dosyalara erişime izin verin'),
+				Language.getPhrase('mobile_notice', "Uyarı!"));
 
 		try
 		{
@@ -83,6 +138,7 @@ class StorageUtil
 			CoolUtil.showPopUp(Language.getPhrase('create_directory_error', 'Please create directory to\n{1}\nPress OK to close the game', [StorageUtil.getStorageDirectory()]), Language.getPhrase('mobile_error', "Error!"));
 			lime.system.System.exit(1);
 		}
+		StorageUtil.ensureModpackDirectories();
 
 		try
 		{

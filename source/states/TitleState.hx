@@ -9,6 +9,11 @@ import flixel.group.FlxGroup;
 import flixel.input.gamepad.FlxGamepad;
 import haxe.Json;
 
+import backend.update.UpdateChecker;
+import backend.update.UpdateConfig;
+import substates.UpdateSubState;
+import StringTools;
+
 import openfl.Assets;
 import openfl.display.Bitmap;
 import openfl.display.BitmapData;
@@ -49,6 +54,10 @@ class TitleState extends MusicBeatState
 	var credTextShit:Alphabet;
 	var ngSpr:FlxSprite;
 	
+	var checkingUnifiedUpdates:Bool = false;
+	var pendingUnifiedUpdateResult:Dynamic = null;
+	var shownUnifiedUpdatePopup:Bool = false;
+	
 	var titleTextColors:Array<FlxColor> = [0xFF33FFFF, 0xFF3333CC];
 	var titleTextAlphas:Array<Float> = [1, .64];
 
@@ -69,6 +78,7 @@ class TitleState extends MusicBeatState
 		Paths.clearStoredMemory();
 		super.create();
 		Paths.clearUnusedMemory();
+		startUnifiedUpdateCheck();
 
 		if(!initialized)
 		{
@@ -450,6 +460,110 @@ class TitleState extends MusicBeatState
 		}
 
 		super.update(elapsed);
+		
+		if (!shownUnifiedUpdatePopup && pendingUnifiedUpdateResult != null && canShowUnifiedUpdatePopup())
+		{
+			openUnifiedUpdatePopup(pendingUnifiedUpdateResult);
+		}
+	}
+	
+	function startUnifiedUpdateCheck():Void
+	{
+		if (checkingUnifiedUpdates || shownUnifiedUpdatePopup)
+			return;
+
+		if (!UpdateConfig.CHECK_ON_STARTUP)
+			return;
+
+		checkingUnifiedUpdates = true;
+
+		trace('[TitleState] Güncelleme kontrolü başlatılıyor...');
+
+		UpdateChecker.instance.onError = function(error:String)
+		{
+			checkingUnifiedUpdates = false;
+			trace('[TitleState] Güncelleme kontrolü başarısız: ' + error);
+		};
+
+		UpdateChecker.instance.fetchModpackList(function(result:backend.update.UpdateChecker.CheckResult)
+		{
+			checkingUnifiedUpdates = false;
+
+			if (result != null && result.hasUpdates)
+			{
+				trace('[TitleState] ${result.availableUpdates.length} modpack güncellemesi bulundu.');
+				pendingUnifiedUpdateResult = result;
+			}
+			else
+			{
+				trace('[TitleState] Güncelleme yok.');
+			}
+		});
+	}
+
+	function canShowUnifiedUpdatePopup():Bool
+	{
+		if (subState != null)
+			return false;
+
+		return true;
+	}
+	
+	function openUnifiedUpdatePopup(result:Dynamic):Void
+	{
+		shownUnifiedUpdatePopup = true;
+		pendingUnifiedUpdateResult = null;
+
+		var modpacks:Array<{
+			packId:String,
+			displayName:String,
+			version:String,
+			downloadUrl:String
+		}> = [];
+
+		var typedResult:backend.update.UpdateChecker.CheckResult = cast result;
+
+		for (update in typedResult.availableUpdates)
+		{
+			modpacks.push({
+				packId: update.remote.id,
+				displayName: update.remote.displayName,
+				version: update.newVersion,
+				downloadUrl: update.remote.downloadUrl
+			});
+		}
+
+		if (modpacks.length > 0)
+		{
+			openSubState(new UpdateSubState(modpacks));
+		}
+	}
+
+	function findBestModpackDownloadUrl(release:Dynamic):String
+	{
+		if (release == null)
+			return "";
+
+		if (release.assets != null)
+		{
+			var assets:Array<Dynamic> = cast release.assets;
+
+			for (asset in assets)
+			{
+				if (asset != null && asset.name != null)
+				{
+					var lowerName:String = asset.name.toLowerCase();
+
+					if (StringTools.endsWith(lowerName, ".zip"))
+						return asset.browser_download_url;
+				}
+			}
+		}
+
+		if (release.html_url != null)
+			return release.html_url;
+
+		return "";
 	}
 
 	function createCoolText(textArray:Array<String>, ?offset:Float = 0)

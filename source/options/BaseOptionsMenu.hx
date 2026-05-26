@@ -27,6 +27,10 @@ class BaseOptionsMenu extends MusicBeatSubstate
 	public var rpcTitle:String;
 
 	public var bg:FlxSprite;
+
+	// Substate'in kendi kamera hedefi — ana menüden bağımsız
+	var camTargetY:Float = 0;
+
 	public function new()
 	{
 		controls.isInSubstate = true;
@@ -44,9 +48,10 @@ class BaseOptionsMenu extends MusicBeatSubstate
 		bg.color = 0xFFea71fd;
 		bg.screenCenter();
 		bg.antialiasing = ClientPrefs.data.antialiasing;
+		// Substate kendi scroll'unu kullanır, bg sabit kalsın
+		bg.scrollFactor.set();
 		add(bg);
 
-		// avoids lagspikes while scrolling through menus!
 		grpOptions = new FlxTypedGroup<Alphabet>();
 		add(grpOptions);
 
@@ -56,18 +61,21 @@ class BaseOptionsMenu extends MusicBeatSubstate
 		checkboxGroup = new FlxTypedGroup<CheckboxThingie>();
 		add(checkboxGroup);
 
+		// descBox ve descText ekranın altında sabit duracak
 		descBox = new FlxSprite().makeGraphic(1, 1, FlxColor.BLACK);
 		descBox.alpha = 0.6;
+		descBox.scrollFactor.set(); // sabit
 		add(descBox);
 
 		var titleText:Alphabet = new Alphabet(75, 45, title, true);
 		titleText.setScale(0.6);
 		titleText.alpha = 0.4;
+		titleText.scrollFactor.set(); // sabit
 		add(titleText);
 
 		descText = new FlxText(50, 600, 1180, "", 32);
 		descText.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
-		descText.scrollFactor.set();
+		descText.scrollFactor.set(); // sabit — kamera kayarken yerinde kalır
 		descText.borderSize = 2.4;
 		add(descText);
 
@@ -75,8 +83,6 @@ class BaseOptionsMenu extends MusicBeatSubstate
 		{
 			var optionText:Alphabet = new Alphabet(220, 260, optionsArray[i].name, false);
 			optionText.isMenuItem = true;
-			/*optionText.forceX = 300;
-			optionText.yMult = 90;*/
 			optionText.targetY = i;
 			grpOptions.add(optionText);
 
@@ -91,7 +97,6 @@ class BaseOptionsMenu extends MusicBeatSubstate
 			{
 				optionText.x -= 80;
 				optionText.startPosition.x -= 80;
-				//optionText.xAdd -= 80;
 				var valueText:AttachedText = new AttachedText('' + optionsArray[i].getValue(), optionText.width + 60);
 				valueText.sprTracker = optionText;
 				valueText.copyAlpha = true;
@@ -99,7 +104,6 @@ class BaseOptionsMenu extends MusicBeatSubstate
 				grpTexts.add(valueText);
 				optionsArray[i].child = valueText;
 			}
-			//optionText.snapToPosition(); //Don't ignore me when i ask for not making a fucking pull request to uncomment this line ok
 			updateTextFrom(optionsArray[i]);
 		}
 
@@ -124,6 +128,7 @@ class BaseOptionsMenu extends MusicBeatSubstate
 	var bindingBlack:FlxSprite;
 	var bindingText:Alphabet;
 	var bindingText2:Alphabet;
+
 	override function update(elapsed:Float)
 	{
 		super.update(elapsed);
@@ -134,14 +139,8 @@ class BaseOptionsMenu extends MusicBeatSubstate
 			return;
 		}
 
-		if (controls.UI_UP_P)
-		{
-			changeSelection(-1);
-		}
-		if (controls.UI_DOWN_P)
-		{
-			changeSelection(1);
-		}
+		if (controls.UI_UP_P)   changeSelection(-1);
+		if (controls.UI_DOWN_P) changeSelection(1);
 
 		if (controls.BACK) {
 			close();
@@ -168,11 +167,13 @@ class BaseOptionsMenu extends MusicBeatSubstate
 						bindingBlack.scale.set(FlxG.width, FlxG.height);
 						bindingBlack.updateHitbox();
 						bindingBlack.alpha = 0;
+						bindingBlack.scrollFactor.set();
 						FlxTween.tween(bindingBlack, {alpha: 0.6}, 0.35, {ease: FlxEase.linear});
 						add(bindingBlack);
 	
 						bindingText = new Alphabet(FlxG.width / 2, 160, Language.getPhrase('controls_rebinding', 'Rebinding {1}', [curOption.name]), false);
 						bindingText.alignment = CENTERED;
+						bindingText.scrollFactor.set();
 						add(bindingText);
 
 						final escape:String = (controls.mobileC) ? "B" : "ESC";
@@ -180,6 +181,7 @@ class BaseOptionsMenu extends MusicBeatSubstate
 						
 						bindingText2 = new Alphabet(FlxG.width / 2, 340, Language.getPhrase('controls_rebinding2', 'Hold {1} to Cancel\nHold {2} to Delete', [escape, backspace]), true);
 						bindingText2.alignment = CENTERED;
+						bindingText2.scrollFactor.set();
 						add(bindingText2);
 	
 						bindingKey = true;
@@ -219,7 +221,7 @@ class BaseOptionsMenu extends MusicBeatSubstate
 										}
 		
 									case STRING:
-										var num:Int = curOption.curOption; //lol
+										var num:Int = curOption.curOption;
 										if(controls.UI_LEFT_P) --num;
 										else num++;
 		
@@ -230,7 +232,6 @@ class BaseOptionsMenu extends MusicBeatSubstate
 		
 										curOption.curOption = num;
 										curOption.setValue(curOption.options[num]);
-										//trace(curOption.options[num]);
 
 									default:
 								}
@@ -292,9 +293,10 @@ class BaseOptionsMenu extends MusicBeatSubstate
 			}
 		}
 
-		if(nextAccept > 0) {
-			nextAccept -= 1;
-		}
+		if(nextAccept > 0) nextAccept -= 1;
+
+		// Substate içinde kamera lerp
+		FlxG.camera.scroll.y = FlxMath.lerp(FlxG.camera.scroll.y, camTargetY, 0.14);
 	}
 
 	function bindingKeyUpdate(elapsed:Float)
@@ -348,9 +350,9 @@ class BaseOptionsMenu extends MusicBeatSubstate
 				var keyPressed:FlxGamepadInputID = NONE;
 				var keyReleased:FlxGamepadInputID = NONE;
 				if(FlxG.gamepads.anyJustPressed(LEFT_TRIGGER))
-					keyPressed = LEFT_TRIGGER; //it wasnt working for some reason
+					keyPressed = LEFT_TRIGGER;
 				else if(FlxG.gamepads.anyJustPressed(RIGHT_TRIGGER))
-					keyPressed = RIGHT_TRIGGER; //it wasnt working for some reason
+					keyPressed = RIGHT_TRIGGER;
 				else
 				{
 					for (i in 0...FlxG.gamepads.numActiveGamepads)
@@ -441,10 +443,9 @@ class BaseOptionsMenu extends MusicBeatSubstate
 		{
 			switch(alpha.text)
 			{
-				case '[', ']': //Square and Triangle respectively
+				case '[', ']':
 					letter.image = 'alphabet_playstation';
 					letter.updateHitbox();
-					
 					letter.offset.x += 4;
 					letter.offset.y -= 5;
 			}
@@ -456,10 +457,8 @@ class BaseOptionsMenu extends MusicBeatSubstate
 		bindingKey = false;
 		bindingBlack.destroy();
 		remove(bindingBlack);
-
 		bindingText.destroy();
 		remove(bindingText);
-
 		bindingText2.destroy();
 		remove(bindingText2);
 		ClientPrefs.toggleVolumeKeys(true);
@@ -483,31 +482,44 @@ class BaseOptionsMenu extends MusicBeatSubstate
 	{
 		curSelected = FlxMath.wrap(curSelected + change, 0, optionsArray.length - 1);
 
+		// descText ve descBox scrollFactor(0,0) ile sabit,
+		// bu yüzden screenCenter hesabı her zaman doğru ekran pozisyonunu verir
 		descText.text = optionsArray[curSelected].description;
 		descText.screenCenter(Y);
 		descText.y += 270;
+
+		descBox.setPosition(descText.x - 10, descText.y - 10);
+		descBox.setGraphicSize(Std.int(descText.width + 20), Std.int(descText.height + 25));
+		descBox.updateHitbox();
 
 		for (num => item in grpOptions.members)
 		{
 			item.targetY = num - curSelected;
 			item.alpha = 0.6;
-			if (item.targetY == 0) item.alpha = 1;
+
+			if (item.targetY == 0)
+			{
+				item.alpha = 1;
+
+				// Seçili öğenin gerçek Y'sini hesapla — isMenuItem=true olduğu için
+				// item.y henüz tween'in sonuna gelmemiş olabilir.
+				// targetY=0 olan öğenin hedef Y'si = yMult * 0 + startPosition.y = startPosition.y
+				// Bunu doğrudan camTargetY için kullanalım:
+				camTargetY = item.startPosition.y - (FlxG.height / 2);
+			}
 		}
+
 		for (text in grpTexts)
 		{
 			text.alpha = 0.6;
 			if(text.ID == curSelected) text.alpha = 1;
 		}
 
-		descBox.setPosition(descText.x - 10, descText.y - 10);
-		descBox.setGraphicSize(Std.int(descText.width + 20), Std.int(descText.height + 25));
-		descBox.updateHitbox();
-
-		curOption = optionsArray[curSelected]; //shorter lol
+		curOption = optionsArray[curSelected];
 		FlxG.sound.play(Paths.sound('scrollMenu'));
 	}
 
 	function reloadCheckboxes()
 		for (checkbox in checkboxGroup)
-			checkbox.daValue = Std.string(optionsArray[checkbox.ID].getValue()) == 'true'; //Do not take off the Std.string() from this, it will break a thing in Mod Settings Menu
+			checkbox.daValue = Std.string(optionsArray[checkbox.ID].getValue()) == 'true';
 }

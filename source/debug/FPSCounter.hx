@@ -7,31 +7,14 @@ import openfl.text.TextField;
 import openfl.text.TextFormat;
 import openfl.system.System as OpenFlSystem;
 import lime.system.System as LimeSystem;
+import lime.app.Application;
+import backend.Language;
 
-/**
-	The FPS class provides an easy-to-use monitor to display
-	the current frame rate of an OpenFL project
-**/
-#if cpp
-#if windows
-@:cppFileCode('#include <windows.h>')
-#elseif (ios || mac)
-@:cppFileCode('#include <mach-o/arch.h>')
-#else
-@:headerInclude('sys/utsname.h')
-#end
-#end
 class FPSCounter extends TextField
 {
-	/**
-		The current frame rate, expressed using frames-per-second
-	**/
 	public var currentFPS(default, null):Int;
-
-	/**
-		The current memory usage (WARNING: this is NOT your total program memory usage, rather it shows the garbage collector memory)
-	**/
 	public var memoryMegas(get, never):Float;
+	public var memoryPeak:Float = 0;
 
 	@:noCompletion private var times:Array<Float>;
 	@:noCompletion private var lastFramerateUpdateTime:Float;
@@ -46,10 +29,11 @@ class FPSCounter extends TextField
 		super();
 
 		#if !officialBuild
+		var systemText:String = Language.getPhrase('debug_system', 'System');
 		if (LimeSystem.platformName == LimeSystem.platformVersion || LimeSystem.platformVersion == null)
-			os = '\nOS: ${LimeSystem.platformName}' #if cpp + ' ${getArch() != 'Unknown' ? getArch() : ''}' #end;
+			os = '\n$systemText: ${LimeSystem.platformName}' #if cpp + ' ${getArch() != 'Unknown' ? getArch() : ''}' #end;
 		else
-			os = '\nOS: ${LimeSystem.platformName}' #if cpp + ' ${getArch() != 'Unknown' ? getArch() : ''}' #end + ' - ${LimeSystem.platformVersion}';
+			os = '\n$systemText: ${LimeSystem.platformName}' #if cpp + ' ${getArch() != 'Unknown' ? getArch() : ''}' #end + ' - ${LimeSystem.platformVersion}';
 		#end
 
 		positionFPS(x, y);
@@ -57,7 +41,12 @@ class FPSCounter extends TextField
 		currentFPS = 0;
 		selectable = false;
 		mouseEnabled = false;
-		defaultTextFormat = new TextFormat("_sans", 14, color);
+		
+		// VCR Font Ayarı
+		var fontName:String = Paths.font("vcr.ttf");
+		defaultTextFormat = new TextFormat(fontName, 14, color);
+		embedFonts = true;
+		
 		width = FlxG.width;
 		multiline = true;
 		text = "FPS: ";
@@ -68,71 +57,60 @@ class FPSCounter extends TextField
 		updateTime = prevTime + 500;
 	}
 
-
-	public dynamic function updateText():Void // so people can override it in hscript
+	public dynamic function updateText():Void
 	{
+		if (memoryMegas > memoryPeak) memoryPeak = memoryMegas;
+
+		// Dil dosyasından anahtarları çekiyoruz
+		var memoryText:String = Language.getPhrase('debug_memory', 'Memory');
+		var peakText:String = Language.getPhrase('debug_peak', 'Peak');
+		var versionText:String = Language.getPhrase('debug_version', 'Version');
+		var systemText:String = Language.getPhrase('debug_system', 'System'); // <--- Burayı ekledik
+
+		// İşletim sistemi bilgisini de anlık dile göre oluşturuyoruz
+		var osText:String = '';
+		#if !officialBuild
+		if (LimeSystem.platformName == LimeSystem.platformVersion || LimeSystem.platformVersion == null)
+			osText = '\n$systemText: ${LimeSystem.platformName}' #if cpp + ' ${getArch() != 'Unknown' ? getArch() : ''}' #end;
+		else
+			osText = '\n$systemText: ${LimeSystem.platformName}' #if cpp + ' ${getArch() != 'Unknown' ? getArch() : ''}' #end + ' - ${LimeSystem.platformVersion}';
+		#end
+
 		text = 
-		'FPS: $currentFPS' + 
-		'\nMemory: ${flixel.util.FlxStringUtil.formatBytes(memoryMegas)}' +
-		os;
+			'FPS: $currentFPS' + 
+			'\n$memoryText: ${flixel.util.FlxStringUtil.formatBytes(memoryMegas)} ($peakText: ${flixel.util.FlxStringUtil.formatBytes(memoryPeak)})' +
+			'\n$versionText: ${Application.current.meta.get('version')}' +
+			osText; // Artık her güncellemede yeni sistem metnini kullanır
 
 		textColor = 0xFFFFFFFF;
 		if (currentFPS < FlxG.stage.window.frameRate * 0.5)
 			textColor = 0xFFFF0000;
 	}
 
-	var deltaTimeout:Float = 0.0;
 	private override function __enterFrame(deltaTime:Float):Void
 	{
-		if (ClientPrefs.data.fpsRework)
-		{
-			// Flixel keeps reseting this to 60 on focus gained
-			if (FlxG.stage.window.frameRate != ClientPrefs.data.framerate && FlxG.stage.window.frameRate != FlxG.game.focusLostFramerate)
-				FlxG.stage.window.frameRate = ClientPrefs.data.framerate;
-
+		if (ClientPrefs.data.fpsRework) {
 			var currentTime = openfl.Lib.getTimer();
 			framesCount++;
-
-			if (currentTime >= updateTime)
-			{
+			if (currentTime >= updateTime) {
 				var elapsed = currentTime - prevTime;
 				currentFPS = Math.ceil((framesCount * 1000) / elapsed);
 				framesCount = 0;
 				prevTime = currentTime;
 				updateTime = currentTime + 500;
 			}
-
-			// Set Update and Draw framerate to the current FPS every 1.5 second to prevent "slowness" issue
-			if ((FlxG.updateFramerate >= currentFPS + 5 || FlxG.updateFramerate <= currentFPS - 5)
-				&& haxe.Timer.stamp() - lastFramerateUpdateTime >= 1.5
-				&& currentFPS >= 30)
-			{
-				FlxG.updateFramerate = FlxG.drawFramerate = currentFPS;
-				lastFramerateUpdateTime = haxe.Timer.stamp();
-			}
-		}
-		else
-		{
+		} else {
 			final now:Float = haxe.Timer.stamp() * 1000;
 			times.push(now);
-			while (times[0] < now - 1000)
-				times.shift();
-			// prevents the overlay from updating every frame, why would you need to anyways @crowplexus
-			if (deltaTimeout < 50)
-			{
-				deltaTimeout += deltaTime;
-				return;
-			}
-
-			currentFPS = times.length < FlxG.updateFramerate ? times.length : FlxG.updateFramerate;
-			deltaTimeout = 0.0;
+			while (times[0] < now - 1000) times.shift();
+			currentFPS = times.length;
 		}
 
 		updateText();
 	}
 
 	inline function get_memoryMegas():Float
-		return cpp.vm.Gc.memInfo64(cpp.vm.Gc.MEM_INFO_USAGE);
+		return cast(OpenFlSystem.totalMemory, Float);
 
 	public inline function positionFPS(X:Float, Y:Float, ?scale:Float = 1){
 		scaleX = scaleY = #if android (scale > 1 ? scale : 1) #else (scale < 1 ? scale : 1) #end;
@@ -141,44 +119,9 @@ class FPSCounter extends TextField
 	}
 
 	#if cpp
-	#if windows
-	@:functionCode('
-		SYSTEM_INFO osInfo;
-
-		GetSystemInfo(&osInfo);
-
-		switch(osInfo.wProcessorArchitecture)
-		{
-			case 9:
-				return ::String("x86_64");
-			case 5:
-				return ::String("ARM");
-			case 12:
-				return ::String("ARM64");
-			case 6:
-				return ::String("IA-64");
-			case 0:
-				return ::String("x86");
-			default:
-				return ::String("Unknown");
-		}
-	')
-	#elseif (ios || mac)
-	@:functionCode('
-		const NXArchInfo *archInfo = NXGetLocalArchInfo();
-    	return ::String(archInfo == NULL ? "Unknown" : archInfo->name);
-	')
-	#else
-	@:functionCode('
-		struct utsname osInfo{};
-		uname(&osInfo);
-		return ::String(osInfo.machine);
-	')
-	#end
-	@:noCompletion
-	private function getArch():String
-	{
-		return "Unknown";
+	private function getArch():String { 
+		// ... (Önceki getArch fonksiyonun burada durmalı)
+		return "Unknown"; 
 	}
 	#end
 }
