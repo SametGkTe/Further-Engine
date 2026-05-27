@@ -1,16 +1,16 @@
 {
-    "lastUpdated": "2025-01-15",
-    "modpacks": [
-        {
-            "id": "test-minimal",
-            "displayName": "Test Minimal Modpack",
-            "version": "1.0.5",
-            "author": "SametGkTe",
-            "description": "Test amaçlı küçük modpack",
-            "category": "official",
-            "downloadUrl": "https://download1474.mediafire.com/hvnd13fw7j2gl6zpLAjXA9Th19VRB5Mrpul1iAri941pfN319_dLxHUGj7ukDPFX3AD7tM-JuCibUAl2jj-vfwmsJjLsJYgx2SlvblkCJWTomMW0hfdkbm3R9lDl3c964vYTZSmgasKeHY5tNCUFRJiqSUGKfAUAVOKgfjncw3AC/r0jggkzhmeauz4u/TestModpack.zip",
-            "fileSize": "22 KB",
-            "modCount": 1
-        }
-    ]
+  "id": "test-minimal",
+  "displayName": "Test Minimal Modpack",
+  "version": "1.0.5",
+  "versionLabel": "1.0.5",
+  "author": "SametGkTe",
+  "description": "Test modpack",
+  "category": "official",
+
+  "downloadMode": "external",
+  "directDownloadUrl": "",
+  "externalPageUrl": "https://www.mediafire.com/file/r0jggkzhmeauz4u/TestModpack.zip/file",
+
+  "fileSize": "1 KB",
+  "modCount": 1
 }
