@@ -5,7 +5,7 @@ permissions:
   discussions: write
 env:
   PROJECT_NAME: PsychEngine
-  REPO_PATH: Samedcan1234/Psych-Engine-Ultra
+  REPO_PATH: SametGkTe/Psych-Engine-1.0.4-Android
 jobs:
   get-commit-hash:
     runs-on: ubuntu-latest
