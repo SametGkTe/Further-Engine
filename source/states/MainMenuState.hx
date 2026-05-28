@@ -105,6 +105,9 @@ class MainMenuState extends MusicBeatState
 		changeItem();
 
 		#if ACHIEVEMENTS_ALLOWED
+		if (!Achievements.isUnlocked('pet')) {
+			Achievements.unlock('pet');
+		}
 		// Unlocks "Freaky on a Friday Night" achievement if it's a Friday and between 18:00 PM and 23:59 PM
 		var leDate = Date.now();
 		if (leDate.getDay() == 5 && leDate.getHours() >= 18)
@@ -124,7 +127,11 @@ class MainMenuState extends MusicBeatState
 		#end
 
 		FlxG.camera.follow(camFollow, null, 0.15);
-
+	
+		var profileBox = new objects.ProfileBox(FlxG.width - 290, 10);
+		profileBox.scrollFactor.set();
+		add(profileBox);
+		
 		addTouchPad('NONE', 'E');
 	}
 
@@ -298,7 +305,7 @@ class MainMenuState extends MusicBeatState
 						case 'story_mode':
 							MusicBeatState.switchState(new StoryMenuState());
 						case 'freeplay':
-							MusicBeatState.switchState(new FreeplayState());
+							MusicBeatState.switchState(new mikolka.vslice.freeplay.FreeplayState());
 
 						#if MODS_ALLOWED
 						case 'mods':

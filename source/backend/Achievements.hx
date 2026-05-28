@@ -54,6 +54,7 @@ class Achievements {
 		createAchievement('toastie',				{name: "Toaster Gamer", description: "Have you tried to run the game on a toaster?"});
 		#if BASE_GAME_FILES
 		createAchievement('debugger',				{name: "Debugger", description: "Beat the \"Test\" Stage from the Chart Editor.", hidden: true});
+		createAchievement('pet', 			{name: "Oynadığın için Teşekkürler!", description: "Psych Engine Türkiye Oyuncularından biri ol!"});
 		#end
 		#if (TITLE_SCREEN_EASTER_EGG || PSYCH_WATERMARKS)
 		createAchievement('pessy_easter_egg',		{name: "Engine Gal Pal", description: "Teehee, you found me~!", hidden: true});
@@ -158,9 +159,8 @@ class Achievements {
 		trace('Completed achievement "$name"');
 		achievementsUnlocked.push(name);
 
-		// earrape prevention
 		var time:Int = openfl.Lib.getTimer();
-		if(Math.abs(time - _lastUnlock) >= 100) //If last unlocked happened in less than 100 ms (0.1s) ago, then don't play sound
+		if(Math.abs(time - _lastUnlock) >= 100)
 		{
 			FlxG.sound.play(Paths.sound('confirmMenu'), 0.5);
 			_lastUnlock = time;
@@ -168,6 +168,9 @@ class Achievements {
 
 		Achievements.save();
 		FlxG.save.flush();
+
+		//  SUPABASE
+		AchievementSync.reportUnlock(name);
 
 		if(autoStartPopup) startPopup(name);
 		return name;

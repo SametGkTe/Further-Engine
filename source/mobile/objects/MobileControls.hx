@@ -22,58 +22,70 @@
 
 package mobile.objects;
 
-// I wanted to delete this but i have no idea how i coded MobileControlSelectSubState so idk how to implement IMobileControls into it... yet...
+import backend.ClientPrefs;
+import flixel.util.FlxDestroyUtil;
+import mobile.backend.MobileData;
+import mobile.backend.MobileData.ExtraActions;
 
-/**
- * ...
- * @author: Karim Akra
- */
-class MobileControls extends FlxTypedSpriteGroup<MobileInputManager>
+class MobileControls extends BaseMobileControls
 {
-	public var touchPad:TouchPad = new TouchPad('NONE', 'NONE', NONE);
-	public var hitbox:Hitbox = new Hitbox(NONE);
+	public var touchPad:TouchPad = null;
+	public var hitbox:Hitbox = null;
 
 	public function new(?forceType:Int, ?extra:Bool = true)
 	{
 		super();
+
 		MobileData.forcedMode = forceType;
 		switch (MobileData.mode)
 		{
 			case 0: // RIGHT_FULL
 				initControler(0, extra);
+
 			case 1: // LEFT_FULL
 				initControler(1, extra);
+
 			case 2: // CUSTOM
 				initControler(2, extra);
+
 			case 3: // HITBOX
 				initControler(3, extra);
 		}
+
 		alpha = ClientPrefs.data.controlsAlpha;
 	}
 
 	private function initControler(controlMode:Int = 0, ?extra:Bool = true):Void
 	{
-		var extraAction = MobileData.extraActions.get(ClientPrefs.data.extraButtons);
-		if (!extra)
-			extraAction = NONE;
+		var extraAction:ExtraActions = MobileData.extraActions.get(ClientPrefs.data.extraButtons);
+		if (!extra || extraAction == null)
+			extraAction = ExtraActions.NONE;
+
 		switch (controlMode)
 		{
 			case 0:
 				touchPad = new TouchPad('RIGHT_FULL', 'NONE', extraAction);
 				touchPad = MobileData.setButtonsColors(touchPad);
 				add(touchPad);
+				bindControl(touchPad);
+
 			case 1:
 				touchPad = new TouchPad('LEFT_FULL', 'NONE', extraAction);
 				touchPad = MobileData.setButtonsColors(touchPad);
 				add(touchPad);
+				bindControl(touchPad);
+
 			case 2:
 				touchPad = MobileData.getTouchPadCustom(new TouchPad('RIGHT_FULL', 'NONE', extraAction));
 				touchPad = MobileData.setButtonsColors(touchPad);
 				add(touchPad);
+				bindControl(touchPad);
+
 			case 3:
 				hitbox = new Hitbox(extraAction);
 				hitbox = MobileData.setButtonsColors(hitbox);
 				add(hitbox);
+				bindControl(hitbox);
 		}
 	}
 
@@ -92,6 +104,8 @@ class MobileControls extends FlxTypedSpriteGroup<MobileInputManager>
 			hitbox = FlxDestroyUtil.destroy(hitbox);
 			hitbox = null;
 		}
+
+		clearBindings();
 		MobileData.forcedMode = null;
 	}
 }

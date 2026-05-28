@@ -9,9 +9,12 @@ import flixel.group.FlxGroup;
 import flixel.input.gamepad.FlxGamepad;
 import haxe.Json;
 
+import backend.AchievementSync;
+import backend.AuthManager;
+
 import backend.update.UpdateChecker;
 import backend.update.UpdateConfig;
-import substates.UpdateSubState;
+import states.UpdateState;
 import StringTools;
 
 import openfl.Assets;
@@ -22,6 +25,7 @@ import shaders.ColorSwap;
 
 import states.StoryMenuState;
 import states.MainMenuState;
+import backend.modpack.StoreTypes.StoreModpackEntry;
 
 typedef TitleData =
 {
@@ -104,6 +108,14 @@ class TitleState extends MusicBeatState
 		{
 			StoryMenuState.weekCompleted = FlxG.save.data.weekCompleted;
 		}
+		
+		AuthManager.autoLogin(function(ok:Bool) {
+			if (ok) {
+				trace('[TitleState] Auto-login successful: ${AuthManager.currentUsername}');
+			} else {
+				trace('[TitleState] Auto-login failed or no saved session');
+			}
+		});
 
 		FlxG.mouse.visible = false;
 		#if FREEPLAY
@@ -514,28 +526,24 @@ class TitleState extends MusicBeatState
 		shownUnifiedUpdatePopup = true;
 		pendingUnifiedUpdateResult = null;
 
-		var modpacks:Array<{
-			packId:String,
-			displayName:String,
-			version:String,
-			downloadUrl:String
-		}> = [];
+		if (result == null) return;
 
-		var typedResult:backend.update.UpdateChecker.CheckResult = cast result;
+		var typedResult:Dynamic = result;
+		var updates:Array<Dynamic> = [];
 
-		for (update in typedResult.availableUpdates)
+		if (typedResult.availableUpdates != null)
 		{
-			modpacks.push({
-				packId: update.remote.id,
-				displayName: update.remote.displayName,
-				version: update.newVersion,
-				downloadUrl: update.remote.downloadUrl
-			});
+			var rawUpdates:Array<Dynamic> = cast typedResult.availableUpdates;
+
+			for (update in rawUpdates)
+			{
+				updates.push(update.remote);
+			}
 		}
 
-		if (modpacks.length > 0)
+		if (updates.length > 0)
 		{
-			openSubState(new UpdateSubState(modpacks));
+			MusicBeatState.switchState(new states.UpdateState(updates));
 		}
 	}
 

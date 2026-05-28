@@ -62,10 +62,10 @@ class FPSCounter extends TextField
 		if (memoryMegas > memoryPeak) memoryPeak = memoryMegas;
 
 		// Dil dosyasından anahtarları çekiyoruz
-		var memoryText:String = Language.getPhrase('debug_memory', 'Memory');
-		var peakText:String = Language.getPhrase('debug_peak', 'Peak');
-		var versionText:String = Language.getPhrase('debug_version', 'Version');
-		var systemText:String = Language.getPhrase('debug_system', 'System'); // <--- Burayı ekledik
+		var memoryText:String = Language.getPhrase('debug_memory', 'Bellek');
+		var peakText:String = Language.getPhrase('debug_peak', 'En Yüksek');
+		var versionText:String = Language.getPhrase('debug_version', 'Versiyon');
+		var systemText:String = Language.getPhrase('debug_system', 'Sistem');
 
 		// İşletim sistemi bilgisini de anlık dile göre oluşturuyoruz
 		var osText:String = '';

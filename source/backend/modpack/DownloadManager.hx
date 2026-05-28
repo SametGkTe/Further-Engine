@@ -4,9 +4,9 @@ package backend.modpack;
 import haxe.Http;
 import haxe.io.Bytes;
 import haxe.io.Path;
+import StringTools;
 import sys.FileSystem;
 import sys.io.File;
-import sys.io.FileOutput;
 #end
 
 typedef DownloadProgress = {
@@ -37,18 +37,12 @@ class DownloadManager {
 
 	public function cancel():Void {
 		if (!_downloading) return;
+
 		_cancelled = true;
 		_currentHttp = null;
 		trace('[DownloadManager] İptal isteği.');
 	}
 
-	/**
-	 * Dosya indir ve diske kaydet.
-	 *
-	 * @param url          İndirme URL'si
-	 * @param savePath     Kaydedilecek dosya yolu
-	 * @param callbacks    İlerleme callback'leri
-	 */
 	public function download(url:String, savePath:String, callbacks:DownloadCallbacks):Void {
 		if (_downloading) {
 			safeError(callbacks, "Zaten bir indirme devam ediyor.");
@@ -65,24 +59,32 @@ class DownloadManager {
 
 		trace('[DownloadManager] İndirme başladı: $url');
 
-		// Hedef klasörü oluştur
 		var dir = Path.directory(savePath);
 		if (dir != null && dir.length > 0) {
 			try {
-				if (!FileSystem.exists(dir))
-					FileSystem.createDirectory(dir);
+				ensureDirectoryRecursive(dir);
 			} catch (e:Dynamic) {
-				finishError(callbacks, 'Klasör oluşturulamadı: ${e.message}');
+				finishError(callbacks, 'Klasör oluşturulamadı: ${Std.string(e)}');
 				return;
 			}
 		}
 
 		var fileName = Path.withoutDirectory(savePath);
+		var lastStatus:Int = 0;
 
 		var http = new Http(url);
 		_currentHttp = http;
 
 		http.addHeader("User-Agent", "PsychEngineTR-Updater/1.0");
+
+		http.onStatus = function(status:Int) {
+			lastStatus = status;
+			trace('[DownloadManager] HTTP durum: $status');
+
+			if (status >= 300 && status < 400) {
+				trace('[DownloadManager] Yönlendirme algılandı.');
+			}
+		};
 
 		http.onBytes = function(data:Bytes) {
 			if (_cancelled) {
@@ -90,17 +92,49 @@ class DownloadManager {
 				return;
 			}
 
+			if (lastStatus >= 300 && lastStatus < 400) {
+				finishError(callbacks,
+					'Sunucu yönlendirme döndürdü ($lastStatus). ' +
+					'Bu link oyun içi direkt indirme için uygun olmayabilir.'
+				);
+				return;
+			}
+
+			if (data == null || data.length <= 0) {
+				finishError(callbacks, "İndirilen dosya boş geldi.");
+				return;
+			}
+
+			if (looksLikeHtml(data)) {
+				finishError(callbacks,
+					'Sunucu ZIP yerine HTML sayfa döndürdü. ' +
+					'Bu link direkt indirme linki değil.'
+				);
+				return;
+			}
+
 			try {
+				if (callbacks != null && callbacks.onProgress != null) {
+					callbacks.onProgress({
+						downloadedBytes: data.length,
+						totalBytes: data.length,
+						percent: 1.0,
+						fileName: fileName
+					});
+				}
+
 				File.saveBytes(savePath, data);
+
 				_downloading = false;
 				_currentHttp = null;
 
 				trace('[DownloadManager] İndirme tamamlandı: $savePath (${data.length} bytes)');
 
-				if (callbacks != null && callbacks.onComplete != null)
+				if (callbacks != null && callbacks.onComplete != null) {
 					callbacks.onComplete(savePath);
+				}
 			} catch (e:Dynamic) {
-				finishError(callbacks, 'Dosya kaydedilemedi: ${e.message}');
+				finishError(callbacks, 'Dosya kaydedilemedi: ${Std.string(e)}');
 			}
 		};
 
@@ -113,16 +147,6 @@ class DownloadManager {
 			finishError(callbacks, 'İndirme hatası: $error');
 		};
 
-		http.onStatus = function(status:Int) {
-			trace('[DownloadManager] HTTP durum: $status');
-
-			// Redirect durumlarını takip et
-			if (status >= 300 && status < 400) {
-				trace('[DownloadManager] Yönlendirme algılandı.');
-			}
-		};
-
-		// Arka planda başlat
 		try {
 			http.request(false);
 		} catch (e:Dynamic) {
@@ -130,19 +154,41 @@ class DownloadManager {
 		}
 	}
 
-	/**
-	 * GitHub release asset'ini indir.
-	 * GitHub URL'leri genelde redirect içerir.
-	 */
 	public function downloadFromGitHub(url:String, savePath:String, callbacks:DownloadCallbacks):Void {
-		// GitHub release asset linkleri redirect yapar
-		// haxe.Http bunu otomatik takip eder
 		download(url, savePath, callbacks);
 	}
 
+	function looksLikeHtml(data:Bytes):Bool {
+		if (data == null || data.length <= 0) return false;
+
+		var len = data.length > 256 ? 256 : data.length;
+		var sample = data.sub(0, len).toString();
+		var trimmed = StringTools.trim(sample).toLowerCase();
+
+		return StringTools.startsWith(trimmed, "<!doctype html")
+			|| StringTools.startsWith(trimmed, "<html")
+			|| trimmed.indexOf("<head") != -1
+			|| trimmed.indexOf("<body") != -1;
+	}
+
+	function ensureDirectoryRecursive(path:String):Void {
+		if (path == null || path.length == 0) return;
+		if (FileSystem.exists(path)) return;
+
+		var parent = Path.directory(path);
+		if (parent != null && parent.length > 0 && parent != path) {
+			ensureDirectoryRecursive(parent);
+		}
+
+		if (!FileSystem.exists(path)) {
+			FileSystem.createDirectory(path);
+		}
+	}
+
 	function safeError(callbacks:DownloadCallbacks, msg:String):Void {
-		if (callbacks != null && callbacks.onError != null)
+		if (callbacks != null && callbacks.onError != null) {
 			callbacks.onError(msg);
+		}
 	}
 
 	function finishError(callbacks:DownloadCallbacks, msg:String):Void {
@@ -158,22 +204,31 @@ class DownloadManager {
 		_cancelled = false;
 		_currentHttp = null;
 		trace('[DownloadManager] İptal edildi.');
-		if (callbacks != null && callbacks.onCancelled != null)
+
+		if (callbacks != null && callbacks.onCancelled != null) {
 			callbacks.onCancelled();
+		}
 	}
 
 	#else
+
 	public function new() {}
-	public function isDownloading():Bool return false;
+
+	public function isDownloading():Bool {
+		return false;
+	}
+
 	public function cancel():Void {}
 
 	public function download(url:String, savePath:String, callbacks:DownloadCallbacks):Void {
-		if (callbacks != null && callbacks.onError != null)
+		if (callbacks != null && callbacks.onError != null) {
 			callbacks.onError("Bu platformda indirme desteklenmiyor.");
+		}
 	}
 
 	public function downloadFromGitHub(url:String, savePath:String, callbacks:DownloadCallbacks):Void {
 		download(url, savePath, callbacks);
 	}
+
 	#end
 }

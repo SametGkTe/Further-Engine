@@ -124,6 +124,29 @@ class MobileData
 
 		return buttonsInstance;
 	}
+	
+	public static function getButtonsColors():Array<FlxColor>
+	{
+		var data:Dynamic = ClientPrefs.data;
+		if (ClientPrefs.data.dynamicColors)
+			return [
+				data.arrowRGB[0][0],
+				data.arrowRGB[1][0],
+				data.arrowRGB[2][0],
+				data.arrowRGB[3][0],
+				0xFF0066FF,
+				0xA6FF00
+			];
+		else
+			return [
+				0xFFC24B99,
+				0xFF00FFFF,
+				0xFF12FA05,
+				0xFFF9393F,
+				0xFF0066FF,
+				0xA6FF00
+			];
+	}
 
 	public static function readDirectory(folder:String, map:Dynamic)
 	{

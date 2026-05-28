@@ -118,6 +118,12 @@ class Controls
 			|| mobileCJustReleased(mobileBinds[key]) == true
 			|| touchPadJustReleased(mobileBinds[key]) == true;
 	}
+	
+	public var FAVORITE(get, never):Bool;
+	private function get_FAVORITE():Bool
+	{
+		return justPressed('F');
+	}
 
 	public var controllerMode:Bool = false;
 	private function _myGamepadJustPressed(keys:Array<FlxGamepadInputID>):Bool

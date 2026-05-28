@@ -49,12 +49,12 @@ class FlashingState extends MusicBeatState
 	// -------------------------------------------------------------------------
 
 	static final LOCALIZED_TEXT:Dynamic = {
-		en: {
-			warning: "Hey, watch out!\n\nThis Mod contains some flashing lights!\nDo you wish to disable them?",
-			yes: "Yes",
-			no: "No",
-			hintDesktop: "[← →] Select   [ENTER] Confirm   [ESC] Back",
-			hintMobile: "[LEFT / RIGHT] Select   [A] Confirm   [B] Back",
+		tr: {
+			warning: "Hey, Dikkat et!\n\nBu Oyun Yanıp Sönen Işıklar içeriyor, onları kapatmak istermisin?",
+			yes: "Evet",
+			no: "Hayır",
+			hintDesktop: "[← →] Seç   [ENTER] Kabul Et   [ESC] Geri",
+			hintMobile: "[SOL / SAĞ] Seç   [A] Kabul Et   [B] Geri",
 			auto: "Auto-selecting YES in {0}s"
 		}
 	};

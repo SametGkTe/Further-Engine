@@ -100,6 +100,14 @@ class PlayState extends MusicBeatState
 	#if HSCRIPT_ALLOWED
 	public var hscriptArray:Array<HScript> = [];
 	#end
+	
+	#if mobile
+	public var mobileControls:BaseMobileControls;
+	#end
+	
+	public static var storyDifficultyColor:FlxColor = FlxColor.GRAY;
+	public static var storyCampaignTitle:String = "";
+	public static var altInstrumentals:String = null;
 
 	public var BF_X:Float = 770;
 	public var BF_Y:Float = 100;
@@ -663,9 +671,13 @@ class PlayState extends MusicBeatState
 		grpNoteSplashes.add(splash);
 		splash.alpha = 0.000001; //cant make it invisible or it won't allow precaching
 
-		#if !android
-		addTouchPad('NONE', 'P');
-		addTouchPadCamera();
+		#if mobile
+		if (ClientPrefs.data.mobileControlType == "Touch")
+			mobileControls = new PSliceTouchControls();
+		else
+			mobileControls = newMobileControls();
+
+		add(cast mobileControls);
 		#end
 
 		super.create();
@@ -927,6 +939,20 @@ class PlayState extends MusicBeatState
 		else
 			startCountdown();
 	}
+	
+	#if mobile
+	private function newMobileControls(?forceType:Int, ?extra:Bool = true):BaseMobileControls
+	{
+		return switch (ClientPrefs.data.mobileControlType)
+		{
+			case "Touch":
+				new PSliceTouchControls(forceType, extra);
+
+			default:
+				new MobileControls(forceType, extra);
+		}
+	}
+	#end
 
 	var dialogueCount:Int = 0;
 	public var psychDialogue:DialogueBoxPsych;

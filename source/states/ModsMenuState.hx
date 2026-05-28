@@ -14,6 +14,7 @@ import options.ModSettingsSubState;
 
 import openfl.display.BitmapData;
 import lime.utils.Assets;
+import substates.ModpackSubState;
 
 class ModsMenuState extends MusicBeatState
 {
@@ -31,6 +32,8 @@ class ModsMenuState extends MusicBeatState
 	var buttonDisableAll:MenuButton;
 	var buttons:Array<MenuButton> = [];
 	var settingsButton:MenuButton;
+	
+	var buttonModpacks:MenuButton;
 
 	var bgTitle:FlxSprite;
 	var bgDescription:FlxSprite;
@@ -108,10 +111,20 @@ class ModsMenuState extends MusicBeatState
 		else
 			daY = 20;
 
-		buttonReload = new MenuButton(buttonX, bgList.y + bgList.height + daY, buttonWidth, buttonHeight, Language.getPhrase('reload_button', 'RELOAD'), reload);
+		buttonReload = new MenuButton(buttonX, bgList.y + bgList.height + daY, buttonWidth, buttonHeight, Language.getPhrase('reload_button', 'YENiLE'), reload);
 		add(buttonReload);
 		
-		var myY = buttonReload.y + buttonReload.bg.height + 20;
+		var modpackY = buttonReload.y + buttonReload.bg.height + 20;
+		buttonModpacks = new MenuButton(buttonX, modpackY, buttonWidth, buttonHeight, Language.getPhrase('modpacks_button', 'MOD PAKETLERi'), function() {
+			openSubState(new ModpackSubState());
+		});
+		buttonModpacks.bg.color = 0xFF0D9488;
+		buttonModpacks.focusChangeCallback = function(focus:Bool) {
+			if (!focus) buttonModpacks.bg.color = 0xFF0D9488;
+		};
+		add(buttonModpacks);
+		
+		var myY = buttonModpacks.y + buttonModpacks.bg.height + 20;
 		/*buttonModFolder = new MenuButton(buttonX, myY, buttonWidth, buttonHeight, "MODS FOLDER", function() {
 			var modFolder = Paths.mods();
 			if(!FileSystem.exists(modFolder))
@@ -172,14 +185,14 @@ class ModsMenuState extends MusicBeatState
 			buttonEnableAll.visible = true;
 
 			var myX = bgList.x + bgList.width + 20;
-			noModsTxt = new FlxText(myX, 0, FlxG.width - myX - 20, Language.getPhrase('no_mods_installed', "NO MODS INSTALLED\nPRESS {1} TO EXIT OR INSTALL A MOD", [daButton]), 48);
-			if(FlxG.random.bool(0.1)) noModsTxt.text += '\nBITCH.'; //meanie
+			noModsTxt = new FlxText(myX, 0, FlxG.width - myX - 20, Language.getPhrase('no_mods_installed', "MOD BULUNAMADI\n{1} tuşuna basarak çıkın veya mod ekleyin.", [daButton]), 48);
+			if(FlxG.random.bool(0.1)) noModsTxt.text += '\nYOK.'; //yok dedik
 			noModsTxt.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 			noModsTxt.borderSize = 2;
 			add(noModsTxt);
 			noModsTxt.screenCenter(Y);
 
-			var txt = new FlxText(bgList.x + 15, bgList.y + 15, bgList.width - 30, Language.getPhrase('no_mods_found', "No Mods found."), 16);
+			var txt = new FlxText(bgList.x + 15, bgList.y + 15, bgList.width - 30, Language.getPhrase('no_mods_found', "Mod Bulunmadı."), 16);
 			txt.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE);
 			add(txt);
 

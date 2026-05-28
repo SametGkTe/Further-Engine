@@ -21,6 +21,23 @@ import states.TitleState;
 	public var gameOverVibration:Bool = false;
 	public var fpsRework:Bool = false;
 	
+	public var mobileControlType:String = "Buttons";
+	public var favSongIds:Array<String> = [];
+	
+	
+	public var vsliceMobileControls:Bool = false;
+	public var vsliceFreeplayColors:Bool = true;
+	public var vsliceResults:Bool = true;
+	public var vsliceSpecialCards:Bool = true;
+	public var vsliceSmoothBar:Bool = true;
+	public var loggingType:String = "None";
+	public var vsliceLegacyBar:Bool = false;
+	public var vsliceNaughtyness:Bool = #if mobile false #else true #end;
+	public var vsliceForceNewTag:Bool = false;
+	public var vibrating:Bool = false;
+	public var lastFreeplayMod:String = '||bf';
+
+	
 	public var downScroll:Bool = false;
 	public var middleScroll:Bool = false;
 	public var opponentStrums:Bool = true;

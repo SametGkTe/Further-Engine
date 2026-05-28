@@ -26,6 +26,9 @@ class MusicBeatState extends FlxState
 
 	public function addTouchPad(DPad:String, Action:String)
 	{
+		// Touch modunda sanal butonları oluşturma
+		if (ClientPrefs.data.mobileControlType == 'Touch') return;
+
 		touchPad = new TouchPad(DPad, Action);
 		add(touchPad);
 	}
@@ -47,17 +50,35 @@ class MusicBeatState extends FlxState
 
 	public function addMobileControls(defaultDrawTarget:Bool = false):Void
 	{
+		// Touch modunda gameplay kontrollerini farklı yönet
+		if (ClientPrefs.data.mobileControlType == 'Touch') {
+			// Touch modunda hitbox kullan (her zaman)
+			var extraMode = MobileData.extraActions.get(ClientPrefs.data.extraButtons);
+			mobileControls = new Hitbox(extraMode);
+
+			mobileControls.instance = MobileData.setButtonsColors(mobileControls.instance);
+			mobileControlsCam = new FlxCamera();
+			mobileControlsCam.bgColor.alpha = 0;
+			FlxG.cameras.add(mobileControlsCam, defaultDrawTarget);
+
+			mobileControls.instance.cameras = [mobileControlsCam];
+			mobileControls.instance.visible = false;
+			add(mobileControls.instance);
+			return;
+		}
+
+		// Normal buttons modu
 		var extraMode = MobileData.extraActions.get(ClientPrefs.data.extraButtons);
 
 		switch (MobileData.mode)
 		{
-			case 0: // RIGHT_FULL
+			case 0:
 				mobileControls = new TouchPad('RIGHT_FULL', 'NONE', extraMode);
-			case 1: // LEFT_FULL
+			case 1:
 				mobileControls = new TouchPad('LEFT_FULL', 'NONE', extraMode);
-			case 2: // CUSTOM
+			case 2:
 				mobileControls = MobileData.getTouchPadCustom(new TouchPad('RIGHT_FULL', 'NONE', extraMode));
-			case 3: // HITBOX
+			case 3:
 				mobileControls = new Hitbox(extraMode);
 		}
 

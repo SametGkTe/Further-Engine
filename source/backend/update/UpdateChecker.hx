@@ -4,16 +4,21 @@ import haxe.Http;
 import haxe.Json;
 
 typedef RemoteModpackInfo = {
-    var id:String;
-    var displayName:String;
-    var version:String;
-    @:optional var versionNote:String;
-    var author:String;
-    var description:String;
-    var category:String;
-    var downloadUrl:String;
-    @:optional var fileSize:String;
-    @:optional var modCount:Int;
+	var id:String;
+	var displayName:String;
+	var version:String;
+
+	@:optional var versionLabel:String;
+	@:optional var author:String;
+	@:optional var description:String;
+	@:optional var category:String;
+
+	@:optional var downloadMode:String;
+	@:optional var directDownloadUrl:String;
+	@:optional var externalPageUrl:String;
+
+	@:optional var fileSize:String;
+	@:optional var modCount:Int;
 }
 
 typedef ModpackListData = {
