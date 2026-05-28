@@ -101,10 +101,6 @@ class PlayState extends MusicBeatState
 	public var hscriptArray:Array<HScript> = [];
 	#end
 	
-	#if mobile
-	public var mobileControls:BaseMobileControls;
-	#end
-	
 	public static var storyDifficultyColor:FlxColor = FlxColor.GRAY;
 	public static var storyCampaignTitle:String = "";
 	public static var altInstrumentals:String = null;

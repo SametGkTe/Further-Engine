@@ -3,7 +3,7 @@ package mobile.objects;
 import backend.ClientPrefs;
 import flixel.FlxG;
 import flixel.graphics.FlxGraphic;
-import flixel.sprite.FlxSprite;
+import flixel.FlxSprite;
 import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
@@ -89,17 +89,6 @@ class PSliceHitbox extends MobileInputManager
 				add(buttonRight = createHint(HITBOX_NOTE_SIZE * 3, offsetSec, HITBOX_NOTE_SIZE, Std.int(FlxG.height / 4) * 3, colorMap[3]));
 				add(buttonExtra2 = createHint(Std.int(FlxG.width / 2), offsetFir, Std.int(FlxG.width / 2), Std.int(FlxG.height / 4), colorMap[5]));
 				add(buttonExtra = createHint(0, offsetFir, Std.int(FlxG.width / 2), Std.int(FlxG.height / 4), colorMap[4]));
-
-			case ARROWS:
-				final SCREEN_MIDDLE:Float = FlxG.width / 2;
-				final ARROW_HITBOX_SIZE:Float = 270;
-				final ARROW_DISTANCE:Float = 220;
-				final ARROW_SPREAD:Float = 30;
-
-				add(buttonLeft = createHint(SCREEN_MIDDLE - (ARROW_DISTANCE * 1.5) - (ARROW_HITBOX_SIZE / 2) - ARROW_SPREAD, 0, ARROW_HITBOX_SIZE, FlxG.height, colorMap[0]));
-				add(buttonDown = createHint(SCREEN_MIDDLE - (ARROW_DISTANCE * 0.5) - (ARROW_HITBOX_SIZE / 2) - ARROW_SPREAD, 0, ARROW_HITBOX_SIZE, FlxG.height, colorMap[1]));
-				add(buttonUp = createHint(SCREEN_MIDDLE + (ARROW_DISTANCE * 0.5) - (ARROW_HITBOX_SIZE / 2) + ARROW_SPREAD, 0, ARROW_HITBOX_SIZE, FlxG.height, colorMap[2]));
-				add(buttonRight = createHint(SCREEN_MIDDLE + (ARROW_DISTANCE * 1.5) - (ARROW_HITBOX_SIZE / 2) + ARROW_SPREAD, 0, ARROW_HITBOX_SIZE, FlxG.height, colorMap[3]));
 		}
 
 		for (buttonName in Reflect.fields(this))
@@ -233,6 +222,11 @@ class PSliceHitbox extends MobileInputManager
 
 		switch (type)
 		{
+			case SOLID:
+				shape.graphics.beginFill(0xFFFFFF);
+				shape.graphics.drawRect(0, 0, Width, Height);
+				shape.graphics.endFill();
+
 			case NO_GRADIENT:
 				var matrix:Matrix = new Matrix();
 				matrix.createGradientBox(Width, Height, 0, 0, 0);
