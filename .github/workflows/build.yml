@@ -1,5 +1,4 @@
 name: Build
-
 on:
   workflow_call:
     inputs:
@@ -21,11 +20,9 @@ on:
       artifactPath:
         required: true
         type: string
-
 env:
   HAXE_VERSION: 4.3.6
   PROJECT_NAME: PsychEngine
-
 jobs:
   build:
     name: Build
@@ -61,6 +58,20 @@ jobs:
           haxelib run lime config ANDROID_NDK_ROOT ${{ steps.setup-ndk.outputs.ndk-path }}
           haxelib run lime config JAVA_HOME $JAVA_HOME_17_arm64
           haxelib run lime config ANDROID_SETUP true
+
+      # Sadece hxcpp'nin ürettiği C++ obj dosyalarını cache'liyoruz.
+      # Setup, haxelib, kütüphaneler bu cache'e dahil DEĞİL.
+      # Cache key: os + buildArgs + kaynak kod hash'i
+      # Kaynak kod değişince hash değişir → cache otomatik geçersiz olur.
+      - name: Restore Compile Cache
+        id: compile-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            export/release/${{ inputs.name == 'Windows' && 'windows' || inputs.name == 'Linux' && 'linux' || inputs.name == 'Android' && 'android' || inputs.name == 'iOS' && 'ios' || 'macos' }}/obj
+          key: compile-${{ inputs.os }}-${{ inputs.buildArgs }}-${{ hashFiles('source/**', 'assets/**', '*.hx', '*.hxml', 'Project.xml') }}
+          restore-keys: |
+            compile-${{ inputs.os }}-${{ inputs.buildArgs }}-
 
       - name: Compile
         run: haxelib run lime build ${{ inputs.buildArgs }}

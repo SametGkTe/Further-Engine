@@ -1,10 +1,21 @@
 name: Main
-
 on: workflow_dispatch
-
 jobs:
+  get-commit-hash:
+    name: Get Commit Hash
+    runs-on: ubuntu-latest
+    outputs:
+      commit_hash: ${{ steps.get_hash.outputs.commit_hash }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Get Short Commit Hash
+        id: get_hash
+        run: echo "commit_hash=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
   Build:
     name: ${{ matrix.name }}
+    needs: get-commit-hash
     strategy:
       matrix:
         include:
@@ -52,3 +63,77 @@ jobs:
         setupCommand: ${{ matrix.setupCommand }}
         artifactName: ${{ matrix.artifactName }}
         artifactPath: ${{ matrix.artifactPath }}
+
+  Releaser:
+    name: Releaser
+    needs: [get-commit-hash, Build]
+    runs-on: ubuntu-latest
+    permissions: write-all
+    steps:
+      - name: Download Windows Build
+        uses: actions/download-artifact@v4
+        with:
+          name: windowsBuild-x86_64
+          path: /home/runner/artifacts/windows
+
+      - name: Zip Windows Build
+        run: zip -r /home/runner/windows-x86_64.zip /home/runner/artifacts/windows
+
+      - name: Download Linux Build
+        uses: actions/download-artifact@v4
+        with:
+          name: linuxBuild-x86_64
+          path: /home/runner/artifacts/linux
+
+      - name: Zip Linux Build
+        run: zip -r /home/runner/linux-x86_64.zip /home/runner/artifacts/linux
+
+      - name: Download macOS x86_64 Build
+        uses: actions/download-artifact@v4
+        with:
+          name: macOSBuild-x86_64
+          path: /home/runner/artifacts/macos-x86_64
+
+      - name: Zip macOS x86_64 Build
+        run: zip -r /home/runner/macos-x86_64.zip /home/runner/artifacts/macos-x86_64
+
+      - name: Download macOS ARM64 Build
+        uses: actions/download-artifact@v4
+        with:
+          name: macOSBuild-arm64
+          path: /home/runner/artifacts/macos-arm64
+
+      - name: Zip macOS ARM64 Build
+        run: zip -r /home/runner/macos-arm64.zip /home/runner/artifacts/macos-arm64
+
+      - name: Download Android Build
+        uses: actions/download-artifact@v4
+        with:
+          name: androidBuild
+          path: /home/runner/artifacts/android
+
+      - name: Move Android APK
+        run: mv /home/runner/artifacts/android/*.apk /home/runner/android.apk
+
+      - name: Download iOS Build
+        uses: actions/download-artifact@v4
+        with:
+          name: iOSBuild
+          path: /home/runner/artifacts/ios
+
+      - name: Zip iOS Build
+        run: zip -r /home/runner/ios.zip /home/runner/artifacts/ios
+
+      - name: Publish Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "DevBuild ${{ needs.get-commit-hash.outputs.commit_hash }}"
+          tag_name: "devbuild-${{ needs.get-commit-hash.outputs.commit_hash }}"
+          prerelease: true
+          files: |
+            /home/runner/windows-x86_64.zip
+            /home/runner/linux-x86_64.zip
+            /home/runner/macos-x86_64.zip
+            /home/runner/macos-arm64.zip
+            /home/runner/android.apk
+            /home/runner/ios.zip
