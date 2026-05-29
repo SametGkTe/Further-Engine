@@ -8,30 +8,50 @@ import lime.utils.Assets as LimeAssets;
 #end
 class CoolUtil
 {
-	public static function checkForUpdates(url:String = null):String {
+	public static var url:String = "https://raw.githubusercontent.com/MobilePorting/FNF-PsychEngine-Mobile/main/gitVersion.txt";
+	public static function checkForUpdates():String
+	{
+		var version:String = states.MainMenuState.psychEngineVersion.trim();
+
+		#if mobile
+		return version; // Mobilde güncelleme kontrolü yapma, direkt mevcut sürümü döndür
+		#end
+
 		if (url == null || url.length == 0)
 			url = "https://raw.githubusercontent.com/MobilePorting/FNF-PsychEngine-Mobile/main/gitVersion.txt";
-		var version:String = states.MainMenuState.psychEngineVersion.trim();
-		if(ClientPrefs.data.checkForUpdates) {
+
+		if (ClientPrefs.data.checkForUpdates)
+		{
 			trace('checking for updates...');
-			var http = new haxe.Http(url);
-			http.onData = function (data:String)
+
+			try
 			{
-				var newVersion:String = data.split('\n')[0].trim();
-				trace('version online: $newVersion, your version: $version');
-				if(newVersion != version) {
-					trace('versions arent matching! please update');
-					version = newVersion;
-					http.onData = null;
-					http.onError = null;
-					http = null;
+				var http = new haxe.Http(url);
+				http.onData = function(data:String)
+				{
+					var newVersion:String = data.split('\n')[0].trim();
+					trace('version online: $newVersion, your version: $version');
+					if (newVersion != version)
+					{
+						trace('versions arent matching! please update');
+						version = newVersion;
+						http.onData = null;
+						http.onError = null;
+						http = null;
+					}
 				}
+				http.onError = function(error)
+				{
+					trace('error: $error');
+				}
+				http.request();
 			}
-			http.onError = function (error) {
-				trace('error: $error');
+			catch (e:Dynamic)
+			{
+				trace('checkForUpdates failed: ' + Std.string(e));
 			}
-			http.request();
 		}
+
 		return version;
 	}
 	inline public static function quantize(f:Float, snap:Float){
