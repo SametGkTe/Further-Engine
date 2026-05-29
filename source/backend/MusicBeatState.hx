@@ -26,10 +26,22 @@ class MusicBeatState extends FlxState
 
 	public function addTouchPad(DPad:String, Action:String)
 	{
-		// Touch modunda sanal butonları oluşturma
-		if (ClientPrefs.data.mobileControlType == 'Touch') return;
-
+		// Touch modunda da oluştur ama GÖRÜNMEZ yap
+		// Böylece touchPad.buttonX.justPressed gibi kodlar crash vermez
 		touchPad = new TouchPad(DPad, Action);
+
+		if (ClientPrefs.data.mobileControlType == 'Touch') {
+			touchPad.visible = false;
+			touchPad.alpha = 0;
+			// Tüm butonları deaktif et
+			for (member in touchPad.members) {
+				if (member != null) {
+					member.visible = false;
+					member.active = false;
+				}
+			}
+		}
+
 		add(touchPad);
 	}
 

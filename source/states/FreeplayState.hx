@@ -195,8 +195,11 @@ class FreeplayState extends MusicBeatState
 		
 		changeSelection();
 		updateTexts();
-
+		
+		var savedType = ClientPrefs.data.mobileControlType;
+		ClientPrefs.data.mobileControlType = 'Buttons'; // geçici olarak Buttons moduna al
 		addTouchPad('LEFT_FULL', 'A_B_C_X_Y_Z');
+		ClientPrefs.data.mobileControlType = savedType; // geri al
 		super.create();
 	}
 

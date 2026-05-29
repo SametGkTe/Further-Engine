@@ -12,6 +12,6 @@ class UpdateConfig {
     public static var MODPACK_JSON_URL(get, never):String;
 
     static function get_MODPACK_JSON_URL():String {
-        return 'https://raw.githubusercontent.com/SametGkTe/Psych-Engine-1.0.4-Android/refs/heads/main/updates/modpacks.json';
+        return 'https://raw.githubusercontent.com/SametGkTe/Psych-Engine-1.0.4-Android/main/updates/modpacks.json';
     }
 }

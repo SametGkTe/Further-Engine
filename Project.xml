@@ -131,6 +131,8 @@
 	<haxedef name="HXVLC_EXPERIMENTAL_WINDOWSARM" if="windows HXCPP_ARM64" />
 	<define name="x86_BUILD" if="32bits" />
 	
+	<set name="FLX_TOUCH" value="1" if="android" />
+	
 	<!-- ______________________________ Haxedefines _____________________________ -->
 
 	<!--Enable the Flixel core recording system-->
