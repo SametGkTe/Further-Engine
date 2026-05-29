@@ -210,6 +210,8 @@ class AlbumRoll extends FlxSpriteGroup
     });
     albumTitle.animation.play('idle');
 
+    albumTitle.zIndex = 1000;
+
     if (_exitMovers != null) _exitMovers.set([albumTitle],
       {
         x: FlxG.width,

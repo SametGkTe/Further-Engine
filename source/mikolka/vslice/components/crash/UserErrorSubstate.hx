@@ -164,11 +164,11 @@ class UserErrorSubstate extends MusicBeatSubstate
             ScreenshotPlugin.instance = null;
 			TitleState.closedState = false;
 			#if LEGACY_PSYCH
-			if (Main.fpsVar != null)
-				Main.fpsVar.visible = ClientPrefs.data.showFPS;
+			if (Main.debugDisplay != null)
+				Main.debugDisplay.visible = ClientPrefs.showFPS;
 			#else
-			if (Main.fpsVar != null)
-				Main.fpsVar.visible = ClientPrefs.data.showFPS;
+			if (Main.debugDisplay != null)
+				Main.debugDisplay.visible = ClientPrefs.data.showFPS;
 			#end
 			FlxG.sound.pause();
 			FlxTween.globalManager.clear();
@@ -188,7 +188,7 @@ class UserErrorSubstate extends MusicBeatSubstate
 		var star = #if (CHECK_FOR_UPDATES || debug) "" #else "*" #end;
 		printToTrace('P-SLICE ${MainMenuState.pSliceVersion}$star  (${error.message})');
 		textNextY += 35;
-		TimerUtil.wait(1 / 24, () ->
+		FlxTimer.wait(1 / 24, () ->
 		{
 			printSpaceToTrace();
 			var linesPrinted = 0;

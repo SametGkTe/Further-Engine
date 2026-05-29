@@ -76,7 +76,7 @@ class CharModArrow extends FlxSprite{
 		offset.y -= 15;
 		allowIdle = false;
 		waitTimer?.cancel();
-		waitTimer = TimerUtil.wait(0.2,() ->{
+		waitTimer = FlxTimer.wait(0.2,() ->{
 			allowIdle = true;
 		});
 	}

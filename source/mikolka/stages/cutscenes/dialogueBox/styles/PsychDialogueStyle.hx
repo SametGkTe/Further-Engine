@@ -59,10 +59,7 @@ class PsychDialogueStyle extends DialogueStyle
 							box.animation.finishCallback = null;
 						}
 						#else
-						box.animation.finishCallback = function(anim:String) {
-							box.animation.finishCallback = null;
-							playBoxAnim(pos, IDLE, boxType);
-						};
+						box.animation.onFinish.addOnce(anim -> playBoxAnim(pos, IDLE, boxType));
 						#end
 					}
 					else
@@ -76,10 +73,7 @@ class PsychDialogueStyle extends DialogueStyle
 							box.animation.finishCallback = null;
 						}
 						#else
-						box.animation.finishCallback = function(anim:String) {
-							box.animation.finishCallback = null;
-							playBoxAnim(pos, IDLE, boxType);
-						};
+						box.animation.onFinish.addOnce(anim -> playBoxAnim(pos, IDLE, boxType));
 						#end
 					}
 				}
@@ -97,10 +91,7 @@ class PsychDialogueStyle extends DialogueStyle
 						box.animation.finishCallback = null;
 					}
 					#else
-					box.animation.finishCallback = function(anim:String) {
-						box.animation.finishCallback = null;
-						playBoxAnim(pos, IDLE, boxType);
-					};
+					box.animation.onFinish.addOnce(anim -> playBoxAnim(pos, IDLE, boxType));
 					#end
 				}
 				box.flipX = pos == LEFT;

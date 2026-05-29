@@ -169,7 +169,7 @@ class FreeplayHelpers
 
 	public inline static function openResetScoreState(state:FreeplayState, sng:FreeplaySongData, onScoreReset:() -> Void = null)
 	{
-		state.openSubState(new ResetScoreSubState(sng.songName, sng.loadAndGetDiffId(), sng.songCharacter, -1));
+		state.openSubState(new ResetScoreSubState(sng.songName, sng.loadAndGetDiffId(), sng.songCharacter, -1, onScoreReset));
 	}
 
 	public inline static function openGameplayChanges(state:FreeplayState)

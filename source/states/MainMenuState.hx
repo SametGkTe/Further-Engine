@@ -305,7 +305,7 @@ class MainMenuState extends MusicBeatState
 						case 'story_mode':
 							MusicBeatState.switchState(new StoryMenuState());
 						case 'freeplay':
-							MusicBeatState.switchState(new mikolka.vslice.freeplay.FreeplayState());
+							MusicBeatState.switchState(new FreeplayState());
 
 						#if MODS_ALLOWED
 						case 'mods':
@@ -347,7 +347,7 @@ class MainMenuState extends MusicBeatState
 					FlxTween.tween(memb, {alpha: 0}, 0.4, {ease: FlxEase.quadOut});
 				}
 			}
-			else if (controls.justPressed('debug_1') || (touchPad != null && touchPad.buttonE != null && touchPad.buttonE.justPressed))
+			else if (controls.justPressed('debug_1') || touchPad.buttonE.justPressed)
 			{
 				selectedSomethin = true;
 				FlxG.mouse.visible = false;

@@ -1,104 +1,232 @@
 package mobile.objects;
-import flixel.input.touch.FlxTouch;
-import flixel.math.FlxRect;
-#if TOUCH_CONTROLS_ALLOWED
-import flixel.util.FlxSignal;
+
+import flixel.FlxG;
 import flixel.FlxObject;
+import flixel.util.FlxSignal;
+import flixel.input.touch.FlxTouch;
+import mobile.backend.TouchUtil;
 
-class ScrollableObject extends TouchZone {
-    public var onFullScroll(default,never):FlxTypedSignal<(delta:Int)->Void> = new FlxTypedSignal();
-    public var onPartialScroll(default,never):FlxTypedSignal<(delta:Float) ->Void> = new FlxTypedSignal();
-    public var onFullScrollSnap(default,never):FlxSignal = new FlxSignal();
-    public var onTap(default,never):FlxSignal = new FlxSignal();
+class ScrollableObject extends TouchZone
+{
+	// Olaylar
+	public var onFullScroll:FlxTypedSignal<Int->Void> = new FlxTypedSignal<Int->Void>();
+	public var onPartialScroll:FlxTypedSignal<Float->Void> = new FlxTypedSignal<Float->Void>();
+	public var onFullScrollSnap:FlxSignal = new FlxSignal();
+	public var onTap:FlxSignal = new FlxSignal();
+	public var onSwipeRight:FlxSignal = new FlxSignal();
+	public var onSwipeLeft:FlxSignal = new FlxSignal();
 
-    private var isDragging:Bool = false;
-    private var isTapping:Bool = false;
-    private var lastYPos:Float = 0;
-    private var partialScrollTracker:Float = 0;
-    private var scrollScale:Float = 0;
-    private var clickButton:FlxObject;
+	// Durumlar
+	private var isDragging:Bool = false;
+	private var isTapping:Bool = false;
+	private var gestureDecided:Bool = false;
+	private var gestureIsScroll:Bool = false;
+	private var gestureIsSwipe:Bool = false;
+	private var swipeFired:Bool = false;
 
-    public function new(scrollScale:Float,x:Float, y:Float, width:Float, height:Float,clickButton:FlxObject) {
-        this.scrollScale = scrollScale;
-        this.clickButton = clickButton;
-        super(x,y,width,height);
-    }
-    override function update(elapsed:Float) {
-        super.update(elapsed);
-        var curDelta = getDeltaY();
-        //MusicBea
-        if
-            #if mobile
-            (TouchUtil.justPressed && TouchUtil.overlaps(this))
-            #else 
-            (FlxG.mouse.justPressed && FlxG.mouse.overlaps(this,this.camera)) 
-            #end
-        {
-            isDragging = false;
-            isTapping = true;
-        }
-        else if( #if mobile TouchUtil.justReleased #else FlxG.mouse.justReleased #end) {
-            if(isTapping){
-                if(clickButton.camera == null || clickButton.camera.scroll != null){
-                    #if mobile
-                    if(getjustPressed()?.overlaps(clickButton,clickButton.camera) ?? false) onTap.dispatch();
-                    #else
-                    if(FlxG.mouse.overlaps(clickButton,clickButton.camera)) onTap.dispatch();
-                    #end
-                }
-                isTapping = false;
-            }
-            else if(isDragging) {
-                onFullScrollSnap.dispatch();
-                isDragging = false;
-                var curDpad = Controls.instance.isInSubstate ? MusicBeatSubstate.instance.touchPad : MusicBeatState.getState().touchPad;
-                if(curDpad != null) curDpad.active = true;
-            }
-            else return;
-            
-            partialScrollTracker = 0;
-        }
-        else if(( #if mobile TouchUtil.pressed || #end FlxG.mouse.pressed) && (Math.abs(curDelta)) > 3)
-            {
-                if(isTapping){
-                    isDragging = true;
-                var curDpad = Controls.instance.isInSubstate ? MusicBeatSubstate.instance.touchPad : MusicBeatState.getState().touchPad;
-                if(curDpad != null) curDpad.active = false;
-                    isTapping = false;
-                }
-                else if(!isDragging) return;
-                // What we moved now
-                var dragMove = curDelta*scrollScale;
+	// Pozisyon takibi
+	private var lastYPos:Float = 0;
+	private var lastXPos:Float = 0;
+	private var startX:Float = 0;
+	private var startY:Float = 0;
+	private var totalDeltaX:Float = 0;
+	private var totalDeltaY:Float = 0;
 
-                partialScrollTracker += dragMove;
-                onPartialScroll.dispatch(dragMove);
+	// Ayarlar
+	private var partialScrollTracker:Float = 0;
+	private var scrollScale:Float = 0;
+	private var clickButton:FlxObject;
 
-                if((Math.abs(Math.round(partialScrollTracker))) >= 1){
-                    // We have a full scroll
-                    var fullScroll = Math.round(partialScrollTracker);
-                    partialScrollTracker -= fullScroll;
-                    onFullScroll.dispatch(fullScroll);
-                }
-            }
-    }
-    private function getjustPressed():FlxTouch
-        {
-            for (touch in FlxG.touches.list)
-                if (touch.justReleased)
-                    return touch;
-    
-            return null;
-        }
-    private function getDeltaY():Float {
-        #if mobile
-        if(FlxG.touches.getFirst() == null) return 0;
-        var delta = FlxG.touches.getFirst().viewY - lastYPos;
-        lastYPos = FlxG.touches.getFirst().viewY;
-        return delta;
-        #else
-        return FlxG.mouse.deltaViewY;
-        #end
-    }
-    
+	/**
+	 * Swipe olarak sayılması için gereken minimum yatay mesafe (piksel)
+	 */
+	public var swipeThreshold:Float = 120;
+
+	/**
+	 * Scroll olarak sayılması için gereken minimum dikey mesafe (piksel)
+	 */
+	public var scrollDeadzone:Float = 8;
+
+	/**
+	 * Gesture yönüne karar vermek için gereken minimum hareket (piksel)
+	 */
+	public var gestureDecisionThreshold:Float = 15;
+
+	public function new(scrollScale:Float, x:Float, y:Float, width:Float, height:Float, ?clickButton:FlxObject)
+	{
+		this.scrollScale = scrollScale;
+		this.clickButton = clickButton;
+		super(x, y, width, height);
+	}
+
+	override function update(elapsed:Float)
+	{
+		super.update(elapsed);
+
+		// Dokunma başlangıcı
+		#if mobile
+		if (TouchUtil.justPressed && TouchUtil.overlaps(this))
+		#else
+		if (FlxG.mouse.justPressed && FlxG.mouse.overlaps(this, this.camera))
+		#end
+		{
+			var pos = getCurrentPos();
+			startX = pos.x;
+			startY = pos.y;
+			lastXPos = pos.x;
+			lastYPos = pos.y;
+			totalDeltaX = 0;
+			totalDeltaY = 0;
+
+			isDragging = false;
+			isTapping = true;
+			gestureDecided = false;
+			gestureIsScroll = false;
+			gestureIsSwipe = false;
+			swipeFired = false;
+			partialScrollTracker = 0;
+		}
+		// Dokunma bırakıldı
+		else if (#if mobile TouchUtil.justReleased #else FlxG.mouse.justReleased #end)
+		{
+			if (isTapping && !isDragging)
+			{
+				// Tap = Accept
+				if (clickButton != null)
+				{
+					#if mobile
+					var touch:FlxTouch = getJustReleased();
+					if (touch != null && clickButton.camera != null && touch.overlaps(clickButton, clickButton.camera))
+						onTap.dispatch();
+					#else
+					if (clickButton.camera != null && FlxG.mouse.overlaps(clickButton, clickButton.camera))
+						onTap.dispatch();
+					#end
+				}
+				else
+				{
+					onTap.dispatch();
+				}
+			}
+			else if (gestureIsScroll)
+			{
+				onFullScrollSnap.dispatch();
+				setTouchPadActive(true);
+			}
+
+			// Reset
+			isDragging = false;
+			isTapping = false;
+			gestureDecided = false;
+			gestureIsScroll = false;
+			gestureIsSwipe = false;
+			swipeFired = false;
+			partialScrollTracker = 0;
+		}
+		// Basılı tutma / sürükleme
+		else if (#if mobile TouchUtil.pressed #else FlxG.mouse.pressed #end)
+		{
+			var pos = getCurrentPos();
+			var curDeltaX:Float = pos.x - lastXPos;
+			var curDeltaY:Float = pos.y - lastYPos;
+			lastXPos = pos.x;
+			lastYPos = pos.y;
+
+			totalDeltaX = pos.x - startX;
+			totalDeltaY = pos.y - startY;
+
+			var absX:Float = Math.abs(totalDeltaX);
+			var absY:Float = Math.abs(totalDeltaY);
+
+			// Henüz gesture kararı verilmediyse
+			if (!gestureDecided)
+			{
+				var totalMovement:Float = Math.sqrt(absX * absX + absY * absY);
+
+				if (totalMovement > gestureDecisionThreshold)
+				{
+					gestureDecided = true;
+					isTapping = false;
+					isDragging = true;
+
+					if (absX > absY)
+					{
+						// Yatay hareket baskın = swipe
+						gestureIsSwipe = true;
+						gestureIsScroll = false;
+					}
+					else
+					{
+						// Dikey hareket baskın = scroll
+						gestureIsSwipe = false;
+						gestureIsScroll = true;
+						setTouchPadActive(false);
+					}
+				}
+			}
+
+			// Scroll işlemi
+			if (gestureIsScroll && Math.abs(curDeltaY) > 0)
+			{
+				var dragMove:Float = curDeltaY * scrollScale;
+				partialScrollTracker += dragMove;
+				onPartialScroll.dispatch(dragMove);
+
+				if (Math.abs(Math.round(partialScrollTracker)) >= 1)
+				{
+					var fullScroll:Int = Math.round(partialScrollTracker);
+					partialScrollTracker -= fullScroll;
+					onFullScroll.dispatch(fullScroll);
+				}
+			}
+
+			// Swipe işlemi
+			if (gestureIsSwipe && !swipeFired)
+			{
+				if (totalDeltaX > swipeThreshold)
+				{
+					// Sağa swipe = Back
+					swipeFired = true;
+					onSwipeRight.dispatch();
+				}
+				else if (totalDeltaX < -swipeThreshold)
+				{
+					// Sola swipe (opsiyonel)
+					swipeFired = true;
+					onSwipeLeft.dispatch();
+				}
+			}
+		}
+	}
+
+	private function getCurrentPos():{x:Float, y:Float}
+	{
+		#if mobile
+		var touch:FlxTouch = FlxG.touches.getFirst();
+		if (touch == null)
+			return {x: lastXPos, y: lastYPos};
+		return {x: touch.screenX, y: touch.screenY};
+		#else
+		return {x: FlxG.mouse.viewX, y: FlxG.mouse.viewY};
+		#end
+	}
+
+	private function setTouchPadActive(active:Bool):Void
+	{
+		try
+		{
+			var state = MusicBeatState.getState();
+			if (state != null && state.touchPad != null)
+				state.touchPad.active = active;
+		}
+		catch (e:Dynamic) {}
+	}
+
+	private function getJustReleased():FlxTouch
+	{
+		for (touch in FlxG.touches.list)
+			if (touch.justReleased)
+				return touch;
+		return null;
+	}
 }
-#end

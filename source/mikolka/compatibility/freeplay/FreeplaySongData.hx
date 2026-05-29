@@ -5,7 +5,6 @@ import mikolka.vslice.freeplay.pslice.BPMCache;
 import mikolka.funkin.Scoring.ScoringRank;
 import backend.Highscore;
 import backend.WeekData;
-import haxe.ds.StringMap;
 
 
 
@@ -15,8 +14,6 @@ import haxe.ds.StringMap;
  */
 class FreeplaySongData extends SngCapsuleData
 {
-	static var _resolvedSongPathCache:StringMap<String> = new StringMap<String>();
-	static var _failedSongPathLogged:StringMap<Bool> = new StringMap<Bool>();
 
 	public function new(levelId:Int, songId:String, songCharacter:String, color:FlxColor)
 	{
@@ -31,76 +28,18 @@ class FreeplaySongData extends SngCapsuleData
 	public function toggleFavorite():Bool
 	{
 		isFav = !isFav;
-
-		if (ClientPrefs.data.favSongIds == null)
-			ClientPrefs.data.favSongIds = [];
-
-		var key = this.songId + this.levelName;
-
 		if (isFav)
 		{
-			if (!ClientPrefs.data.favSongIds.contains(key))
-				ClientPrefs.data.favSongIds.push(key);
+			ClientPrefs.data.favSongIds.pushUnique(this.songId + this.levelName);
 		}
 		else
 		{
-			ClientPrefs.data.favSongIds.remove(key);
+			ClientPrefs.data.favSongIds.remove(this.songId + this.levelName);
 		}
-
 		ClientPrefs.saveSettings();
 		return isFav;
 	}
 
-	private function resolveSongDataPath(fileSngName:String):String
-	{
-		if (_resolvedSongPathCache.exists(fileSngName))
-			return _resolvedSongPathCache.get(fileSngName);
-
-		var candidates:Array<String> = [];
-
-		#if MODS_ALLOWED
-		candidates.push(Paths.modFolders('data/' + fileSngName));
-		candidates.push(Paths.modFolders('data/songs/' + fileSngName));
-		#end
-
-		// Export/shared tarafı
-		candidates.push(Paths.getSharedPath('data/' + fileSngName));
-		candidates.push(Paths.getSharedPath('data/songs/' + fileSngName));
-
-		// Doğrudan asset fallback
-		candidates.push('assets/data/' + fileSngName);
-		candidates.push('assets/data/songs/' + fileSngName);
-		candidates.push('assets/shared/data/' + fileSngName);
-		candidates.push('assets/shared/data/songs/' + fileSngName);
-
-		// Base game fallback
-		candidates.push('assets/base_game/data/' + fileSngName);
-		candidates.push('assets/base_game/data/songs/' + fileSngName);
-		candidates.push('assets/base_game/shared/data/' + fileSngName);
-		candidates.push('assets/base_game/shared/data/songs/' + fileSngName);
-
-		for (path in candidates)
-		{
-			if (path != null && path.length > 0 && NativeFileSystem.exists(path))
-			{
-				_resolvedSongPathCache.set(fileSngName, path);
-				trace('[FreeplaySongData] Resolved "' + fileSngName + '" to: ' + path);
-				return path;
-			}
-		}
-
-		var fallback = Paths.getSharedPath('data/' + fileSngName);
-		_resolvedSongPathCache.set(fileSngName, fallback);
-
-		if (!_failedSongPathLogged.exists(fileSngName))
-		{
-			_failedSongPathLogged.set(fileSngName, true);
-			trace('[FreeplaySongData] Failed to resolve "' + fileSngName + '". Tried: ' + candidates.join(' | '));
-		}
-
-		return fallback;
-	}
-	
 	function updateValues():Void
 	{
 		var leWeek:WeekData = WeekData.weeksLoaded.get(WeekData.weeksList[levelId]);
@@ -110,90 +49,62 @@ class FreeplaySongData extends SngCapsuleData
 		this.folder = leWeek.folder;
 
 		Mods.currentModDirectory = this.folder;
-
 		var fileSngName = Paths.formatToSongPath(getNativeSongId());
-		var sngDataPath = resolveSongDataPath(fileSngName);
+		var sngDataPath = Paths.getPath("data/" + fileSngName);
 
-		var discoveredDiffs:Array<String> = [];
+		#if MODS_ALLOWED
+		var mod_path = Paths.modFolders("data/" + fileSngName);
+		if (NativeFileSystem.exists(mod_path))
+			sngDataPath = mod_path;
+		#end
 
-		if (NativeFileSystem.exists(sngDataPath))
+		// if(sngDataPath == null) return;
+
+		if (this.songDifficulties.length == 0)
 		{
-			var chartFiles = NativeFileSystem.readDirectory(sngDataPath).filter(s ->
-				s != null && s.toLowerCase().endsWith(".json")
-			);
-
-			var diffNames:Array<String> = [];
-
-			for (file in chartFiles)
+			if (NativeFileSystem.exists(sngDataPath))
 			{
-				var lower = file.toLowerCase();
-				var lowerSong = fileSngName.toLowerCase();
+				var chartFiles = NativeFileSystem.readDirectory(sngDataPath).filter(s -> s.toLowerCase().startsWith(fileSngName)
+					&& s.endsWith(".json"));
 
-				// normal: tutorial.json
-				if (lower == lowerSong + ".json")
-				{
-					if (!diffNames.contains("normal"))
-						diffNames.push("normal");
-				}
-				// hard/easy/other: tutorial-hard.json
-				else if (lower.startsWith(lowerSong + "-"))
-				{
-					var diff = lower.substring(lowerSong.length + 1, lower.length - 5).trim();
-					if (diff.length > 0 && !diffNames.contains(diff))
-						diffNames.push(diff);
-				}
+				var diffNames = chartFiles.map(s -> s.substring(fileSngName.length + 1, s.length - 5));
+				// Regrouping difficulties
+				if (diffNames.remove("."))
+					diffNames.insert(1, "normal");
+				if (diffNames.remove("easy"))
+					diffNames.insert(0, "easy");
+				if (diffNames.remove("hard"))
+					diffNames.insert(2, "hard");
+				this.songDifficulties = diffNames;
 			}
-
-			// Sıralamayı düzelt
-			var ordered:Array<String> = [];
-
-			if (diffNames.contains("easy")) ordered.push("easy");
-			if (diffNames.contains("normal")) ordered.push("normal");
-			if (diffNames.contains("hard")) ordered.push("hard");
-
-			for (diff in diffNames)
+			else
 			{
-				if (!ordered.contains(diff))
-					ordered.push(diff);
-			}
-
-			discoveredDiffs = ordered;
-		}
-
-		if (discoveredDiffs.length > 0)
-		{
-			this.songDifficulties = discoveredDiffs;
-		}
-		else if (this.songDifficulties.length == 0)
-		{
-			this.songDifficulties = ['normal'];
-
-			if (!_failedSongPathLogged.exists(fileSngName + "_diffs"))
-			{
-				_failedSongPathLogged.set(fileSngName + "_diffs", true);
+				this.songDifficulties = ['normal'];
 				trace('Directory $sngDataPath does not exist! $songName has no charts (difficulties)!');
 				trace('Forcing "normal" difficulty. Expect issues!!');
 			}
 		}
-
+        var fileSngName = Paths.formatToSongPath(getNativeSongId());
+		var sngDataPath = Paths.getPath("data/" + fileSngName);
 		if (allowErect && !hasErectSong())
 		{
+			//? nvm. it clutters logs a lot for no reason
+			//trace('$songName is missing variant in $sngDataPath');
 			this.songDifficulties.remove("erect");
 			this.songDifficulties.remove("nightmare");
 		}
-
 		if (!this.songDifficulties.contains(currentDifficulty))
 		{
 			@:bypassAccessor
-			currentDifficulty = songDifficulties[0];
+			currentDifficulty = songDifficulties[0]; // TODO
 		}
 
 		songStartingBpm = BPMCache.instance.getBPM(sngDataPath, fileSngName);
 
-		this.scoringRank = Scoring.calculateRankForSong(
-			Highscore.formatSong(getNativeSongId(), loadAndGetDiffId())
-		);
-
+		// this.songStartingBpm = songDifficulty.getStartingBPM();
+		// this.songName = songDifficulty.songName;
+		// this.difficultyRating = songDifficulty.difficultyRating;
+		this.scoringRank = Scoring.calculateRankForSong(Highscore.formatSong(getNativeSongId(), loadAndGetDiffId()));
 		updateIsNewTag();
 	}
 
@@ -224,10 +135,10 @@ class FreeplaySongData extends SngCapsuleData
 	}
 
 
-	public function hasErectSong():Bool
-	{
-		var fileSngName = Paths.formatToSongPath(songId + "-erect");
-		var sngDataPath = resolveSongDataPath(fileSngName);
-		return NativeFileSystem.exists(sngDataPath);
-	}
+    public function hasErectSong():Bool
+        {
+            var fileSngName = Paths.formatToSongPath(songId+"-erect");
+		    var sngDataPath = Paths.getPath("data/" + fileSngName);
+            return NativeFileSystem.exists(sngDataPath);
+        }
 }

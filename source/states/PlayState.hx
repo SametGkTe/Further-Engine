@@ -100,10 +100,6 @@ class PlayState extends MusicBeatState
 	#if HSCRIPT_ALLOWED
 	public var hscriptArray:Array<HScript> = [];
 	#end
-	
-	public static var storyDifficultyColor:FlxColor = FlxColor.GRAY;
-	public static var storyCampaignTitle:String = "";
-	public static var altInstrumentals:String = null;
 
 	public var BF_X:Float = 770;
 	public var BF_Y:Float = 100;
@@ -162,6 +158,8 @@ class PlayState extends MusicBeatState
 
 	public var notes:FlxTypedGroup<Note>;
 	public var unspawnNotes:Array<Note> = [];
+	public static var hitboxPositions:Array<Float> = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+	public static var defaultPlayerNotePositions:Array<Float> = [-199, -89, 21, 131];
 	public var eventNotes:Array<EventNote> = [];
 
 	public var camFollow:FlxObject;
@@ -631,9 +629,7 @@ class PlayState extends MusicBeatState
 			}
 		#end
 		
-		if (ClientPrefs.data.mobileControlType != 'Touch') {
-			addMobileControls();
-		}
+		addMobileControls();
 		mobileControls.instance.visible = true;
 		mobileControls.onButtonDown.add(onButtonPress);
 		mobileControls.onButtonUp.add(onButtonRelease);
@@ -669,13 +665,9 @@ class PlayState extends MusicBeatState
 		grpNoteSplashes.add(splash);
 		splash.alpha = 0.000001; //cant make it invisible or it won't allow precaching
 
-		#if mobile
-		if (ClientPrefs.data.mobileControlType == "Touch")
-			mobileControls = new PSliceTouchControls();
-		else
-			mobileControls = newMobileControls();
-
-		add(cast mobileControls);
+		#if !android
+		addTouchPad('NONE', 'P');
+		addTouchPadCamera();
 		#end
 
 		super.create();
@@ -937,20 +929,6 @@ class PlayState extends MusicBeatState
 		else
 			startCountdown();
 	}
-	
-	#if mobile
-	private function newMobileControls(?forceType:Int, ?extra:Bool = true):BaseMobileControls
-	{
-		return switch (ClientPrefs.data.mobileControlType)
-		{
-			case "Touch":
-				new PSliceTouchControls(forceType, extra);
-
-			default:
-				new MobileControls(forceType, extra);
-		}
-	}
-	#end
 
 	var dialogueCount:Int = 0;
 	public var psychDialogue:DialogueBoxPsych;
@@ -1026,6 +1004,10 @@ class PlayState extends MusicBeatState
 			if (skipCountdown || startOnTime > 0) skipArrowStartTween = true;
 
 			canPause = true;
+			#if mobile
+			if (ClientPrefs.data.ogGameControls)
+				enableVSliceControls();
+			#end
 			generateStaticArrows(0);
 			generateStaticArrows(1);
 			for (i in 0...playerStrums.length) {
@@ -1626,6 +1608,106 @@ class PlayState extends MusicBeatState
 			strumLineNotes.add(babyArrow);
 			babyArrow.playerPosition();
 		}
+	}
+	
+	public function fixHitboxPos(strumGroup:FlxTypedGroup<StrumNote>, ?keyCountIsDefault:Bool = true):Void
+	{
+		// Önce array'i temizle
+		for (i in 0...hitboxPositions.length)
+			hitboxPositions[i] = 0;
+
+		if (keyCountIsDefault)
+		{
+			for (i in 0...4)
+			{
+				if (strumGroup.members[i] != null)
+					hitboxPositions[i] = Std.int(strumGroup.members[i].x) - 20;
+			}
+		}
+	}
+	
+	public function reloadPlayStateHitbox(?mode:String):Void
+	{
+		#if mobile
+		if (mobileControls != null)
+		{
+			if (mobileControls.onButtonDown != null)
+				mobileControls.onButtonDown.remove(onButtonPress);
+
+			if (mobileControls.onButtonUp != null)
+				mobileControls.onButtonUp.remove(onButtonRelease);
+
+			if (mobileControls.instance != null)
+			{
+				if (members.contains(mobileControls.instance))
+					remove(mobileControls.instance);
+
+				mobileControls.instance.destroy();
+			}
+
+			if (mobileControlsCam != null)
+			{
+				FlxG.cameras.remove(mobileControlsCam);
+				mobileControlsCam = FlxDestroyUtil.destroy(mobileControlsCam);
+			}
+
+			mobileControls = null;
+		}
+
+		if (mode == "V Slice")
+			fixHitboxPos(playerStrums, true);
+
+		addMobileControls();
+
+		if (mobileControls != null)
+		{
+			mobileControls.instance.visible = true;
+			mobileControls.onButtonDown.add(onButtonPress);
+			mobileControls.onButtonUp.add(onButtonRelease);
+		}
+		#end
+	}
+	
+	public function enableVSliceControls():Void
+	{
+		#if mobile
+		for (player in 0...2)
+		{
+			var strumGroup = player == 1 ? playerStrums : opponentStrums;
+
+			for (i in 0...4)
+			{
+				if (player == 1)
+				{
+					// Player strumlarını ortala
+					strumGroup.members[i].screenCenter(X);
+					strumGroup.members[i].x += defaultPlayerNotePositions[i];
+				}
+				else
+				{
+					// Opponent strumlarını küçült ve köşeye al
+					strumGroup.members[i].y = 40;
+					strumGroup.members[i].x = 10 + (i * 65);
+					strumGroup.members[i].scale.x = strumGroup.members[i].scale.x / 1.75;
+					strumGroup.members[i].scale.y = strumGroup.members[i].scale.y / 1.75;
+				}
+			}
+
+			if (player == 1)
+			{
+				// Opponent notalarını gizle
+				for (i in 0...unspawnNotes.length)
+				{
+					if (!unspawnNotes[i].mustPress)
+						unspawnNotes[i].visible = false;
+				}
+
+				fixHitboxPos(strumGroup, true);
+			}
+		}
+
+		reloadPlayStateHitbox("V Slice");
+		#end
 	}
 
 	override function openSubState(SubState:FlxSubState)

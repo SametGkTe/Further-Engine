@@ -1,52 +1,31 @@
 package mikolka.compatibility.funkin;
 
+import backend.InputFormatter;
+
 class FunkinControls {
-    public static function get_BAR_LEFT():Bool {
-        return Controls.instance.UI_LEFT_P;
+    public static var FREEPLAY_LEFT(get,never):Bool;    
+    public static function get_FREEPLAY_LEFT():Bool {
+        return Controls.instance.BAR_LEFT;
     }
-
-    public static function get_BAR_RIGHT():Bool {
-        return Controls.instance.UI_RIGHT_P;
+    public static var FREEPLAY_RIGHT(get,never):Bool;    
+    public static function get_FREEPLAY_RIGHT():Bool {
+        return Controls.instance.BAR_RIGHT;
     }
-	
-    public static function get_CHAR_SELECT():Bool {
-        return false;
+    public static var SCREENSHOT(get,never):Bool;    
+    public static function get_SCREENSHOT():Bool {
+        return Controls.instance.SCREENSHOT;
     }
-
-    public static function get_FAVORITE():Bool {
-        return false;
+    public static var FREEPLAY_CHAR(get,never):Bool;    
+    public static function get_FREEPLAY_CHAR():Bool {
+        return Controls.instance.CHAR_SELECT;
     }
-	
-	public static var SCREENSHOT(get, never):Bool;
-
-	private static function get_SCREENSHOT():Bool
-	{
-		return FlxG.keys.justPressed.F12;
-	}
-
-	public static var FREEPLAY_LEFT(get, never):Bool;
-
-	private static function get_FREEPLAY_LEFT():Bool
-	{
-		return FlxG.keys.justPressed.Q;
-	}
-
-	public static var FREEPLAY_RIGHT(get, never):Bool;
-
-	private static function get_FREEPLAY_RIGHT():Bool
-	{
-		return FlxG.keys.justPressed.E;
-	}
-
-	public static var FREEPLAY_CHAR(get, never):Bool;
-
-	private static function get_FREEPLAY_CHAR():Bool
-	{
-		return FlxG.keys.justPressed.TAB;
-	}
-
-	public static function FREEPLAY_CHAR_name():String
-	{
-		return "TAB";
-	}
+    public static function FREEPLAY_CHAR_name():String {
+        return InputFormatter.getKeyName(ClientPrefs.keyBinds.get("char_select")[0]);
+    }
+    public static function enableVolume() {
+        ClientPrefs.toggleVolumeKeys(true);
+    }
+    public static function disableVolume() {
+        ClientPrefs.toggleVolumeKeys(false);
+    }
 }

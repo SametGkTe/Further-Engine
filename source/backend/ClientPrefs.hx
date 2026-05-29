@@ -21,22 +21,18 @@ import states.TitleState;
 	public var gameOverVibration:Bool = false;
 	public var fpsRework:Bool = false;
 	
-	public var mobileControlType:String = "Buttons";
-	public var favSongIds:Array<String> = [];
-	
-	
-	public var vsliceMobileControls:Bool = false;
-	public var vsliceFreeplayColors:Bool = true;
-	public var vsliceResults:Bool = true;
-	public var vsliceSpecialCards:Bool = true;
-	public var vsliceSmoothBar:Bool = true;
-	public var loggingType:String = "None";
-	public var vsliceLegacyBar:Bool = false;
-	public var vsliceNaughtyness:Bool = #if mobile false #else true #end;
-	public var vsliceForceNewTag:Bool = false;
-	public var vibrating:Bool = false;
-	public var lastFreeplayMod:String = '||bf';
-
+	// YENİ: Yeni mobil kontrol sistemi için
+	public var storageType:String = "EXTERNAL_DATA";
+	public var mobilePadAlpha:Float = 0.7;
+	public var hitboxAlpha:Float = 0.7;
+	public var extraKeys:Int = 0;
+	public var hitboxLocation:String = "Bottom";
+	public var hitboxMode:String = "Classic";
+	public var hitboxHint:Bool = true;
+	public var ogGameControls:Bool = false;
+	public var vSliceSpacing:Float = 0;
+	public var mobileExtraKeyReturns:Array<String> = ["", "", "", ""];
+	public var controlMode:String = "Button";
 	
 	public var downScroll:Bool = false;
 	public var middleScroll:Bool = false;
@@ -229,6 +225,9 @@ class ClientPrefs {
 		for (key in Reflect.fields(data))
 			if (key != 'gameplaySettings' && Reflect.hasField(FlxG.save.data, key))
 				Reflect.setField(data, key, Reflect.field(FlxG.save.data, key));
+				
+		if (data.mobileExtraKeyReturns == null)
+			data.mobileExtraKeyReturns = ["", "", "", ""];
 		
 		if(Main.fpsVar != null)
 			Main.fpsVar.visible = data.showFPS;
@@ -318,5 +317,9 @@ class ClientPrefs {
 		FlxG.sound.muteKeys = (!Controls.instance.mobileC && turnOn) ? TitleState.muteKeys : emptyArray;
 		FlxG.sound.volumeDownKeys = (!Controls.instance.mobileC && turnOn) ? TitleState.volumeDownKeys : emptyArray;
 		FlxG.sound.volumeUpKeys = (!Controls.instance.mobileC && turnOn) ? TitleState.volumeUpKeys : emptyArray;
+	}
+	public static inline function isTouchMode():Bool
+	{
+		return data.controlMode == "Touch";
 	}
 }

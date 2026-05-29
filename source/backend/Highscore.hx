@@ -6,21 +6,11 @@ class Highscore
 	public static var songScores:Map<String, Int> = new Map<String, Int>();
 	public static var songRating:Map<String, Float> = new Map<String, Float>();
 
-	public static var songFCState:Map<String, Bool> = new Map<String, Bool>();
-
 	public static function resetSong(song:String, diff:Int = 0):Void
 	{
 		var daSong:String = formatSong(song, diff);
 		setScore(daSong, 0);
 		setRating(daSong, 0);
-	}
-	
-	static function setFC(song:String, isFC:Bool):Void
-	{
-		// Reminder that I don't need to format this song, it should come formatted!
-		songFCState.set(song, isFC);
-		FlxG.save.data.songFCState = songFCState;
-		FlxG.save.flush();
 	}
 
 	public static function resetWeek(week:String, diff:Int = 0):Void
@@ -99,15 +89,6 @@ class Highscore
 			setScore(daSong, 0);
 
 		return songScores.get(daSong);
-	}
-	
-	public static function getFCState(song:String, diff:Int):Bool
-	{
-		var daSong:String = formatSong(song, diff);
-		if (!songFCState.exists(daSong))
-			setFC(daSong, false);
-
-		return songFCState.get(daSong);
 	}
 
 	public static function getRating(song:String, diff:Int):Float

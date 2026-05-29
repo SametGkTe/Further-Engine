@@ -57,10 +57,9 @@ class PixelDialogueStyle extends DialogueStyle {
 			box.animation.finishCallback = null;
 		}
 		#else
-		box.animation.finishCallback = function(anim:String) {
-			box.animation.finishCallback = null;
+		box.animation.onFinish.addOnce(anim ->{
 			callback();
-		};
+		});
 		#end
 	}
 	public function _playBoxAnim(pos:DialogueBoxPosition,style:DialogueBoxState,boxType:String) {

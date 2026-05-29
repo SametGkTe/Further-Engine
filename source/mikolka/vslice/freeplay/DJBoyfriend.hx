@@ -468,18 +468,29 @@ class FreeplayDJ extends FlxAtlasSprite
     applyAnimOffset();
   }
 
-	function applyAnimOffset()
-	{
-		var AnimName = getCurrentAnimation();
-		var daOffset = playableCharData.getAnimationOffsetsByPrefix(AnimName);
+  function applyAnimOffset()
+  {
+    var AnimName = getCurrentAnimation();
+    var daOffset = playableCharData.getAnimationOffsetsByPrefix(AnimName);
+    if (daOffset != null)
+    {
+      var xValue = daOffset[0];
+      var yValue = daOffset[1];
+      if (AnimName == "Boyfriend DJ watchin tv OG")
+      {
+        xValue += offsetX;
+        yValue += offsetY;
+      }
 
-		if (daOffset != null)
-			trace('[FreeplayDJ] raw offset = ' + daOffset[0] + ', ' + daOffset[1]);
-		else
-			trace('[FreeplayDJ] no offset found');
-
-		offset.set(0, 0);
-	}
+      trace('Successfully applied offset ($AnimName): ' + xValue + ', ' + yValue);
+      offset.set(xValue, yValue);
+    }
+    else
+    {
+      trace('No offset found ($AnimName), defaulting to: 0, 0');
+      offset.set(0, 0);
+    }
+  }
 
   public override function destroy():Void
   {

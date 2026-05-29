@@ -31,6 +31,8 @@ class Logger{
             CoolUtil.showPopUp(x.message,"File logging failed to init");
             #end
         }
+        LogStyle.WARNING.onLog.add(log);
+        LogStyle.ERROR.onLog.add(log);
         #end
         Log.trace = log;
     }

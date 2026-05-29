@@ -24,75 +24,11 @@ import mobile.input.MobileInputID;
 import mobile.backend.MobileData;
 import mobile.input.MobileInputManager;
 import mobile.backend.TouchUtil;
-import mikolka.compatibility.funkin.FunkinControls;
-
-
-
-
-
-import haxe.Exception;
-
-import backend.CacheSystem;
-import backend.Highscore;
-
-import mobile.backend.SwipeUtil;
-
-// P-Slice UI / state referansları için
-import mikolka.vslice.ui.*;
-
-// Bazı P-Slice freeplay/ui bileşenleri bunu bekliyor
-import flixel.ui.FlxBar;
-
-// Stage object referansları için
-import states.stages.objects.*;
-
-#if TOUCH_CONTROLS_ALLOWED
-import mobile.objects.TouchZone;
+import mobile.MobileControlManager;
+import mobile.objects.FunkinMobilePad;
+import mobile.objects.FunkinHitbox;
+import mobile.objects.FunkinJoyStick;
 import mobile.objects.ScrollableObject;
-#end
-
-import haxe.Exception;
-
-import backend.CacheSystem;
-import backend.Highscore;
-
-import mobile.backend.SwipeUtil;
-
-import mikolka.vslice.ui.*;
-import flixel.ui.FlxBar;
-import states.stages.objects.*;
-
-#if mobile
-import mobile.objects.BaseMobileControls;
-import mobile.objects.PSliceTouchControls;
-import mobile.objects.MobileControls;
-#end
-import mikolka.funkin.utils.TimerUtil;
-
-
-
-//P-Slice
-import mikolka.funkin.custom.NativeFileSystem as NativeFileSystem;
-import mikolka.funkin.*;
-import mikolka.funkin.utils.*;
-import mikolka.funkin.custom.*;
-import mikolka.funkin.players.*;
-import states.FreeplayState as C_;
-
-//P-Slice Dialouges
-import mikolka.stages.cutscenes.dialogueBox.*;
-import mikolka.stages.cutscenes.dialogueBox.DialogueBoxPsych.DialogueFile;
-import mikolka.stages.cutscenes.dialogueBox.styles.*;
-
-//utils
-using StringTools;
-using mikolka.funkin.utils.ArrayTools;
-using mikolka.funkin.utils.custom.FunkinTools;
-import mikolka.funkin.utils.custom.FunkinTools;
-using mikolka.funkin.utils.ArrayTools;
-using mikolka.funkin.utils.SpriteTools;
-using mikolka.funkin.utils.custom.PsychUITools;
-using mikolka.funkin.utils.StringTools;
 
 // Android
 #if android

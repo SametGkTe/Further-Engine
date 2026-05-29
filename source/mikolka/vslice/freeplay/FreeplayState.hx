@@ -12,7 +12,6 @@ import mikolka.vslice.charSelect.CharSelectSubState;
 import openfl.filters.ShaderFilter;
 import mikolka.vslice.freeplay.backcards.PicoCard;
 import mikolka.funkin.freeplay.FreeplayStyleRegistry;
-import mikolka.funkin.players.PlayableCharacter;
 import mikolka.vslice.freeplay.backcards.BoyfriendCard;
 import shaders.BlueFade;
 import mikolka.funkin.freeplay.FreeplayStyle;
@@ -231,57 +230,47 @@ class FreeplayState extends MusicBeatSubstate
 
 	var fromCharSelect:Null<Bool> = null;
 
-
 	public function new(?params:FreeplayStateParams, ?stickers:StickerSubState)
 	{
 		instance = this;
 		controls.isInSubstate = true;
 		super();
-
 		var saveBox = VsliceOptions.LAST_MOD;
-		var resolvedCharacterId:String = saveBox.char_name;
-
-		if (resolvedCharacterId == null || resolvedCharacterId.length < 1)
-			resolvedCharacterId = Constants.DEFAULT_CHARACTER;
-
+		currentCharacterId = saveBox.char_name;
+		// switch to the character's mod to load her registry
 		if (ModsHelper.isModDirEnabled(saveBox.mod_dir))
 			ModsHelper.loadModDir(saveBox.mod_dir);
 
+		// Since CUTOUT_WIDTH is static it might retain some old inccrect values so we update it before loading freeplay
 		CUTOUT_WIDTH = MobileScaleMode.gameCutoutSize.x / 1.5;
 
-		var result:PlayableCharacter = PlayerRegistry.instance.fetchEntry(resolvedCharacterId);
+		var result = PlayerRegistry.instance.fetchEntry(currentCharacterId);
 		if (result == null)
 		{
-			resolvedCharacterId = Constants.DEFAULT_CHARACTER;
-			result = PlayerRegistry.instance.fetchEntry(resolvedCharacterId);
+			currentCharacterId = Constants.DEFAULT_CHARACTER;
+			result = PlayerRegistry.instance.fetchEntry(Constants.DEFAULT_CHARACTER);
 		}
-
-		currentCharacterId = resolvedCharacterId;
 		currentCharacter = result;
 
-		var styleId:String = currentCharacterId;
-		if (styleId == null || styleId.length < 1)
-			styleId = "bf";
-
-		if (currentCharacter != null)
-		{
-			var charStyleId:String = currentCharacter.getFreeplayStyleID();
-			if (charStyleId != null && charStyleId.length > 0)
-				styleId = charStyleId;
-		}
-
-		styleData = FreeplayStyleRegistry.instance.fetchEntry(styleId);
+		styleData = FreeplayStyleRegistry.instance.fetchEntry(currentCharacter.getFreeplayStyleID());
 		if (styleData == null)
 			styleData = FreeplayStyleRegistry.instance.fetchEntry("bf");
 
 		fromCharSelect = params?.fromCharSelect;
+
 		fromResultsParams = params?.fromResults;
 
 		if (fromResultsParams?.playRankAnim == true)
+		{
 			prepForNewRank = true;
+		}
+
+		super();
 
 		if (stickers?.members != null)
+		{
 			stickerSubState = stickers;
+		}
 	}
 
 	var fadeShader:BlueFade = new BlueFade();
@@ -297,10 +286,6 @@ class FreeplayState extends MusicBeatSubstate
 			ModsHelper.loadModDir(saveBox.mod_dir);
 		// We build a bunch of sprites BEFORE create() so we can guarantee they aren't null later on.
 		// ? but doing it here, because psych 0.6.3 can destroy graphics created in the constructor
-		var safeCharacterId:String = currentCharacterId;
-
-		if (safeCharacterId == null || safeCharacterId.length < 1)
-			safeCharacterId = "bf";
 		if (VsliceOptions.FP_CARDS)
 		{
 			switch (currentCharacterId)
@@ -339,7 +324,7 @@ class FreeplayState extends MusicBeatSubstate
 		sparksADD = new FlxSprite(0, 0);
 		txtCompletion = new AtlasText(FlxG.width - (MobileScaleMode.gameNotchSize.x+95), 87, '69', AtlasFont.FREEPLAY_CLEAR);
 
-		ostName = new FlxText(8-MobileScaleMode.gameNotchSize.x, 8, FlxG.width - 8 - 8, 'RESMİ ŞARKI', 48);
+		ostName = new FlxText(8-MobileScaleMode.gameNotchSize.x, 8, FlxG.width - 8 - 8, 'OFFICIAL OST', 48);
 		charSelectHint = new FlxText(-40, 18, FlxG.width - 8 - 8, 'Press [ LOL ] to change characters', 32);
 
 		backingImage = new FlxSprite((backingCard?.pinkBack.width ?? 0) * 0.74,
@@ -417,9 +402,22 @@ class FreeplayState extends MusicBeatSubstate
 
 		if (currentCharacter?.getFreeplayDJData() != null)
 		{
-			ModsHelper.loadModDir(VsliceOptions.LAST_MOD.mod_dir);
-
-			dj = new FreeplayDJ(100, 100, currentCharacter);
+			ModsHelper.loadModDir(VsliceOptions.LAST_MOD.mod_dir); // ? make sure to load a mod dir of this character!
+			// ? Low quality. why we need him again?
+			if (!VsliceOptions.LOW_QUALITY)
+			{
+				dj = new FreeplayDJ((CUTOUT_WIDTH * DJ_POS_MULTI) + 640, 366, currentCharacter);
+				exitMovers.set([dj], {
+					x: -dj.width * 1.6,
+					speed: 0.5
+				});
+				add(dj);
+				exitMoversCharSel.set([dj], {
+					y: -175,
+					speed: 0.8,
+					wait: 0.1
+				});
+			}
 		}
 
 		if (!VsliceOptions.LOW_QUALITY)
@@ -475,7 +473,6 @@ class FreeplayState extends MusicBeatSubstate
 			wait: 0
 		});
 
-
 		exitMoversCharSel.set([grpDifficulties], {
 			y: -270,
 			speed: 0.8,
@@ -528,7 +525,7 @@ class FreeplayState extends MusicBeatSubstate
 			FlxTween.tween(blackOverlayBullshitLOLXD, {x: backingImage.x}, 0.7, {ease: FlxEase.quintOut});
 		}
 
-		var topLeftCornerText:FlxText = new FlxText(Math.max(MobileScaleMode.gameNotchSize.x, 8), 8, 0, 'SERBEST OYUN', 48);
+		var topLeftCornerText:FlxText = new FlxText(Math.max(MobileScaleMode.gameNotchSize.x, 8), 8, 0, 'FREEPLAY', 48);
 		topLeftCornerText.font = 'VCR OSD Mono';
 		topLeftCornerText.visible = false;
 
@@ -545,7 +542,7 @@ class FreeplayState extends MusicBeatSubstate
 		charSelectHint.alignment = CENTER;
 		charSelectHint.font = "5by7";
 		charSelectHint.color = 0xFF5F5F5F;
-		charSelectHint.text = controls.mobileC ? 'Touch [ X ] to change characters' : '[ ${FunkinControls.FREEPLAY_CHAR_name()} ] ile karakter değiştirin'; // ?! ${controls.getDialogueNameFromControl(FREEPLAY_CHAR_SELECT, true)}
+		charSelectHint.text = controls.mobileC ? 'Touch [ X ] to change characters' : 'Press [ ${FunkinControls.FREEPLAY_CHAR_name()} ] to change characters'; // ?! ${controls.getDialogueNameFromControl(FREEPLAY_CHAR_SELECT, true)}
 		charSelectHint.y -= 100;
 		FlxTween.tween(charSelectHint, {y: charSelectHint.y + 100}, 0.8, {ease: FlxEase.quartOut});
 
@@ -660,17 +657,6 @@ class FreeplayState extends MusicBeatSubstate
 		#if (BASE_GAME_FILES || MODS_ALLOWED)
 		add(charSelectHint);
 		#end
-		
-		if (dj != null)
-		{
-			remove(dj, true);
-
-			var capsuleIndex:Int = members.indexOf(grpCapsules);
-			if (capsuleIndex > -1)
-				insert(capsuleIndex, dj);
-			else
-				add(dj);
-		}
 
 		// be careful not to "add()" things in here unless it's to a group that's already added to the state
 		// otherwise it won't be properly attatched to funnyCamera (relavent code should be at the bottom of create())
@@ -772,7 +758,7 @@ class FreeplayState extends MusicBeatSubstate
 		}
 		else
 		{
-			TimerUtil.wait(0.5, () -> onDJIntroDone());
+			FlxTimer.wait(0.5, () -> onDJIntroDone());
 		}
 		currentDifficulty = rememberedDifficulty; // ? use last difficulty to create this list
 		// Generates song list with the starter params (who our current character is, last remembered difficulty, etc.)
@@ -2159,6 +2145,7 @@ class FreeplayState extends MusicBeatSubstate
 
 		capsuleOptionsMenu = new CapsuleOptionsMenu(this, cap.x + 175, cap.y + 115, instrumentalIds);
 		capsuleOptionsMenu.cameras = [funnyCam];
+		capsuleOptionsMenu.zIndex = 10000;
 		add(capsuleOptionsMenu);
 
 		capsuleOptionsMenu.onConfirm = function(targetInstId:String)
@@ -2347,7 +2334,7 @@ class FreeplayState extends MusicBeatSubstate
 				FreeplayHelpers.loadDiffsFromWeek(daSongCapsule.songData);
 
 			FlxG.sound.music.pause(); // muting previous track must be done NOW
-			TimerUtil.wait(FADE_IN_DELAY, playCurSongPreview.bind(daSongCapsule)); // Wait a little before trying to pull a Inst file
+			FlxTimer.wait(FADE_IN_DELAY, playCurSongPreview.bind(daSongCapsule)); // Wait a little before trying to pull a Inst file
 
 			tweenCurSongColor(daSongCapsule);
 			curCapsule.selected = true;

@@ -202,12 +202,39 @@ class DialogueBoxPsych extends FlxSpriteGroup
 				FlxG.state.persistentUpdate = false;
 				FlxG.state.persistentDraw = true;
 				FlxG.sound.music.pause();
-
-				var pauseState = new PauseSubState();
+				#if LEGACY_PSYCH
+				var pauseState = new PauseSubState(0, 0, true, DIALOGUE);
+				#else
+				var pauseState = new PauseSubState(true, DIALOGUE);
+				#end
+				pauseState.cutscene_allowSkipping = true;
+				pauseState.cutscene_hardReset = false;
 				game.openSubState(pauseState);
 
-				pauseJustClosed = true;
-				new FlxTimer().start(0.3, function(_) { pauseJustClosed = false; });
+				game.subStateClosed.addOnce(s ->
+				{ // TODO
+					pauseJustClosed = true;
+					FlxTimer.wait(0.1, () -> pauseJustClosed = false);
+					switch (pauseState.specialAction)
+					{
+						case SKIP: {
+								trace('skipped cutscene');
+								skipDialogue();
+								FlxG.sound.play(Paths.sound(style.closeSound), style.closeVolume);
+							}
+						case RESUME: {
+								FlxG.sound.music.resume();
+							}
+						case NOTHING: {}
+						case RESTART: {
+								FlxG.sound.music?.resume();
+								dialogueList.dialogue = staticDialList.copy();
+								currentText = 0;
+								startNextDialog();
+								FlxG.sound.play(Paths.sound(style.closeSound), style.closeVolume);
+							}
+					}
+				});
 			}
 			else if ((TouchUtil.justPressed || Controls.instance.ACCEPT || back) && box.visible)
 			{

@@ -103,10 +103,10 @@ class FreeplayStyle
    * for freeplay capsules.
    * @return The selected color
    */
-	  public function getCapsuleSelCol():FlxColor
-	  {
-		return FlxColor.fromString(_data.capsuleTextColors[1]);
-	  }
+  public function getCapsuleSelCol():FlxColor
+  {
+    return FlxColor.fromString(_data.capsuleTextColors[1]);
+  }
 
   public function destroy():Void {}
 }

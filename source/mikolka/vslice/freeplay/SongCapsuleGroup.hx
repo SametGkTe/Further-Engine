@@ -23,8 +23,6 @@ class SongCapsuleGroup extends FlxTypedGroup<SongMenuItem> {
     public function new(styleData:Null<FreeplayStyle> = null) {
         super();
         this.styleData = styleData;
-		if (this.styleData == null)
-			trace('[SongCapsuleGroup] WARNING: styleData is null!');
 		randomCapsule = new SongMenuItem(0,0);
 		randomCapsule.init(FlxG.width, 0, null, styleData);
 		randomCapsule.onConfirm = function()

@@ -61,7 +61,7 @@ class LuaCard extends BackingCard
 				{
 					var pos:HScriptInfos = cast {fileName: scriptPath, showLine: false};
 					Iris.error(Printer.errorToString(e, false), pos);
-					if(allowMessages) TimerUtil.wait(0.5,() ->{
+					if(allowMessages) FlxTimer.wait(0.5,() ->{
 						UserErrorSubstate.makeMessage("Error while compiling script",
 						'Path: ${scriptPath}\n\n'+
 						'Error: ${Printer.errorToString(e, false)}\n\n'+

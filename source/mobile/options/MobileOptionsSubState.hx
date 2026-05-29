@@ -31,7 +31,6 @@ class MobileOptionsSubState extends BaseOptionsMenu
 {
 	final exControlTypes:Array<String> = ["NONE", "SINGLE", "DOUBLE"];
 	final hintOptions:Array<String> = ["No Gradient", "No Gradient (Old)", "Gradient", "Hidden"];
-	final mobileControlTypes:Array<String> = ["Buttons", "Touch"];
 	var option:Option;
 
 	public function new()
@@ -83,11 +82,6 @@ class MobileOptionsSubState extends BaseOptionsMenu
 		option = new Option('Dynamic Controls Color',
 			'If checked, the mobile controls color will be set to the notes color in your settings.\n(have effect during gameplay only)', 'dynamicColors',
 			BOOL);
-		addOption(option);
-
-		option = new Option('Mobile Control Type',
-			'Select the mobile control type.\nButtons = Traditional button controls.\nTouch = P-Slice touchscreen hitbox controls.',
-			'mobileControlType', STRING, mobileControlTypes);
 		addOption(option);
 
 		super();

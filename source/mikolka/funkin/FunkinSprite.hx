@@ -4,7 +4,6 @@ import mikolka.compatibility.VsliceOptions;
 
 class FunkinSprite extends FlxSprite
 {
-	public var zIndex:Float = 0;
 	public static function create(x:Float = 0.0, y:Float = 0.0, key:String)
 	{
 		return new FunkinSprite(x, y, Paths.image(key));

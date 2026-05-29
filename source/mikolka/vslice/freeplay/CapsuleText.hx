@@ -57,23 +57,15 @@ class CapsuleText extends FlxSpriteGroup
     return text;
   }
 
-	public function applyStyle(?styleData:FreeplayStyle):Void
-	{
-		if (styleData == null)
-		{
-			trace('[CapsuleText] styleData is null, using default glow color');
-			glowColor = 0xFF00CCFF;
-		}
-		else
-		{
-			glowColor = styleData.getCapsuleSelCol();
-		}
-
-		blurredText.color = glowColor;
-		whiteText.textField.filters = [
-			new openfl.filters.GlowFilter(glowColor, 1, 5, 5, 210, BitmapFilterQuality.MEDIUM),
-		];
-	}
+  public function applyStyle(styleData:FreeplayStyle):Void
+  {
+    glowColor = styleData.getCapsuleSelCol();
+    blurredText.color = glowColor;
+    whiteText.textField.filters = [
+      new openfl.filters.GlowFilter(glowColor, 1, 5, 5, 210, BitmapFilterQuality.MEDIUM),
+      // new openfl.filters.BlurFilter(5, 5, BitmapFilterQuality.LOW)
+    ];
+  }
 
   // ???? none
   // 255, 27 normal
