@@ -132,7 +132,7 @@ class MainMenuState extends MusicBeatState
 		profileBox.scrollFactor.set();
 		add(profileBox);
 		
-		addTouchPad('NONE', 'E');
+		addTouchPad("UP_DOWN", "A_B_E");
 	}
 
 	function createMenuItem(name:String, x:Float, y:Float):FlxSprite

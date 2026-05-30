@@ -173,152 +173,70 @@ class Controls
 	
 	private function touchPadPressed(keys:Array<MobileInputID>):Bool
 	{
-		return touchPadCheckState(keys, "pressed");
+		if (keys == null || requestedInstance == null || requestedInstance.touchPad == null)
+			return false;
+
+		var tp:Dynamic = requestedInstance.touchPad;
+
+		try
+		{
+			if (tp.anyPressed != null)
+				return tp.anyPressed(keys) == true;
+		}
+		catch (e:Dynamic) {}
+
+		return false;
 	}
 
 	private function touchPadJustPressed(keys:Array<MobileInputID>):Bool
-	{
-		return touchPadCheckState(keys, "justPressed");
-	}
-
-	private function touchPadJustReleased(keys:Array<MobileInputID>):Bool
-	{
-		return touchPadCheckState(keys, "justReleased");
-	}
-
-	private function touchPadReleased(keys:Array<MobileInputID>):Bool
-	{
-		return touchPadCheckState(keys, "released");
-	}
-
-	private function touchPadCheckState(keys:Array<MobileInputID>, state:String):Bool
 	{
 		if (keys == null || requestedInstance == null || requestedInstance.touchPad == null)
 			return false;
 
 		var tp:Dynamic = requestedInstance.touchPad;
-		var members:Dynamic = Reflect.field(tp, "members");
-		if (members == null)
-			return false;
 
-		var wantedStrings:Array<String> = convertMobileKeys(keys);
-		var membersArray:Array<Dynamic> = cast members;
-
-		for (member in membersArray)
+		try
 		{
-			if (member == null)
-				continue;
-
-			var ids:Dynamic = Reflect.field(member, "IDs");
-			if (ids == null)
-				continue;
-
-			if (!matchesAnyKey(ids, keys, wantedStrings))
-				continue;
-
-			var val:Dynamic = Reflect.field(member, state);
-			if (val == true)
-				return true;
+			if (tp.anyJustPressed != null)
+				return tp.anyJustPressed(keys) == true;
 		}
+		catch (e:Dynamic) {}
 
 		return false;
 	}
 
-	private function matchesAnyKey(ids:Dynamic, keys:Array<MobileInputID>, wantedStrings:Array<String>):Bool
+	private function touchPadJustReleased(keys:Array<MobileInputID>):Bool
 	{
-		if (ids == null)
+		if (keys == null || requestedInstance == null || requestedInstance.touchPad == null)
 			return false;
 
-		var idArray:Array<Dynamic> = cast ids;
+		var tp:Dynamic = requestedInstance.touchPad;
 
-		for (id in idArray)
+		try
 		{
-			var idStr:String = Std.string(id).toUpperCase();
-
-			for (key in keys)
-			{
-				if (id == key)
-					return true;
-			}
-
-			for (wanted in wantedStrings)
-			{
-				if (idStr == wanted.toUpperCase())
-					return true;
-			}
+			if (tp.anyJustReleased != null)
+				return tp.anyJustReleased(keys) == true;
 		}
+		catch (e:Dynamic) {}
 
 		return false;
 	}
 
-	private function convertMobileKeys(keys:Array<MobileInputID>):Array<String>
+	private function touchPadReleased(keys:Array<MobileInputID>):Bool
 	{
-		var out:Array<String> = [];
-		if (keys == null) return out;
+		if (keys == null || requestedInstance == null || requestedInstance.touchPad == null)
+			return false;
 
-		for (key in keys)
+		var tp:Dynamic = requestedInstance.touchPad;
+
+		try
 		{
-			switch (key)
-			{
-				case LEFT: out.push("LEFT");
-				case RIGHT: out.push("RIGHT");
-				case UP: out.push("UP");
-				case DOWN: out.push("DOWN");
-
-				case NOTE_LEFT: out.push("NOTE_LEFT");
-				case NOTE_RIGHT: out.push("NOTE_RIGHT");
-				case NOTE_UP: out.push("NOTE_UP");
-				case NOTE_DOWN: out.push("NOTE_DOWN");
-
-				case LEFT2: out.push("LEFT2");
-				case RIGHT2: out.push("RIGHT2");
-				case UP2: out.push("UP2");
-				case DOWN2: out.push("DOWN2");
-
-				case A: out.push("A");
-				case B: out.push("B");
-				case C: out.push("C");
-				case D: out.push("D");
-				case E: out.push("E");
-				case F: out.push("F");
-				case G: out.push("G");
-				case H: out.push("H");
-				case I: out.push("I");
-				case J: out.push("J");
-				case K: out.push("K");
-				case L: out.push("L");
-				case M: out.push("M");
-				case N: out.push("N");
-				case O: out.push("O");
-				case P: out.push("P");
-				case Q: out.push("Q");
-				case R: out.push("R");
-				case S: out.push("S");
-				case T: out.push("T");
-				case U: out.push("U");
-				case V: out.push("V");
-				case W: out.push("W");
-				case X: out.push("X");
-				case Y: out.push("Y");
-				case Z: out.push("Z");
-
-				case EXTRA_1: out.push("EXTRA_1");
-				case EXTRA_2: out.push("EXTRA_2");
-
-				case HITBOX_LEFT: out.push("HITBOX_LEFT");
-				case HITBOX_RIGHT: out.push("HITBOX_RIGHT");
-				case HITBOX_UP: out.push("HITBOX_UP");
-				case HITBOX_DOWN: out.push("HITBOX_DOWN");
-
-				case NONE: out.push("NONE");
-				case ANY: out.push("ANY");
-
-				default:
-					out.push(Std.string(key));
-			}
+			if (tp.anyReleased != null)
+				return tp.anyReleased(keys) == true;
 		}
+		catch (e:Dynamic) {}
 
-		return out;
+		return false;
 	}
 	
 

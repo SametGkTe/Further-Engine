@@ -52,8 +52,6 @@ class MobileControlManager {
 			currentState.remove(mobilePad);
 			mobilePad = FlxDestroyUtil.destroy(mobilePad);
 		}
-
-		// Eski touchPad referansını da temizle
 		if (currentState != null)
 			currentState.touchPad = null;
 
