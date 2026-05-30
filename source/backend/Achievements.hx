@@ -52,10 +52,8 @@ class Achievements {
 		createAchievement('hype',					{name: "Hyperactive", description: "Finish a Song without going back to Idle."});
 		createAchievement('two_keys',				{name: "Just the Two of Us", description: "Finish a Song pressing only two keys."});
 		createAchievement('toastie',				{name: "Toaster Gamer", description: "Have you tried to run the game on a toaster?"});
-		#if BASE_GAME_FILES
 		createAchievement('debugger',				{name: "Debugger", description: "Beat the \"Test\" Stage from the Chart Editor.", hidden: true});
 		createAchievement('pet', 			{name: "Oynadığın için Teşekkürler!", description: "Psych Engine Türkiye Oyuncularından biri ol!"});
-		#end
 		#if (TITLE_SCREEN_EASTER_EGG || PSYCH_WATERMARKS)
 		createAchievement('pessy_easter_egg',		{name: "Engine Gal Pal", description: "Teehee, you found me~!", hidden: true});
 		#end
