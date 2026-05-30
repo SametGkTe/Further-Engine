@@ -64,21 +64,6 @@ class MobileControlManager {
 		}
 	}
 
-	public function removeMobilePad():Void
-	{
-		if (mobilePad != null)
-		{
-			currentState.remove(mobilePad);
-			mobilePad = FlxDestroyUtil.destroy(mobilePad);
-		}
-
-		if(mobilePadCam != null)
-		{
-			FlxG.cameras.remove(mobilePadCam);
-			mobilePadCam = FlxDestroyUtil.destroy(mobilePadCam);
-		}
-	}
-
 	public function addMobilePadCamera(defaultDrawTarget:Bool = false):Void
 	{
 		mobilePadCam = new FlxCamera();
