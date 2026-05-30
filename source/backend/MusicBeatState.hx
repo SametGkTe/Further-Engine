@@ -3,6 +3,9 @@ package backend;
 import flixel.FlxState;
 import flixel.FlxObject;
 import backend.PsychCamera;
+import mobile.MobileConfig;
+import mobile.objects.FunkinMobilePad;
+import mobile.objects.FunkinHitbox;
 
 class MusicBeatState extends FlxState
 {
@@ -21,7 +24,7 @@ class MusicBeatState extends FlxState
 	}
 
 	// ============ ESKİ MOBİL SİSTEM (geriye uyumluluk) ============
-	public var touchPad:TouchPad;
+	public var touchPad:Dynamic;
 	public var touchPadCam:FlxCamera;
 	public var mobileControls:IMobileControls;
 	public var mobileControlsCam:FlxCamera;
@@ -43,6 +46,22 @@ class MusicBeatState extends FlxState
 	{
 		return mobileManager != null && mobileManager.mobilePad != null && mobileManager.mobilePad.justReleased(buttons);
 	}
+	
+	public function addTouchPadCamera(defaultDrawTarget:Bool = false):Void
+	{
+		#if mobile
+		if (ClientPrefs.isTouchMode())
+			return;
+		#end
+
+		if (touchPad != null)
+		{
+			touchPadCam = new FlxCamera();
+			touchPadCam.bgColor.alpha = 0;
+			FlxG.cameras.add(touchPadCam, defaultDrawTarget);
+			touchPad.cameras = [touchPadCam];
+		}
+	}
 
 	public inline function mobileButtonReleased(buttons:Dynamic):Bool
 	{
@@ -57,7 +76,7 @@ class MusicBeatState extends FlxState
 			if (scrollableObject == null)
 			{
 				scrollableObject = new ScrollableObject(
-					1.0,
+					0.15,
 					0,
 					0,
 					FlxG.width,
@@ -77,7 +96,17 @@ class MusicBeatState extends FlxState
 		}
 		#end
 
-		touchPad = new TouchPad(DPad, Action);
+		if (MobileConfig.dpadModes != null
+			&& MobileConfig.actionModes != null
+			&& (MobileConfig.dpadModes.exists(DPad) || MobileConfig.actionModes.exists(Action) || DPad == 'NONE' || Action == 'NONE'))
+		{
+			touchPad = new FunkinMobilePad(DPad, Action, ClientPrefs.data.mobilePadAlpha);
+		}
+		else
+		{
+			touchPad = new TouchPad(DPad, Action);
+		}
+
 		add(touchPad);
 	}
 
@@ -100,34 +129,69 @@ class MusicBeatState extends FlxState
 	{
 		#if mobile
 		if (ClientPrefs.isTouchMode())
-		{
-			// Touch modda mobil kontrol ekleme
 			return;
-		}
 		#end
 
 		var extraMode = MobileData.extraActions.get(ClientPrefs.data.extraButtons);
 
 		switch (MobileData.mode)
 		{
-			case 0:
-				mobileControls = new TouchPad('RIGHT_FULL', 'NONE', extraMode);
-			case 1:
-				mobileControls = new TouchPad('LEFT_FULL', 'NONE', extraMode);
-			case 2:
+			case 0: // RIGHT_FULL
+				if (MobileConfig.dpadModes != null && MobileConfig.dpadModes.exists('RIGHT_FULL'))
+				{
+					var pad = new FunkinMobilePad('RIGHT_FULL', 'NONE', ClientPrefs.data.mobilePadAlpha);
+					mobileControls = cast pad;
+				}
+				else
+				{
+					mobileControls = new TouchPad('RIGHT_FULL', 'NONE', extraMode);
+				}
+
+			case 1: // LEFT_FULL
+				if (MobileConfig.dpadModes != null && MobileConfig.dpadModes.exists('LEFT_FULL'))
+				{
+					var pad = new FunkinMobilePad('LEFT_FULL', 'NONE', ClientPrefs.data.mobilePadAlpha);
+					mobileControls = cast pad;
+				}
+				else
+				{
+					mobileControls = new TouchPad('LEFT_FULL', 'NONE', extraMode);
+				}
+
+			case 2: // CUSTOM
+				// Şimdilik eski custom sistemi kalsın
 				mobileControls = MobileData.getTouchPadCustom(new TouchPad('RIGHT_FULL', 'NONE', extraMode));
-			case 3:
-				mobileControls = new Hitbox(extraMode);
+
+			case 3: // HITBOX
+				if (ClientPrefs.data.ogGameControls)
+				{
+					var hitbox = new FunkinHitbox("V Slice", ClientPrefs.data.hitboxHint, ClientPrefs.data.hitboxAlpha);
+					mobileControls = cast hitbox;
+				}
+				else
+				{
+					var hitboxMode:String = ClientPrefs.data.hitboxMode;
+					if (hitboxMode == null || hitboxMode.trim() == "")
+						hitboxMode = "Normal (New)";
+
+					var hitbox = new FunkinHitbox(hitboxMode, ClientPrefs.data.hitboxHint, ClientPrefs.data.hitboxAlpha);
+					mobileControls = cast hitbox;
+				}
 		}
 
-		mobileControls.instance = MobileData.setButtonsColors(mobileControls.instance);
+		if (mobileControls != null && mobileControls.instance != null)
+			mobileControls.instance = MobileData.setButtonsColors(mobileControls.instance);
+
 		mobileControlsCam = new FlxCamera();
 		mobileControlsCam.bgColor.alpha = 0;
 		FlxG.cameras.add(mobileControlsCam, defaultDrawTarget);
 
-		mobileControls.instance.cameras = [mobileControlsCam];
-		mobileControls.instance.visible = false;
-		add(mobileControls.instance);
+		if (mobileControls != null && mobileControls.instance != null)
+		{
+			mobileControls.instance.cameras = [mobileControlsCam];
+			mobileControls.instance.visible = false;
+			add(mobileControls.instance);
+		}
 	}
 
 	public function removeMobileControls()
@@ -147,22 +211,6 @@ class MusicBeatState extends FlxState
 		{
 			FlxG.cameras.remove(mobileControlsCam);
 			mobileControlsCam = FlxDestroyUtil.destroy(mobileControlsCam);
-		}
-	}
-
-	public function addTouchPadCamera(defaultDrawTarget:Bool = false):Void
-	{
-		#if mobile
-		if (ClientPrefs.isTouchMode())
-			return;
-		#end
-
-		if (touchPad != null)
-		{
-			touchPadCam = new FlxCamera();
-			touchPadCam.bgColor.alpha = 0;
-			FlxG.cameras.add(touchPadCam, defaultDrawTarget);
-			touchPad.cameras = [touchPadCam];
 		}
 	}
 	

@@ -45,7 +45,7 @@ class ScrollableObject extends TouchZone
 	/**
 	 * Scroll olarak sayılması için gereken minimum dikey mesafe (piksel)
 	 */
-	public var scrollDeadzone:Float = 8;
+	public var scrollDeadzone:Float = 15;
 
 	/**
 	 * Gesture yönüne karar vermek için gereken minimum hareket (piksel)

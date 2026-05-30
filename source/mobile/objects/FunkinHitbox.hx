@@ -85,22 +85,25 @@ class FunkinHitbox extends Hitbox {
 				var addButton:Bool = false;
 				if (buttonData.buttonUniqueID == null) buttonUniqueID = -1;
 
-				switch (location) {
-					case 'Top':
+				switch (location)
+				{
+					case 'Top', 'Üst':
 						if (buttonData.topX != null) buttonX = buttonData.topX;
 						if (buttonData.topY != null) buttonY = buttonData.topY;
 						if (buttonData.topWidth != null) buttonWidth = buttonData.topWidth;
 						if (buttonData.topHeight != null) buttonHeight = buttonData.topHeight;
 						if (buttonData.topColor != null) buttonColor = buttonData.topColor;
 						if (buttonData.topReturnKey != null) buttonReturn = buttonData.topReturnKey;
-					case 'Middle':
+
+					case 'Middle', 'Orta':
 						if (buttonData.middleX != null) buttonX = buttonData.middleX;
 						if (buttonData.middleY != null) buttonY = buttonData.middleY;
 						if (buttonData.middleWidth != null) buttonWidth = buttonData.middleWidth;
 						if (buttonData.middleHeight != null) buttonHeight = buttonData.middleHeight;
 						if (buttonData.middleColor != null) buttonColor = buttonData.middleColor;
 						if (buttonData.middleReturnKey != null) buttonReturn = buttonData.middleReturnKey;
-					case 'Bottom':
+
+					case 'Bottom', 'Alt':
 						if (buttonData.bottomX != null) buttonX = buttonData.bottomX;
 						if (buttonData.bottomY != null) buttonY = buttonData.bottomY;
 						if (buttonData.bottomWidth != null) buttonWidth = buttonData.bottomWidth;
@@ -194,8 +197,9 @@ class FunkinHitbox extends Hitbox {
 		var guh:Float = globalAlpha;
 		var shape:Shape = new Shape();
 		shape.graphics.beginFill(Color);
-		switch (ClientPrefs.data.hitboxType) {
-			case "No Gradient":
+		switch (ClientPrefs.data.hitboxType)
+		{
+			case "No Gradient", "Alt Renk":
 				var matrix:Matrix = new Matrix();
 				matrix.createGradientBox(Width, Height, 0, 0, 0);
 				if (isLane)
@@ -204,11 +208,31 @@ class FunkinHitbox extends Hitbox {
 					shape.graphics.beginGradientFill(RADIAL, [Color, Color], [0, guh], [60, 255], matrix, PAD, RGB, 0);
 				shape.graphics.drawRect(0, 0, Width, Height);
 				shape.graphics.endFill();
-			case "No Gradient (Old)":
+
+			case "No Gradient (Old)", "Alt Renk Yok (Eski)":
 				shape.graphics.lineStyle(10, Color, 1);
 				shape.graphics.drawRect(0, 0, Width, Height);
 				shape.graphics.endFill();
-			case "Gradient":
+
+			case "Gradient", "Gradyan":
+				shape.graphics.lineStyle(3, Color, 1);
+				shape.graphics.drawRect(0, 0, Width, Height);
+				shape.graphics.lineStyle(0, 0, 0);
+				shape.graphics.drawRect(3, 3, Width - 6, Height - 6);
+				shape.graphics.endFill();
+				if (isLane)
+					shape.graphics.beginFill(Color);
+				else
+					shape.graphics.beginGradientFill(RADIAL, [Color, FlxColor.TRANSPARENT], [guh, 0], [0, 255], null, null, null, 0.5);
+				shape.graphics.drawRect(3, 3, Width - 6, Height - 6);
+				shape.graphics.endFill();
+
+			case "Hidden", "Gizli":
+				shape.graphics.beginFill(Color, 0);
+				shape.graphics.drawRect(0, 0, Width, Height);
+				shape.graphics.endFill();
+
+			default:
 				shape.graphics.lineStyle(3, Color, 1);
 				shape.graphics.drawRect(0, 0, Width, Height);
 				shape.graphics.lineStyle(0, 0, 0);

@@ -4,6 +4,7 @@ import flixel.input.keyboard.FlxKey;
 import flixel.input.gamepad.FlxGamepad;
 import flixel.input.gamepad.FlxGamepadInputID;
 import flixel.input.gamepad.FlxGamepadManager;
+import flixel.input.touch.FlxTouch;
 
 import objects.CheckboxThingie;
 import objects.AttachedText;
@@ -117,7 +118,7 @@ class BaseOptionsMenu extends MusicBeatSubstate
 
 		#if mobile
 		touchScroll = new ScrollableObject(
-			1.0,
+			0.15,
 			0,
 			0,
 			FlxG.width,
@@ -129,17 +130,71 @@ class BaseOptionsMenu extends MusicBeatSubstate
 		});
 		touchScroll.onTap.add(function()
 		{
-			if (nextAccept <= 0)
+			if (nextAccept <= 0 && grpOptions != null)
 			{
-				switch (curOption.type)
+				var selectedItem:Alphabet = grpOptions.members[curSelected];
+				if (selectedItem != null)
 				{
-					case BOOL:
-						FlxG.sound.play(Paths.sound('scrollMenu'));
-						curOption.setValue((curOption.getValue() == true) ? false : true);
-						curOption.change();
-						reloadCheckboxes();
+					var tapped:Bool = false;
 
-					default:
+					#if mobile
+					var touch = FlxG.touches.getFirst();
+					if (touch != null && touch.overlaps(selectedItem, selectedItem.camera))
+						tapped = true;
+					#else
+					if (FlxG.mouse.overlaps(selectedItem, selectedItem.camera))
+						tapped = true;
+					#end
+
+					if (tapped)
+					{
+						switch (curOption.type)
+						{
+							case BOOL:
+								FlxG.sound.play(Paths.sound('scrollMenu'));
+								curOption.setValue((curOption.getValue() == true) ? false : true);
+								curOption.change();
+								reloadCheckboxes();
+
+							default:
+						}
+					}
+					else
+					{
+						// Seçili öğenin dışına dokunuldu
+						// Dokunulan yere en yakın öğeye scroll yap
+						#if mobile
+						var touchY:Float = 0;
+						var t = FlxG.touches.getFirst();
+						if (t != null)
+							touchY = t.screenY;
+						#else
+						var touchY:Float = FlxG.mouse.screenY;
+						#end
+
+						var bestIndex:Int = curSelected;
+						var bestDist:Float = Math.POSITIVE_INFINITY;
+
+						for (i in 0...grpOptions.members.length)
+						{
+							var item = grpOptions.members[i];
+							if (item != null)
+							{
+								var itemScreenY:Float = item.y - (item.camera != null ? item.camera.scroll.y : 0);
+								var dist:Float = Math.abs(touchY - itemScreenY);
+								if (dist < bestDist)
+								{
+									bestDist = dist;
+									bestIndex = i;
+								}
+							}
+						}
+
+						if (bestIndex != curSelected)
+						{
+							changeSelection(bestIndex - curSelected);
+						}
+					}
 				}
 			}
 		});

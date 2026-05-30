@@ -9,6 +9,9 @@ import flixel.group.FlxGroup;
 import flixel.input.gamepad.FlxGamepad;
 import haxe.Json;
 
+import mobile.MobileConfig;
+import mobile.MobileConfig.ButtonModes;
+
 import backend.AchievementSync;
 import backend.AuthManager;
 
@@ -100,7 +103,21 @@ class TitleState extends MusicBeatState
 			}
 			persistentUpdate = true;
 			persistentDraw = true;
-			MobileData.init();
+			MobileConfig.init(
+				'psychengine_mobile',
+				CoolUtil.getSavePath(),
+				'assets/mobile/',
+				[
+					'MobilePad/DPadModes',
+					'MobilePad/ActionModes',
+					'Hitbox/HitboxModes'
+				],
+				[
+					DPAD,
+					ACTION,
+					HITBOX
+				]
+			);
 		}
 
 		if (FlxG.save.data.weekCompleted != null)

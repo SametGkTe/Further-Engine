@@ -1,6 +1,8 @@
 package backend;
 
 import flixel.FlxSubState;
+import mobile.MobileConfig;
+import mobile.objects.FunkinMobilePad;
 
 class MusicBeatSubstate extends FlxSubState
 {
@@ -29,14 +31,29 @@ class MusicBeatSubstate extends FlxSubState
 	inline function get_controls():Controls
 		return Controls.instance;
 
-	public var touchPad:TouchPad;
+	public var touchPad:Dynamic;
 	public var touchPadCam:FlxCamera;
 	public var mobileControls:IMobileControls;
 	public var mobileControlsCam:FlxCamera;
 
 	public function addTouchPad(DPad:String, Action:String)
 	{
-		touchPad = new TouchPad(DPad, Action);
+		#if mobile
+		if (ClientPrefs.isTouchMode())
+			return;
+		#end
+
+		if (MobileConfig.dpadModes != null
+			&& MobileConfig.actionModes != null
+			&& (MobileConfig.dpadModes.exists(DPad) || MobileConfig.actionModes.exists(Action) || DPad == 'NONE' || Action == 'NONE'))
+		{
+			touchPad = new FunkinMobilePad(DPad, Action, ClientPrefs.data.mobilePadAlpha);
+		}
+		else
+		{
+			touchPad = new TouchPad(DPad, Action);
+		}
+
 		add(touchPad);
 	}
 
@@ -99,6 +116,11 @@ class MusicBeatSubstate extends FlxSubState
 
 	public function addTouchPadCamera(defaultDrawTarget:Bool = false):Void
 	{
+		#if mobile
+		if (ClientPrefs.isTouchMode())
+			return;
+		#end
+
 		if (touchPad != null)
 		{
 			touchPadCam = new FlxCamera();
