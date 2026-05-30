@@ -62,6 +62,70 @@ class MusicBeatState extends FlxState
 			touchPad.cameras = [touchPadCam];
 		}
 	}
+	
+	public function getTouchPadButton(buttonName:String):Dynamic
+	{
+		if (touchPad == null)
+			return null;
+
+		// Eski TouchPad sistemi - direkt field
+		try
+		{
+			var field:Dynamic = Reflect.field(touchPad, buttonName);
+			if (field != null)
+				return field;
+		}
+		catch (e:Dynamic) {}
+
+		// Yeni FunkinMobilePad sistemi - members içinde tag ile ara
+		try
+		{
+			var members:Dynamic = Reflect.field(touchPad, "members");
+			if (members != null)
+			{
+				var arr:Array<Dynamic> = cast members;
+				for (member in arr)
+				{
+					if (member == null)
+						continue;
+
+					var tag:Dynamic = Reflect.field(member, "tag");
+					if (tag != null)
+					{
+						var tagStr:String = Std.string(tag);
+						var searchName:String = buttonName.toUpperCase();
+
+						if (searchName.startsWith("BUTTON"))
+							searchName = searchName.substr(6);
+
+						if (tagStr == searchName)
+							return member;
+					}
+				}
+			}
+		}
+		catch (e:Dynamic) {}
+
+		return null;
+	}
+	
+	public function touchPadButtonPressed(buttonName:String):Bool
+	{
+		var btn:Dynamic = getTouchPadButton(buttonName);
+		return btn != null && btn.pressed == true;
+	}
+
+	public function touchPadButtonJustPressed(buttonName:String):Bool
+	{
+		var btn:Dynamic = getTouchPadButton(buttonName);
+		return btn != null && btn.justPressed == true;
+	}
+
+	public function touchPadButtonJustReleased(buttonName:String):Bool
+	{
+		var btn:Dynamic = getTouchPadButton(buttonName);
+		return btn != null && btn.justReleased == true;
+	}
 
 	public inline function mobileButtonReleased(buttons:Dynamic):Bool
 	{

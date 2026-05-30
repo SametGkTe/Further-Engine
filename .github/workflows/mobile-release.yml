@@ -38,14 +38,14 @@ jobs:
         include:
           - name: Android
             os: macos-15
-            buildArgs: "android -final -D officialBuild"
+            buildArgs: "android -final"
             setupCommand: sh ./setup/unix.sh
             artifactName: androidBuild
             artifactPath: "export/release/android/bin/app/build/outputs/apk/release/*.apk"
           - name: iOS
             os: macos-14
             setupCommand: sh ./setup/unix.sh
-            buildArgs: "ios -final -nosign -D officialBuild"
+            buildArgs: "ios -final -nosign"
             artifactName: iOSBuild
             artifactPath: "export/release/ios/build/Release-iphoneos/*.ipa"
     uses: ./.github/workflows/build.yml

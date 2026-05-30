@@ -226,20 +226,24 @@ class Controls
 
 	private function matchesAnyKey(ids:Dynamic, keys:Array<MobileInputID>, wantedStrings:Array<String>):Bool
 	{
+		if (ids == null)
+			return false;
+
 		var idArray:Array<Dynamic> = cast ids;
 
 		for (id in idArray)
 		{
+			var idStr:String = Std.string(id).toUpperCase();
+
 			for (key in keys)
 			{
 				if (id == key)
 					return true;
 			}
 
-			var idStr:String = Std.string(id);
 			for (wanted in wantedStrings)
 			{
-				if (idStr == wanted)
+				if (idStr == wanted.toUpperCase())
 					return true;
 			}
 		}
