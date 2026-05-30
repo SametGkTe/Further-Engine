@@ -207,7 +207,7 @@ class ScrollableObject extends TouchZone
 			return {x: lastXPos, y: lastYPos};
 		return {x: touch.screenX, y: touch.screenY};
 		#else
-		return {x: FlxG.mouse.viewX, y: FlxG.mouse.viewY};
+		return {x: FlxG.mouse.screenX, y: FlxG.mouse.screenY};
 		#end
 	}
 

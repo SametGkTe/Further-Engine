@@ -170,79 +170,83 @@ class Controls
 	public var requestedInstance(get, default):Dynamic; // is set to MusicBeatState or MusicBeatSubstate when the constructor is called
 	public var requestedMobileC(get, default):IMobileControls; // for PlayState and EditorPlayState (hitbox and touchPad)
 	public var mobileC(get, never):Bool;
-
+	
 	private function touchPadPressed(keys:Array<MobileInputID>):Bool
 	{
-		return callTouchPadMethod("anyPressed", "pressed", keys);
+		return touchPadCheckState(keys, "pressed");
 	}
 
 	private function touchPadJustPressed(keys:Array<MobileInputID>):Bool
 	{
-		return callTouchPadMethod("anyJustPressed", "justPressed", keys);
+		return touchPadCheckState(keys, "justPressed");
 	}
 
 	private function touchPadJustReleased(keys:Array<MobileInputID>):Bool
 	{
-		return callTouchPadMethod("anyJustReleased", "justReleased", keys);
+		return touchPadCheckState(keys, "justReleased");
 	}
-	
+
 	private function touchPadReleased(keys:Array<MobileInputID>):Bool
 	{
-		return callTouchPadMethod("anyReleased", "released", keys);
-	}
-	
-
-	private function mobileCPressed(keys:Array<MobileInputID>):Bool
-	{
-		if (keys != null && requestedMobileC != null)
-			if (requestedMobileC.instance.anyPressed(keys))
-				return true;
-
-		return false;
+		return touchPadCheckState(keys, "released");
 	}
 
-	private function mobileCJustPressed(keys:Array<MobileInputID>):Bool
+	private function touchPadCheckState(keys:Array<MobileInputID>, state:String):Bool
 	{
-		if (keys != null && requestedMobileC != null)
-			if (requestedMobileC.instance.anyJustPressed(keys))
-				return true;
-
-		return false;
-	}
-
-	private function mobileCJustReleased(keys:Array<MobileInputID>):Bool
-	{
-		if (keys != null && requestedMobileC != null)
-			if (requestedMobileC.instance.anyJustReleased(keys))
-				return true;
-
-		return false;
-	}
-
-	@:noCompletion
-	private function get_requestedInstance():Dynamic
-	{
-		if (isInSubstate)
-			return MusicBeatSubstate.instance;
-		else
-			return MusicBeatState.getState();
-	}
-
-	@:noCompletion
-	private function get_requestedMobileC():IMobileControls
-	{
-		return requestedInstance.mobileControls;
-	}
-
-	@:noCompletion
-	private function get_mobileC():Bool
-	{
-		if (ClientPrefs.data.controlsAlpha >= 0.1)
-			return true;
-		else
+		if (keys == null || requestedInstance == null || requestedInstance.touchPad == null)
 			return false;
+
+		var tp:Dynamic = requestedInstance.touchPad;
+		var members:Dynamic = Reflect.field(tp, "members");
+		if (members == null)
+			return false;
+
+		var wantedStrings:Array<String> = convertMobileKeys(keys);
+		var membersArray:Array<Dynamic> = cast members;
+
+		for (member in membersArray)
+		{
+			if (member == null)
+				continue;
+
+			var ids:Dynamic = Reflect.field(member, "IDs");
+			if (ids == null)
+				continue;
+
+			if (!matchesAnyKey(ids, keys, wantedStrings))
+				continue;
+
+			var val:Dynamic = Reflect.field(member, state);
+			if (val == true)
+				return true;
+		}
+
+		return false;
 	}
-	
+
+	private function matchesAnyKey(ids:Dynamic, keys:Array<MobileInputID>, wantedStrings:Array<String>):Bool
+	{
+		var idArray:Array<Dynamic> = cast ids;
+
+		for (id in idArray)
+		{
+			for (key in keys)
+			{
+				if (id == key)
+					return true;
+			}
+
+			var idStr:String = Std.string(id);
+			for (wanted in wantedStrings)
+			{
+				if (idStr == wanted)
+					return true;
+			}
+		}
+
+		return false;
+	}
+
 	private function convertMobileKeys(keys:Array<MobileInputID>):Array<String>
 	{
 		var out:Array<String> = [];
@@ -312,35 +316,59 @@ class Controls
 
 		return out;
 	}
+	
 
-	private function callTouchPadMethod(methodOld:String, methodNew:String, keys:Array<MobileInputID>):Bool
+	private function mobileCPressed(keys:Array<MobileInputID>):Bool
 	{
-		if (keys == null || requestedInstance.touchPad == null)
-			return false;
-
-		var tp:Dynamic = requestedInstance.touchPad;
-
-		// Eski sistem
-		if (Reflect.hasField(tp, methodOld))
-		{
-			var fn = Reflect.field(tp, methodOld);
-			if (fn != null)
-				return Reflect.callMethod(tp, fn, [keys]) == true;
-		}
-
-		// Yeni sistem
-		if (Reflect.hasField(tp, methodNew))
-		{
-			var fn = Reflect.field(tp, methodNew);
-			if (fn != null)
-			{
-				var converted:Array<String> = convertMobileKeys(keys);
-				return Reflect.callMethod(tp, fn, [converted]) == true;
-			}
-		}
+		if (keys != null && requestedMobileC != null)
+			if (requestedMobileC.instance.anyPressed(keys))
+				return true;
 
 		return false;
 	}
+
+	private function mobileCJustPressed(keys:Array<MobileInputID>):Bool
+	{
+		if (keys != null && requestedMobileC != null)
+			if (requestedMobileC.instance.anyJustPressed(keys))
+				return true;
+
+		return false;
+	}
+
+	private function mobileCJustReleased(keys:Array<MobileInputID>):Bool
+	{
+		if (keys != null && requestedMobileC != null)
+			if (requestedMobileC.instance.anyJustReleased(keys))
+				return true;
+
+		return false;
+	}
+
+	@:noCompletion
+	private function get_requestedInstance():Dynamic
+	{
+		if (isInSubstate)
+			return MusicBeatSubstate.instance;
+		else
+			return MusicBeatState.getState();
+	}
+
+	@:noCompletion
+	private function get_requestedMobileC():IMobileControls
+	{
+		return requestedInstance.mobileControls;
+	}
+
+	@:noCompletion
+	private function get_mobileC():Bool
+	{
+		if (ClientPrefs.data.controlsAlpha >= 0.1)
+			return true;
+		else
+			return false;
+	}
+	
 
 	// IGNORE THESE/ karim: no.
 	public static var instance:Controls;

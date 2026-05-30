@@ -17,8 +17,9 @@ import openfl.display.BitmapData;
 import sys.io.File;
 import sys.FileSystem;
 #end
-
+#if mobile
 import mobile.JoyStick;
+#end
 
 using StringTools;
 

@@ -1,6 +1,5 @@
 package mobile.objects;
 
-import mobile.Hitbox;
 import openfl.display.BitmapData;
 import openfl.display.Shape;
 import openfl.geom.Matrix;
@@ -9,7 +8,7 @@ import objects.Note;
 import flixel.FlxG; // FlxG eklendi
 import flixel.input.touch.FlxTouch; // Touch desteği için
 
-class FunkinHitbox extends Hitbox {
+class FunkinHitbox extends mobile.Hitbox {
 	public var currentMode:String;
 	public var showHints:Bool;
 	public var globalAlpha:Float = 0.7;

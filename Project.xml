@@ -115,7 +115,7 @@
 	<haxelib name="flxanimate"/>
 
 	<!-- YENİ: Mobile Controls Library -->
-	<haxelib name="mobile-controls" if="mobile"/>
+	<haxelib name="mobile-controls"/>
 	<haxedef name="mobile_controls_allow_mouse_clicks" if="mobile"/>
 
 	<!-- Disable Discord IO Thread -->

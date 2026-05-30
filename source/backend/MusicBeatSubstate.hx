@@ -43,16 +43,13 @@ class MusicBeatSubstate extends FlxSubState
 			return;
 		#end
 
-		if (MobileConfig.dpadModes != null
-			&& MobileConfig.actionModes != null
-			&& (MobileConfig.dpadModes.exists(DPad) || MobileConfig.actionModes.exists(Action) || DPad == 'NONE' || Action == 'NONE'))
-		{
+		var dpadOk:Bool = (DPad == 'NONE' || (MobileConfig.dpadModes != null && MobileConfig.dpadModes.exists(DPad)));
+		var actionOk:Bool = (Action == 'NONE' || (MobileConfig.actionModes != null && MobileConfig.actionModes.exists(Action)));
+
+		if (dpadOk && actionOk)
 			touchPad = new FunkinMobilePad(DPad, Action, ClientPrefs.data.mobilePadAlpha);
-		}
 		else
-		{
 			touchPad = new TouchPad(DPad, Action);
-		}
 
 		add(touchPad);
 	}
