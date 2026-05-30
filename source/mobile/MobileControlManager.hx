@@ -25,17 +25,43 @@ class MobileControlManager {
 		trace("MobileControlManager initialized.");
 	}
 
-	//for lua shit
 	public function makeMobilePad(DPad:String, Action:String)
 	{
 		if (mobilePad != null) removeMobilePad();
 		mobilePad = new FunkinMobilePad(DPad, Action, ClientPrefs.data.mobilePadAlpha);
+
+		// Eski touchPad sistemine de bağla
+		if (currentState != null)
+			currentState.touchPad = mobilePad;
 	}
 
 	public function addMobilePad(DPad:String, Action:String)
 	{
 		makeMobilePad(DPad, Action);
 		currentState.add(mobilePad);
+
+		// Eski touchPad sistemine de bağla
+		if (currentState != null)
+			currentState.touchPad = mobilePad;
+	}
+	
+	public function removeMobilePad():Void
+	{
+		if (mobilePad != null)
+		{
+			currentState.remove(mobilePad);
+			mobilePad = FlxDestroyUtil.destroy(mobilePad);
+		}
+
+		// Eski touchPad referansını da temizle
+		if (currentState != null)
+			currentState.touchPad = null;
+
+		if (mobilePadCam != null)
+		{
+			FlxG.cameras.remove(mobilePadCam);
+			mobilePadCam = FlxDestroyUtil.destroy(mobilePadCam);
+		}
 	}
 
 	public function removeMobilePad():Void
