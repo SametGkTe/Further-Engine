@@ -173,30 +173,24 @@ class Controls
 
 	private function touchPadPressed(keys:Array<MobileInputID>):Bool
 	{
-		if (keys != null && requestedInstance.touchPad != null)
-			if (requestedInstance.touchPad.anyPressed(keys) == true)
-				return true;
-
-		return false;
+		return callTouchPadMethod("anyPressed", "pressed", keys);
 	}
 
 	private function touchPadJustPressed(keys:Array<MobileInputID>):Bool
 	{
-		if (keys != null && requestedInstance.touchPad != null)
-			if (requestedInstance.touchPad.anyJustPressed(keys) == true)
-				return true;
-
-		return false;
+		return callTouchPadMethod("anyJustPressed", "justPressed", keys);
 	}
 
 	private function touchPadJustReleased(keys:Array<MobileInputID>):Bool
 	{
-		if (keys != null && requestedInstance.touchPad != null)
-			if (requestedInstance.touchPad.anyJustReleased(keys) == true)
-				return true;
-
-		return false;
+		return callTouchPadMethod("anyJustReleased", "justReleased", keys);
 	}
+	
+	private function touchPadReleased(keys:Array<MobileInputID>):Bool
+	{
+		return callTouchPadMethod("anyReleased", "released", keys);
+	}
+	
 
 	private function mobileCPressed(keys:Array<MobileInputID>):Bool
 	{
@@ -247,6 +241,105 @@ class Controls
 			return true;
 		else
 			return false;
+	}
+	
+	private function convertMobileKeys(keys:Array<MobileInputID>):Array<String>
+	{
+		var out:Array<String> = [];
+		if (keys == null) return out;
+
+		for (key in keys)
+		{
+			switch (key)
+			{
+				case LEFT: out.push("LEFT");
+				case RIGHT: out.push("RIGHT");
+				case UP: out.push("UP");
+				case DOWN: out.push("DOWN");
+
+				case NOTE_LEFT: out.push("NOTE_LEFT");
+				case NOTE_RIGHT: out.push("NOTE_RIGHT");
+				case NOTE_UP: out.push("NOTE_UP");
+				case NOTE_DOWN: out.push("NOTE_DOWN");
+
+				case LEFT2: out.push("LEFT2");
+				case RIGHT2: out.push("RIGHT2");
+				case UP2: out.push("UP2");
+				case DOWN2: out.push("DOWN2");
+
+				case A: out.push("A");
+				case B: out.push("B");
+				case C: out.push("C");
+				case D: out.push("D");
+				case E: out.push("E");
+				case F: out.push("F");
+				case G: out.push("G");
+				case H: out.push("H");
+				case I: out.push("I");
+				case J: out.push("J");
+				case K: out.push("K");
+				case L: out.push("L");
+				case M: out.push("M");
+				case N: out.push("N");
+				case O: out.push("O");
+				case P: out.push("P");
+				case Q: out.push("Q");
+				case R: out.push("R");
+				case S: out.push("S");
+				case T: out.push("T");
+				case U: out.push("U");
+				case V: out.push("V");
+				case W: out.push("W");
+				case X: out.push("X");
+				case Y: out.push("Y");
+				case Z: out.push("Z");
+
+				case EXTRA_1: out.push("EXTRA_1");
+				case EXTRA_2: out.push("EXTRA_2");
+
+				case HITBOX_LEFT: out.push("HITBOX_LEFT");
+				case HITBOX_RIGHT: out.push("HITBOX_RIGHT");
+				case HITBOX_UP: out.push("HITBOX_UP");
+				case HITBOX_DOWN: out.push("HITBOX_DOWN");
+
+				case NONE: out.push("NONE");
+				case ANY: out.push("ANY");
+
+				default:
+					out.push(Std.string(key));
+			}
+		}
+
+		return out;
+	}
+
+	private function callTouchPadMethod(methodOld:String, methodNew:String, keys:Array<MobileInputID>):Bool
+	{
+		if (keys == null || requestedInstance.touchPad == null)
+			return false;
+
+		var tp:Dynamic = requestedInstance.touchPad;
+
+		// Eski sistem
+		if (Reflect.hasField(tp, methodOld))
+		{
+			var fn = Reflect.field(tp, methodOld);
+			if (fn != null)
+				return Reflect.callMethod(tp, fn, [keys]) == true;
+		}
+
+		// Yeni sistem
+		if (Reflect.hasField(tp, methodNew))
+		{
+			var fn = Reflect.field(tp, methodNew);
+			if (fn != null)
+			{
+				var converted:Array<String> = convertMobileKeys(keys);
+				return Reflect.callMethod(tp, fn, [converted]) == true;
+			}
+		}
+
+		return false;
 	}
 
 	// IGNORE THESE/ karim: no.
