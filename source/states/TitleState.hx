@@ -82,7 +82,6 @@ class TitleState extends MusicBeatState
 		Paths.clearStoredMemory();
 		super.create();
 		Paths.clearUnusedMemory();
-		startUnifiedUpdateCheck();
 
 		if(!initialized)
 		{
@@ -118,23 +117,37 @@ class TitleState extends MusicBeatState
 		});
 
 		FlxG.mouse.visible = false;
+
 		#if FREEPLAY
 		MusicBeatState.switchState(new FreeplayState());
+
 		#elseif CHARTING
 		MusicBeatState.switchState(new ChartingState());
+
 		#else
 		if(FlxG.save.data.flashing == null && !FlashingState.leftState)
 		{
-			controls.isInSubstate = false; //idfk what's wrong
+			controls.isInSubstate = false;
 			FlxTransitionableState.skipNextTransIn = true;
 			FlxTransitionableState.skipNextTransOut = true;
 			MusicBeatState.switchState(new FlashingState());
 		}
 		else
+		{
 			startIntro();
+
+			#if mobile
+			new FlxTimer().start(1.2, function(tmr:FlxTimer)
+			{
+				startUnifiedUpdateCheck();
+			});
+			#else
+			startUnifiedUpdateCheck();
+			#end
+		}
 		#end
 	}
-
+		
 	var logoBl:FlxSprite;
 	var gfDance:FlxSprite;
 	var danceLeft:Bool = false;
@@ -481,6 +494,8 @@ class TitleState extends MusicBeatState
 	
 	function startUnifiedUpdateCheck():Void
 	{
+		if (FlxG.state != this)
+			return;
 		if (checkingUnifiedUpdates || shownUnifiedUpdatePopup)
 			return;
 
