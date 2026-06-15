@@ -115,29 +115,20 @@ class IOSKeyboardFix
 
 	static function normalizeOpenFLDown(keyCode:Int, charCode:Int):Void
 	{
-		switch (keyCode)
-		{
-			case Keyboard.ENTER, 10:
-				setDown("accept");
-
-			case Keyboard.BACKSPACE, Keyboard.DELETE, Keyboard.ESCAPE, 27, 127:
-				setDown("back");
-
-			case Keyboard.LEFT, 63234:
-				setDown("left");
-
-			case Keyboard.UP, 63232:
-				setDown("up");
-
-			case Keyboard.RIGHT, 63235:
-				setDown("right");
-
-			case Keyboard.DOWN, 63233:
-				setDown("down");
-
-			case Keyboard.SPACE:
-				setDown("space");
-		}
+		if (keyCode == Keyboard.ENTER || keyCode == 10)
+			setDown("accept");
+		else if (keyCode == Keyboard.BACKSPACE || keyCode == Keyboard.DELETE || keyCode == Keyboard.ESCAPE || keyCode == 27 || keyCode == 127)
+			setDown("back");
+		else if (keyCode == Keyboard.LEFT || keyCode == 63234)
+			setDown("left");
+		else if (keyCode == Keyboard.UP || keyCode == 63232)
+			setDown("up");
+		else if (keyCode == Keyboard.RIGHT || keyCode == 63235)
+			setDown("right");
+		else if (keyCode == Keyboard.DOWN || keyCode == 63233)
+			setDown("down");
+		else if (keyCode == Keyboard.SPACE)
+			setDown("space");
 
 		if (charCode > 0)
 		{
@@ -154,29 +145,20 @@ class IOSKeyboardFix
 
 	static function normalizeOpenFLUp(keyCode:Int, charCode:Int):Void
 	{
-		switch (keyCode)
-		{
-			case Keyboard.ENTER, 10:
-				setUp("accept");
-
-			case Keyboard.BACKSPACE, Keyboard.DELETE, Keyboard.ESCAPE, 27, 127:
-				setUp("back");
-
-			case Keyboard.LEFT, 63234:
-				setUp("left");
-
-			case Keyboard.UP, 63232:
-				setUp("up");
-
-			case Keyboard.RIGHT, 63235:
-				setUp("right");
-
-			case Keyboard.DOWN, 63233:
-				setUp("down");
-
-			case Keyboard.SPACE:
-				setUp("space");
-		}
+		if (keyCode == Keyboard.ENTER || keyCode == 10)
+			setUp("accept");
+		else if (keyCode == Keyboard.BACKSPACE || keyCode == Keyboard.DELETE || keyCode == Keyboard.ESCAPE || keyCode == 27 || keyCode == 127)
+			setUp("back");
+		else if (keyCode == Keyboard.LEFT || keyCode == 63234)
+			setUp("left");
+		else if (keyCode == Keyboard.UP || keyCode == 63232)
+			setUp("up");
+		else if (keyCode == Keyboard.RIGHT || keyCode == 63235)
+			setUp("right");
+		else if (keyCode == Keyboard.DOWN || keyCode == 63233)
+			setUp("down");
+		else if (keyCode == Keyboard.SPACE)
+			setUp("space");
 
 		if (charCode > 0)
 		{

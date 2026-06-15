@@ -133,7 +133,9 @@ class LinkSubState extends MusicBeatSubstate {
 		urlText.screenCenter(X);
 
 		// Metnin gerçek render genişliğini al ve center'a göre başlangıç noktasını hesapla
-		var actualTextWidth:Float = urlText.textField.textWidth;
+		var actualTextWidth:Float = urlText.width;
+		if (urlText.textField != null)
+			actualTextWidth = urlText.textField.textWidth;
 		var textStartX:Float = urlText.x + (urlText.width - actualTextWidth) / 2;
 
 		// Ikonu URL metninin gerçek başlangıcının soluna hizala
@@ -239,7 +241,7 @@ class LinkSubState extends MusicBeatSubstate {
 		// Mobil
 		#if mobile
 		for (touch in FlxG.touches.list) {
-			if (touch.justPressed || touch.justMoved) {
+			if (touch.justPressed || touch.pressed) {
 				var prev = curSelected;
 				if (touchOver(yesBg, touch)) curSelected = 0;
 				else if (touchOver(noBg, touch)) curSelected = 1;
