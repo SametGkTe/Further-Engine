@@ -1,7 +1,6 @@
 package states;
 
 import backend.AuthManager;
-import backend.SupabaseClient;
 import backend.ui.PsychUIInputText;
 import flixel.FlxG;
 import flixel.FlxSprite;
@@ -12,27 +11,40 @@ import flixel.tweens.FlxEase;
 import flixel.util.FlxTimer;
 
 class LoginState extends MusicBeatState {
-	// Renkler
-	static inline final C_BG = 0xFF08080f;
-	static inline final C_CARD = 0xFF0e0e1a;
-	static inline final C_BORDER = 0xFF1c1c30;
-	static inline final C_FIELD = 0xFF0a0a14;
-	static inline final C_ACCENT = 0xFFA855F7;
-	static inline final C_TEXT = 0xFFe2e2f0;
-	static inline final C_MUTED = 0xFF555570;
+	// ══════════════════════════════════
+	//  RENKLER
+	// ══════════════════════════════════
+	static inline final C_BG = 0xFF0a0a0a;
+	static inline final C_CARD = 0xFF161616;
+	static inline final C_FIELD = 0xFF111111;
+	static inline final C_FIELD_LINE = 0xFF444444;
+	static inline final C_ACCENT = 0xFF888888;
+	static inline final C_ACCENT_LIGHT = 0xFFaaaaaa;
+	static inline final C_TEXT = 0xFFe0e0e0;
+	static inline final C_MUTED = 0xFF606060;
 	static inline final C_RED = 0xFFef4444;
 	static inline final C_GREEN = 0xFF22c55e;
+	static inline final C_BTN = 0xFF2a2a2a;
+	static inline final C_BTN_HOVER = 0xFF383838;
+	static inline final C_BORDER = 0xFF222222;
 
-	// Boyutlar
-	static inline final CARD_W = 380;
-	static inline final CARD_H = 420;
-	static inline final FIELD_W = 320;
-	static inline final FIELD_H = 38;
+	// ══════════════════════════════════
+	//  BOYUTLAR
+	// ══════════════════════════════════
+	static inline final CARD_W = 440;
+	static inline final CARD_H = 500;
+	static inline final FIELD_W = 370;
+	static inline final FIELD_H = 44;
 
 	var cardX:Float;
 	var cardY:Float;
 	var fieldX:Float;
 
+	// UI
+	var bg:FlxSprite;
+	var card:FlxSprite;
+	var accentLine:FlxSprite;
+	var borderBottom:FlxSprite;
 	var titleText:FlxText;
 	var subtitleText:FlxText;
 	var statusText:FlxText;
@@ -43,140 +55,233 @@ class LoginState extends MusicBeatState {
 	var passInput:PsychUIInputText;
 	var userInput:PsychUIInputText;
 	var loginBtn:FlxSprite;
+	var loginBtnLine:FlxSprite;
 	var loginBtnText:FlxText;
 	var toggleText:FlxText;
 	var skipText:FlxText;
+	var sepLine:FlxSprite;
+
+	var emailFieldBg:FlxSprite;
+	var emailFieldLine:FlxSprite;
+	var passFieldBg:FlxSprite;
+	var passFieldLine:FlxSprite;
+	var userFieldBg:FlxSprite;
+	var userFieldLine:FlxSprite;
 
 	var _isRegister:Bool = false;
 	var _busy:Bool = false;
+	var _btnHovered:Bool = false;
+	var _toggleHovered:Bool = false;
+	var _skipHovered:Bool = false;
+	var _ready:Bool = false;
 
 	var regElements:Array<flixel.FlxBasic> = [];
 
 	override function create() {
 		super.create();
 
-		cardX = (1280 - CARD_W) / 2;
-		cardY = (720 - CARD_H) / 2;
+		cardX = (FlxG.width - CARD_W) / 2;
+		cardY = (FlxG.height - CARD_H) / 2;
 		fieldX = cardX + (CARD_W - FIELD_W) / 2;
 
 		// ── Arka plan ──
-		add(new FlxSprite().makeGraphic(1280, 720, C_BG));
+		bg = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, C_BG);
+		bg.scrollFactor.set(0, 0);
+		add(bg);
 
 		// ── Kart ──
-		add(new FlxSprite(cardX, cardY).makeGraphic(CARD_W, CARD_H, C_CARD));
+		card = new FlxSprite(cardX, cardY).makeGraphic(CARD_W, CARD_H, C_CARD);
+		card.scrollFactor.set(0, 0);
+		card.alpha = 0;
+		add(card);
 
-		// Üst accent çizgi
-		var accent = new FlxSprite(cardX, cardY).makeGraphic(CARD_W, 3, C_ACCENT);
-		accent.alpha = 0.8;
-		add(accent);
+		// Ust accent
+		accentLine = new FlxSprite(cardX, cardY).makeGraphic(CARD_W, 2, C_ACCENT);
+		accentLine.scrollFactor.set(0, 0);
+		accentLine.alpha = 0;
+		add(accentLine);
 
-		// ── İçerik ──
-		var curY:Float = cardY + 28;
+		// Alt border
+		borderBottom = new FlxSprite(cardX, cardY + CARD_H - 1).makeGraphic(CARD_W, 1, C_BORDER);
+		borderBottom.scrollFactor.set(0, 0);
+		borderBottom.alpha = 0;
+		add(borderBottom);
 
-		titleText = txt(cardX, curY, CARD_W, "Giris Yap", 22, CENTER);
+		// ══════════════════════════════════
+		//  ICERIK
+		// ══════════════════════════════════
+		var curY:Float = cardY + 30;
+
+		// Baslik
+		titleText = makeText(cardX, curY, CARD_W, "Giriş Yapın", 28, CENTER);
+		titleText.alpha = 0;
 		add(titleText);
-		curY += 30;
-
-		subtitleText = txt(cardX, curY, CARD_W, "Hesabiniza baglanin", 10, CENTER);
-		subtitleText.color = C_MUTED;
-		add(subtitleText);
 		curY += 36;
 
-		// ── Username (register only) ──
-		userLabel = txt(fieldX, curY, FIELD_W, "KULLANICI ADI", 8);
+		// Alt baslik
+		subtitleText = makeText(cardX, curY, CARD_W, "Hesabınıza baglanın", 14, CENTER);
+		subtitleText.color = C_MUTED;
+		subtitleText.alpha = 0;
+		add(subtitleText);
+		curY += 44;
+
+		// ── Username (register) ──
+		userLabel = makeText(fieldX, curY, FIELD_W, "KULLANICI ADI", 12);
 		userLabel.color = C_MUTED;
 		regElements.push(userLabel);
 		add(userLabel);
 
-		var uBg = field(fieldX, curY + 14);
-		regElements.push(uBg);
+		var uf = makeField(fieldX, curY + 18);
+		userFieldBg = uf.bg;
+		userFieldLine = uf.line;
+		regElements.push(userFieldBg);
+		regElements.push(userFieldLine);
 
-		userInput = new PsychUIInputText(Std.int(fieldX + 10), Std.int(curY + 22), Std.int(FIELD_W - 20), "", 12);
+		userInput = new PsychUIInputText(Std.int(fieldX + 12), Std.int(curY + 28), Std.int(FIELD_W - 24), "", 16);
 		userInput.maxLength = 20;
 		regElements.push(userInput);
 		add(userInput);
-		curY += FIELD_H + 26;
+		curY += FIELD_H + 30;
 
 		// ── Email ──
-		emailLabel = txt(fieldX, curY, FIELD_W, "E-POSTA VEYA KULLANICI ADI", 8);
+		emailLabel = makeText(fieldX, curY, FIELD_W, "E-POSTA VEYA KULLANICI ADI", 12);
 		emailLabel.color = C_MUTED;
+		emailLabel.alpha = 0;
 		add(emailLabel);
 
-		field(fieldX, curY + 14);
+		var ef = makeField(fieldX, curY + 18);
+		emailFieldBg = ef.bg;
+		emailFieldLine = ef.line;
+		emailFieldBg.alpha = 0;
+		emailFieldLine.alpha = 0;
 
-		emailInput = new PsychUIInputText(Std.int(fieldX + 10), Std.int(curY + 22), Std.int(FIELD_W - 20), "", 12);
+		emailInput = new PsychUIInputText(Std.int(fieldX + 12), Std.int(curY + 28), Std.int(FIELD_W - 24), "", 16);
 		emailInput.maxLength = 50;
 		add(emailInput);
-		curY += FIELD_H + 26;
+		curY += FIELD_H + 30;
 
 		// ── Password ──
-		passLabel = txt(fieldX, curY, FIELD_W, "SIFRE", 8);
+		passLabel = makeText(fieldX, curY, FIELD_W, "ŞİFRE", 12);
 		passLabel.color = C_MUTED;
+		passLabel.alpha = 0;
 		add(passLabel);
 
-		field(fieldX, curY + 14);
+		var pf = makeField(fieldX, curY + 18);
+		passFieldBg = pf.bg;
+		passFieldLine = pf.line;
+		passFieldBg.alpha = 0;
+		passFieldLine.alpha = 0;
 
-		passInput = new PsychUIInputText(Std.int(fieldX + 10), Std.int(curY + 22), Std.int(FIELD_W - 20), "", 12);
+		passInput = new PsychUIInputText(Std.int(fieldX + 12), Std.int(curY + 28), Std.int(FIELD_W - 24), "", 16);
 		passInput.maxLength = 50;
 		passInput.passwordMask = true;
 		add(passInput);
-		curY += FIELD_H + 22;
+		curY += FIELD_H + 28;
 
 		// ── Buton ──
-		loginBtn = new FlxSprite(fieldX, curY).makeGraphic(FIELD_W, 40, C_ACCENT);
+		loginBtn = new FlxSprite(fieldX, curY).makeGraphic(FIELD_W, 46, C_BTN);
+		loginBtn.scrollFactor.set(0, 0);
+		loginBtn.alpha = 0;
 		add(loginBtn);
 
-		loginBtnText = txt(fieldX, curY + 12, FIELD_W, "GIRIS YAP", 12, CENTER);
-		loginBtnText.color = 0xFF0a0a14;
+		loginBtnLine = new FlxSprite(fieldX, curY).makeGraphic(FIELD_W, 2, C_ACCENT);
+		loginBtnLine.scrollFactor.set(0, 0);
+		loginBtnLine.alpha = 0;
+		add(loginBtnLine);
+
+		loginBtnText = makeText(fieldX, curY + 13, FIELD_W, "GIRIS YAP", 17, CENTER);
+		loginBtnText.setFormat(Paths.font("vcr.ttf"));
+		loginBtnText.alpha = 0;
 		add(loginBtnText);
-		curY += 52;
+		curY += 58;
+
+		// ── Separator ──
+		sepLine = new FlxSprite(fieldX + 40, curY).makeGraphic(FIELD_W - 80, 1, C_BORDER);
+		sepLine.scrollFactor.set(0, 0);
+		sepLine.alpha = 0;
+		add(sepLine);
+		curY += 16;
 
 		// ── Toggle ──
-		toggleText = txt(cardX, curY, CARD_W, "Hesabin yok mu? Kayit ol", 9, CENTER);
-		toggleText.color = C_ACCENT;
+		toggleText = makeText(cardX, curY, CARD_W, "Hesabınız yok mu? Kayıt olun", 13, CENTER);
+		toggleText.color = C_ACCENT_LIGHT;
+		toggleText.alpha = 0;
 		add(toggleText);
-		curY += 22;
+		curY += 26;
 
 		// ── Skip ──
-		skipText = txt(cardX, curY, CARD_W, "Atla", 9, CENTER);
+		skipText = makeText(cardX, curY, CARD_W, "Atla", 13, CENTER);
 		skipText.color = C_MUTED;
+		skipText.alpha = 0;
 		add(skipText);
-		curY += 24;
+		curY += 28;
 
 		// ── Status ──
-		statusText = txt(cardX, curY, CARD_W, "", 9, CENTER);
+		statusText = makeText(cardX, curY, CARD_W, "", 13, CENTER);
 		statusText.color = C_RED;
+		statusText.alpha = 0;
 		add(statusText);
 
-		// ── Başlangıç ──
+		// Baslangic
 		setRegisterVisible(false);
+		playEntryAnimation();
 	}
 
 	// ══════════════════════════════════
-	//  HELPERS
+	//  ANIMASYON
 	// ══════════════════════════════════
-	function txt(x:Float, y:Float, w:Float, s:String, size:Int, ?align:FlxTextAlign):FlxText {
-		var t = new FlxText(x, y, w, s, size);
+	function playEntryAnimation():Void {
+		card.scale.set(0.95, 0.95);
+		FlxTween.tween(card, {alpha: 1}, 0.25);
+		FlxTween.tween(card.scale, {x: 1, y: 1}, 0.3, {ease: FlxEase.backOut});
+		FlxTween.tween(accentLine, {alpha: 0.7}, 0.2, {startDelay: 0.05});
+		FlxTween.tween(borderBottom, {alpha: 0.3}, 0.2, {startDelay: 0.05});
+		FlxTween.tween(titleText, {alpha: 1}, 0.2, {startDelay: 0.08});
+		FlxTween.tween(subtitleText, {alpha: 1}, 0.2, {startDelay: 0.1});
+		FlxTween.tween(emailLabel, {alpha: 1}, 0.2, {startDelay: 0.12});
+		FlxTween.tween(emailFieldBg, {alpha: 1}, 0.2, {startDelay: 0.14});
+		FlxTween.tween(emailFieldLine, {alpha: 0.3}, 0.2, {startDelay: 0.14});
+		FlxTween.tween(passLabel, {alpha: 1}, 0.2, {startDelay: 0.16});
+		FlxTween.tween(passFieldBg, {alpha: 1}, 0.2, {startDelay: 0.18});
+		FlxTween.tween(passFieldLine, {alpha: 0.3}, 0.2, {startDelay: 0.18});
+		FlxTween.tween(loginBtn, {alpha: 1}, 0.2, {startDelay: 0.2});
+		FlxTween.tween(loginBtnLine, {alpha: 0.5}, 0.2, {startDelay: 0.2});
+		FlxTween.tween(loginBtnText, {alpha: 1}, 0.2, {startDelay: 0.2});
+		FlxTween.tween(sepLine, {alpha: 0.15}, 0.2, {startDelay: 0.22});
+		FlxTween.tween(toggleText, {alpha: 1}, 0.2, {startDelay: 0.24});
+		FlxTween.tween(skipText, {alpha: 1}, 0.2, {startDelay: 0.26});
+		FlxTween.tween(statusText, {alpha: 1}, 0.2, {
+			startDelay: 0.28,
+			onComplete: function(_) { _ready = true; }
+		});
+	}
+
+	// ══════════════════════════════════
+	//  YARDIMCILAR
+	// ══════════════════════════════════
+	function makeText(x:Float, y:Float, w:Dynamic, content:String, size:Int, ?align:FlxTextAlign):FlxText {
+		var t = new FlxText(x, y, Std.int(w), content, size);
 		t.setFormat(Paths.font("vcr.ttf"), size, C_TEXT, align != null ? align : LEFT);
+		t.scrollFactor.set(0, 0);
 		return t;
 	}
 
-	function field(x:Float, y:Float):FlxSprite {
-		var bg = new FlxSprite(x, y).makeGraphic(FIELD_W, FIELD_H, C_FIELD);
-		add(bg);
+	function makeField(x:Float, y:Float):{bg:FlxSprite, line:FlxSprite} {
+		var fbg = new FlxSprite(x, y).makeGraphic(FIELD_W, FIELD_H, C_FIELD);
+		fbg.scrollFactor.set(0, 0);
+		add(fbg);
 
-		// Alt çizgi
-		var line = new FlxSprite(x, y + FIELD_H - 2).makeGraphic(FIELD_W, 2, C_ACCENT);
-		line.alpha = 0.3;
-		add(line);
+		var fline = new FlxSprite(x, y + FIELD_H - 2).makeGraphic(FIELD_W, 2, C_FIELD_LINE);
+		fline.scrollFactor.set(0, 0);
+		fline.alpha = 0.3;
+		add(fline);
 
-		return bg;
+		return {bg: fbg, line: fline};
 	}
 
 	function setRegisterVisible(show:Bool):Void {
 		for (el in regElements)
 			el.visible = show;
-
 		userInput.active = show;
 		emailLabel.text = show ? "E-POSTA" : "E-POSTA VEYA KULLANICI ADI";
 	}
@@ -187,30 +292,98 @@ class LoginState extends MusicBeatState {
 	override function update(elapsed:Float):Void {
 		super.update(elapsed);
 
-		if (_busy) return;
+		if (!_ready || _busy) return;
 
+		var inputActive = (PsychUIInputText.focusOn == emailInput
+			|| PsychUIInputText.focusOn == passInput
+			|| PsychUIInputText.focusOn == userInput);
+
+		// Enter
 		if (FlxG.keys.justPressed.ENTER) {
 			doSubmit();
 			return;
 		}
 
-		if (FlxG.keys.justPressed.ESCAPE) {
-			goBack();
-			return;
+		// ESC / Backspace
+		if (!inputActive) {
+			if (FlxG.keys.justPressed.ESCAPE || controls.BACK) {
+				goBack();
+				return;
+			}
+		} else {
+			if (FlxG.keys.justPressed.ESCAPE) {
+				PsychUIInputText.focusOn = null;
+				return;
+			}
 		}
 
-		if (!FlxG.mouse.justPressed) return;
-		var mx = FlxG.mouse.x;
-		var my = FlxG.mouse.y;
+		// TAB
+		if (FlxG.keys.justPressed.TAB)
+			cycleFocus();
 
-		if (hit(loginBtn, mx, my)) { doSubmit(); return; }
-		if (hit(toggleText, mx, my)) { toggleMode(); return; }
-		if (hit(skipText, mx, my)) { goBack(); return; }
+		// Hover
+		var mx = FlxG.mouse.screenX;
+		var my = FlxG.mouse.screenY;
+
+		var bh = isOver(loginBtn, mx, my);
+		if (bh != _btnHovered) {
+			_btnHovered = bh;
+			loginBtn.color = bh ? C_BTN_HOVER : C_BTN;
+			loginBtnLine.alpha = bh ? 0.8 : 0.5;
+		}
+
+		var th = isOver(toggleText, mx, my);
+		if (th != _toggleHovered) {
+			_toggleHovered = th;
+			toggleText.color = th ? FlxColor.WHITE : C_ACCENT_LIGHT;
+		}
+
+		var sh = isOver(skipText, mx, my);
+		if (sh != _skipHovered) {
+			_skipHovered = sh;
+			skipText.color = sh ? C_ACCENT_LIGHT : C_MUTED;
+		}
+
+		// Mouse
+		if (FlxG.mouse.justPressed) {
+			if (isOver(loginBtn, mx, my)) { doSubmit(); return; }
+			if (isOver(toggleText, mx, my)) { toggleMode(); return; }
+			if (isOver(skipText, mx, my)) { goBack(); return; }
+		}
+
+		// Touch
+		#if mobile
+		for (touch in FlxG.touches.list) {
+			if (touch.justPressed) {
+				var tx = touch.screenX;
+				var ty = touch.screenY;
+				if (isOver(loginBtn, tx, ty)) { doSubmit(); return; }
+				if (isOver(toggleText, tx, ty)) { toggleMode(); return; }
+				if (isOver(skipText, tx, ty)) { goBack(); return; }
+			}
+		}
+		#end
 	}
 
-	function hit(obj:FlxSprite, mx:Float, my:Float):Bool {
+	function isOver(obj:FlxSprite, mx:Float, my:Float):Bool {
 		return mx >= obj.x && mx <= obj.x + obj.width
 			&& my >= obj.y && my <= obj.y + obj.height;
+	}
+
+	function cycleFocus():Void {
+		if (_isRegister) {
+			if (PsychUIInputText.focusOn == userInput)
+				PsychUIInputText.focusOn = emailInput;
+			else if (PsychUIInputText.focusOn == emailInput)
+				PsychUIInputText.focusOn = passInput;
+			else
+				PsychUIInputText.focusOn = userInput;
+		} else {
+			if (PsychUIInputText.focusOn == emailInput)
+				PsychUIInputText.focusOn = passInput;
+			else
+				PsychUIInputText.focusOn = emailInput;
+		}
 	}
 
 	// ══════════════════════════════════
@@ -218,14 +391,15 @@ class LoginState extends MusicBeatState {
 	// ══════════════════════════════════
 	function toggleMode():Void {
 		_isRegister = !_isRegister;
+		FlxG.sound.play(Paths.sound('scrollMenu'));
 
-		titleText.text = _isRegister ? "Kayit Ol" : "Giris Yap";
-		subtitleText.text = _isRegister ? "Yeni hesap olusturun" : "Hesabiniza baglanin";
+		titleText.text = _isRegister ? "Kayıt Ol" : "Giriş Yap";
+		subtitleText.text = _isRegister ? "Yeni hesap oluşturun" : "Hesabınıza tekrar bağlanın";
 		loginBtnText.text = _isRegister ? "KAYIT OL" : "GIRIS YAP";
-		toggleText.text = _isRegister ? "Zaten hesabin var? Giris yap" : "Hesabin yok mu? Kayit ol";
+		toggleText.text = _isRegister ? "Zaten hesabınız var mı? Giriş yapın" : "Hesabınız yok mu? Kayıt olun";
 
 		setRegisterVisible(_isRegister);
-		statusText.text = '';
+		statusText.text = "";
 	}
 
 	// ══════════════════════════════════
@@ -239,46 +413,48 @@ class LoginState extends MusicBeatState {
 
 		if (_isRegister) {
 			var user = userInput.text.trim();
-			if (user.length < 4) { err('Kullanici adi en az 4 karakter'); return; }
-			if (email == '' || email.indexOf('@') == -1) { err('Gecerli bir e-posta girin'); return; }
-			if (pass.length < 6) { err('Sifre en az 6 karakter'); return; }
+			if (user.length < 4) { showError("Kullanici adi en az 4 karakter"); return; }
+			if (email == "" || email.indexOf("@") == -1) { showError("Gecerli bir e-posta girin"); return; }
+			if (pass.length < 6) { showError("Sifre en az 6 karakter"); return; }
 
 			_busy = true;
-			info('Kayit olunuyor...');
-			loginBtn.color = C_MUTED;
+			showStatus("Kayıt olunuyor lütfen bekleyin..", C_MUTED);
+			setBtnBusy(true);
 
 			AuthManager.register(email, pass, user, "Unknown", function(ok:Bool, msg:String) {
 				_busy = false;
-				loginBtn.color = C_ACCENT;
+				setBtnBusy(false);
 				if (ok) {
-					showOk('Kayit basarili!');
+					showStatus("Kayit basarili!", C_GREEN);
+					FlxG.sound.play(Paths.sound('confirmMenu'));
 					#if ACHIEVEMENTS_ALLOWED
 					backend.AchievementSync.flushQueue();
 					#end
-					new FlxTimer().start(0.6, function(_) { goBack(); });
-				} else err(msg);
+					new FlxTimer().start(0.8, function(_) { goBack(); });
+				} else showError(msg);
 			});
 		} else {
-			if (email == '') { err('E-posta veya kullanici adi girin'); return; }
-			if (pass.length < 1) { err('Sifre girin'); return; }
+			if (email == "") { showError("E-posta veya kullanici adi girin"); return; }
+			if (pass.length < 1) { showError("Sifre girin"); return; }
 
 			_busy = true;
-			info('Giris yapiliyor...');
-			loginBtn.color = C_MUTED;
+			showStatus("Giris yapiliyor...", C_MUTED);
+			setBtnBusy(true);
 
 			var callback = function(success:Bool, msg:String) {
 				_busy = false;
-				loginBtn.color = C_ACCENT;
+				setBtnBusy(false);
 				if (success) {
-					showOk('Giris basarili!');
+					showStatus("Giriş basarili!", C_GREEN);
+					FlxG.sound.play(Paths.sound('confirmMenu'));
 					#if ACHIEVEMENTS_ALLOWED
 					backend.AchievementSync.flushQueue();
 					#end
-					new FlxTimer().start(0.6, function(_) { goBack(); });
-				} else err(msg);
+					new FlxTimer().start(0.8, function(_) { goBack(); });
+				} else showError(msg);
 			};
 
-			if (email.indexOf('@') != -1)
+			if (email.indexOf("@") != -1)
 				AuthManager.login(email, pass, callback);
 			else
 				AuthManager.loginWithUsername(email, pass, callback);
@@ -288,22 +464,28 @@ class LoginState extends MusicBeatState {
 	// ══════════════════════════════════
 	//  STATUS
 	// ══════════════════════════════════
-	function err(msg:String):Void {
-		statusText.text = msg;
-		statusText.color = C_RED;
+	function showError(msg:String):Void {
+		FlxG.sound.play(Paths.sound('cancelMenu'));
+		showStatus(msg, C_RED);
 	}
 
-	function info(msg:String):Void {
+	function showStatus(msg:String, color:FlxColor):Void {
 		statusText.text = msg;
-		statusText.color = C_MUTED;
+		statusText.color = color;
+		statusText.alpha = 0;
+		FlxTween.cancelTweensOf(statusText);
+		FlxTween.tween(statusText, {alpha: 1}, 0.15);
 	}
 
-	function showOk(msg:String):Void {
-		statusText.text = msg;
-		statusText.color = C_GREEN;
+	function setBtnBusy(busy:Bool):Void {
+		loginBtn.color = busy ? C_FIELD : C_BTN;
+		loginBtnLine.alpha = busy ? 0.2 : 0.5;
+		loginBtnText.alpha = busy ? 0.5 : 1;
 	}
 
 	function goBack():Void {
+		if (_busy) return;
+		FlxG.sound.play(Paths.sound('cancelMenu'));
 		PsychUIInputText.focusOn = null;
 		MusicBeatState.switchState(new MainMenuState());
 	}

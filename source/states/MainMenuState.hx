@@ -28,6 +28,7 @@ class MainMenuState extends MusicBeatState
 		'story_mode',
 		'freeplay',
 		#if MODS_ALLOWED 'mods', #end
+		'gallery',
 		'credits'
 	];
 
@@ -132,7 +133,7 @@ class MainMenuState extends MusicBeatState
 		profileBox.scrollFactor.set();
 		add(profileBox);
 		
-		addTouchPad("UP_DOWN", "A_B_E");
+		addTouchPad('NONE', 'E');
 	}
 
 	function createMenuItem(name:String, x:Float, y:Float):FlxSprite
@@ -328,6 +329,8 @@ class MainMenuState extends MusicBeatState
 								PlayState.SONG.splashSkin = null;
 								PlayState.stageUI = 'normal';
 							}
+						case 'gallery':
+							MusicBeatState.switchState(new GalleryState());
 						case 'donate':
 							CoolUtil.browserLoad('https://ninja-muffin24.itch.io/funkin');
 							selectedSomethin = false;
@@ -347,7 +350,7 @@ class MainMenuState extends MusicBeatState
 					FlxTween.tween(memb, {alpha: 0}, 0.4, {ease: FlxEase.quadOut});
 				}
 			}
-			else if (controls.justPressed('debug_1') || touchPadButtonJustPressed('buttonE'))
+			else if (controls.justPressed('debug_1') || touchPad.buttonE.justPressed)
 			{
 				selectedSomethin = true;
 				FlxG.mouse.visible = false;

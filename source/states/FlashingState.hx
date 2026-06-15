@@ -15,7 +15,7 @@ class FlashingState extends MusicBeatState
 {
 	public static var leftState:Bool = false;
 
-	static inline final DEFAULT_LANGUAGE:String = "en";
+	static inline final DEFAULT_LANGUAGE:String = "tr";
 
 	static inline final FONT_PATH:String = "vcr.ttf";
 	static inline final FONT_SIZE_TITLE:Int = 32;
@@ -153,22 +153,8 @@ class FlashingState extends MusicBeatState
 
 	function createMobilePad():Void
 	{
-		#if mobile
-		if (mobileManager != null)
-		{
-			mobileManager.addMobilePad("NONE", "A_B");
-			touchPad = mobileManager.mobilePad;
-		}
-		else
-		{
-			addTouchPad("NONE", "A_B");
-		}
-		#else
-		addTouchPad("NONE", "A_B");
-		#end
-
-		if (touchPad != null)
-			touchPad.alpha = 0;
+		addTouchPad("LEFT_RIGHT", "A_B");
+		touchPad.alpha = 0;
 	}
 
 	function playIntro():Void
@@ -188,13 +174,10 @@ class FlashingState extends MusicBeatState
 			resetAutoSelect();
 		});
 
-		if (touchPad != null)
-		{
-			FlxTween.tween(touchPad, {alpha: 1}, 0.35, {
-				startDelay: 0.40,
-				ease: FlxEase.quadOut
-			});
-		}
+		FlxTween.tween(touchPad, {alpha: 1}, 0.35, {
+			startDelay: 0.40,
+			ease: FlxEase.quadOut
+		});
 	}
 
 	function animateIn(sprite:FlxSprite, delay:Float, ?onComplete:Void->Void):Void
@@ -215,37 +198,12 @@ class FlashingState extends MusicBeatState
 
 	function handleInput():Void
 	{
-		#if mobile
-		if (controls.mobileC)
-		{
-			// Mobilde direkt A = YES, B = NO
-			if (controls.ACCEPT)
-			{
-				selectedIndex = 0; // Yes
-				updateSelection(true);
-				confirmSelection(false);
-				return;
-			}
-
-			if (controls.BACK)
-			{
-				selectedIndex = 1; // No
-				updateSelection(true);
-				cancelAndExit();
-				return;
-			}
-
-			return;
-		}
-		#end
-
-		// Desktop / keyboard mantığı eski gibi kalsın
 		if (controls.UI_LEFT_P || controls.UI_RIGHT_P)
 		{
 			FlxG.sound.play(Paths.sound("scrollMenu"), NAV_SOUND_VOLUME);
 			selectedIndex = 1 - selectedIndex;
 			updateSelection();
-			cancelAutoSelect();
+			cancelAutoSelect();   // <-- artık reset değil, iptal
 		}
 
 		if (controls.ACCEPT)
@@ -409,23 +367,13 @@ class FlashingState extends MusicBeatState
 		for (member in getUiMembers())
 			FlxTween.tween(member, {alpha: 0}, duration, {ease: FlxEase.quadOut});
 
-		if (touchPad != null)
-		{
-			FlxTween.tween(touchPad, {alpha: 0}, duration, {
-				ease: FlxEase.quadOut,
-				onComplete: function(_)
-				{
-					MusicBeatState.switchState(new TitleState());
-				}
-			});
-		}
-		else
-		{
-			new FlxTimer().start(duration, function(_)
+		FlxTween.tween(touchPad, {alpha: 0}, duration, {
+			ease: FlxEase.quadOut,
+			onComplete: function(_)
 			{
 				MusicBeatState.switchState(new TitleState());
-			});
-		}
+			}
+		});
 	}
 
 	function getUiMembers():Array<FlxSprite>

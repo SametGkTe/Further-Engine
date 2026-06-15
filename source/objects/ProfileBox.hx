@@ -1,15 +1,23 @@
 package objects;
 
+
 import backend.AuthManager;
-import backend.SupabaseClient;
+import backend.Paths;
+import backend.ClientPrefs;
 import flixel.FlxG;
 import flixel.FlxSprite;
+import flixel.FlxCamera;
+import flixel.FlxObject;
 import flixel.text.FlxText;
 import flixel.group.FlxSpriteGroup;
 import flixel.util.FlxColor;
 import flixel.tweens.FlxTween;
 import flixel.tweens.FlxEase;
 import flixel.math.FlxMath;
+import flixel.util.FlxTimer;
+import substates.LinkSubState;
+import Lambda;
+import states.MainMenuState;
 
 #if sys
 import sys.FileSystem;
@@ -17,8 +25,10 @@ import sys.io.File;
 #end
 
 class ProfileBox extends FlxSpriteGroup {
-
-	static inline final COL_BG = 0xDD0a0a16;
+	// ══════════════════════════════════
+	//  RENKLER
+	// ══════════════════════════════════
+	static inline final COL_BG = 0xEE0D0D1A;
 	static inline final COL_ACCENT = 0xFFA855F7;
 	static inline final COL_GREEN = 0xFF22c55e;
 	static inline final COL_MUTED = 0xFF6b6b88;
@@ -26,35 +36,87 @@ class ProfileBox extends FlxSpriteGroup {
 	static inline final COL_CYAN = 0xFF22D3EE;
 	static inline final COL_PINK = 0xFFF472B6;
 	static inline final COL_RED = 0xFFef4444;
-	static inline final COL_BORDER = 0xFF1c1c30;
+	static inline final COL_BORDER = 0xFF1e1e34;
+	static inline final COL_TEXT = 0xFFE2E2F0;
+	static inline final COL_TEXT_DIM = 0xFF8888A8;
+	static inline final COL_AVATAR_BG = 0xFF1A1A32;
+	
+	// ══════════════════════════════════
+	//  DROPDOWN
+	// ══════════════════════════════════
+	var dropdownOpen:Bool = false;
+	var dropdownBg:FlxSprite;
+	var dropdownAccent:FlxSprite;
+	var dropdownBorder:FlxSprite;
 
-	static inline final BOX_W = 320;
-	static inline final BOX_H = 100;
-	static inline final BOX_H_GUEST = 60;
-	static inline final AVATAR_SIZE = 60;
-	static inline final XP_BAR_H = 5;
+	var dropSettingsIcon:FlxSprite;
+	var dropSettingsBg:FlxSprite;
+	var dropSettingsText:FlxText;
+
+	var dropLogoutIcon:FlxSprite;
+	var dropLogoutBg:FlxSprite;
+	var dropLogoutText:FlxText;
+
+	var dropSeparator:FlxSprite;
+
+	var _dropHoverIdx:Int = -1;
+
+	static inline final DROP_W = 200;
+	static inline final DROP_ITEM_H = 38;
+	static inline final DROP_ICON_SIZE = 18;
+	static inline final COL_DROP_BG = 0xF2141414;
+	static inline final COL_DROP_HOVER = 0xFF222222;
+	static inline final COL_DROP_BORDER = 0xFF2a2a2a;
+	static inline final COL_DROP_SEP = 0xFF2a2a2a;
+	static inline final COL_LOGOUT = 0xFFef4444;
+	static inline final COL_SETTINGS = 0xFF888888;
+
+	// ══════════════════════════════════
+	//  BOYUTLAR
+	// ══════════════════════════════════
+	static inline final BOX_W = 330;
+	static inline final BOX_H = 108;
+	static inline final BOX_H_GUEST = 64;
+	static inline final AVATAR_SIZE = 56;
+	static inline final ACCENT_W = 3;
 
 	static inline final CACHE_FILE = "profile_cache.json";
 
+	// ══════════════════════════════════
+	//  SPRİTELER
+	// ══════════════════════════════════
 	var bg:FlxSprite;
 	var accentBar:FlxSprite;
+	var accentTop:FlxSprite;
 	var borderBottom:FlxSprite;
+
+	var avatarBorder:FlxSprite;
 	var avatarBg:FlxSprite;
+	var avatarSprite:FlxSprite;
 	var avatarLetter:FlxText;
-	var onlineDot:FlxSprite;
+	var statusDot:FlxSprite;
+	var statusRing:FlxSprite;
+
 	var usernameText:FlxText;
-	var levelText:FlxText;
+	var levelBadge:FlxSprite;
+	var levelNumText:FlxText;
+	var upText:FlxText;
+	var rankIcon:FlxText;
 	var rankText:FlxText;
-	var achievementText:FlxText;
-	var xpBarBg:FlxSprite;
-	var xpBarFill:FlxSprite;
+	var achievementLabel:FlxText;
+
 	var guestText:FlxText;
 	var guestSubText:FlxText;
-	var guestIcon:FlxText;
+	var guestArrow:FlxText;
 
+	// ══════════════════════════════════
+	//  STATE
+	// ══════════════════════════════════
 	var _pulseTime:Float = 0;
 	var _built:Bool = false;
 	var _isGuest:Bool = true;
+	var _isHovered:Bool = false;
+	var _clickCooldown:Float = 0;
 
 	public static var instance:ProfileBox = null;
 
@@ -68,164 +130,200 @@ class ProfileBox extends FlxSpriteGroup {
 			buildGuest();
 	}
 
-	// ══════════════════════════════════
-	//  GİRİŞ YAPILMAMIŞ
-	// ══════════════════════════════════
+	// ══════════════════════════════════════════════════════
+	//  GUEST
+	// ══════════════════════════════════════════════════════
 	function buildGuest():Void {
 		_isGuest = true;
 		_built = true;
 
-		// Arka plan
-		bg = new FlxSprite(0, 0);
-		bg.makeGraphic(BOX_W, BOX_H_GUEST, COL_BG);
+		bg = makeRect(0, 0, BOX_W, BOX_H_GUEST, COL_BG);
 		bg.alpha = 0.95;
 		add(bg);
 
-		// Sol accent
-		accentBar = new FlxSprite(0, 0);
-		accentBar.makeGraphic(4, BOX_H_GUEST, COL_RED);
+		accentBar = makeRect(0, 0, ACCENT_W, BOX_H_GUEST, COL_RED);
 		add(accentBar);
 
-		// Alt border
-		borderBottom = new FlxSprite(0, BOX_H_GUEST - 1);
-		borderBottom.makeGraphic(BOX_W, 1, COL_BORDER);
+		accentTop = makeRect(ACCENT_W, 0, BOX_W - ACCENT_W, 1, COL_RED);
+		accentTop.alpha = 0.3;
+		add(accentTop);
+
+		borderBottom = makeRect(0, BOX_H_GUEST - 1, BOX_W, 1, COL_BORDER);
 		add(borderBottom);
 
-		// İkon
-		guestIcon = new FlxText(16, 14, 34, "👤");
-		guestIcon.setFormat(Paths.font("vcr.ttf"), 24, FlxColor.WHITE, CENTER);
-		add(guestIcon);
+		statusDot = makeRect(ACCENT_W + 14, BOX_H_GUEST / 2 - 5, 10, 10, COL_RED);
+		add(statusDot);
 
-		// Metin
-		guestText = new FlxText(56, 10, BOX_W - 70, "Giris Yapilmadi");
-		guestText.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, LEFT,
-			FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		guestText = new FlxText(ACCENT_W + 32, 12, BOX_W - 80, "Giriş Yapılmadı");
+		guestText.setFormat(Paths.font("Avgardd.ttf"), 16, COL_TEXT, LEFT);
+		guestText.scrollFactor.set(0, 0);
 		add(guestText);
 
-		guestSubText = new FlxText(56, 32, BOX_W - 70, "Tikla ve giris yap >");
-		guestSubText.setFormat(Paths.font("vcr.ttf"), 11, COL_MUTED, LEFT);
+		guestSubText = new FlxText(ACCENT_W + 32, 34, BOX_W - 80, "Hesabına giriş yap");
+		guestSubText.setFormat(Paths.font("Avgardd.ttf"), 11, COL_TEXT_DIM, LEFT);
+		guestSubText.scrollFactor.set(0, 0);
 		add(guestSubText);
 
-		// Animasyon
-		alpha = 0;
-		var startX = x;
-		x += 25;
-		FlxTween.tween(this, {alpha: 1, x: startX}, 0.4, {
-			ease: FlxEase.backOut,
-			startDelay: 0.15
-		});
+		guestArrow = new FlxText(BOX_W - 28, BOX_H_GUEST / 2 - 10, 20, ">");
+		guestArrow.setFormat(Paths.font("vcr.ttf"), 22, COL_RED, CENTER);
+		guestArrow.scrollFactor.set(0, 0);
+		add(guestArrow);
+
+		animateEntry();
 	}
 
-	// ══════════════════════════════════
-	//  GİRİŞ YAPILMIŞ
-	// ══════════════════════════════════
+	// ══════════════════════════════════════════════════════
+	//  LOGGED IN
+	// ══════════════════════════════════════════════════════
 	function buildLoggedIn():Void {
 		_isGuest = false;
 		_built = true;
 
+		var username = AuthManager.currentUsername ?? "Player";
+		var level = AuthManager.currentLevel ?? 1;
+		var up = AuthManager.currentUltraPoints ?? 0.0;
+		var rank = getRankFromUP(up);
+		var rankColor = getRankColor(rank);
+
 		// Arka plan
-		bg = new FlxSprite(0, 0);
-		bg.makeGraphic(BOX_W, BOX_H, COL_BG);
+		bg = makeRect(0, 0, BOX_W, BOX_H, COL_BG);
 		bg.alpha = 0.95;
 		add(bg);
 
-		// Sol accent
-		accentBar = new FlxSprite(0, 0);
-		accentBar.makeGraphic(4, BOX_H, COL_ACCENT);
+		accentBar = makeRect(0, 0, ACCENT_W, BOX_H, rankColor);
 		add(accentBar);
 
-		// Alt border
-		borderBottom = new FlxSprite(0, BOX_H - 1);
-		borderBottom.makeGraphic(BOX_W, 1, COL_BORDER);
+		accentTop = makeRect(ACCENT_W, 0, BOX_W - ACCENT_W, 1, rankColor);
+		accentTop.alpha = 0.25;
+		add(accentTop);
+
+		borderBottom = makeRect(0, BOX_H - 1, BOX_W, 1, COL_BORDER);
 		add(borderBottom);
 
-		// Online dot
-		onlineDot = new FlxSprite(BOX_W - 16, 10);
-		onlineDot.makeGraphic(10, 10, COL_GREEN);
-		add(onlineDot);
+		// ── Avatar ──
+		var avX:Float = ACCENT_W + 12;
+		var avY:Float = (BOX_H - AVATAR_SIZE) / 2 - 2;
 
-		// Avatar arka plan
-		avatarBg = new FlxSprite(14, 12);
-		avatarBg.makeGraphic(AVATAR_SIZE, AVATAR_SIZE, 0xFF1a1a30);
+		avatarBorder = makeRect(avX - 2, avY - 2, AVATAR_SIZE + 4, AVATAR_SIZE + 4, rankColor);
+		avatarBorder.alpha = 0.5;
+		add(avatarBorder);
+
+		avatarBg = makeRect(avX, avY, AVATAR_SIZE, AVATAR_SIZE, COL_AVATAR_BG);
 		add(avatarBg);
 
-		// Avatar border
-		var avBorder = new FlxSprite(13, 11);
-		avBorder.makeGraphic(AVATAR_SIZE + 2, AVATAR_SIZE + 2, COL_ACCENT);
-		avBorder.alpha = 0.4;
-		add(avBorder);
+		// Avatar resmi
+		avatarSprite = new FlxSprite(0, 0);
+		avatarSprite.scrollFactor.set(0, 0);
+		avatarSprite.antialiasing = ClientPrefs.data.antialiasing;
 
-		// Avatar tekrar üste (border'ın üstünde)
-		avatarBg = new FlxSprite(14, 12);
-		avatarBg.makeGraphic(AVATAR_SIZE, AVATAR_SIZE, 0xFF1a1a30);
-		add(avatarBg);
+		var avatarLoaded = false;
+		try {
+			avatarSprite.loadGraphic(Paths.image("mainmenu/player"));
+			var imgW = avatarSprite.frameWidth;
+			var imgH = avatarSprite.frameHeight;
+			var sc = Math.min(AVATAR_SIZE / imgW, AVATAR_SIZE / imgH);
+			avatarSprite.scale.set(sc, sc);
+			avatarSprite.updateHitbox();
+			// Group icinde relative pozisyon
+			avatarSprite.x = avX + (AVATAR_SIZE - avatarSprite.width) / 2;
+			avatarSprite.y = avY + (AVATAR_SIZE - avatarSprite.height) / 2;
+			avatarLoaded = true;
+		} catch (e:Dynamic) {
+			avatarLoaded = false;
+		}
+		avatarSprite.visible = avatarLoaded;
+		add(avatarSprite);
 
-		// Avatar harf
-		var username = AuthManager.currentUsername ?? "P";
-		avatarLetter = new FlxText(14, 24, AVATAR_SIZE, username.charAt(0).toUpperCase());
-		avatarLetter.setFormat(Paths.font("vcr.ttf"), 28, COL_ACCENT, CENTER);
+		// Avatar harf (fallback)
+		avatarLetter = new FlxText(avX, avY + 10, AVATAR_SIZE, username.charAt(0).toUpperCase());
+		avatarLetter.setFormat(Paths.font("vcr.ttf"), 26, rankColor, CENTER);
+		avatarLetter.scrollFactor.set(0, 0);
+		avatarLetter.visible = !avatarLoaded;
 		add(avatarLetter);
 
-		// Text alanı
-		var textX = 14 + AVATAR_SIZE + 12;
-		var textW = BOX_W - textX - 18;
+		// ── Online durum ──
+		statusRing = makeRect(avX + AVATAR_SIZE - 14, avY + AVATAR_SIZE - 14, 14, 14, COL_BG);
+		add(statusRing);
 
-		// Username
-		usernameText = new FlxText(textX, 10, textW, AuthManager.currentUsername ?? "Player");
-		usernameText.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, LEFT,
-			FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		statusDot = makeRect(avX + AVATAR_SIZE - 12, avY + AVATAR_SIZE - 12, 10, 10, COL_GREEN);
+		add(statusDot);
+
+		// ── Metin alani ──
+		var textX:Float = avX + AVATAR_SIZE + 14;
+		var textW:Int = Std.int(BOX_W - textX - 14);
+
+		usernameText = new FlxText(textX, 10, textW - 50, username);
+		usernameText.setFormat(Paths.font("Exa.ttf"), 20, COL_TEXT, LEFT);
+		usernameText.scrollFactor.set(0, 0);
 		add(usernameText);
 
-		// Level + UP
-		var level = AuthManager.currentLevel ?? 1;
-		var up = AuthManager.currentUltraPoints ?? 0.0;
+		var lvBadgeX:Float = textX + textW - 44;
+		levelBadge = makeRect(lvBadgeX, 11, 42, 16, rankColor);
+		levelBadge.alpha = 0.25;
+		add(levelBadge);
 
-		levelText = new FlxText(textX, 30, textW, 'Lv.$level  |  ${formatNumber(up)} UP');
-		levelText.setFormat(Paths.font("vcr.ttf"), 11, COL_MUTED, LEFT);
-		add(levelText);
+		levelNumText = new FlxText(lvBadgeX, 12, 42, 'Lv.$level');
+		levelNumText.setFormat(Paths.font("vcr.ttf"), 11, rankColor, CENTER);
+		levelNumText.scrollFactor.set(0, 0);
+		add(levelNumText);
 
-		// Rank + Achievement (yan yana)
-		var rank = getRankFromUP(up);
-		rankText = new FlxText(textX, 48, Std.int(textW * 0.55), getRankTitle(rank));
-		rankText.setFormat(Paths.font("vcr.ttf"), 11, getRankColor(rank), LEFT);
+		upText = new FlxText(textX, 30, textW, '${formatNumber(up)} UP');
+		upText.setFormat(Paths.font("vcr.ttf"), 11, COL_TEXT_DIM, LEFT);
+		upText.scrollFactor.set(0, 0);
+		add(upText);
+
+		var row3Y:Float = 48;
+
+		rankIcon = new FlxText(textX, row3Y, 16, getRankSymbol(rank));
+		rankIcon.setFormat(Paths.font("vcr.ttf"), 11, rankColor, LEFT);
+		rankIcon.scrollFactor.set(0, 0);
+		add(rankIcon);
+
+		rankText = new FlxText(textX + 14, row3Y, Std.int(textW * 0.45), getRankTitle(rank));
+		rankText.setFormat(Paths.font("vcr.ttf"), 11, rankColor, LEFT);
+		rankText.scrollFactor.set(0, 0);
 		add(rankText);
 
 		#if ACHIEVEMENTS_ALLOWED
-		var achCount = Achievements.achievementsUnlocked.length;
-		achievementText = new FlxText(textX + Std.int(textW * 0.55), 48, Std.int(textW * 0.45), '⭐ $achCount');
-		achievementText.setFormat(Paths.font("vcr.ttf"), 11, COL_GOLD, LEFT);
-		add(achievementText);
+		var achUnlocked = Achievements.achievementsUnlocked.length;
+		var achTotal = Lambda.count(Achievements.achievements);
+
+		achievementLabel = new FlxText(textX + Std.int(textW * 0.5), row3Y, Std.int(textW * 0.5), 'Başarımlar: $achUnlocked/$achTotal');
+		achievementLabel.setFormat(Paths.font("vcr.ttf"), 11, COL_GOLD, LEFT);
+		achievementLabel.scrollFactor.set(0, 0);
+		add(achievementLabel);
 		#end
 
-		// XP Bar
-		var xpBarY = BOX_H - XP_BAR_H - 10;
-
-		xpBarBg = new FlxSprite(textX, xpBarY);
-		xpBarBg.makeGraphic(Std.int(textW), XP_BAR_H, 0xFF1A1A2E);
-		add(xpBarBg);
-
-		var xp = getXPProgress();
-		var fillWidth = Std.int(Math.max(3, textW * xp));
-		xpBarFill = new FlxSprite(textX, xpBarY);
-		xpBarFill.makeGraphic(fillWidth, XP_BAR_H, COL_ACCENT);
-		add(xpBarFill);
-
-		// Animasyon
-		alpha = 0;
-		var startX = x;
-		x += 25;
-		FlxTween.tween(this, {alpha: 1, x: startX}, 0.4, {
-			ease: FlxEase.backOut,
-			startDelay: 0.15
-		});
-
+		animateEntry();
 		saveCache();
 	}
 
 	// ══════════════════════════════════
-	//  REBUILD
+	//  YARDIMCI
 	// ══════════════════════════════════
+	function makeRect(rx:Float, ry:Float, w:Dynamic, h:Dynamic, color:FlxColor):FlxSprite {
+		var spr = new FlxSprite(rx, ry);
+		spr.makeGraphic(Std.int(w), Std.int(h), color);
+		spr.scrollFactor.set(0, 0);
+		return spr;
+	}
+
+	function animateEntry():Void {
+		alpha = 0;
+		var startX = x;
+		x += 30;
+		FlxTween.tween(this, {alpha: 1, x: startX}, 0.45, {
+			ease: FlxEase.backOut,
+			startDelay: 0.1
+		});
+	}
+
 	public function rebuild():Void {
+		if (dropdownOpen) {
+			dropdownOpen = false;
+			destroyDropElements();
+		}
+
 		while (members.length > 0) {
 			var m = members[0];
 			remove(m, true);
@@ -235,19 +333,24 @@ class ProfileBox extends FlxSpriteGroup {
 
 		bg = null;
 		accentBar = null;
+		accentTop = null;
 		borderBottom = null;
+		avatarBorder = null;
 		avatarBg = null;
+		avatarSprite = null;
 		avatarLetter = null;
-		onlineDot = null;
+		statusDot = null;
+		statusRing = null;
 		usernameText = null;
-		levelText = null;
+		levelBadge = null;
+		levelNumText = null;
+		upText = null;
+		rankIcon = null;
 		rankText = null;
-		achievementText = null;
-		xpBarBg = null;
-		xpBarFill = null;
+		achievementLabel = null;
 		guestText = null;
 		guestSubText = null;
-		guestIcon = null;
+		guestArrow = null;
 		_built = false;
 
 		if (AuthManager.isLoggedIn)
@@ -256,49 +359,358 @@ class ProfileBox extends FlxSpriteGroup {
 			buildGuest();
 	}
 
-	// ══════════════════════════════════
-	//  UPDATE
-	// ══════════════════════════════════
 	override function update(elapsed:Float):Void {
 		if (!_built)
 			return;
 
 		super.update(elapsed);
-
 		_pulseTime += elapsed;
 
-		// Online dot pulse
-		if (onlineDot != null)
-			onlineDot.alpha = 0.6 + Math.sin(_pulseTime * 3) * 0.4;
+		if (_clickCooldown > 0)
+			_clickCooldown -= elapsed;
 
-		// Guest alt yazı yanıp sönme
-		if (_isGuest && guestSubText != null)
-			guestSubText.alpha = 0.4 + Math.sin(_pulseTime * 2) * 0.4;
+		if (_isGuest && guestArrow != null)
+			guestArrow.x = (BOX_W - 28) + x + Math.sin(_pulseTime * 3) * 3;
 
-		// Hover
-		var hovered = FlxG.mouse.overlaps(this);
-		if (bg != null)
-			bg.alpha = hovered ? 1.0 : 0.95;
-		if (accentBar != null)
-			accentBar.scale.x = hovered ? 1.8 : 1.0;
+		if (dropdownOpen)
+			handleDropdownInput();
 
-		// Tıklama
-		if (hovered && FlxG.mouse.justPressed)
+		var hovered = isMouseOver();
+		if (hovered != _isHovered) {
+			_isHovered = hovered;
+			if (bg != null) {
+				FlxTween.cancelTweensOf(bg);
+				FlxTween.tween(bg, {alpha: hovered ? 1.0 : 0.95}, 0.15);
+			}
+			if (accentBar != null) {
+				FlxTween.cancelTweensOf(accentBar.scale);
+				FlxTween.tween(accentBar.scale, {x: hovered ? 2.0 : 1.0}, 0.2, {ease: FlxEase.sineOut});
+			}
+		}
+
+		if (hovered && justPressed() && _clickCooldown <= 0)
 			onClick();
+
+		if (dropdownOpen && justPressed() && !hovered && !isDropdownHovered())
+			closeDropdown();
+	}
+
+	function isMouseOver():Bool {
+		var boxH = _isGuest ? BOX_H_GUEST : BOX_H;
+		var mx = FlxG.mouse.screenX;
+		var my = FlxG.mouse.screenY;
+
+		if (mx >= x && mx <= x + BOX_W && my >= y && my <= y + boxH)
+			return true;
+
+		#if mobile
+		for (touch in FlxG.touches.list) {
+			if (touch.pressed && touch.screenX >= x && touch.screenX <= x + BOX_W
+				&& touch.screenY >= y && touch.screenY <= y + boxH)
+				return true;
+		}
+		#end
+		return false;
+	}
+
+	function isAvatarClicked():Bool {
+		if (_isGuest) return false;
+
+		var avX:Float = x + ACCENT_W + 12;
+		var avY:Float = y + (BOX_H - AVATAR_SIZE) / 2 - 2;
+		var mx = FlxG.mouse.screenX;
+		var my = FlxG.mouse.screenY;
+
+		if (mx >= avX && mx <= avX + AVATAR_SIZE && my >= avY && my <= avY + AVATAR_SIZE)
+			return true;
+
+		#if mobile
+		for (touch in FlxG.touches.list) {
+			if (touch.justPressed && touch.screenX >= avX && touch.screenX <= avX + AVATAR_SIZE
+				&& touch.screenY >= avY && touch.screenY <= avY + AVATAR_SIZE)
+				return true;
+		}
+		#end
+		return false;
+	}
+
+	function justPressed():Bool {
+		if (FlxG.mouse.justPressed)
+			return true;
+
+		#if mobile
+		for (touch in FlxG.touches.list) {
+			if (touch.justPressed)
+				return true;
+		}
+		#end
+
+		return false;
 	}
 
 	function onClick():Void {
-		FlxTween.tween(scale, {x: 0.95, y: 0.95}, 0.08, {
-			ease: FlxEase.sineOut,
-			onComplete: function(_) {
-				FlxTween.tween(scale, {x: 1, y: 1}, 0.12, {ease: FlxEase.backOut});
-			}
-		});
+		_clickCooldown = 0.3;
+
+		if (accentBar != null) {
+			var origColor = accentBar.color;
+			accentBar.color = FlxColor.WHITE;
+			new FlxTimer().start(0.1, function(_) {
+				if (accentBar != null)
+					accentBar.color = origColor;
+			});
+		}
 
 		if (_isGuest) {
+			FlxG.sound.play(Paths.sound('confirmMenu'));
 			MusicBeatState.switchState(new states.LoginState());
+		} else if (isAvatarClicked()) {
+			FlxG.sound.play(Paths.sound('confirmMenu'));
+			if (dropdownOpen)
+				closeDropdown();
+			else
+				openDropdown();
+		} else {
+			FlxG.sound.play(Paths.sound('confirmMenu'));
+			if (dropdownOpen) closeDropdown();
+			LinkSubState.requestURL("https://samedcan1234.github.io/Psych-Engine-Ultra-Android/", "Profil sayfanızı açmak istiyor musunuz?");
 		}
 	}
+	
+	function openDropdown():Void {
+		if (dropdownOpen) return;
+		if (FlxG.state == null) return;
+		dropdownOpen = true;
+
+		// Absolute pozisyon hesapla
+		var dropX:Float = this.x;
+		var dropY:Float = this.y + BOX_H + 4;
+		var totalH:Int = DROP_ITEM_H * 2 + 1;
+
+		// State'e ekle (group'a degil)
+		dropdownBg = new FlxSprite(dropX, dropY).makeGraphic(DROP_W, totalH, COL_DROP_BG);
+		dropdownBg.scrollFactor.set(0, 0);
+		dropdownBg.alpha = 0;
+		FlxG.state.add(dropdownBg);
+
+		dropdownAccent = new FlxSprite(dropX, dropY).makeGraphic(2, totalH, COL_SETTINGS);
+		dropdownAccent.scrollFactor.set(0, 0);
+		dropdownAccent.alpha = 0;
+		FlxG.state.add(dropdownAccent);
+
+		dropdownBorder = new FlxSprite(dropX, dropY + totalH - 1).makeGraphic(DROP_W, 1, COL_DROP_BORDER);
+		dropdownBorder.scrollFactor.set(0, 0);
+		dropdownBorder.alpha = 0;
+		FlxG.state.add(dropdownBorder);
+
+		var itemY:Float = dropY;
+
+		// ── Ayarlar ──
+		dropSettingsBg = new FlxSprite(dropX, itemY).makeGraphic(DROP_W, DROP_ITEM_H, COL_DROP_BG);
+		dropSettingsBg.scrollFactor.set(0, 0);
+		dropSettingsBg.alpha = 0;
+		FlxG.state.add(dropSettingsBg);
+
+		dropSettingsIcon = new FlxSprite();
+		dropSettingsIcon.scrollFactor.set(0, 0);
+		dropSettingsIcon.alpha = 0;
+		try {
+			dropSettingsIcon.loadGraphic(Paths.image("other/settings"));
+			dropSettingsIcon.setGraphicSize(DROP_ICON_SIZE, DROP_ICON_SIZE);
+			dropSettingsIcon.updateHitbox();
+		} catch (e:Dynamic) {
+			dropSettingsIcon.makeGraphic(DROP_ICON_SIZE, DROP_ICON_SIZE, COL_SETTINGS);
+		}
+		dropSettingsIcon.x = dropX + 12;
+		dropSettingsIcon.y = itemY + (DROP_ITEM_H - DROP_ICON_SIZE) / 2;
+		FlxG.state.add(dropSettingsIcon);
+
+		dropSettingsText = new FlxText(Std.int(dropX + 38), Std.int(itemY + 10), Std.int(DROP_W - 50), "Ayarlar");
+		dropSettingsText.setFormat(Paths.font("vcr.ttf"), 13, COL_TEXT, LEFT);
+		dropSettingsText.scrollFactor.set(0, 0);
+		dropSettingsText.alpha = 0;
+		FlxG.state.add(dropSettingsText);
+
+		itemY += DROP_ITEM_H;
+
+		// ── Separator ──
+		dropSeparator = new FlxSprite(dropX + 10, itemY).makeGraphic(DROP_W - 20, 1, COL_DROP_SEP);
+		dropSeparator.scrollFactor.set(0, 0);
+		dropSeparator.alpha = 0;
+		FlxG.state.add(dropSeparator);
+
+		itemY += 1;
+
+		// ── Cikis Yap ──
+		dropLogoutBg = new FlxSprite(dropX, itemY).makeGraphic(DROP_W, DROP_ITEM_H, COL_DROP_BG);
+		dropLogoutBg.scrollFactor.set(0, 0);
+		dropLogoutBg.alpha = 0;
+		FlxG.state.add(dropLogoutBg);
+
+		dropLogoutIcon = new FlxSprite();
+		dropLogoutIcon.scrollFactor.set(0, 0);
+		dropLogoutIcon.alpha = 0;
+		try {
+			dropLogoutIcon.loadGraphic(Paths.image("other/logout"));
+			dropLogoutIcon.setGraphicSize(DROP_ICON_SIZE, DROP_ICON_SIZE);
+			dropLogoutIcon.updateHitbox();
+		} catch (e:Dynamic) {
+			dropLogoutIcon.makeGraphic(DROP_ICON_SIZE, DROP_ICON_SIZE, COL_LOGOUT);
+		}
+		dropLogoutIcon.x = dropX + 12;
+		dropLogoutIcon.y = itemY + (DROP_ITEM_H - DROP_ICON_SIZE) / 2;
+		FlxG.state.add(dropLogoutIcon);
+
+		dropLogoutText = new FlxText(Std.int(dropX + 38), Std.int(itemY + 10), Std.int(DROP_W - 50), "Hesaptan Çık");
+		dropLogoutText.setFormat(Paths.font("vcr.ttf"), 13, COL_LOGOUT, LEFT);
+		dropLogoutText.scrollFactor.set(0, 0);
+		dropLogoutText.alpha = 0;
+		FlxG.state.add(dropLogoutText);
+
+		// Alpha animasyonu
+		FlxTween.tween(dropdownBg, {alpha: 1}, 0.18, {ease: FlxEase.sineOut});
+		FlxTween.tween(dropdownAccent, {alpha: 1}, 0.18, {ease: FlxEase.sineOut});
+		FlxTween.tween(dropdownBorder, {alpha: 0.5}, 0.18, {ease: FlxEase.sineOut});
+		FlxTween.tween(dropSettingsBg, {alpha: 1}, 0.18, {ease: FlxEase.sineOut, startDelay: 0.03});
+		FlxTween.tween(dropSettingsIcon, {alpha: 0.7}, 0.18, {ease: FlxEase.sineOut, startDelay: 0.04});
+		FlxTween.tween(dropSettingsText, {alpha: 1}, 0.18, {ease: FlxEase.sineOut, startDelay: 0.04});
+		FlxTween.tween(dropSeparator, {alpha: 0.3}, 0.18, {ease: FlxEase.sineOut, startDelay: 0.05});
+		FlxTween.tween(dropLogoutBg, {alpha: 1}, 0.18, {ease: FlxEase.sineOut, startDelay: 0.06});
+		FlxTween.tween(dropLogoutIcon, {alpha: 0.7}, 0.18, {ease: FlxEase.sineOut, startDelay: 0.07});
+		FlxTween.tween(dropLogoutText, {alpha: 1}, 0.18, {ease: FlxEase.sineOut, startDelay: 0.07});
+	}
+
+	function fadeIn(obj:Dynamic, targetAlpha:Float, delay:Float):Void {
+		if (obj == null) return;
+		obj.alpha = 0;
+		FlxTween.tween(obj, {alpha: targetAlpha}, 0.18, {ease: FlxEase.sineOut, startDelay: delay});
+	}
+
+	function fadeOut(obj:Dynamic):Void {
+		if (obj == null) return;
+		FlxTween.tween(obj, {alpha: 0}, 0.1);
+	}
+
+	function closeDropdown():Void {
+		if (!dropdownOpen) return;
+		dropdownOpen = false;
+		_dropHoverIdx = -1;
+
+		FlxTween.tween(dropdownBg, {alpha: 0}, 0.1);
+		FlxTween.tween(dropdownAccent, {alpha: 0}, 0.1);
+		FlxTween.tween(dropdownBorder, {alpha: 0}, 0.1);
+		FlxTween.tween(dropSettingsBg, {alpha: 0}, 0.1);
+		FlxTween.tween(dropSettingsIcon, {alpha: 0}, 0.1);
+		FlxTween.tween(dropSettingsText, {alpha: 0}, 0.1);
+		FlxTween.tween(dropSeparator, {alpha: 0}, 0.1);
+		FlxTween.tween(dropLogoutBg, {alpha: 0}, 0.1);
+		FlxTween.tween(dropLogoutIcon, {alpha: 0}, 0.1);
+		FlxTween.tween(dropLogoutText, {alpha: 0}, 0.1);
+
+		new FlxTimer().start(0.15, function(_) {
+			destroyDropElements();
+		});
+	}
+
+	function destroyDropElements():Void {
+		if (FlxG.state == null) return;
+
+		if (dropdownBg != null) { FlxG.state.remove(dropdownBg, true); dropdownBg.destroy(); dropdownBg = null; }
+		if (dropdownAccent != null) { FlxG.state.remove(dropdownAccent, true); dropdownAccent.destroy(); dropdownAccent = null; }
+		if (dropdownBorder != null) { FlxG.state.remove(dropdownBorder, true); dropdownBorder.destroy(); dropdownBorder = null; }
+		if (dropSettingsBg != null) { FlxG.state.remove(dropSettingsBg, true); dropSettingsBg.destroy(); dropSettingsBg = null; }
+		if (dropSettingsIcon != null) { FlxG.state.remove(dropSettingsIcon, true); dropSettingsIcon.destroy(); dropSettingsIcon = null; }
+		if (dropSettingsText != null) { FlxG.state.remove(dropSettingsText, true); dropSettingsText.destroy(); dropSettingsText = null; }
+		if (dropSeparator != null) { FlxG.state.remove(dropSeparator, true); dropSeparator.destroy(); dropSeparator = null; }
+		if (dropLogoutBg != null) { FlxG.state.remove(dropLogoutBg, true); dropLogoutBg.destroy(); dropLogoutBg = null; }
+		if (dropLogoutIcon != null) { FlxG.state.remove(dropLogoutIcon, true); dropLogoutIcon.destroy(); dropLogoutIcon = null; }
+		if (dropLogoutText != null) { FlxG.state.remove(dropLogoutText, true); dropLogoutText.destroy(); dropLogoutText = null; }
+	}
+
+	function handleDropdownInput():Void {
+		if (!dropdownOpen) return;
+
+		var mx = FlxG.mouse.screenX;
+		var my = FlxG.mouse.screenY;
+		var newHover = -1;
+
+		if (dropSettingsBg != null && isDropOver(dropSettingsBg, mx, my))
+			newHover = 0;
+		else if (dropLogoutBg != null && isDropOver(dropLogoutBg, mx, my))
+			newHover = 1;
+
+		#if mobile
+		for (touch in FlxG.touches.list) {
+			if (touch.pressed) {
+				if (dropSettingsBg != null && isTouchDropOver(dropSettingsBg, touch))
+					newHover = 0;
+				else if (dropLogoutBg != null && isTouchDropOver(dropLogoutBg, touch))
+					newHover = 1;
+			}
+		}
+		#end
+
+		if (newHover != _dropHoverIdx) {
+			_dropHoverIdx = newHover;
+			if (dropSettingsBg != null)
+				dropSettingsBg.color = (_dropHoverIdx == 0) ? COL_DROP_HOVER : COL_DROP_BG;
+			if (dropLogoutBg != null)
+				dropLogoutBg.color = (_dropHoverIdx == 1) ? COL_DROP_HOVER : COL_DROP_BG;
+			if (dropSettingsText != null)
+				dropSettingsText.color = (_dropHoverIdx == 0) ? FlxColor.WHITE : COL_SETTINGS;
+			if (dropLogoutText != null)
+				dropLogoutText.color = (_dropHoverIdx == 1) ? 0xFFff6b6b : COL_LOGOUT;
+		}
+
+		var clicked = FlxG.mouse.justPressed;
+		#if mobile
+		if (!clicked) {
+			for (touch in FlxG.touches.list) {
+				if (touch.justPressed) { clicked = true; break; }
+			}
+		}
+		#end
+
+		if (clicked) {
+			if (_dropHoverIdx == 0) {
+				FlxG.sound.play(Paths.sound('confirmMenu'));
+				closeDropdown();
+				LinkSubState.requestURL("https://samedcan1234.github.io/Psych-Engine-Ultra-Android/settings", "Profilinizin ayarlarını açmak istiyor musunuz?");
+			} else if (_dropHoverIdx == 1) {
+				FlxG.sound.play(Paths.sound('cancelMenu'));
+				closeDropdown();
+				onLogout();
+				MusicBeatState.switchState(new MainMenuState());
+			} else if (!isMouseOver() && !isDropdownHovered()) {
+				closeDropdown();
+			}
+		}
+	}
+
+	function isDropOver(spr:FlxSprite, mx:Float, my:Float):Bool {
+		return mx >= spr.x && mx <= spr.x + spr.width
+			&& my >= spr.y && my <= spr.y + spr.height;
+	}
+
+	#if mobile
+	function isTouchDropOver(spr:FlxSprite, touch:flixel.input.touch.FlxTouch):Bool {
+		return touch.screenX >= spr.x && touch.screenX <= spr.x + spr.width
+			&& touch.screenY >= spr.y && touch.screenY <= spr.y + spr.height;
+	}
+	#end
+
+	function isDropdownHovered():Bool {
+		if (dropdownBg == null) return false;
+		var mx = FlxG.mouse.screenX;
+		var my = FlxG.mouse.screenY;
+		if (isDropOver(dropdownBg, mx, my)) return true;
+		#if mobile
+		for (touch in FlxG.touches.list) {
+			if (touch.pressed && isTouchDropOver(dropdownBg, touch)) return true;
+		}
+		#end
+		return false;
+	}
+
 
 	// ══════════════════════════════════
 	//  REFRESH
@@ -308,52 +720,66 @@ class ProfileBox extends FlxSpriteGroup {
 			rebuild();
 			return;
 		}
-
 		if (AuthManager.isLoggedIn && _isGuest) {
 			rebuild();
 			return;
 		}
 
-		if (!_isGuest) {
-			if (usernameText != null)
-				usernameText.text = AuthManager.currentUsername ?? "Player";
-
-			if (avatarLetter != null) {
-				var username = AuthManager.currentUsername ?? "P";
-				avatarLetter.text = username.charAt(0).toUpperCase();
-			}
-
-			if (levelText != null) {
-				var level = AuthManager.currentLevel ?? 1;
-				var up = AuthManager.currentUltraPoints ?? 0.0;
-				levelText.text = 'Lv.$level  |  ${formatNumber(up)} UP';
-			}
-
-			if (rankText != null) {
-				var up = AuthManager.currentUltraPoints ?? 0.0;
-				var rank = getRankFromUP(up);
-				rankText.text = getRankTitle(rank);
-				rankText.color = getRankColor(rank);
-			}
-
-			#if ACHIEVEMENTS_ALLOWED
-			if (achievementText != null) {
-				var achCount = Achievements.achievementsUnlocked.length;
-				achievementText.text = '⭐ $achCount';
-			}
-			#end
-
-			updateXPBar();
-			saveCache();
-		}
-	}
-
-	function updateXPBar():Void {
-		if (xpBarFill == null || xpBarBg == null)
+		if (_isGuest)
 			return;
-		var xp = getXPProgress();
-		var fillWidth = Std.int(Math.max(3, xpBarBg.width * xp));
-		xpBarFill.makeGraphic(fillWidth, XP_BAR_H, COL_ACCENT);
+
+		var username = AuthManager.currentUsername ?? "Player";
+		var level = AuthManager.currentLevel ?? 1;
+		var up = AuthManager.currentUltraPoints ?? 0.0;
+		var rank = getRankFromUP(up);
+		var rankColor = getRankColor(rank);
+
+		if (usernameText != null)
+			usernameText.text = username;
+
+		if (avatarLetter != null && avatarLetter.visible) {
+			avatarLetter.text = username.charAt(0).toUpperCase();
+			avatarLetter.color = rankColor;
+		}
+
+		if (avatarBorder != null)
+			avatarBorder.color = rankColor;
+
+		if (levelNumText != null) {
+			levelNumText.text = 'Lv.$level';
+			levelNumText.color = rankColor;
+		}
+
+		if (levelBadge != null)
+			levelBadge.color = rankColor;
+
+		if (upText != null)
+			upText.text = '${formatNumber(up)} UP';
+
+		if (rankIcon != null) {
+			rankIcon.text = getRankSymbol(rank);
+			rankIcon.color = rankColor;
+		}
+
+		if (rankText != null) {
+			rankText.text = getRankTitle(rank);
+			rankText.color = rankColor;
+		}
+
+		if (accentBar != null)
+			accentBar.color = rankColor;
+		if (accentTop != null)
+			accentTop.color = rankColor;
+
+		#if ACHIEVEMENTS_ALLOWED
+		if (achievementLabel != null) {
+			var achUnlocked = Achievements.achievementsUnlocked.length;
+			var achTotal = Lambda.count(Achievements.achievements);
+			achievementLabel.text = 'Basarim: $achUnlocked/$achTotal';
+		}
+		#end
+
+		saveCache();
 	}
 
 	// ══════════════════════════════════
@@ -371,7 +797,7 @@ class ProfileBox extends FlxSpriteGroup {
 	}
 
 	function getRankTitle(rank:String):String {
-		return switch (rank.toLowerCase()) {
+		return switch (rank) {
 			case "bronze": "Bronze";
 			case "silver": "Silver";
 			case "gold": "Gold";
@@ -384,8 +810,22 @@ class ProfileBox extends FlxSpriteGroup {
 		};
 	}
 
+	function getRankSymbol(rank:String):String {
+		return switch (rank) {
+			case "bronze": "I";
+			case "silver": "II";
+			case "gold": "III";
+			case "platinum": "IV";
+			case "diamond": "V";
+			case "master": "VI";
+			case "grandmaster": "VII";
+			case "legend": "X";
+			default: "-";
+		};
+	}
+
 	function getRankColor(rank:String):FlxColor {
-		return switch (rank.toLowerCase()) {
+		return switch (rank) {
 			case "bronze": 0xFFCD7F32;
 			case "silver": 0xFFC0C0C0;
 			case "gold": COL_GOLD;
@@ -396,22 +836,6 @@ class ProfileBox extends FlxSpriteGroup {
 			case "legend": 0xFFFF6B6B;
 			default: COL_MUTED;
 		};
-	}
-
-	function getXPProgress():Float {
-		var level = AuthManager.currentLevel ?? 1;
-		var score = AuthManager.currentScore ?? 0;
-		var xpForCurrentLevel = getXPForLevel(level);
-		var xpForNextLevel = getXPForLevel(level + 1);
-		var xpNeeded = xpForNextLevel - xpForCurrentLevel;
-		var xpProgress = score - xpForCurrentLevel;
-		if (xpNeeded <= 0)
-			return 1.0;
-		return Math.max(0, Math.min(1, xpProgress / xpNeeded));
-	}
-
-	function getXPForLevel(level:Int):Int {
-		return Std.int(100 * Math.pow(1.15, level - 1));
 	}
 
 	function formatNumber(num:Float):String {
@@ -425,6 +849,16 @@ class ProfileBox extends FlxSpriteGroup {
 	// ══════════════════════════════════
 	//  CACHE
 	// ══════════════════════════════════
+	static function cachePath():String {
+		#if android
+		return StorageUtil.getExternalStorageDirectory() + CACHE_FILE;
+		#elseif sys
+		return Sys.getCwd() + CACHE_FILE;
+		#else
+		return CACHE_FILE;
+		#end
+	}
+
 	function saveCache():Void {
 		#if sys
 		try {
@@ -434,11 +868,9 @@ class ProfileBox extends FlxSpriteGroup {
 				score: AuthManager.currentScore,
 				ultraPoints: AuthManager.currentUltraPoints,
 				country: AuthManager.currentCountry,
-				avatar: AuthManager.currentAvatar,
 				timestamp: Date.now().toString()
 			};
-			var json = haxe.Json.stringify(data);
-			File.saveContent(getCachePath(), json);
+			File.saveContent(cachePath(), haxe.Json.stringify(data));
 		} catch (e:Dynamic) {
 			trace('[ProfileBox] Cache save failed: $e');
 		}
@@ -448,11 +880,9 @@ class ProfileBox extends FlxSpriteGroup {
 	public static function loadCache():Bool {
 		#if sys
 		try {
-			var path = getCachePath();
-			if (!FileSystem.exists(path))
-				return false;
-			var content = File.getContent(path);
-			var data:Dynamic = haxe.Json.parse(content);
+			var path = cachePath();
+			if (!FileSystem.exists(path)) return false;
+			var data:Dynamic = haxe.Json.parse(File.getContent(path));
 			AuthManager.currentUsername = data.username ?? "Player";
 			AuthManager.currentLevel = data.level ?? 1;
 			AuthManager.currentScore = data.score ?? 0;
@@ -470,26 +900,28 @@ class ProfileBox extends FlxSpriteGroup {
 	public static function clearCache():Void {
 		#if sys
 		try {
-			var path = getCachePath();
+			var path = cachePath();
 			if (FileSystem.exists(path))
 				FileSystem.deleteFile(path);
 		} catch (e:Dynamic) {}
 		#end
 	}
 
-	static function getCachePath():String {
-		#if android
-		return StorageUtil.getExternalStorageDirectory() + CACHE_FILE;
-		#elseif sys
-		return Sys.getCwd() + CACHE_FILE;
-		#else
-		return CACHE_FILE;
+	public static function getCachedProfile():Dynamic {
+		#if sys
+		try {
+			var path = cachePath();
+			if (!FileSystem.exists(path)) return null;
+			return haxe.Json.parse(File.getContent(path));
+		} catch (e:Dynamic) {
+			trace('[ProfileBox] getCachedProfile failed: $e');
+		}
 		#end
+		return null;
 	}
 
 	public static function syncFromAuth():Void {
-		if (!AuthManager.isLoggedIn)
-			return;
+		if (!AuthManager.isLoggedIn) return;
 
 		#if sys
 		try {
@@ -501,8 +933,7 @@ class ProfileBox extends FlxSpriteGroup {
 				country: AuthManager.currentCountry,
 				timestamp: Date.now().toString()
 			};
-			var json = haxe.Json.stringify(data);
-			sys.io.File.saveContent(getStaticCachePath(), json);
+			File.saveContent(cachePath(), haxe.Json.stringify(data));
 		} catch (e:Dynamic) {
 			trace('[ProfileBox] syncFromAuth failed: $e');
 		}
@@ -510,31 +941,6 @@ class ProfileBox extends FlxSpriteGroup {
 
 		if (instance != null)
 			instance.rebuild();
-	}
-
-	private static function getStaticCachePath():String {
-		#if android
-		return StorageUtil.getExternalStorageDirectory() + "profile_cache.json";
-		#elseif sys
-		return Sys.getCwd() + "profile_cache.json";
-		#else
-		return "profile_cache.json";
-		#end
-	}
-
-	public static function getCachedProfile():Dynamic {
-		#if sys
-		try {
-			var path = getStaticCachePath();
-			if (!sys.FileSystem.exists(path))
-				return null;
-			var content = sys.io.File.getContent(path);
-			return haxe.Json.parse(content);
-		} catch (e:Dynamic) {
-			trace('[ProfileBox] getCachedProfile failed: $e');
-		}
-		#end
-		return null;
 	}
 
 	public static function onLogin():Void {
@@ -550,6 +956,7 @@ class ProfileBox extends FlxSpriteGroup {
 	}
 
 	override function destroy():Void {
+		if (dropdownOpen) closeDropdown();
 		if (instance == this)
 			instance = null;
 		super.destroy();

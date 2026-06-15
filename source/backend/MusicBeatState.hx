@@ -1,11 +1,7 @@
 package backend;
 
 import flixel.FlxState;
-import flixel.FlxObject;
 import backend.PsychCamera;
-import mobile.MobileConfig;
-import mobile.objects.FunkinMobilePad;
-import mobile.objects.FunkinHitbox;
 
 class MusicBeatState extends FlxState
 {
@@ -23,151 +19,14 @@ class MusicBeatState extends FlxState
 		return Controls.instance;
 	}
 
-	// ============ ESKİ MOBİL SİSTEM (geriye uyumluluk) ============
-	public var touchPad:Dynamic;
+	public var touchPad:TouchPad;
 	public var touchPadCam:FlxCamera;
 	public var mobileControls:IMobileControls;
 	public var mobileControlsCam:FlxCamera;
 
-	// ============ YENİ MOBİL SİSTEM ============
-	public var mobileManager:MobileControlManager;
-
-	public inline function mobileButtonJustPressed(buttons:Dynamic):Bool
+	public function addTouchPad(DPad:String, Action:String)
 	{
-		return mobileManager != null && mobileManager.mobilePad != null && mobileManager.mobilePad.justPressed(buttons);
-	}
-
-	public inline function mobileButtonPressed(buttons:Dynamic):Bool
-	{
-		return mobileManager != null && mobileManager.mobilePad != null && mobileManager.mobilePad.pressed(buttons);
-	}
-
-	public inline function mobileButtonJustReleased(buttons:Dynamic):Bool
-	{
-		return mobileManager != null && mobileManager.mobilePad != null && mobileManager.mobilePad.justReleased(buttons);
-	}
-	
-	public function addTouchPadCamera(defaultDrawTarget:Bool = false):Void
-	{
-		#if mobile
-		if (ClientPrefs.isTouchMode())
-			return;
-		#end
-
-		if (touchPad != null)
-		{
-			touchPadCam = new FlxCamera();
-			touchPadCam.bgColor.alpha = 0;
-			FlxG.cameras.add(touchPadCam, defaultDrawTarget);
-			touchPad.cameras = [touchPadCam];
-		}
-	}
-	
-	public function getTouchPadButton(buttonName:String):Dynamic
-	{
-		if (touchPad == null)
-			return null;
-
-		// Eski TouchPad sistemi - direkt field
-		try
-		{
-			var field:Dynamic = Reflect.field(touchPad, buttonName);
-			if (field != null)
-				return field;
-		}
-		catch (e:Dynamic) {}
-
-		// Yeni FunkinMobilePad sistemi - members içinde tag ile ara
-		try
-		{
-			var members:Dynamic = Reflect.field(touchPad, "members");
-			if (members != null)
-			{
-				var arr:Array<Dynamic> = cast members;
-				for (member in arr)
-				{
-					if (member == null)
-						continue;
-
-					var tag:Dynamic = Reflect.field(member, "tag");
-					if (tag != null)
-					{
-						var tagStr:String = Std.string(tag);
-						var searchName:String = buttonName.toUpperCase();
-
-						if (searchName.startsWith("BUTTON"))
-							searchName = searchName.substr(6);
-
-						if (tagStr == searchName)
-							return member;
-					}
-				}
-			}
-		}
-		catch (e:Dynamic) {}
-
-		return null;
-	}
-	
-	public function touchPadButtonPressed(buttonName:String):Bool
-	{
-		var btn:Dynamic = getTouchPadButton(buttonName);
-		return btn != null && btn.pressed == true;
-	}
-
-	public function touchPadButtonJustPressed(buttonName:String):Bool
-	{
-		var btn:Dynamic = getTouchPadButton(buttonName);
-		return btn != null && btn.justPressed == true;
-	}
-
-	public function touchPadButtonJustReleased(buttonName:String):Bool
-	{
-		var btn:Dynamic = getTouchPadButton(buttonName);
-		return btn != null && btn.justReleased == true;
-	}
-
-	public inline function mobileButtonReleased(buttons:Dynamic):Bool
-	{
-		return mobileManager != null && mobileManager.mobilePad != null && mobileManager.mobilePad.released(buttons);
-	}
-
-	public function addTouchPad(DPad:String, Action:String, ?onScroll:Int->Void, ?onAccept:Void->Void, ?onBack:Void->Void)
-	{
-		#if mobile
-		if (ClientPrefs.isTouchMode())
-		{
-			if (scrollableObject == null)
-			{
-				scrollableObject = new ScrollableObject(
-					0.15,
-					0,
-					0,
-					FlxG.width,
-					FlxG.height
-				);
-
-				if (onScroll != null)
-					scrollableObject.onFullScroll.add(onScroll);
-				if (onAccept != null)
-					scrollableObject.onTap.add(onAccept);
-				if (onBack != null)
-					scrollableObject.onSwipeRight.add(onBack);
-
-				add(scrollableObject);
-			}
-			return;
-		}
-		#end
-
-		var dpadOk:Bool = (DPad == 'NONE' || (MobileConfig.dpadModes != null && MobileConfig.dpadModes.exists(DPad)));
-		var actionOk:Bool = (Action == 'NONE' || (MobileConfig.actionModes != null && MobileConfig.actionModes.exists(Action)));
-
-		if (dpadOk && actionOk)
-			touchPad = new FunkinMobilePad(DPad, Action, ClientPrefs.data.mobilePadAlpha);
-		else
-			touchPad = new TouchPad(DPad, Action);
-
+		touchPad = new TouchPad(DPad, Action);
 		add(touchPad);
 	}
 
@@ -179,7 +38,7 @@ class MusicBeatState extends FlxState
 			touchPad = FlxDestroyUtil.destroy(touchPad);
 		}
 
-		if (touchPadCam != null)
+		if(touchPadCam != null)
 		{
 			FlxG.cameras.remove(touchPadCam);
 			touchPadCam = FlxDestroyUtil.destroy(touchPadCam);
@@ -188,83 +47,36 @@ class MusicBeatState extends FlxState
 
 	public function addMobileControls(defaultDrawTarget:Bool = false):Void
 	{
-		#if mobile
-		if (ClientPrefs.isTouchMode())
-			return;
-		#end
-
 		var extraMode = MobileData.extraActions.get(ClientPrefs.data.extraButtons);
 
 		switch (MobileData.mode)
 		{
 			case 0: // RIGHT_FULL
-				if (MobileConfig.dpadModes != null && MobileConfig.dpadModes.exists('RIGHT_FULL'))
-				{
-					var pad = new FunkinMobilePad('RIGHT_FULL', 'NONE', ClientPrefs.data.mobilePadAlpha);
-					mobileControls = cast pad;
-				}
-				else
-				{
-					mobileControls = new TouchPad('RIGHT_FULL', 'NONE', extraMode);
-				}
-
+				mobileControls = new TouchPad('RIGHT_FULL', 'NONE', extraMode);
 			case 1: // LEFT_FULL
-				if (MobileConfig.dpadModes != null && MobileConfig.dpadModes.exists('LEFT_FULL'))
-				{
-					var pad = new FunkinMobilePad('LEFT_FULL', 'NONE', ClientPrefs.data.mobilePadAlpha);
-					mobileControls = cast pad;
-				}
-				else
-				{
-					mobileControls = new TouchPad('LEFT_FULL', 'NONE', extraMode);
-				}
-
+				mobileControls = new TouchPad('LEFT_FULL', 'NONE', extraMode);
 			case 2: // CUSTOM
-				// Şimdilik eski custom sistemi kalsın
 				mobileControls = MobileData.getTouchPadCustom(new TouchPad('RIGHT_FULL', 'NONE', extraMode));
-
 			case 3: // HITBOX
-				if (ClientPrefs.data.ogGameControls)
-				{
-					var hitbox = new FunkinHitbox("V Slice", ClientPrefs.data.hitboxHint, ClientPrefs.data.hitboxAlpha);
-					mobileControls = cast hitbox;
-				}
-				else
-				{
-					var hitboxMode:String = ClientPrefs.data.hitboxMode;
-					if (hitboxMode == null || hitboxMode.trim() == "")
-						hitboxMode = "Normal (New)";
-
-					var hitbox = new FunkinHitbox(hitboxMode, ClientPrefs.data.hitboxHint, ClientPrefs.data.hitboxAlpha);
-					mobileControls = cast hitbox;
-				}
+				mobileControls = new Hitbox(extraMode);
 		}
 
-		if (mobileControls != null && mobileControls.instance != null)
-			mobileControls.instance = MobileData.setButtonsColors(mobileControls.instance);
-
+		mobileControls.instance = MobileData.setButtonsColors(mobileControls.instance);
 		mobileControlsCam = new FlxCamera();
 		mobileControlsCam.bgColor.alpha = 0;
 		FlxG.cameras.add(mobileControlsCam, defaultDrawTarget);
 
-		if (mobileControls != null && mobileControls.instance != null)
-		{
-			mobileControls.instance.cameras = [mobileControlsCam];
-			mobileControls.instance.visible = false;
-			add(mobileControls.instance);
-		}
+		mobileControls.instance.cameras = [mobileControlsCam];
+		mobileControls.instance.visible = false;
+		add(mobileControls.instance);
 	}
 
 	public function removeMobileControls()
 	{
 		if (mobileControls != null)
 		{
-			if (mobileControls.instance != null)
-			{
-				if (members.contains(mobileControls.instance))
-					remove(mobileControls.instance);
-				mobileControls.instance = FlxDestroyUtil.destroy(mobileControls.instance);
-			}
+			remove(mobileControls.instance);
+			mobileControls.instance = FlxDestroyUtil.destroy(mobileControls.instance);
 			mobileControls = null;
 		}
 
@@ -274,63 +86,23 @@ class MusicBeatState extends FlxState
 			mobileControlsCam = FlxDestroyUtil.destroy(mobileControlsCam);
 		}
 	}
-	
-	public var scrollableObject:ScrollableObject;
-	public function addTouchGestures(?scrollScale:Float = 1.0, ?clickButton:FlxObject, ?onScroll:Int->Void, ?onAccept:Void->Void, ?onBack:Void->Void):Void
+
+	public function addTouchPadCamera(defaultDrawTarget:Bool = false):Void
 	{
-		#if mobile
-		if (scrollableObject != null)
-			removeTouchGestures();
-
-		scrollableObject = new ScrollableObject(
-			scrollScale,
-			0,
-			0,
-			FlxG.width,
-			FlxG.height,
-			clickButton
-		);
-
-		if (onScroll != null)
-			scrollableObject.onFullScroll.add(onScroll);
-
-		if (onAccept != null)
-			scrollableObject.onTap.add(onAccept);
-
-		if (onBack != null)
-			scrollableObject.onSwipeRight.add(onBack);
-
-		add(scrollableObject);
-		#end
-	}
-
-	public function removeTouchGestures():Void
-	{
-		#if mobile
-		if (scrollableObject != null)
+		if (touchPad != null)
 		{
-			if (members.contains(scrollableObject))
-				remove(scrollableObject);
-			scrollableObject.destroy();
-			scrollableObject = null;
+			touchPadCam = new FlxCamera();
+			touchPadCam.bgColor.alpha = 0;
+			FlxG.cameras.add(touchPadCam, defaultDrawTarget);
+			touchPad.cameras = [touchPadCam];
 		}
-		#end
 	}
 
 	override function destroy()
 	{
 		removeTouchPad();
 		removeMobileControls();
-		removeTouchGestures();
-		if (mobileManager != null)
-			mobileManager.destroy();
-		if (scrollableObject != null)
-		{
-			remove(scrollableObject);
-			scrollableObject.destroy();
-			scrollableObject = null;
-		}
-
+		
 		super.destroy();
 	}
 
@@ -340,32 +112,15 @@ class MusicBeatState extends FlxState
 	public static function getVariables()
 		return getState().variables;
 
-	override function create()
-	{
+	override function create() {
 		var skip:Bool = FlxTransitionableState.skipNextTransOut;
 		#if MODS_ALLOWED Mods.updatedOnState = false; #end
 
-		if (!_psychCameraInitialized)
-			initPsychCamera();
-
-		// YENİ: MobileControlManager oluştur
-		mobileManager = new MobileControlManager(this);
-		
-		#if mobile
-		scrollableObject = new ScrollableObject(
-			1.0,
-			0,
-			0,
-			FlxG.width,
-			FlxG.height
-		);
-		add(scrollableObject);
-		#end
+		if(!_psychCameraInitialized) initPsychCamera();
 
 		super.create();
 
-		if (!skip)
-		{
+		if(!skip) {
 			openSubState(new CustomFadeTransition(0.5, true));
 		}
 		FlxTransitionableState.skipNextTransOut = false;
@@ -378,12 +133,14 @@ class MusicBeatState extends FlxState
 		FlxG.cameras.reset(camera);
 		FlxG.cameras.setDefaultDrawTarget(camera, true);
 		_psychCameraInitialized = true;
+		//trace('initialized psych camera ' + Sys.cpuTime());
 		return camera;
 	}
 
 	public static var timePassedOnState:Float = 0;
 	override function update(elapsed:Float)
 	{
+		//everyStep();
 		var oldStep:Int = curStep;
 		timePassedOnState += elapsed;
 
@@ -392,10 +149,10 @@ class MusicBeatState extends FlxState
 
 		if (oldStep != curStep)
 		{
-			if (curStep > 0)
+			if(curStep > 0)
 				stepHit();
 
-			if (PlayState.SONG != null)
+			if(PlayState.SONG != null)
 			{
 				if (oldStep < curStep)
 					updateSection();
@@ -404,11 +161,9 @@ class MusicBeatState extends FlxState
 			}
 		}
 
-		if (FlxG.save.data != null)
-			FlxG.save.data.fullscreen = FlxG.fullscreen;
-
-		stagesFunc(function(stage:BaseStage)
-		{
+		if(FlxG.save.data != null) FlxG.save.data.fullscreen = FlxG.fullscreen;
+		
+		stagesFunc(function(stage:BaseStage) {
 			stage.update(elapsed);
 		});
 
@@ -417,9 +172,8 @@ class MusicBeatState extends FlxState
 
 	private function updateSection():Void
 	{
-		if (stepsToDo < 1)
-			stepsToDo = Math.round(getBeatsOnSection() * 4);
-		while (curStep >= stepsToDo)
+		if(stepsToDo < 1) stepsToDo = Math.round(getBeatsOnSection() * 4);
+		while(curStep >= stepsToDo)
 		{
 			curSection++;
 			var beats:Float = getBeatsOnSection();
@@ -430,8 +184,7 @@ class MusicBeatState extends FlxState
 
 	private function rollbackSection():Void
 	{
-		if (curStep < 0)
-			return;
+		if(curStep < 0) return;
 
 		var lastSection:Int = curSection;
 		curSection = 0;
@@ -441,21 +194,19 @@ class MusicBeatState extends FlxState
 			if (PlayState.SONG.notes[i] != null)
 			{
 				stepsToDo += Math.round(getBeatsOnSection() * 4);
-				if (stepsToDo > curStep)
-					break;
-
+				if(stepsToDo > curStep) break;
+				
 				curSection++;
 			}
 		}
 
-		if (curSection > lastSection)
-			sectionHit();
+		if(curSection > lastSection) sectionHit();
 	}
 
 	private function updateBeat():Void
 	{
 		curBeat = Math.floor(curStep / 4);
-		curDecBeat = curDecStep / 4;
+		curDecBeat = curDecStep/4;
 	}
 
 	private function updateCurStep():Void
@@ -467,53 +218,45 @@ class MusicBeatState extends FlxState
 		curStep = lastChange.stepTime + Math.floor(shit);
 	}
 
-	public static function switchState(nextState:FlxState = null)
-	{
-		if (nextState == null)
-			nextState = FlxG.state;
-		if (nextState == FlxG.state)
+	public static function switchState(nextState:FlxState = null) {
+		if(nextState == null) nextState = FlxG.state;
+		if(nextState == FlxG.state)
 		{
 			resetState();
 			return;
 		}
 
-		if (FlxTransitionableState.skipNextTransIn)
-			FlxG.switchState(nextState);
-		else
-			startTransition(nextState);
+		if(FlxTransitionableState.skipNextTransIn) FlxG.switchState(nextState);
+		else startTransition(nextState);
 		FlxTransitionableState.skipNextTransIn = false;
 	}
 
-	public static function resetState()
-	{
-		if (FlxTransitionableState.skipNextTransIn)
-			FlxG.resetState();
-		else
-			startTransition();
+	public static function resetState() {
+		if(FlxTransitionableState.skipNextTransIn) FlxG.resetState();
+		else startTransition();
 		FlxTransitionableState.skipNextTransIn = false;
 	}
 
+	// Custom made Trans in
 	public static function startTransition(nextState:FlxState = null)
 	{
-		if (nextState == null)
+		if(nextState == null)
 			nextState = FlxG.state;
 
 		FlxG.state.openSubState(new CustomFadeTransition(0.5, false));
-		if (nextState == FlxG.state)
+		if(nextState == FlxG.state)
 			CustomFadeTransition.finishCallback = function() FlxG.resetState();
 		else
 			CustomFadeTransition.finishCallback = function() FlxG.switchState(nextState);
 	}
 
-	public static function getState():MusicBeatState
-	{
-		return cast(FlxG.state, MusicBeatState);
+	public static function getState():MusicBeatState {
+		return cast (FlxG.state, MusicBeatState);
 	}
 
 	public function stepHit():Void
 	{
-		stagesFunc(function(stage:BaseStage)
-		{
+		stagesFunc(function(stage:BaseStage) {
 			stage.curStep = curStep;
 			stage.curDecStep = curDecStep;
 			stage.stepHit();
@@ -524,11 +267,10 @@ class MusicBeatState extends FlxState
 	}
 
 	public var stages:Array<BaseStage> = [];
-
 	public function beatHit():Void
 	{
-		stagesFunc(function(stage:BaseStage)
-		{
+		//trace('Beat: ' + curBeat);
+		stagesFunc(function(stage:BaseStage) {
 			stage.curBeat = curBeat;
 			stage.curDecBeat = curDecBeat;
 			stage.beatHit();
@@ -537,8 +279,8 @@ class MusicBeatState extends FlxState
 
 	public function sectionHit():Void
 	{
-		stagesFunc(function(stage:BaseStage)
-		{
+		//trace('Section: ' + curSection + ', Beat: ' + curBeat + ', Step: ' + curStep);
+		stagesFunc(function(stage:BaseStage) {
 			stage.curSection = curSection;
 			stage.sectionHit();
 		});
@@ -547,15 +289,14 @@ class MusicBeatState extends FlxState
 	function stagesFunc(func:BaseStage->Void)
 	{
 		for (stage in stages)
-			if (stage != null && stage.exists && stage.active)
+			if(stage != null && stage.exists && stage.active)
 				func(stage);
 	}
 
 	function getBeatsOnSection()
 	{
 		var val:Null<Float> = 4;
-		if (PlayState.SONG != null && PlayState.SONG.notes[curSection] != null)
-			val = PlayState.SONG.notes[curSection].sectionBeats;
+		if(PlayState.SONG != null && PlayState.SONG.notes[curSection] != null) val = PlayState.SONG.notes[curSection].sectionBeats;
 		return val == null ? 4 : val;
 	}
 }

@@ -78,16 +78,16 @@ class PlayState extends MusicBeatState
 	public static var STRUM_X_MIDDLESCROLL = -278;
 
 	public static var ratingStuff:Array<Dynamic> = [
-		['You Suck!', 0.2], //From 0% to 19%
-		['Shit', 0.4], //From 20% to 39%
-		['Bad', 0.5], //From 40% to 49%
+		['Berbat!', 0.2], //From 0% to 19%
+		['Çok Kötü', 0.4], //From 20% to 39%
+		['Kötü', 0.5], //From 40% to 49%
 		['Bruh', 0.6], //From 50% to 59%
-		['Meh', 0.69], //From 60% to 68%
-		['Nice', 0.7], //69%
-		['Good', 0.8], //From 70% to 79%
-		['Great', 0.9], //From 80% to 89%
-		['Sick!', 1], //From 90% to 99%
-		['Perfect!!', 1] //The value on this one isn't used actually, since Perfect is always "1"
+		['Eh İşte', 0.69], //From 60% to 68%
+		['Fena Değil', 0.7], //69%
+		['İyi', 0.8], //From 70% to 79%
+		['Harika', 0.9], //From 80% to 89%
+		['Muhteşem!', 1], //From 90% to 99%
+		['Mükemmel!!', 1] //The value on this one isn't used actually, since Perfect is always "1"
 	];
 
 	//event variables
@@ -147,6 +147,10 @@ class PlayState extends MusicBeatState
 	public static var storyDifficulty:Int = 1;
 
 	public var spawnTime:Float = 2000;
+	
+	// P.E.T Filigran değişkenleri
+	var petLogo:FlxSprite;
+	var petText:FlxText;
 
 	public var inst:FlxSound;
 	public var vocals:FlxSound;
@@ -158,8 +162,6 @@ class PlayState extends MusicBeatState
 
 	public var notes:FlxTypedGroup<Note>;
 	public var unspawnNotes:Array<Note> = [];
-	public static var hitboxPositions:Array<Float> = [0, 0, 0, 0, 0, 0, 0, 0, 0];
-	public static var defaultPlayerNotePositions:Array<Float> = [-199, -89, 21, 131];
 	public var eventNotes:Array<EventNote> = [];
 
 	public var camFollow:FlxObject;
@@ -665,10 +667,12 @@ class PlayState extends MusicBeatState
 		grpNoteSplashes.add(splash);
 		splash.alpha = 0.000001; //cant make it invisible or it won't allow precaching
 
-		#if !android
+		#if mobile
 		addTouchPad('NONE', 'P');
 		addTouchPadCamera();
 		#end
+		
+		createPETWatermark();
 
 		super.create();
 		Paths.clearUnusedMemory();
@@ -1004,10 +1008,6 @@ class PlayState extends MusicBeatState
 			if (skipCountdown || startOnTime > 0) skipArrowStartTween = true;
 
 			canPause = true;
-			#if mobile
-			if (ClientPrefs.data.ogGameControls)
-				enableVSliceControls();
-			#end
 			generateStaticArrows(0);
 			generateStaticArrows(1);
 			for (i in 0...playerStrums.length) {
@@ -1194,8 +1194,8 @@ class PlayState extends MusicBeatState
 		}
 
 		var tempScore:String;
-		if(!instakillOnMiss) tempScore = Language.getPhrase('score_text', 'Score: {1} | Misses: {2} | Rating: {3}', [songScore, songMisses, str]);
-		else tempScore = Language.getPhrase('score_text_instakill', 'Score: {1} | Rating: {2}', [songScore, str]);
+		if(!instakillOnMiss) tempScore = Language.getPhrase('score_text', 'Skor: {1} | Iskalar: {2} | Doğruluk: {3}', [songScore, songMisses, str]);
+		else tempScore = Language.getPhrase('score_text_instakill', 'Skor: {1} | Doğruluk: {2}', [songScore, str]);
 		scoreTxt.text = tempScore;
 	}
 
@@ -1608,106 +1608,6 @@ class PlayState extends MusicBeatState
 			strumLineNotes.add(babyArrow);
 			babyArrow.playerPosition();
 		}
-	}
-	
-	public function fixHitboxPos(strumGroup:FlxTypedGroup<StrumNote>, ?keyCountIsDefault:Bool = true):Void
-	{
-		// Önce array'i temizle
-		for (i in 0...hitboxPositions.length)
-			hitboxPositions[i] = 0;
-
-		if (keyCountIsDefault)
-		{
-			for (i in 0...4)
-			{
-				if (strumGroup.members[i] != null)
-					hitboxPositions[i] = Std.int(strumGroup.members[i].x) - 20;
-			}
-		}
-	}
-	
-	public function reloadPlayStateHitbox(?mode:String):Void
-	{
-		#if mobile
-		if (mobileControls != null)
-		{
-			if (mobileControls.onButtonDown != null)
-				mobileControls.onButtonDown.remove(onButtonPress);
-
-			if (mobileControls.onButtonUp != null)
-				mobileControls.onButtonUp.remove(onButtonRelease);
-
-			if (mobileControls.instance != null)
-			{
-				if (members.contains(mobileControls.instance))
-					remove(mobileControls.instance);
-
-				mobileControls.instance.destroy();
-			}
-
-			if (mobileControlsCam != null)
-			{
-				FlxG.cameras.remove(mobileControlsCam);
-				mobileControlsCam = FlxDestroyUtil.destroy(mobileControlsCam);
-			}
-
-			mobileControls = null;
-		}
-
-		if (mode == "V Slice")
-			fixHitboxPos(playerStrums, true);
-
-		addMobileControls();
-
-		if (mobileControls != null)
-		{
-			mobileControls.instance.visible = true;
-			mobileControls.onButtonDown.add(onButtonPress);
-			mobileControls.onButtonUp.add(onButtonRelease);
-		}
-		#end
-	}
-	
-	public function enableVSliceControls():Void
-	{
-		#if mobile
-		for (player in 0...2)
-		{
-			var strumGroup = player == 1 ? playerStrums : opponentStrums;
-
-			for (i in 0...4)
-			{
-				if (player == 1)
-				{
-					// Player strumlarını ortala
-					strumGroup.members[i].screenCenter(X);
-					strumGroup.members[i].x += defaultPlayerNotePositions[i];
-				}
-				else
-				{
-					// Opponent strumlarını küçült ve köşeye al
-					strumGroup.members[i].y = 40;
-					strumGroup.members[i].x = 10 + (i * 65);
-					strumGroup.members[i].scale.x = strumGroup.members[i].scale.x / 1.75;
-					strumGroup.members[i].scale.y = strumGroup.members[i].scale.y / 1.75;
-				}
-			}
-
-			if (player == 1)
-			{
-				// Opponent notalarını gizle
-				for (i in 0...unspawnNotes.length)
-				{
-					if (!unspawnNotes[i].mustPress)
-						unspawnNotes[i].visible = false;
-				}
-
-				fixHitboxPos(strumGroup, true);
-			}
-		}
-
-		reloadPlayStateHitbox("V Slice");
-		#end
 	}
 
 	override function openSubState(SubState:FlxSubState)
@@ -3396,6 +3296,11 @@ class PlayState extends MusicBeatState
 			//trace('BEAT HIT: ' + curBeat + ', LAST HIT: ' + lastBeatHit);
 			return;
 		}
+		
+		if (ClientPrefs.data.petwatermark && petLogo != null && curBeat % 2 == 0) {
+			petLogo.scale.set(0.45, 0.45);
+			FlxTween.tween(petLogo.scale, {x: 0.4, y: 0.4}, 0.5, {ease: FlxEase.circOut});
+		}
 
 		if (generatedMusic)
 			notes.sort(FlxSort.byY, ClientPrefs.data.downScroll ? FlxSort.ASCENDING : FlxSort.DESCENDING);
@@ -3413,6 +3318,49 @@ class PlayState extends MusicBeatState
 
 		setOnScripts('curBeat', curBeat);
 		callOnScripts('onBeatHit');
+	}
+	
+	function createPETWatermark():Void {
+		var logoPath:String = 'pet/petlogos/';
+		switch (ClientPrefs.data.petwatermarklogo.toUpperCase()) {
+			case 'V1':
+				logoPath += 'V1';
+			case 'V2':
+				logoPath += 'V2';
+			case 'V2U':
+				logoPath += 'V2U';
+			case 'ONLINE':
+				logoPath += 'online';
+			default: // ONLINE
+				logoPath += 'varsayilan';
+		}
+		// P.E.T Logo
+		petLogo = new FlxSprite(-200, 20);
+		try {
+			petLogo.loadGraphic(Paths.image(logoPath));
+			petLogo.setGraphicSize(Std.int(petLogo.width * 0.4));
+			petLogo.updateHitbox();
+			petLogo.antialiasing = ClientPrefs.data.antialiasing;
+			petLogo.cameras = [camHUD];
+			add(petLogo);
+		} catch (e:Dynamic) {
+			trace("LOGO YÜKLEME HATASI: " + e);
+			return;
+		}
+		try {
+			petText = new FlxText(-200, 35, 0, "Psych Engine Türkiye");
+			petText.setFormat(Paths.font("vcr.ttf"), 20, FlxColor.WHITE, LEFT, OUTLINE, FlxColor.BLACK);
+			petText.borderSize = 2;
+			petText.cameras = [camHUD];
+			add(petText);
+		} catch (e:Dynamic) {
+			return;
+		}
+		// Tween
+		if (petLogo != null && petText != null) {
+			FlxTween.tween(petLogo, {x: 10}, 1.5, {ease: FlxEase.elasticOut});
+			FlxTween.tween(petText, {x: 10 + 75}, 1.5, {ease: FlxEase.elasticOut});
+		}
 	}
 
 	public function characterBopper(beat:Int):Void

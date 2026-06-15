@@ -6,40 +6,43 @@ typedef Keybind = {
 }
 
 enum OptionType {
-	// Bool will use checkboxes
-	// Everything else will use a text
 	BOOL;
 	INT;
 	FLOAT;
 	PERCENT;
 	STRING;
 	KEYBIND;
+	DROPDOWN;
 }
 
 class Option
 {
 	public var child:Alphabet;
 	public var text(get, set):String;
-	public var onChange:Void->Void = null; //Pressed enter (on Bool type options) or pressed/held left/right (on other types)
+	public var onChange:Void->Void = null;
 	public var type:OptionType = BOOL;
 
-	public var scrollSpeed:Float = 50; //Only works on int/float, defines how fast it scrolls per second while holding left/right
-	public var variable(default, null):String = null; //Variable from ClientPrefs.hx
+	public var scrollSpeed:Float = 50;
+	public var variable(default, null):String = null;
 	public var defaultValue:Dynamic = null;
 
-	public var curOption:Int = 0; //Don't change this
-	public var options:Array<String> = null; //Only used in string type
-	public var changeValue:Dynamic = 1; //Only used in int/float/percent type, how much is changed when you PRESS
-	public var minValue:Dynamic = null; //Only used in int/float/percent type
-	public var maxValue:Dynamic = null; //Only used in int/float/percent type
-	public var decimals:Int = 1; //Only used in float/percent type
+	public var curOption:Int = 0;
+	public var options:Array<String> = null;
+	public var changeValue:Dynamic = 1;
+	public var minValue:Dynamic = null;
+	public var maxValue:Dynamic = null;
+	public var decimals:Int = 1;
 
-	public var displayFormat:String = '%v'; //How String/Float/Percent/Int values are shown, %v = Current value, %d = Default value
+	public var displayFormat:String = '%v';
 	public var description:String = '';
 	public var name:String = 'Unknown';
 
-	public var defaultKeys:Keybind = null; //Only used in keybind type
-	public var keys:Keybind = null; //Only used in keybind type
+	public var defaultKeys:Keybind = null;
+	public var keys:Keybind = null;
+
+	// DROPDOWN specific
+	public var dropdownLabels:Array<String> = null;
+	public var dropdownIcons:Array<String> = null;
 
 	public function new(name:String, description:String = '', variable:String, type:OptionType = BOOL, ?options:Array<String> = null, ?translation:String = null)
 	{
@@ -71,7 +74,11 @@ class Option
 					defaultValue = options[0];
 				if(defaultValue == null)
 					defaultValue = '';
-
+			case DROPDOWN:
+				if(options != null && options.length > 0)
+					defaultValue = options[0];
+				if(defaultValue == null)
+					defaultValue = '';
 			case KEYBIND:
 				defaultValue = '';
 				defaultKeys = {gamepad: 'NONE', keyboard: 'NONE'};
@@ -82,13 +89,15 @@ class Option
 		{
 			if(getValue() == null)
 				setValue(defaultValue);
-	
+
 			switch(type)
 			{
 				case STRING:
 					var num:Int = options.indexOf(getValue());
 					if(num > -1) curOption = num;
-
+				case DROPDOWN:
+					var num:Int = options.indexOf(getValue());
+					if(num > -1) curOption = num;
 				default:
 			}
 		}
@@ -97,7 +106,6 @@ class Option
 
 	public function change()
 	{
-		//nothing lol
 		if(onChange != null)
 			onChange();
 	}

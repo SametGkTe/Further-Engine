@@ -3,14 +3,6 @@ package backend.update;
 import haxe.Http;
 import haxe.Json;
 
-#if mobile
-import openfl.net.URLLoader;
-import openfl.net.URLRequest;
-import openfl.events.Event;
-import openfl.events.IOErrorEvent;
-import openfl.events.SecurityErrorEvent;
-#end
-
 typedef RemoteModpackInfo = {
 	var id:String;
 	var displayName:String;
@@ -66,142 +58,66 @@ class UpdateChecker {
      * GitHub'dan modpack listesini çek.
      * Hem mağaza hem güncelleme için kullanılır.
      */
-	public function fetchModpackList(?callback:CheckResult->Void):Void
-	{
-		if (isChecking) return;
-		isChecking = true;
+    public function fetchModpackList(?callback:CheckResult->Void):Void {
+        if (isChecking) return;
+        isChecking = true;
 
-		var url = UpdateConfig.MODPACK_JSON_URL;
-		trace('[UpdateChecker] Modpack listesi çekiliyor: $url');
+        var url = UpdateConfig.MODPACK_JSON_URL;
+        trace('[UpdateChecker] Modpack listesi çekiliyor: $url');
 
-		#if mobile
-		var loader:URLLoader = new URLLoader();
-		var finished:Bool = false;
+        var http = new Http(url);
+        http.addHeader("User-Agent", "PsychEngineTR-Updater");
 
-		var onComplete:Event->Void = null;
-		var onIOError:IOErrorEvent->Void = null;
-		var onSecurityError:SecurityErrorEvent->Void = null;
+        http.onData = function(data:String) {
+            isChecking = false;
 
-		function cleanup():Void
-		{
-			loader.removeEventListener(Event.COMPLETE, onComplete);
-			loader.removeEventListener(IOErrorEvent.IO_ERROR, onIOError);
-			loader.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, onSecurityError);
-		}
+            try {
+                var parsed:ModpackListData = cast Json.parse(data);
 
-		onComplete = function(_):Void
-		{
-			if (finished) return;
-			finished = true;
-			cleanup();
-			finishSuccess(Std.string(loader.data), callback);
-		};
+                if (parsed.modpacks == null) {
+                    if (onError != null)
+                        onError("modpacks alanı bulunamadı.");
+                    if (callback != null)
+                        callback(emptyResult());
+                    return;
+                }
 
-		onIOError = function(e:IOErrorEvent):Void
-		{
-			if (finished) return;
-			finished = true;
-			cleanup();
-			finishError('Bağlantı hatası: ' + e.text, callback);
-		};
+                cachedModpacks = parsed.modpacks;
 
-		onSecurityError = function(e:SecurityErrorEvent):Void
-		{
-			if (finished) return;
-			finished = true;
-			cleanup();
-			finishError('Güvenlik hatası: ' + e.text, callback);
-		};
+                var updates = findUpdates(parsed.modpacks);
 
-		loader.addEventListener(Event.COMPLETE, onComplete);
-		loader.addEventListener(IOErrorEvent.IO_ERROR, onIOError);
-		loader.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onSecurityError);
+                var result:CheckResult = {
+                    allModpacks: parsed.modpacks,
+                    availableUpdates: updates,
+                    hasUpdates: updates.length > 0
+                };
 
-		try
-		{
-			loader.load(new URLRequest(url));
-		}
-		catch (e:Dynamic)
-		{
-			if (!finished)
-			{
-				finished = true;
-				cleanup();
-				finishError('[UpdateChecker] Mobile request failed: ' + Std.string(e), callback);
-			}
-		}
-		#else
-		var http = new Http(url);
-		http.addHeader("User-Agent", "PsychEngineTR-Updater");
+                lastResult = result;
 
-		http.onData = function(data:String)
-		{
-			finishSuccess(data, callback);
-		};
+                trace('[UpdateChecker] ${parsed.modpacks.length} modpack bulundu, ${updates.length} güncelleme mevcut.');
 
-		http.onError = function(error:String)
-		{
-			finishError('Bağlantı hatası: $error', callback);
-		};
+                if (callback != null)
+                    callback(result);
 
-		try
-		{
-			http.request(false);
-		}
-		catch (e:Dynamic)
-		{
-			finishError('[UpdateChecker] fetchModpackList request failed: ' + Std.string(e), callback);
-		}
-		#end
-	}
-	
-	function finishError(message:String, ?callback:CheckResult->Void):Void
-	{
-		isChecking = false;
+            } catch (e:Dynamic) {
+                if (onError != null)
+                    onError('JSON parse hatası: ${Std.string(e)}');
+                if (callback != null)
+                    callback(emptyResult());
+            }
+        };
 
-		if (onError != null)
-			onError(message);
+        http.onError = function(error:String) {
+            isChecking = false;
 
-		if (callback != null)
-			callback(emptyResult());
-	}
+            if (onError != null)
+                onError('Bağlantı hatası: $error');
+            if (callback != null)
+                callback(emptyResult());
+        };
 
-	function finishSuccess(data:String, ?callback:CheckResult->Void):Void
-	{
-		isChecking = false;
-
-		try
-		{
-			var parsed:ModpackListData = cast Json.parse(data);
-
-			if (parsed.modpacks == null)
-			{
-				finishError("modpacks alanı bulunamadı.", callback);
-				return;
-			}
-
-			cachedModpacks = parsed.modpacks;
-
-			var updates = findUpdates(parsed.modpacks);
-
-			var result:CheckResult = {
-				allModpacks: parsed.modpacks,
-				availableUpdates: updates,
-				hasUpdates: updates.length > 0
-			};
-
-			lastResult = result;
-
-			trace('[UpdateChecker] ${parsed.modpacks.length} modpack bulundu, ${updates.length} güncelleme mevcut.');
-
-			if (callback != null)
-				callback(result);
-		}
-		catch (e:Dynamic)
-		{
-			finishError('JSON parse hatası: ${Std.string(e)}', callback);
-		}
-	}
+        http.request(false);
+    }
 
     /**
      * Kurulu modpackleri kontrol et, güncelleme var mı bak.

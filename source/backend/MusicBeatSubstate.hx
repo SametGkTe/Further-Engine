@@ -1,8 +1,6 @@
 package backend;
 
 import flixel.FlxSubState;
-import mobile.MobileConfig;
-import mobile.objects.FunkinMobilePad;
 
 class MusicBeatSubstate extends FlxSubState
 {
@@ -31,26 +29,14 @@ class MusicBeatSubstate extends FlxSubState
 	inline function get_controls():Controls
 		return Controls.instance;
 
-	public var touchPad:Dynamic;
+	public var touchPad:TouchPad;
 	public var touchPadCam:FlxCamera;
 	public var mobileControls:IMobileControls;
 	public var mobileControlsCam:FlxCamera;
 
 	public function addTouchPad(DPad:String, Action:String)
 	{
-		#if mobile
-		if (ClientPrefs.isTouchMode())
-			return;
-		#end
-
-		var dpadOk:Bool = (DPad == 'NONE' || (MobileConfig.dpadModes != null && MobileConfig.dpadModes.exists(DPad)));
-		var actionOk:Bool = (Action == 'NONE' || (MobileConfig.actionModes != null && MobileConfig.actionModes.exists(Action)));
-
-		if (dpadOk && actionOk)
-			touchPad = new FunkinMobilePad(DPad, Action, ClientPrefs.data.mobilePadAlpha);
-		else
-			touchPad = new TouchPad(DPad, Action);
-
+		touchPad = new TouchPad(DPad, Action);
 		add(touchPad);
 	}
 
@@ -113,11 +99,6 @@ class MusicBeatSubstate extends FlxSubState
 
 	public function addTouchPadCamera(defaultDrawTarget:Bool = false):Void
 	{
-		#if mobile
-		if (ClientPrefs.isTouchMode())
-			return;
-		#end
-
 		if (touchPad != null)
 		{
 			touchPadCam = new FlxCamera();
@@ -125,70 +106,6 @@ class MusicBeatSubstate extends FlxSubState
 			FlxG.cameras.add(touchPadCam, defaultDrawTarget);
 			touchPad.cameras = [touchPadCam];
 		}
-	}
-	
-	public function getTouchPadButton(buttonName:String):Dynamic
-	{
-		if (touchPad == null)
-			return null;
-
-		// Eski TouchPad sistemi - direkt field
-		try
-		{
-			var field:Dynamic = Reflect.field(touchPad, buttonName);
-			if (field != null)
-				return field;
-		}
-		catch (e:Dynamic) {}
-
-		// Yeni FunkinMobilePad sistemi - members içinde tag ile ara
-		try
-		{
-			var members:Dynamic = Reflect.field(touchPad, "members");
-			if (members != null)
-			{
-				var arr:Array<Dynamic> = cast members;
-				for (member in arr)
-				{
-					if (member == null)
-						continue;
-
-					var tag:Dynamic = Reflect.field(member, "tag");
-					if (tag != null)
-					{
-						var tagStr:String = Std.string(tag);
-						var searchName:String = buttonName.toUpperCase();
-
-						if (searchName.startsWith("BUTTON"))
-							searchName = searchName.substr(6);
-
-						if (tagStr == searchName)
-							return member;
-					}
-				}
-			}
-		}
-		catch (e:Dynamic) {}
-
-		return null;
-	}
-	
-	public function touchPadButtonPressed(buttonName:String):Bool
-	{
-		var btn:Dynamic = getTouchPadButton(buttonName);
-		return btn != null && btn.pressed == true;
-	}
-
-	public function touchPadButtonJustPressed(buttonName:String):Bool
-	{
-		var btn:Dynamic = getTouchPadButton(buttonName);
-		return btn != null && btn.justPressed == true;
-	}
-
-	public function touchPadButtonJustReleased(buttonName:String):Bool
-	{
-		var btn:Dynamic = getTouchPadButton(buttonName);
-		return btn != null && btn.justReleased == true;
 	}
 
 	override function destroy()

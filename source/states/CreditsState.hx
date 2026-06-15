@@ -1,6 +1,7 @@
 package states;
 
 import objects.AttachedSprite;
+import substates.LinkSubState;
 
 class CreditsState extends MusicBeatState
 {
@@ -38,6 +39,8 @@ class CreditsState extends MusicBeatState
 		#end
 
 		var defaultList:Array<Array<String>> = [ //Name - Icon name - Description - Link - BG Color
+			['Psych Engine Türkiye'],
+			['SametGkTe',			'gkte',             'Psych Engine Türkiye nin ana yapımcısı',                       'https://tiktok.com/@gktegameplay',		'FFE7C0'],
 			['Mobile Porting Team'],
 			['HomuHomu833',			'homura',             'Head Porter of Psych Engine and Author of linc_luajit-rewriten',                       'https://youtube.com/@HomuHomu833',		'FFE7C0'],
 			['Karim Akra',			'karim',			'Second Porter of Psych Engine',						'https://youtube.com/@Karim0690',		'FFB4F0'],
@@ -147,7 +150,7 @@ class CreditsState extends MusicBeatState
 			FlxG.sound.music.volume += 0.5 * elapsed;
 		}
 
-		if(!quitting)
+		if(!quitting && subState == null)
 		{
 			if(creditsStuff.length > 1)
 			{
@@ -181,9 +184,23 @@ class CreditsState extends MusicBeatState
 				}
 			}
 
-			if(controls.ACCEPT && (creditsStuff[curSelected][3] == null || creditsStuff[curSelected][3].length > 4)) {
-				CoolUtil.browserLoad(creditsStuff[curSelected][3]);
+			if(controls.ACCEPT && !unselectableCheck(curSelected))
+			{
+				var link:String = creditsStuff[curSelected].length > 3 ? creditsStuff[curSelected][3] : null;
+
+				if(link != null && link.length > 4)
+				{
+					LinkSubState.request(
+						"Yapımcının bu bağlantısını açmak istiyor musunuz?",
+						link,
+						function()
+						{
+							CoolUtil.browserLoad(link);
+						}
+					);
+				}
 			}
+
 			if (controls.BACK)
 			{
 				FlxG.sound.play(Paths.sound('cancelMenu'));

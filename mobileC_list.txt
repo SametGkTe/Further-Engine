@@ -1,0 +1,85 @@
+source\mikolka\editors\CharSelectEditor.hx:136:				openSubState(new HelpSubstate(controls.mobileControlsontrols ? HelpSubstate.CHAR_EDIT_TEXT_MOBILE : HelpSubstate.CHAR_EDIT_TEXT));
+source\mikolka\editors\substates\FreeplayEditSubstate.hx:213:				openSubState(new HelpSubstate(controls.mobileControlsontrols ? HelpSubstate.FREEPLAY_EDIT_TEXT_MOBILE : HelpSubstate.FREEPLAY_EDIT_TEXT));
+source\mikolka\editors\substates\ResultsScreenEdit.hx:170:					openSubState(new HelpSubstate(controls.mobileControlsontrols ? HelpSubstate.RESULTS_EDIT_TEXT_MOBILE : HelpSubstate.RESULTS_EDIT_TEXT));
+source\mikolka\vslice\components\crash\UserErrorSubstate.hx:240:				if (controls.mobileControlsontrols)
+source\mikolka\vslice\components\crash\UserErrorSubstate.hx:247:				if (controls.mobileControlsontrols)
+source\mikolka\vslice\freeplay\FreeplayState.hx:545:		charSelectHint.text = controls.mobileControlsontrols ? 'Touch [ X ] to change characters' : 'Press [ ${FunkinControls.FREEPLAY_CHAR_name()} ] to change characters'; // ?! ${controls.getDialogueNameFromControl(FREEPLAY_CHAR_SELECT, true)}
+source\mikolka\vslice\ui\disclaimer\TextWarnings.hx:10:		final escape:String = (controls.mobileControlsontrols) ? 'B' : 'ESCAPE';
+source\mikolka\vslice\ui\disclaimer\TextWarnings.hx:27:		final enter:String = controls.mobileControlsontrols ? 'A' : 'ENTER';
+source\mikolka\vslice\ui\disclaimer\TextWarnings.hx:28:		final escape:String = controls.mobileControlsontrols ? 'B' : 'ESCAPE';
+source\mikolka\vslice\ui\MainMenuState.hx:91:		if (controls.mobileControlsontrols)
+source\mikolka\vslice\ui\StoryMenuState.hx:95:		final accept:String = controls.mobileControlsontrols ? "A" : "ACCEPT";
+source\mikolka\vslice\ui\StoryMenuState.hx:96:		final reject:String = controls.mobileControlsontrols ? "B" : "BACK";
+source\objects\MusicPlayer.hx:262:			final space:String = (instance.controls.mobileControlsontrols) ? "X" : "SPACE";
+source\objects\MusicPlayer.hx:263:			final escape:String = (instance.controls.mobileControlsontrols) ? "B" : "ESCAPE";
+source\objects\MusicPlayer.hx:264:			final reset:String = (instance.controls.mobileControlsontrols) ? "C" : "R";
+source\options\BaseOptionsMenu.hx:288:						final escape:String = (controls.mobileControlsontrols) ? "B" : "ESC";
+source\options\BaseOptionsMenu.hx:289:						final backspace:String = (controls.mobileControlsontrols) ? "C" : "Backspace";
+source\options\ControlsSubState.hx:318:					final escape:String = (controls.mobileControlsontrols) ? "B" : "ESC";
+source\options\ControlsSubState.hx:319:					final backspace:String = (controls.mobileControlsontrols) ? "C" : "Backspace";
+source\options\LanguageSubState.hx:171:        var isMobile = controls.mobileControlsontrols;
+source\options\NoteOffsetState.hx:538:		final accept:String = (controls.mobileControlsontrols) ? "A" : (!controls.controllerMode) ? "ACCEPT" : "Start";
+source\options\NotesColorSubState.hx:93:		var text:Alphabet = new Alphabet((controls.mobileControlsontrols) ? 44 : 50, 86, (controls.mobileControlsontrols) ? 'PRESS' : 'CTRL', false);
+source\options\NotesColorSubState.hx:152:		if (controls.mobileControlsontrols) {
+source\options\NotesColorSubState.hx:189:		if (!controls.mobileControlsontrols)
+source\options\OptionsState.hx:122:		if (controls.mobileControlsontrols) {
+source\options\OptionsState.hx:175:		if (controls.mobileControlsontrols && (FlxG.keys.justPressed.CONTROL || FlxG.keys.justPressed.C)) {
+source\states\editors\CharacterEditorState.hx:134:		var tipText:FlxText = new FlxText(FlxG.width - 300, FlxG.height - 24, 300, 'Press ${(controls.mobileControls) ? 'F' : 'F1'} for Help', 20);
+source\states\editors\CharacterEditorState.hx:172:		if (controls.mobileControls)
+source\states\editors\CharacterEditorState.hx:186:		var str:Array<String> = (controls.mobileControls) ? [
+source\states\editors\CharacterEditorState.hx:949:		var moveKeysP = (controls.mobileControls) ? [touchPad.buttonLeft.justPressed, touchPad.buttonRight.justPressed, touchPad.buttonUp.justPressed, touchPad.buttonDown.justPressed] : [FlxG.keys.justPressed.LEFT, FlxG.keys.justPressed.RIGHT, FlxG.keys.justPressed.UP, FlxG.keys.justPressed.DOWN];
+source\states\editors\CharacterEditorState.hx:950:		var moveKeys =  (controls.mobileControls) ? [touchPad.buttonLeft.pressed, touchPad.buttonRight.pressed, touchPad.buttonUp.pressed, touchPad.buttonDown.pressed] : [FlxG.keys.pressed.LEFT, FlxG.keys.pressed.RIGHT, FlxG.keys.pressed.UP, FlxG.keys.pressed.DOWN];
+source\states\editors\CharacterEditorState.hx:1086:			if (controls.mobileControls)
+source\states\editors\ChartingState.hx:476:		var tipText:FlxText = new FlxText(FlxG.width - 210, FlxG.height - 30, 200, 'Press ${(controls.mobileControls) ? 'F' : 'F1'} for Help', 20);
+source\states\editors\ChartingState.hx:499:		fullTipText.text = (controls.mobileControls) ? [
+source\states\editors\ChartingState.hx:796:					if (controls.mobileControls)
+source\states\editors\ChartingState.hx:809:					if (controls.mobileControls)
+source\states\editors\ChartingState.hx:1254:		if (controls.mobileControls)
+source\states\editors\ChartingState.hx:4299:		var btn:PsychUIButton = new PsychUIButton(btnX, btnY, '  Preview (${(controls.mobileControls) ? 'C' : 'F12'})', openEditorPlayState, btnWid);
+source\states\editors\ChartingState.hx:4304:		var btn:PsychUIButton = new PsychUIButton(btnX, btnY, '  Playtest (${(controls.mobileControls) ? 'A' : 'ENTER'})', goToPlayState, btnWid);
+source\states\editors\content\EditorPlayState.hx:136:		var tipText:FlxText = new FlxText(10, FlxG.height - 24, 0, 'Press ${(controls.mobileControls) ? #if android 'BACK' #else 'X' #end : 'ESC'} to Go Back to Chart Editor', 16);
+source\states\editors\DialogueCharacterEditorState.hx:89:		if (controls.mobileControls)
+source\states\editors\DialogueEditorState.hx:67:		var addLineText:FlxText = new FlxText(10, 10, FlxG.width - 20, 'Press ${(controls.mobileControls) ? 'A' : 'O'} to remove the current dialogue line, Press ${(controls.mobileControls) ? 'X' : 'P'} to add another line after the current one.', 8);
+source\states\editors\DialogueEditorState.hx:205:			animText.text = 'Animation: ' + character.jsonFile.animations[curAnim].anim + ' (' + (curAnim + 1) +' / ' + character.jsonFile.animations.length + ') - Press ${(controls.mobileControls) ? 'UP' : 'W'} or ${(controls.mobileControls) ? 'DOWN' : 'S'} to scroll';
+source\states\editors\DialogueEditorState.hx:255:						animText.text = 'Animation: ' + character.jsonFile.animations[curAnim].anim + ' (' + (curAnim + 1) +' / ' + character.jsonFile.animations.length + ') - Press ${(controls.mobileControls) ? 'UP' : 'W'} or ${(controls.mobileControls) ? 'DOWN' : 'S'} to scroll';
+source\states\editors\DialogueEditorState.hx:341:					animText.text = 'Animation: ' + animToPlay + ' (' + (curAnim + 1) +' / ' + character.jsonFile.animations.length + ') - Press ${(controls.mobileControls) ? 'UP' : 'W'} or ${(controls.mobileControls) ? 'DOWN' : 'S'} to scroll';
+source\states\editors\DialogueEditorState.hx:401:			animText.text = 'Animation: $selectedAnim (${curAnim + 1} / ${character.jsonFile.animations.length} ) - Press ${(controls.mobileControls) ? 'UP' : 'W'} or ${(controls.mobileControls) ? 'DOWN' : 'S'} to scroll';
+source\states\editors\DialogueEditorState.hx:406:		selectedText.text = 'Line: (' + (curSelected + 1) + ' / ' + dialogueFile.dialogue.length + ') - Press ${(controls.mobileControls) ? 'LEFT' : 'A'} or ${(controls.mobileControls) ? 'RIGHT' : 'D'} to scroll';
+source\states\editors\NoteSplashEditorState.hx:74:        final buttonF1:String = (controls.mobileControls) ? "F" : "F1";
+source\states\editors\NoteSplashEditorState.hx:544:            if (controls.mobileControls || FlxG.keys.pressed.CONTROL && config.animations.get(curAnim) != null)
+source\states\editors\NoteSplashEditorState.hx:958:		var str:Array<String> = (controls.mobileControls) ? 
+source\states\editors\StageEditorState.hx:139:		var str:Array<String> = (controls.mobileControls) ? ["X/Y - Camera Zoom In/Out",
+source\states\editors\StageEditorState.hx:240:		var tipText:FlxText = new FlxText(0, FlxG.height - 44, 300, 'Press ${(controls.mobileControls) ? 'F' : 'F1'} for Help', 20);
+source\states\editors\StageEditorState.hx:1400:			if (controls.mobileControls)
+source\states\editors\StageEditorState.hx:1417:			if (controls.mobileControls)
+source\states\editors\StageEditorState.hx:2367:			var moveKeysP = (controls.mobileControls) ? [touchPad.buttonLeft.justPressed, touchPad.buttonRight.justPressed, touchPad.buttonUp.justPressed, touchPad.buttonDown.justPressed] : [FlxG.keys.justPressed.LEFT, FlxG.keys.justPressed.RIGHT, FlxG.keys.justPressed.UP, FlxG.keys.justPressed.DOWN];
+source\states\editors\StageEditorState.hx:2368:			var moveKeys = (controls.mobileControls) ? [touchPad.buttonLeft.pressed, touchPad.buttonRight.pressed, touchPad.buttonUp.pressed, touchPad.buttonDown.pressed] : [FlxG.keys.pressed.LEFT, FlxG.keys.pressed.RIGHT, FlxG.keys.pressed.UP, FlxG.keys.pressed.DOWN];
+source\states\FlashingState.hx:139:		hintText = new FlxText(0, FlxG.height - 86, FlxG.width, controls.mobileControlsontrols ? tr("hintMobile") : tr("hintDesktop"));
+source\states\FlashingState.hx:206:		if (controls.mobileControlsontrols)
+source\states\FreeplayOLD.hx:69:		final accept:String = (controls.mobileControlsontrols) ? "A" : "ACCEPT";
+source\states\FreeplayOLD.hx:70:		final reject:String = (controls.mobileControlsontrols) ? "B" : "BACK";
+source\states\FreeplayOLD.hx:181:		final space:String = (controls.mobileControlsontrols) ? "X" : "SPACE";
+source\states\FreeplayOLD.hx:182:		final control:String = (controls.mobileControlsontrols) ? "C" : "CTRL";
+source\states\FreeplayOLD.hx:183:		final reset:String = (controls.mobileControlsontrols) ? "Y" : "RESET";
+source\states\FreeplayState.hx:69:		final accept:String = (controls.mobileControlsontrols) ? "A" : "ACCEPT";
+source\states\FreeplayState.hx:70:		final reject:String = (controls.mobileControlsontrols) ? "B" : "BACK";
+source\states\FreeplayState.hx:181:		final space:String = (controls.mobileControlsontrols) ? "X" : "SPACE";
+source\states\FreeplayState.hx:182:		final control:String = (controls.mobileControlsontrols) ? "C" : "CTRL";
+source\states\FreeplayState.hx:183:		final reset:String = (controls.mobileControlsontrols) ? "Y" : "RESET";
+source\states\ModsMenuState.hx:63:		if (controls.mobileControlsontrols)
+source\states\ModsMenuState.hx:109:		if (controls.mobileControlsontrols)
+source\states\ModsMenuState.hx:157:		if(!controls.mobileControlsontrols)
+source\states\ModsMenuState.hx:178:		if(!controls.mobileControlsontrols)
+source\states\ModsMenuState.hx:334:		if (controls.mobileControlsontrols)
+source\states\ModsMenuState.hx:402:				if(!controls.mobileControlsontrols && FlxG.mouse.justPressed)
+source\states\ModsMenuState.hx:448:					else if(FlxG.mouse.pressed && !controls.mobileControlsontrols && !gottaClickAgain)
+source\states\ModsMenuState.hx:496:					else if(FlxG.mouse.justReleased && !controls.mobileControlsontrols && holdingMod)
+source\states\ModsMenuState.hx:670:		if(!controls.mobileControlsontrols && !isMouseWheel && limited && Math.abs(add) == 1)
+source\states\StoryMenuState.hx:60:		final accept:String = (controls.mobileControls) ? "A" : "ACCEPT";
+source\states\StoryMenuState.hx:61:		final reject:String = (controls.mobileControls) ? "B" : "BACK";
+source\substates\OutdatedSubState.hx:20:		final enter:String = (controls.mobileControls) ? 'A' : 'ENTER';
+source\substates\OutdatedSubState.hx:21:		final back:String = (controls.mobileControls) ? 'B' : 'BACK';
+source\unused\NoteSplashDebugState.hx:142:		if (controls.mobileControls)
+source\unused\NoteSplashDebugState.hx:258:			savedText.text = 'Press ${(controls.mobileControls) ? 'A' : 'ENTER'} again to save.';
+source\unused\NoteSplashDebugState.hx:414:			curAnimText.text = 'Current Animation: $curAnim / $maxAnims\n(Press ${(controls.mobileControls) ? 'Top UP/DOWN' : 'W/S'} to change)';
+source\unused\NoteSplashDebugState.hx:415:			curFrameText.text = 'Force Frame Disabled\n(Press ${(controls.mobileControls) ? 'Q/E' : 'X/E'} to change)';

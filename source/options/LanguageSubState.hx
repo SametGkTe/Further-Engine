@@ -14,10 +14,6 @@ class LanguageSubState extends MusicBeatSubstate
 {
     #if TRANSLATIONS_ALLOWED
 
-    // -------------------------------------------------------------------------
-    // Config
-    // -------------------------------------------------------------------------
-
     static inline final ITEM_HEIGHT:Float = 100;
     static inline final ITEM_SELECTED_ALPHA:Float = 1.0;
     static inline final ITEM_UNSELECTED_ALPHA:Float = 0.6;
@@ -27,10 +23,6 @@ class LanguageSubState extends MusicBeatSubstate
     static inline final INFO_Y_OFFSET:Float = 56;
     static inline final PREVIEW_Y_OFFSET:Float = 32;
 
-    // -------------------------------------------------------------------------
-    // Data
-    // -------------------------------------------------------------------------
-
     var grpLanguages:FlxTypedGroup<Alphabet> = new FlxTypedGroup<Alphabet>();
     var languages:Array<String> = [];
     var displayLanguages:Map<String, String> = [];
@@ -39,20 +31,12 @@ class LanguageSubState extends MusicBeatSubstate
     var originalLanguage:String = '';
     var confirmed:Bool = false;
 
-    // -------------------------------------------------------------------------
-    // UI
-    // -------------------------------------------------------------------------
-
     var bg:FlxSprite;
     var infoText:FlxText;
     var previewText:FlxText;
     var hintText:FlxText;
     var selector:FlxSprite;
     var noLanguagesText:FlxText;
-
-    // -------------------------------------------------------------------------
-    // Constructor
-    // -------------------------------------------------------------------------
 
     public function new()
     {
@@ -81,10 +65,6 @@ class LanguageSubState extends MusicBeatSubstate
         playIntro();
     }
 
-    // -------------------------------------------------------------------------
-    // Create UI
-    // -------------------------------------------------------------------------
-
     function createBackground():Void
     {
         bg = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
@@ -105,7 +85,7 @@ class LanguageSubState extends MusicBeatSubstate
     function createNoLanguagesMessage():Void
     {
         noLanguagesText = new FlxText(0, 0, FlxG.width - 100,
-            Language.getPhrase('no_languages_found', 'Dil dosyasi bulunamadi.\ndata/ klasorune .lang dosyalari ekleyin.'));
+            Language.getPhrase('no_languages_found', 'Dil dosyası bulunamadı.\ndata/ klasörüne .lang dosyaları ekleyin.'));
         noLanguagesText.setFormat(Paths.font("vcr.ttf"), 28, FlxColor.WHITE, CENTER);
         noLanguagesText.setBorderStyle(OUTLINE, FlxColor.BLACK, 2);
         noLanguagesText.screenCenter();
@@ -113,40 +93,39 @@ class LanguageSubState extends MusicBeatSubstate
         add(noLanguagesText);
     }
 
-	function createLanguageList():Void
-	{
-		add(grpLanguages);
+    function createLanguageList():Void
+    {
+        add(grpLanguages);
 
-		for (num => lang in languages)
-		{
-			var name:String = getDisplayName(lang);
+        for (num => lang in languages)
+        {
+            var name:String = getDisplayName(lang);
 
-			if (lang == ClientPrefs.data.language)
-				name += CHECKMARK;
+            if (lang == ClientPrefs.data.language)
+                name += CHECKMARK;
 
-			var text:Alphabet = new Alphabet(0, 300, name, true);
-			text.isMenuItem = true;
-			text.targetY = num;
-			text.changeX = false;
-			text.distancePerItem.y = ITEM_HEIGHT;
+            var text:Alphabet = new Alphabet(0, 300, name, true);
+            text.isMenuItem = true;
+            text.targetY = num;
+            text.changeX = false;
+            text.distancePerItem.y = ITEM_HEIGHT;
 
-			if (languages.length < MAX_VISIBLE_WITHOUT_SCROLL)
-			{
-				text.changeY = false;
-				text.screenCenter(Y);
-				text.y += (ITEM_HEIGHT * (num - (languages.length / 2))) + 45;
-			}
+            if (languages.length < MAX_VISIBLE_WITHOUT_SCROLL)
+            {
+                text.changeY = false;
+                text.screenCenter(Y);
+                text.y += (ITEM_HEIGHT * (num - (languages.length / 2))) + 45;
+            }
 
-			text.screenCenter(X);
-			text.alpha = 0;
+            text.screenCenter(X);
+            text.alpha = 0;
 
-			// Aktif dili yeşil yap
-			if (lang == ClientPrefs.data.language)
-				colorAlphabet(text, FlxColor.LIME);
+            if (lang == ClientPrefs.data.language)
+                colorAlphabet(text, FlxColor.LIME);
 
-			grpLanguages.add(text);
-		}
-	}
+            grpLanguages.add(text);
+        }
+    }
 
     function createInfoBar():Void
     {
@@ -179,10 +158,6 @@ class LanguageSubState extends MusicBeatSubstate
         hintText.alpha = 0;
         add(hintText);
     }
-
-    // -------------------------------------------------------------------------
-    // Load Languages
-    // -------------------------------------------------------------------------
 
     function loadLanguages():Void
     {
@@ -269,10 +244,6 @@ class LanguageSubState extends MusicBeatSubstate
         return null;
     }
 
-    // -------------------------------------------------------------------------
-    // Intro Animation
-    // -------------------------------------------------------------------------
-
     function playIntro():Void
     {
         bg.alpha = 0;
@@ -301,10 +272,6 @@ class LanguageSubState extends MusicBeatSubstate
             FlxTween.tween(noLanguagesText, {alpha: 1}, 0.4, {startDelay: 0.15, ease: FlxEase.quadOut});
         }
     }
-
-    // -------------------------------------------------------------------------
-    // Update
-    // -------------------------------------------------------------------------
 
     override function update(elapsed:Float)
     {
@@ -362,10 +329,6 @@ class LanguageSubState extends MusicBeatSubstate
             confirmLanguage();
         }
     }
-
-    // -------------------------------------------------------------------------
-    // Selection
-    // -------------------------------------------------------------------------
 
     function changeSelected(change:Int = 0):Void
     {
@@ -457,7 +420,7 @@ class LanguageSubState extends MusicBeatSubstate
             if (txt == null || txt.length == 0)
                 continue;
 
-            var previewKeys = ['yes', 'no', 'pause_resume', 'pause_back', 'botplay'];
+            var previewKeys = ['yes', 'no', 'pause_resume', 'pause_back'];
 
             for (line in txt.split('\n'))
             {
@@ -494,7 +457,7 @@ class LanguageSubState extends MusicBeatSubstate
         var targetY = targetItem.y + targetItem.height + 4;
         selector.y = FlxMath.lerp(selector.y, targetY, FlxMath.bound(elapsed * 12, 0, 1));
     }
-	
+
     function confirmLanguage():Void
     {
         var selectedLang = languages[curSelected];
@@ -522,48 +485,42 @@ class LanguageSubState extends MusicBeatSubstate
         }
     }
 
-	function applyLanguage(langID:String):Void
-	{
-		ClientPrefs.data.language = langID;
-		ClientPrefs.saveSettings();
-		Language.reloadPhrases();
-		changedLanguage = true;
-		confirmed = false;
+    function applyLanguage(langID:String):Void
+    {
+        ClientPrefs.data.language = langID;
+        ClientPrefs.saveSettings();
+        Language.reloadPhrases();
+        changedLanguage = true;
+        confirmed = false;
 
-		// Tüm renkleri güncelle
-		refreshColors();
+        refreshColors();
+        updateInfoBar();
+        updatePreviewText();
+    }
 
-		updateInfoBar();
-		updatePreviewText();
-	}
-		
-	function refreshColors():Void
-	{
-		for (num => item in grpLanguages.members)
-		{
-			if (item == null) continue;
+    function refreshColors():Void
+    {
+        for (num => item in grpLanguages.members)
+        {
+            if (item == null) continue;
 
-			var langID = languages[num];
+            var langID = languages[num];
 
-			if (langID == ClientPrefs.data.language)
-				colorAlphabet(item, FlxColor.LIME);
-			else
-				colorAlphabet(item, FlxColor.WHITE);
-		}
-	}
+            if (langID == ClientPrefs.data.language)
+                colorAlphabet(item, FlxColor.LIME);
+            else
+                colorAlphabet(item, FlxColor.WHITE);
+        }
+    }
 
-	function colorAlphabet(alphabet:Alphabet, color:FlxColor):Void
-	{
-		for (letter in alphabet.members)
-		{
-			if (letter != null)
-				letter.color = color;
-		}
-	}
-	
-    // -------------------------------------------------------------------------
-    // Helpers
-    // -------------------------------------------------------------------------
+    function colorAlphabet(alphabet:Alphabet, color:FlxColor):Void
+    {
+        for (letter in alphabet.members)
+        {
+            if (letter != null)
+                letter.color = color;
+        }
+    }
 
     function getDisplayName(langID:String):String
     {

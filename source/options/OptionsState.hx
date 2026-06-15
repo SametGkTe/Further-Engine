@@ -6,21 +6,24 @@ import backend.StageData;
 typedef OptionEntry = {
 	label:String,
 	desc:String,
+	langKey:String,
 }
 
 class OptionsState extends MusicBeatState
 {
 	var entries:Array<OptionEntry> = [
-		{ label: 'Note Colors',          desc: 'Nota oklarının renklerini özelleştirin ve ayarlayın!'          },
-		{ label: 'Controls',             desc: 'Klavye ve oyun kumandası tuşlarını yeniden atayın'       },
-		{ label: 'Adjust Delay & Combo', desc: 'Nota ofsetini ve gecikmeyi ayarlayın'    },
-		{ label: 'Graphics',             desc: 'Performans ve işleme ayarları'         },
-		{ label: 'Visuals',              desc: 'HUD, efektler ve görsel tercihler'        },
-		{ label: 'Gameplay',             desc: 'Ok Stili, Görsel efektleri ayarlayın' },
+		{ label: 'Nota Renkleri',     desc: 'Nota oklarının renklerini özelleştirin ve ayarlayın!',  langKey: 'note_colors'     },
+		{ label: 'Kontroller',        desc: 'Klavye ve oyun kumandası tuşlarını yeniden atayın.',    langKey: 'controls'        },
+		{ label: 'Gecikme & Kombo',   desc: 'Nota ofsetini ve gecikmeyi ayarlayın.',                langKey: 'delay_combo'     },
+		{ label: 'Grafikler',         desc: 'Performans ve işleme ayarları.',                       langKey: 'graphics'        },
+		{ label: 'Görünüş',           desc: 'HUD, efektler ve görsel tercihler.',                   langKey: 'visuals'         },
+		{ label: 'Oynanış',           desc: 'Ok Stili, Görsel efektleri ayarlayın.',                langKey: 'gameplay'        },
 		#if TRANSLATIONS_ALLOWED
-		{ label: 'Language',             desc: 'Dilinizi seçin!'             },
+		{ label: 'Dil',              desc: 'Dilinizi seçin!',                                      langKey: 'language'        },
 		#end
-		{ label: 'Mobile Options',       desc: 'Dokunmatik Kontrol Ayarları'     },
+		#if mobile
+		{ label: 'Mobil Ayarlar',    desc: 'Dokunmatik Kontrol Ayarları.',                          langKey: 'mobile_settings' },
+		#end
 	];
 
 	private var grpOptions:FlxTypedGroup<Alphabet>;
@@ -39,44 +42,115 @@ class OptionsState extends MusicBeatState
 	var descBg:FlxSprite;
 	var exiting:Bool = false;
 
-	function openSelectedSubstate(label:String)
+	var petButton:FlxSprite;
+	var petHovered:Bool = false;
+
+	var petHoverX:Float = 0;
+	var petHoverY:Float = 0;
+	var petHoverW:Float = 211;
+	var petHoverH:Float = 226;
+
+	function openSelectedSubstate(langKey:String)
 	{
 		FlxG.camera.scroll.set(0, 0);
 
-		if (label != 'Adjust Delay & Combo') {
+		if (langKey != 'delay_combo') {
 			removeTouchPad();
 			persistentUpdate = false;
 			controls.isInSubstate = true;
 		}
 
-		switch (label) {
-			case 'Note Colors':
+		switch (langKey) {
+			case 'note_colors':
 				openSubState(new options.NotesColorSubState());
 
-			case 'Controls':
+			case 'controls':
 				openSubState(new options.ControlsSubState());
 
-			case 'Graphics':
+			case 'graphics':
 				openSubState(new options.GraphicsSettingsSubState());
 
-			case 'Visuals':
+			case 'visuals':
 				openSubState(new options.VisualsSettingsSubState());
 
-			case 'Gameplay':
+			case 'gameplay':
 				openSubState(new options.GameplaySettingsSubState());
 
-			case 'Adjust Delay & Combo':
+			case 'delay_combo':
 				removeTouchPad();
 				MusicBeatState.switchState(new options.NoteOffsetState());
 
-			case 'Mobile Options':
+			case 'mobile_settings':
 				openSubState(new mobile.options.MobileOptionsSubState());
 
 			#if TRANSLATIONS_ALLOWED
-			case 'Language':
+			case 'language':
 				openSubState(new options.LanguageSubState());
 			#end
 		}
+	}
+
+	function createPetButton(x:Float, y:Float):FlxSprite
+	{
+		var spr:FlxSprite = new FlxSprite(x, y);
+		spr.frames = Paths.getSparrowAtlas('optionsmenu/option_pet');
+		spr.animation.addByPrefix('idle', 'pet idle', 24, true);
+		spr.animation.addByPrefix('selected', 'pet selected', 24, true);
+		spr.animation.play('idle');
+		spr.antialiasing = ClientPrefs.data.antialiasing;
+		spr.scrollFactor.set();
+		spr.updateHitbox();
+		add(spr);
+		return spr;
+	}
+
+	function isMouseOverPet():Bool
+	{
+		var mouseX:Float = FlxG.mouse.x;
+		var mouseY:Float = FlxG.mouse.y;
+
+		return mouseX >= petHoverX && mouseX <= petHoverX + petHoverW
+			&& mouseY >= petHoverY && mouseY <= petHoverY + petHoverH;
+	}
+
+	function updatePetButton():Bool
+	{
+		if (petButton == null) return false;
+
+		var overPet:Bool = isMouseOverPet();
+
+		if (overPet && !petHovered)
+		{
+			petHovered = true;
+			petButton.animation.play('selected', true);
+		}
+		else if (!overPet && petHovered)
+		{
+			petHovered = false;
+			petButton.animation.play('idle', true);
+		}
+
+		if (overPet && FlxG.mouse.justPressed)
+		{
+			openPetSettings();
+			return true;
+		}
+
+		return false;
+	}
+
+	function openPetSettings()
+	{
+		if (exiting) return;
+
+		FlxG.camera.scroll.set(0, 0);
+		FlxG.sound.play(Paths.sound('confirmMenu'));
+
+		removeTouchPad();
+		persistentUpdate = false;
+		controls.isInSubstate = true;
+
+		openSubState(new options.PetSettingsState());
 	}
 
 	override function create()
@@ -92,27 +166,33 @@ class OptionsState extends MusicBeatState
 		bg.scrollFactor.set();
 		add(bg);
 
+		FlxG.mouse.visible = true;
+
+		petButton = createPetButton(20, (FlxG.height - 226) * 0.5);
+		petHoverX = petButton.x - 6;
+		petHoverY = petButton.y - 30;
+		petHoverW = 211;
+		petHoverH = 226;
+
 		grpOptions = new FlxTypedGroup<Alphabet>();
 		add(grpOptions);
 
 		for (entry in entries) {
-			var optionText:Alphabet = new Alphabet(0, 0, Language.getPhrase('options_${entry.label}', entry.label), true);
+			var displayLabel:String = Language.getPhrase('options_${entry.langKey}', entry.label);
+			var optionText:Alphabet = new Alphabet(0, 0, displayLabel, true);
 			grpOptions.add(optionText);
 		}
 
-		// Alphabet ile > ve < selectorlar
 		selectorLeft = new Alphabet(0, 0, '>', true);
 		add(selectorLeft);
 
 		selectorRight = new Alphabet(0, 0, '<', true);
 		add(selectorRight);
 
-		// Açıklama arka planı
 		descBg = new FlxSprite(0, FlxG.height - 36).makeGraphic(FlxG.width, 36, 0xDD0A0414);
 		descBg.scrollFactor.set();
 		add(descBg);
 
-		// Açıklama yazısı - vcr.ttf fontu
 		descText = new FlxText(0, FlxG.height - 28, FlxG.width, '', 14);
 		descText.setFormat('assets/fonts/vcr.ttf', 14, 0xFFea71fd, CENTER, FlxTextBorderStyle.NONE);
 		descText.scrollFactor.set();
@@ -155,6 +235,9 @@ class OptionsState extends MusicBeatState
 		FlxG.camera.scroll.set(0, 0);
 		layoutOptions();
 		changeSelection(0, false);
+
+		petHovered = false;
+		if (petButton != null) petButton.animation.play('idle', true);
 	}
 
 	override function update(elapsed:Float)
@@ -162,6 +245,8 @@ class OptionsState extends MusicBeatState
 		super.update(elapsed);
 
 		if (exiting) return;
+
+		if (updatePetButton()) return;
 
 		if (controls.UI_UP_P) changeSelection(-1);
 		if (controls.UI_DOWN_P) changeSelection(1);
@@ -197,7 +282,7 @@ class OptionsState extends MusicBeatState
 			}
 		}
 		else if (controls.ACCEPT) {
-			openSelectedSubstate(entries[curSelected].label);
+			openSelectedSubstate(entries[curSelected].langKey);
 		}
 
 		refreshSelectors();
@@ -254,7 +339,7 @@ class OptionsState extends MusicBeatState
 		}
 
 		if (descText != null) {
-			descText.text = entries[curSelected].desc.toUpperCase();
+			descText.text = Language.getPhrase('options_desc_${entries[curSelected].langKey}', entries[curSelected].desc).toUpperCase();
 		}
 
 		refreshSelectors();

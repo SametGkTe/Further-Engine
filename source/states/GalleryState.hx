@@ -1,0 +1,1625 @@
+package states;
+
+import backend.Paths;
+import backend.ClientPrefs;
+import backend.Conductor;
+import backend.MusicBeatState;
+
+import flixel.FlxG;
+import flixel.FlxSprite;
+import flixel.tweens.FlxEase;
+import flixel.tweens.FlxTween;
+import flixel.group.FlxGroup.FlxTypedGroup;
+import flixel.group.FlxSpriteGroup;
+import flixel.math.FlxMath;
+import flixel.sound.FlxSound;
+import flixel.util.FlxColor;
+import flixel.util.FlxTimer;
+import flixel.text.FlxText;
+
+#if VIDEOS_ALLOWED
+import objects.VideoSprite;
+#end
+
+#if mobile
+import mobile.objects.TouchPad;
+import mobile.objects.TouchButton;
+import mobile.input.MobileInputID;
+#end
+
+using StringTools;
+
+typedef GalleryItem = {
+	var fileName:String;
+	var title:String;
+	var description:String;
+	var type:GalleryType;
+	var ?category:String;
+	var ?artist:String;
+	var ?unlocked:Bool;
+	var ?favorited:Bool;
+	var ?dateAdded:String;
+}
+
+enum GalleryType {
+	IMAGE;
+	VIDEO;
+	SOUND_EFFECT;
+	MUSIC;
+	ANIMATED;
+}
+
+enum GalleryViewMode {
+	GALLERY_GRID;
+	SINGLE_VIEW;
+	FULLSCREEN;
+	SLIDESHOW;
+	VIDEO_PLAYING;
+}
+
+class GalleryState extends MusicBeatState {
+	var galleryItems:Array<GalleryItem> = [
+		{
+			fileName: "ekip",
+			title: "Ekip",
+			description: "balc cano araba sürüyor.",
+			type: IMAGE,
+			category: "Art",
+			artist: "Güneş",
+			unlocked: true,
+			favorited: false,
+			dateAdded: "2026-06-12"
+		},
+		{
+			fileName: "ekip2",
+			title: "Ekip 2",
+			description: "ekip2 ig",
+			type: IMAGE,
+			category: "Art",
+			artist: "Güneş",
+			unlocked: true,
+			favorited: false,
+			dateAdded: "2026-06-12"
+		},
+		{
+			fileName: "cool",
+			title: "cool girl",
+			description: "cool drawing ngl",
+			type: IMAGE,
+			category: "Art",
+			artist: "s1r3nmoney0 / klavye",
+			unlocked: true,
+			favorited: false,
+			dateAdded: "2026-06-15"
+		},
+		{
+			fileName: "ivy",
+			title: "ivy girl",
+			description: "It was better than I expected",
+			type: IMAGE,
+			category: "Art",
+			artist: "s1r3nmoney0 / klavye",
+			unlocked: true,
+			favorited: false,
+			dateAdded: "2026-06-15"
+		},
+		{
+			fileName: "deneme",
+			title: "Yapımcı Mesajı",
+			description: "bişeyide başar aw",
+			type: SOUND_EFFECT,
+			category: "Audio",
+			artist: "SametGkTe",
+			unlocked: true,
+			favorited: false,
+			dateAdded: "2026-06-15"
+		},
+		{
+			fileName: "balcaraba",
+			title: "Balc Car Incident",
+			description: "Balc araba ile dağ taşa giriyor (4k)",
+			type: VIDEO,
+			category: "Videos",
+			artist: "Team",
+			unlocked: true,
+			favorited: false,
+			dateAdded: "2026-06-15"
+		},
+		{
+			fileName: "balcaraba2",
+			title: "..",
+			description: "Balc araba ile dağ taşa giriyor (4k)",
+			type: VIDEO,
+			category: "Videos",
+			artist: "Balc & Güneş & XQ",
+			unlocked: true,
+			favorited: false,
+			dateAdded: "2026-06-15"
+		},
+		{
+			fileName: "petu",
+			title: "Cancelled Version",
+			description: "PET'nin iptal edilen kayıp versiyonu",
+			type: IMAGE,
+			category: "Concept Art",
+			artist: "SametGkTe",
+			unlocked: true,
+			favorited: false,
+			dateAdded: "2026-06-15"
+		},
+		{
+			fileName: "petv1cancelledscreen",
+			title: "Cancelled Loading Image",
+			description: "PET V1'in iptal edilen yükleme ekranı resmi",
+			type: IMAGE,
+			category: "Concept Art",
+			artist: "SametGkTe",
+			unlocked: true,
+			favorited: false,
+			dateAdded: "2026-06-15"
+		},
+		{
+			fileName: "sans",
+			title: "sans",
+			description: "sans.",
+			type: MUSIC,
+			category: "Music",
+			artist: "sans",
+			unlocked: true,
+			favorited: false,
+			dateAdded: "sans"
+		},
+		/*
+		*{
+		*	fileName: "animated_example",
+		*	title: "Animated Sprite",
+		*	description: "An animated gallery entry with spritesheet support.",
+		*	type: ANIMATED,
+		*	category: "Animation",
+		*	artist: "Animator",
+		*	unlocked: true,
+		*	favorited: false,
+		*	dateAdded: "2024-03-15"
+		*}
+		*/
+	];
+
+	// ==================== STATE ====================
+	var filteredItems:Array<GalleryItem> = [];
+	var categories:Array<String> = ["All"];
+	var currentCategory:Int = 0;
+	var curSelected:Int = 0;
+	var viewMode:GalleryViewMode = GALLERY_GRID;
+	var disableInput:Bool = true;
+	var textVisible:Bool = true;
+	var showingInfo:Bool = false;
+	var isPanning:Bool = false;
+
+	// ==================== GRID ====================
+	var gridColumns:Int = 4;
+	var gridRows:Int = 2;
+	var gridPage:Int = 0;
+	var gridThumbnails:FlxTypedGroup<FlxSprite>;
+
+	// ==================== SINGLE VIEW ====================
+	var img:FlxSprite;
+	var imgZoom:Float = 0.8;
+	var imgOffsetX:Float = 0;
+	var imgOffsetY:Float = 0;
+	var imgRotation:Float = 0;
+	var minZoom:Float = 0.1;
+	var maxZoom:Float = 5.0;
+	var zoomStep:Float = 0.1;
+	var panSpeed:Float = 5.0;
+	var smoothPan:Bool = true;
+	var targetX:Float = 0;
+	var targetY:Float = 0;
+
+	// ==================== VIDEO ====================
+	#if VIDEOS_ALLOWED
+	var videoObj:VideoSprite;
+	#end
+	var isVideoPlaying:Bool = false;
+
+	// ==================== AUDIO ====================
+	var daSound:FlxSound;
+	var audioPlaying:Bool = false;
+	var audioPaused:Bool = false;
+	var audioProgressBar:FlxSprite;
+	var audioProgressFill:FlxSprite;
+	var audioTimeText:FlxText;
+	var audioTitleText:FlxText;
+
+	// ==================== UI ====================
+	var bg:FlxSprite;
+	var bgAccent:FlxSprite;
+	var bottomBar:FlxSprite;
+	var topBar:FlxSprite;
+	var titleG:FlxText;
+	var artistText:FlxText;
+	var descG:FlxText;
+	var typeText:FlxText;
+	var instDisplay:FlxText;
+	var pageDisplay:FlxText;
+	var categoryText:FlxText;
+	var graphic:FlxSprite;
+	var overlayDark:FlxSprite;
+	var separator:FlxSprite;
+
+	// ==================== INFO PANEL ====================
+	var infoBG:FlxSprite;
+	var infoTitleText:FlxText;
+	var infoDescText:FlxText;
+	var infoArtistText:FlxText;
+	var infoCategoryText:FlxText;
+	var infoDateText:FlxText;
+	var infoTypeText:FlxText;
+	var infoFavText:FlxText;
+	var infoTextGroup:Array<FlxText> = [];
+
+	// ==================== SLIDESHOW ====================
+	var slideshowTimer:FlxTimer;
+	var slideshowInterval:Float = 3.0;
+	var slideshowActive:Bool = false;
+
+	// ==================== MOBILE ====================
+	#if mobile
+	var mobileBtnGroup:FlxSpriteGroup;
+	var btnBack:TouchButton;
+	var btnAccept:TouchButton;
+	var btnFav:TouchButton;
+	var btnInfo:TouchButton;
+	var btnCategory:TouchButton;
+	var btnToggleUI:TouchButton;
+	var btnZoomIn:TouchButton;
+	var btnZoomOut:TouchButton;
+	var btnRotate:TouchButton;
+	var btnReset:TouchButton;
+	var btnFullscreen:TouchButton;
+	var btnPause:TouchButton;
+	var btnSlideshow:TouchButton;
+
+	// Swipe tracking
+	var touchStartX:Float = 0;
+	var touchStartY:Float = 0;
+	var isTouching:Bool = false;
+	var swipeThreshold:Float = 50;
+	var pinchStartDist:Float = 0;
+	var isPinching:Bool = false;
+	#end
+
+	// ==================== STYLE ====================
+	var fontPath:String;
+	var accentColor:FlxColor = FlxColor.fromRGB(80, 160, 255);
+	var bgDark:FlxColor = FlxColor.fromRGB(18, 18, 24);
+	var bgMedium:FlxColor = FlxColor.fromRGB(28, 28, 38);
+	var textDim:FlxColor = FlxColor.fromRGB(140, 140, 160);
+	var textBright:FlxColor = FlxColor.fromRGB(240, 240, 250);
+
+	override function create() {
+		#if DISCORD_ALLOWED
+		DiscordClient.changePresence("Browsing the Gallery", null);
+		#end
+
+		fontPath = Paths.font("vcr.ttf");
+		buildCategories();
+		filteredItems = galleryItems.copy();
+
+		// ===== BACKGROUND =====
+		bg = new FlxSprite().makeGraphic(FlxG.width + 100, FlxG.height + 100, bgDark);
+		bg.screenCenter();
+		bg.scrollFactor.set(0, 0);
+		add(bg);
+
+		bgAccent = new FlxSprite().makeGraphic(FlxG.width, 3, accentColor);
+		bgAccent.scrollFactor.set(0, 0);
+		bgAccent.y = 0;
+		bgAccent.alpha = 0.8;
+		add(bgAccent);
+
+		topBar = new FlxSprite().makeGraphic(FlxG.width, 50, FlxColor.fromRGB(12, 12, 18));
+		topBar.scrollFactor.set(0, 0);
+		topBar.y = 3;
+		topBar.alpha = 0.9;
+		add(topBar);
+
+		bottomBar = new FlxSprite().makeGraphic(FlxG.width, 130, FlxColor.fromRGB(12, 12, 18));
+		bottomBar.scrollFactor.set(0, 0);
+		bottomBar.y = FlxG.height - 130;
+		bottomBar.alpha = 0.85;
+		add(bottomBar);
+
+		separator = new FlxSprite().makeGraphic(FlxG.width - 80, 1, accentColor);
+		separator.scrollFactor.set(0, 0);
+		separator.screenCenter(X);
+		separator.y = FlxG.height - 130;
+		separator.alpha = 0.4;
+		add(separator);
+
+		// Grid thumbnails
+		gridThumbnails = new FlxTypedGroup<FlxSprite>();
+		add(gridThumbnails);
+
+		// Main image
+		img = new FlxSprite();
+		img.scrollFactor.set(0, 0);
+		img.antialiasing = ClientPrefs.data.antialiasing;
+		img.visible = false;
+		add(img);
+
+		// Media overlay
+		graphic = new FlxSprite();
+		graphic.scrollFactor.set(0, 0);
+		graphic.antialiasing = ClientPrefs.data.antialiasing;
+		graphic.visible = false;
+		add(graphic);
+
+		// Dark overlay
+		overlayDark = new FlxSprite().makeGraphic(FlxG.width + 100, FlxG.height + 100, FlxColor.BLACK);
+		overlayDark.screenCenter();
+		overlayDark.scrollFactor.set(0, 0);
+		overlayDark.alpha = 0;
+		add(overlayDark);
+
+		// ===== TOP BAR =====
+		categoryText = new FlxText(20, 12, 300, "All");
+		categoryText.setFormat(fontPath, 20, accentColor, LEFT);
+		categoryText.scrollFactor.set(0, 0);
+		categoryText.alpha = 0;
+		add(categoryText);
+
+		pageDisplay = new FlxText(0, 12, FlxG.width - 20, "");
+		pageDisplay.setFormat(fontPath, 20, textDim, RIGHT);
+		pageDisplay.scrollFactor.set(0, 0);
+		pageDisplay.alpha = 0;
+		add(pageDisplay);
+
+		// ===== BOTTOM BAR =====
+		titleG = new FlxText(40, FlxG.height - 120, FlxG.width - 80, "");
+		titleG.setFormat(fontPath, 28, textBright, LEFT);
+		titleG.scrollFactor.set(0, 0);
+		titleG.alpha = 0;
+		add(titleG);
+
+		artistText = new FlxText(40, FlxG.height - 90, FlxG.width - 80, "");
+		artistText.setFormat(fontPath, 18, accentColor, LEFT);
+		artistText.scrollFactor.set(0, 0);
+		artistText.alpha = 0;
+		add(artistText);
+
+		descG = new FlxText(40, FlxG.height - 68, FlxG.width - 400, "");
+		descG.setFormat(fontPath, 16, textDim, LEFT);
+		descG.scrollFactor.set(0, 0);
+		descG.alpha = 0;
+		add(descG);
+
+		typeText = new FlxText(0, FlxG.height - 40, FlxG.width - 40, "");
+		typeText.setFormat(fontPath, 14, FlxColor.fromRGB(100, 100, 120), RIGHT);
+		typeText.scrollFactor.set(0, 0);
+		typeText.alpha = 0;
+		add(typeText);
+
+		// Instructions (desktop only, mobile uses buttons)
+		instDisplay = new FlxText(15, 60, 280, "");
+		instDisplay.setFormat(fontPath, 13, FlxColor.fromRGB(80, 80, 100), LEFT);
+		instDisplay.scrollFactor.set(0, 0);
+		instDisplay.alpha = 0;
+		add(instDisplay);
+
+		// ===== INFO PANEL =====
+		createInfoPanel();
+
+		// ===== AUDIO PLAYER =====
+		createAudioPlayer();
+
+		// ===== MOBILE BUTTONS =====
+		#if mobile
+		createMobileButtons();
+		#end
+
+		// ===== INIT =====
+		switchToGridView();
+		updateInstructions();
+
+		// Entrance
+		FlxTween.tween(categoryText, {alpha: 1}, 0.5, {ease: FlxEase.sineOut, startDelay: 0.1});
+		FlxTween.tween(titleG, {alpha: 1}, 0.5, {ease: FlxEase.sineOut, startDelay: 0.15});
+		FlxTween.tween(artistText, {alpha: 1}, 0.5, {ease: FlxEase.sineOut, startDelay: 0.2});
+		FlxTween.tween(descG, {alpha: 1}, 0.5, {ease: FlxEase.sineOut, startDelay: 0.25});
+		FlxTween.tween(typeText, {alpha: 1}, 0.5, {ease: FlxEase.sineOut, startDelay: 0.3});
+		FlxTween.tween(pageDisplay, {alpha: 1}, 0.5, {ease: FlxEase.sineOut, startDelay: 0.35});
+		FlxTween.tween(instDisplay, {alpha: 1}, 0.5, {
+			ease: FlxEase.sineOut,
+			startDelay: 0.4,
+			onComplete: function(twn:FlxTween) { disableInput = false; }
+		});
+
+		if (FlxG.sound.music == null || !FlxG.sound.music.playing)
+			FlxG.sound.playMusic(Paths.music('freakyMenu'), 0.5);
+
+		super.create();
+	}
+
+	function createInfoPanel() {
+		infoBG = new FlxSprite(FlxG.width - 310, 58).makeGraphic(300, 290, FlxColor.fromRGB(16, 16, 22));
+		infoBG.scrollFactor.set(0, 0);
+		infoBG.alpha = 0;
+		add(infoBG);
+
+		var px:Float = FlxG.width - 300;
+		var py:Float = 68;
+		var lh:Float = 28;
+
+		infoTitleText = makeInfoText(px, py, 20, accentColor);
+		infoDescText = makeInfoText(px, py + lh * 1.5, 14, textDim);
+		infoArtistText = makeInfoText(px, py + lh * 4, 15, FlxColor.fromRGB(160, 200, 255));
+		infoCategoryText = makeInfoText(px, py + lh * 5, 15, FlxColor.fromRGB(160, 230, 160));
+		infoTypeText = makeInfoText(px, py + lh * 6, 15, FlxColor.fromRGB(230, 190, 100));
+		infoDateText = makeInfoText(px, py + lh * 7, 15, FlxColor.fromRGB(160, 160, 170));
+		infoFavText = makeInfoText(px, py + lh * 8, 15, FlxColor.fromRGB(255, 220, 80));
+
+		infoTextGroup = [infoTitleText, infoDescText, infoArtistText, infoCategoryText, infoTypeText, infoDateText, infoFavText];
+	}
+
+	function makeInfoText(x:Float, y:Float, size:Int, color:FlxColor):FlxText {
+		var t = new FlxText(x, y, 280, "");
+		t.setFormat(fontPath, size, color, LEFT);
+		t.scrollFactor.set(0, 0);
+		t.alpha = 0;
+		add(t);
+		return t;
+	}
+
+	function createAudioPlayer() {
+		var barY = FlxG.height - 175;
+
+		audioProgressBar = new FlxSprite(FlxG.width / 2 - 180, barY).makeGraphic(360, 4, FlxColor.fromRGB(40, 40, 50));
+		audioProgressBar.scrollFactor.set(0, 0);
+		audioProgressBar.visible = false;
+		add(audioProgressBar);
+
+		audioProgressFill = new FlxSprite(audioProgressBar.x, barY).makeGraphic(1, 4, accentColor);
+		audioProgressFill.scrollFactor.set(0, 0);
+		audioProgressFill.visible = false;
+		add(audioProgressFill);
+
+		audioTimeText = new FlxText(0, barY - 20, FlxG.width, "0:00 / 0:00");
+		audioTimeText.setFormat(fontPath, 16, textDim, CENTER);
+		audioTimeText.scrollFactor.set(0, 0);
+		audioTimeText.visible = false;
+		add(audioTimeText);
+
+		audioTitleText = new FlxText(0, barY - 42, FlxG.width, "");
+		audioTitleText.setFormat(fontPath, 18, accentColor, CENTER);
+		audioTitleText.scrollFactor.set(0, 0);
+		audioTitleText.visible = false;
+		add(audioTitleText);
+	}
+
+	// ==================== MOBILE BUTTONS ====================
+
+	#if mobile
+	function createMobileButtons() {
+		mobileBtnGroup = new FlxSpriteGroup();
+		mobileBtnGroup.scrollFactor.set(0, 0);
+
+		var btnSize:Int = 52;
+		var btnGap:Int = 8;
+		var btnY:Float = FlxG.height - 185;
+		var startX:Float = FlxG.width - btnSize - 15;
+
+		// Row 1 (right side, bottom) - Main actions
+		btnBack = makeMobileBtn(startX, btnY, btnSize, "←", FlxColor.fromRGB(200, 60, 60));
+		btnAccept = makeMobileBtn(startX - (btnSize + btnGap), btnY, btnSize, "OK", FlxColor.fromRGB(60, 200, 60));
+		btnFav = makeMobileBtn(startX - (btnSize + btnGap) * 2, btnY, btnSize, "★", FlxColor.fromRGB(255, 200, 50));
+		btnInfo = makeMobileBtn(startX - (btnSize + btnGap) * 3, btnY, btnSize, "i", FlxColor.fromRGB(80, 160, 255));
+		btnCategory = makeMobileBtn(startX - (btnSize + btnGap) * 4, btnY, btnSize, "TAB", FlxColor.fromRGB(160, 80, 255));
+		btnToggleUI = makeMobileBtn(startX - (btnSize + btnGap) * 5, btnY, btnSize, "UI", FlxColor.fromRGB(100, 100, 120));
+
+		// Row 2 (right side, above row 1) - Image controls (hidden by default)
+		var row2Y:Float = btnY - btnSize - btnGap;
+		btnZoomIn = makeMobileBtn(startX, row2Y, btnSize, "+", FlxColor.fromRGB(60, 180, 60));
+		btnZoomOut = makeMobileBtn(startX - (btnSize + btnGap), row2Y, btnSize, "-", FlxColor.fromRGB(200, 60, 60));
+		btnRotate = makeMobileBtn(startX - (btnSize + btnGap) * 2, row2Y, btnSize, "↻", FlxColor.fromRGB(200, 160, 60));
+		btnReset = makeMobileBtn(startX - (btnSize + btnGap) * 3, row2Y, btnSize, "R", FlxColor.fromRGB(100, 100, 140));
+		btnFullscreen = makeMobileBtn(startX - (btnSize + btnGap) * 4, row2Y, btnSize, "⛶", FlxColor.fromRGB(80, 160, 255));
+		btnPause = makeMobileBtn(startX - (btnSize + btnGap) * 5, row2Y, btnSize, "||", FlxColor.fromRGB(200, 160, 60));
+		btnSlideshow = makeMobileBtn(startX - (btnSize + btnGap) * 6, row2Y, btnSize, "▶", FlxColor.fromRGB(60, 200, 160));
+
+		// Hide image control row initially
+		hideImageButtons();
+
+		add(mobileBtnGroup);
+	}
+
+	function makeMobileBtn(x:Float, y:Float, size:Int, label:String, color:FlxColor):TouchButton {
+		// Create a simple colored button with text
+		var btn = new FlxSprite(x, y).makeGraphic(size, size, color);
+		btn.scrollFactor.set(0, 0);
+		btn.alpha = 0.7;
+		mobileBtnGroup.add(btn);
+
+		var txt = new FlxText(x, y + size / 2 - 10, size, label);
+		txt.setFormat(fontPath, 14, FlxColor.WHITE, CENTER);
+		txt.scrollFactor.set(0, 0);
+		mobileBtnGroup.add(txt);
+
+		// We'll use FlxSprite for hit detection instead of TouchButton
+		// since we need simple tap detection
+		return null; // We handle touch differently below
+	}
+
+	function showImageButtons() {
+		if (btnZoomIn != null) { /* handled via sprite visibility */ }
+		// Show row 2 buttons
+		setRow2Visible(true);
+	}
+
+	function hideImageButtons() {
+		setRow2Visible(false);
+	}
+
+	function setRow2Visible(vis:Bool) {
+		// Row 2 sprites are at indices 12+ in mobileBtnGroup
+		// We'll track them differently
+	}
+	#end
+
+	// ==================== UPDATE ====================
+
+	override function update(elapsed:Float) {
+		if (daSound != null && daSound.playing)
+			updateAudioProgress();
+
+		if (!disableInput) {
+			handleInput(elapsed);
+			#if mobile
+			handleMobileInput(elapsed);
+			#end
+		}
+
+		if ((viewMode == SINGLE_VIEW || viewMode == FULLSCREEN) && img.visible && smoothPan) {
+			img.x = FlxMath.lerp(img.x, targetX, elapsed * 10);
+			img.y = FlxMath.lerp(img.y, targetY, elapsed * 10);
+		}
+
+		super.update(elapsed);
+	}
+
+	// ==================== MOBILE INPUT ====================
+
+	#if mobile
+	function handleMobileInput(elapsed:Float) {
+		// Swipe detection
+		var touches = FlxG.touches.list;
+
+		if (touches.length == 1) {
+			var touch = touches[0];
+
+			if (touch.justPressed) {
+				touchStartX = touch.screenX;
+				touchStartY = touch.screenY;
+				isTouching = true;
+				isPinching = false;
+			}
+
+			if (touch.justReleased && isTouching && !isPinching) {
+				var dx = touch.screenX - touchStartX;
+				var dy = touch.screenY - touchStartY;
+				var dist = Math.sqrt(dx * dx + dy * dy);
+
+				if (dist > swipeThreshold) {
+					// It's a swipe
+					if (Math.abs(dx) > Math.abs(dy)) {
+						// Horizontal swipe
+						if (dx < 0) onMobileSwipe("left");
+						else onMobileSwipe("right");
+					} else {
+						// Vertical swipe
+						if (dy < 0) onMobileSwipe("up");
+						else onMobileSwipe("down");
+					}
+				} else {
+					// It's a tap - check button areas
+					handleMobileTap(touch.screenX, touch.screenY);
+				}
+				isTouching = false;
+			}
+
+			// Drag for panning in single/fullscreen view
+			if (touch.pressed && isTouching && (viewMode == SINGLE_VIEW || viewMode == FULLSCREEN)) {
+				var item = filteredItems.length > 0 ? filteredItems[curSelected] : null;
+				if (item != null && (item.type == IMAGE || item.type == ANIMATED)) {
+					var dx = touch.screenX - touchStartX;
+					var dy = touch.screenY - touchStartY;
+					if (Math.abs(dx) > 10 || Math.abs(dy) > 10) {
+						isPanning = true;
+						imgOffsetX += (touch.screenX - touchStartX) * 0.5;
+						imgOffsetY += (touch.screenY - touchStartY) * 0.5;
+						touchStartX = touch.screenX;
+						touchStartY = touch.screenY;
+						updateImageTransform();
+					}
+				}
+			}
+		}
+
+		// Pinch to zoom (2 fingers)
+		if (touches.length >= 2 && (viewMode == SINGLE_VIEW || viewMode == FULLSCREEN)) {
+			var t1 = touches[0];
+			var t2 = touches[1];
+			var currentDist = Math.sqrt(
+				Math.pow(t1.screenX - t2.screenX, 2) + Math.pow(t1.screenY - t2.screenY, 2)
+			);
+
+			if (!isPinching) {
+				pinchStartDist = currentDist;
+				isPinching = true;
+			} else {
+				var scale = currentDist / pinchStartDist;
+				imgZoom = Math.max(minZoom, Math.min(maxZoom, imgZoom * scale));
+				pinchStartDist = currentDist;
+				updateImageTransform();
+			}
+			isTouching = false;
+		} else {
+			isPinching = false;
+		}
+	}
+
+	function onMobileSwipe(direction:String) {
+		switch (viewMode) {
+			case GALLERY_GRID:
+				switch (direction) {
+					case "left":
+						curSelected++;
+						if (curSelected >= filteredItems.length) curSelected = filteredItems.length - 1;
+						onGridSelectionChanged();
+					case "right":
+						curSelected--;
+						if (curSelected < 0) curSelected = 0;
+						onGridSelectionChanged();
+					case "up":
+						curSelected += gridColumns;
+						if (curSelected >= filteredItems.length) curSelected = filteredItems.length - 1;
+						onGridSelectionChanged();
+					case "down":
+						curSelected -= gridColumns;
+						if (curSelected < 0) curSelected = 0;
+						onGridSelectionChanged();
+				}
+			case SINGLE_VIEW | SLIDESHOW:
+				switch (direction) {
+					case "left": changeItem(1);
+					case "right": changeItem(-1);
+				}
+			default:
+		}
+	}
+
+	function handleMobileTap(tx:Float, ty:Float) {
+		var btnSize:Int = 52;
+		var btnGap:Int = 8;
+		var btnY:Float = FlxG.height - 185;
+		var startX:Float = FlxG.width - btnSize - 15;
+
+		// Row 1 buttons hit detection
+		if (ty >= btnY && ty <= btnY + btnSize) {
+			// Back button
+			if (tx >= startX && tx <= startX + btnSize) {
+				onMobileBack();
+				return;
+			}
+			// Accept/OK button
+			var okX = startX - (btnSize + btnGap);
+			if (tx >= okX && tx <= okX + btnSize) {
+				onMobileAccept();
+				return;
+			}
+			// Favorite button
+			var favX = startX - (btnSize + btnGap) * 2;
+			if (tx >= favX && tx <= favX + btnSize) {
+				onMobileFavorite();
+				return;
+			}
+			// Info button
+			var infoX = startX - (btnSize + btnGap) * 3;
+			if (tx >= infoX && tx <= infoX + btnSize) {
+				onMobileInfo();
+				return;
+			}
+			// Category/TAB button
+			var catX = startX - (btnSize + btnGap) * 4;
+			if (tx >= catX && tx <= catX + btnSize) {
+				onMobileCategory();
+				return;
+			}
+			// Toggle UI button
+			var uiX = startX - (btnSize + btnGap) * 5;
+			if (tx >= uiX && tx <= uiX + btnSize) {
+				onMobileToggleUI();
+				return;
+			}
+		}
+
+		// Row 2 buttons hit detection (only in single/fullscreen view)
+		var row2Y:Float = btnY - btnSize - btnGap;
+		if (ty >= row2Y && ty <= row2Y + btnSize && (viewMode == SINGLE_VIEW || viewMode == FULLSCREEN)) {
+			// Zoom In
+			if (tx >= startX && tx <= startX + btnSize) {
+				imgZoom = Math.min(maxZoom, imgZoom + zoomStep * 3);
+				updateImageTransform();
+				return;
+			}
+			// Zoom Out
+			var zoX = startX - (btnSize + btnGap);
+			if (tx >= zoX && tx <= zoX + btnSize) {
+				imgZoom = Math.max(minZoom, imgZoom - zoomStep * 3);
+				updateImageTransform();
+				return;
+			}
+			// Rotate
+			var rotX = startX - (btnSize + btnGap) * 2;
+			if (tx >= rotX && tx <= rotX + btnSize) {
+				imgRotation += 90;
+				updateImageTransform();
+				return;
+			}
+			// Reset
+			var resX = startX - (btnSize + btnGap) * 3;
+			if (tx >= resX && tx <= resX + btnSize) {
+				resetImageView();
+				return;
+			}
+			// Fullscreen
+			var fsX = startX - (btnSize + btnGap) * 4;
+			if (tx >= fsX && tx <= fsX + btnSize) {
+				if (viewMode == FULLSCREEN) exitFullscreen();
+				else switchToFullscreen();
+				return;
+			}
+			// Pause (audio)
+			var psX = startX - (btnSize + btnGap) * 5;
+			if (tx >= psX && tx <= psX + btnSize) {
+				toggleAudioPause();
+				return;
+			}
+			// Slideshow
+			var slX = startX - (btnSize + btnGap) * 6;
+			if (tx >= slX && tx <= slX + btnSize) {
+				toggleSlideshow();
+				return;
+			}
+		}
+
+		// Tap on grid thumbnail
+		if (viewMode == GALLERY_GRID) {
+			gridThumbnails.forEachAlive(function(spr:FlxSprite) {
+				if (tx >= spr.x && tx <= spr.x + spr.width && ty >= spr.y && ty <= spr.y + spr.height) {
+					curSelected = spr.ID;
+					updateGridSelection();
+					updateTexts();
+					if (showingInfo) updateInfoPanel();
+					FlxG.sound.play(Paths.sound('scrollMenu'));
+				}
+			});
+		}
+	}
+
+	function onMobileBack() {
+		FlxG.sound.play(Paths.sound('cancelMenu'));
+		stopAllMedia();
+		if (viewMode == SINGLE_VIEW || viewMode == FULLSCREEN || viewMode == SLIDESHOW) {
+			switchToGridView();
+		} else {
+			MusicBeatState.switchState(new MainMenuState());
+		}
+	}
+
+	function onMobileAccept() {
+		if (filteredItems.length == 0) return;
+		FlxG.sound.play(Paths.sound('confirmMenu'));
+		var item = filteredItems[curSelected];
+
+		if (viewMode == GALLERY_GRID) {
+			switch (item.type) {
+				case VIDEO: playVideo(item);
+				case SOUND_EFFECT | MUSIC: switchToSingleView(); playAudio(item);
+				default: switchToSingleView();
+			}
+		} else if (viewMode == SINGLE_VIEW) {
+			if (item.type == SOUND_EFFECT || item.type == MUSIC)
+				playAudio(item);
+		}
+	}
+
+	function onMobileFavorite() {
+		if (filteredItems.length == 0) return;
+		filteredItems[curSelected].favorited = !filteredItems[curSelected].favorited;
+		FlxG.sound.play(Paths.sound('confirmMenu'));
+		updateTexts();
+		if (showingInfo) updateInfoPanel();
+	}
+
+	function onMobileInfo() {
+		showingInfo = !showingInfo;
+		toggleInfoPanel(showingInfo);
+	}
+
+	function onMobileCategory() {
+		currentCategory = (currentCategory + 1) % categories.length;
+		filterByCategory();
+		FlxG.sound.play(Paths.sound('scrollMenu'));
+	}
+
+	function onMobileToggleUI() {
+		textVisible = !textVisible;
+		var a:Float = textVisible ? 1 : 0;
+		for (t in [instDisplay, titleG, artistText, descG, typeText, pageDisplay, categoryText])
+			FlxTween.tween(t, {alpha: a}, 0.25, {ease: FlxEase.sineOut});
+		// Also toggle mobile buttons
+		if (mobileBtnGroup != null)
+			FlxTween.tween(mobileBtnGroup, {alpha: a}, 0.25, {ease: FlxEase.sineOut});
+	}
+
+	function onGridSelectionChanged() {
+		var perPage = gridColumns * gridRows;
+		var newPage = Math.floor(curSelected / perPage);
+		if (newPage != gridPage) { gridPage = newPage; buildGrid(); }
+		updateGridSelection();
+		updateTexts();
+		if (showingInfo) updateInfoPanel();
+		FlxG.sound.play(Paths.sound('scrollMenu'));
+	}
+
+	function updateMobileButtonVisibility() {
+		if (mobileBtnGroup == null) return;
+
+		// Row 2 buttons visibility based on view mode
+		// For simplicity we show/hide the entire group
+		// and let the tap handler filter by view mode
+		mobileBtnGroup.visible = (viewMode != VIDEO_PLAYING);
+	}
+	#end
+
+	// ==================== DESKTOP INPUT ====================
+
+	function handleInput(elapsed:Float) {
+		if (controls.BACK) {
+			FlxG.sound.play(Paths.sound('cancelMenu'));
+			stopAllMedia();
+			if (viewMode == SINGLE_VIEW || viewMode == FULLSCREEN || viewMode == SLIDESHOW) {
+				switchToGridView();
+				return;
+			}
+			MusicBeatState.switchState(new MainMenuState());
+			return;
+		}
+
+		if (FlxG.keys.justPressed.X) {
+			textVisible = !textVisible;
+			var a:Float = textVisible ? 1 : 0;
+			for (t in [instDisplay, titleG, artistText, descG, typeText, pageDisplay, categoryText])
+				FlxTween.tween(t, {alpha: a}, 0.25, {ease: FlxEase.sineOut});
+		}
+
+		if (FlxG.keys.justPressed.TAB) {
+			currentCategory = (currentCategory + 1) % categories.length;
+			filterByCategory();
+			FlxG.sound.play(Paths.sound('scrollMenu'));
+		}
+
+		if (FlxG.keys.justPressed.F && filteredItems.length > 0) {
+			filteredItems[curSelected].favorited = !filteredItems[curSelected].favorited;
+			FlxG.sound.play(Paths.sound('confirmMenu'));
+			updateTexts();
+			if (showingInfo) updateInfoPanel();
+		}
+
+		if (FlxG.keys.justPressed.I) {
+			showingInfo = !showingInfo;
+			toggleInfoPanel(showingInfo);
+		}
+
+		if (FlxG.keys.justPressed.P && viewMode != VIDEO_PLAYING)
+			toggleSlideshow();
+
+		switch (viewMode) {
+			case GALLERY_GRID: handleGridInput(elapsed);
+			case SINGLE_VIEW: handleSingleViewInput(elapsed);
+			case FULLSCREEN: handleFullscreenInput(elapsed);
+			case VIDEO_PLAYING: handleVideoInput(elapsed);
+			case SLIDESHOW: handleSlideshowInput(elapsed);
+		}
+	}
+
+	// ==================== GRID VIEW ====================
+
+	function handleGridInput(elapsed:Float) {
+		var changed = false;
+		var perPage = gridColumns * gridRows;
+
+		if (controls.UI_LEFT_P) { curSelected--; changed = true; }
+		if (controls.UI_RIGHT_P) { curSelected++; changed = true; }
+		if (controls.UI_UP_P) { curSelected -= gridColumns; changed = true; }
+		if (controls.UI_DOWN_P) { curSelected += gridColumns; changed = true; }
+		if (FlxG.keys.justPressed.PAGEUP) { curSelected -= perPage; changed = true; }
+		if (FlxG.keys.justPressed.PAGEDOWN) { curSelected += perPage; changed = true; }
+		if (FlxG.keys.justPressed.HOME) { curSelected = 0; changed = true; }
+		if (FlxG.keys.justPressed.END) { curSelected = filteredItems.length - 1; changed = true; }
+
+		if (changed) {
+			curSelected = Std.int(Math.max(0, Math.min(curSelected, filteredItems.length - 1)));
+			var newPage = Math.floor(curSelected / perPage);
+			if (newPage != gridPage) { gridPage = newPage; buildGrid(); }
+			updateGridSelection();
+			updateTexts();
+			if (showingInfo) updateInfoPanel();
+			FlxG.sound.play(Paths.sound('scrollMenu'));
+		}
+
+		if (controls.ACCEPT && filteredItems.length > 0) {
+			FlxG.sound.play(Paths.sound('confirmMenu'));
+			var item = filteredItems[curSelected];
+			switch (item.type) {
+				case VIDEO: playVideo(item);
+				case SOUND_EFFECT | MUSIC: switchToSingleView(); playAudio(item);
+				default: switchToSingleView();
+			}
+		}
+	}
+
+	function switchToGridView() {
+		viewMode = GALLERY_GRID;
+		img.visible = false;
+		graphic.visible = false;
+		isPanning = false;
+		hideAudioPlayer();
+		stopSlideshow();
+		gridThumbnails.visible = true;
+
+		FlxTween.tween(overlayDark, {alpha: 0}, 0.25);
+		restoreHUD();
+		buildGrid();
+		updateGridSelection();
+		updateTexts();
+		updateInstructions();
+
+		#if mobile
+		updateMobileButtonVisibility();
+		#end
+	}
+
+	function buildGrid() {
+		gridThumbnails.forEachAlive(function(spr:FlxSprite) {
+			FlxTween.cancelTweensOf(spr);
+			spr.kill();
+		});
+		gridThumbnails.clear();
+
+		var perPage = gridColumns * gridRows;
+		var startIdx = gridPage * perPage;
+		var mx:Float = 50;
+		var my:Float = 60;
+		var gap:Float = 12;
+		var tw:Float = (FlxG.width - mx * 2 - (gridColumns - 1) * gap) / gridColumns;
+		var th:Float = (FlxG.height - my - 145 - (gridRows - 1) * gap) / gridRows;
+
+		for (i in 0...perPage) {
+			var idx = startIdx + i;
+			if (idx >= filteredItems.length) break;
+
+			var item = filteredItems[idx];
+			var col = i % gridColumns;
+			var row = Math.floor(i / gridColumns);
+
+			var thumb = new FlxSprite();
+			try {
+				thumb.loadGraphic(Paths.image("gallery/img/" + item.fileName));
+			} catch (e) {
+				thumb.makeGraphic(Std.int(tw), Std.int(th), bgMedium);
+			}
+
+			var sx = tw / thumb.width;
+			var sy = th / thumb.height;
+			var fs = Math.min(sx, sy);
+			thumb.scale.set(fs, fs);
+			thumb.updateHitbox();
+			thumb.x = mx + col * (tw + gap) + (tw - thumb.width) / 2;
+			thumb.y = my + row * (th + gap) + (th - thumb.height) / 2;
+			thumb.scrollFactor.set(0, 0);
+			thumb.antialiasing = ClientPrefs.data.antialiasing;
+			thumb.ID = idx;
+
+			if (item.unlocked != null && !item.unlocked)
+				thumb.color = FlxColor.fromRGB(20, 20, 25);
+
+			thumb.alpha = 0;
+			var ss = fs * 0.6;
+			thumb.scale.set(ss, ss);
+			FlxTween.num(0, 1, 0.35, {ease: FlxEase.quintOut, startDelay: i * 0.04}, function(v:Float) {
+				var s = ss + (fs - ss) * v;
+				thumb.scale.set(s, s);
+				thumb.alpha = v;
+				thumb.updateHitbox();
+			});
+
+			gridThumbnails.add(thumb);
+		}
+	}
+
+	function updateGridSelection() {
+		if (filteredItems.length == 0) return;
+
+		gridThumbnails.forEachAlive(function(spr:FlxSprite) {
+			FlxTween.cancelTweensOf(spr);
+			if (spr.ID == curSelected) {
+				FlxTween.color(spr, 0.15, spr.color, FlxColor.WHITE);
+			} else {
+				var item = filteredItems[spr.ID];
+				var c = (item.unlocked != null && !item.unlocked) ? FlxColor.fromRGB(20, 20, 25) : FlxColor.fromRGB(120, 120, 130);
+				FlxTween.color(spr, 0.15, spr.color, c);
+			}
+		});
+	}
+
+	// ==================== SINGLE VIEW ====================
+
+	function handleSingleViewInput(elapsed:Float) {
+		if (filteredItems.length == 0) return;
+		var item = filteredItems[curSelected];
+
+		// Navigation only when NOT panning
+		if (!isPanning) {
+			if (controls.UI_LEFT_P) changeItem(-1);
+			if (controls.UI_RIGHT_P) changeItem(1);
+		}
+
+		if (item.type == IMAGE || item.type == ANIMATED) {
+			// Zoom with Q/E only (no WASD conflict)
+			if (FlxG.keys.pressed.Q) imgZoom = Math.min(maxZoom, imgZoom + zoomStep);
+			if (FlxG.keys.pressed.E) imgZoom = Math.max(minZoom, imgZoom - zoomStep);
+
+			// Pan with arrow keys + shift OR dedicated keys
+			// Use IJKL for panning to avoid WASD/arrow conflict
+			if (FlxG.keys.pressed.I || (FlxG.keys.pressed.UP && FlxG.keys.pressed.SHIFT)) {
+				imgOffsetY -= panSpeed;
+				isPanning = true;
+			}
+			if (FlxG.keys.pressed.K || (FlxG.keys.pressed.DOWN && FlxG.keys.pressed.SHIFT)) {
+				imgOffsetY += panSpeed;
+				isPanning = true;
+			}
+			if (FlxG.keys.pressed.J || (FlxG.keys.pressed.LEFT && FlxG.keys.pressed.SHIFT)) {
+				imgOffsetX -= panSpeed;
+				isPanning = true;
+			}
+			if (FlxG.keys.pressed.L || (FlxG.keys.pressed.RIGHT && FlxG.keys.pressed.SHIFT)) {
+				imgOffsetX += panSpeed;
+				isPanning = true;
+			}
+
+			// Reset panning flag when no pan keys pressed
+			if (!FlxG.keys.pressed.I && !FlxG.keys.pressed.K &&
+				!FlxG.keys.pressed.J && !FlxG.keys.pressed.L &&
+				!(FlxG.keys.pressed.SHIFT && (FlxG.keys.pressed.UP || FlxG.keys.pressed.DOWN || FlxG.keys.pressed.LEFT || FlxG.keys.pressed.RIGHT))) {
+				isPanning = false;
+			}
+
+			if (FlxG.keys.justPressed.R) imgRotation += 90;
+			if (FlxG.keys.justPressed.T) imgRotation -= 90;
+			if (FlxG.keys.justPressed.C) resetImageView();
+			if (FlxG.keys.justPressed.SPACE) switchToFullscreen();
+			updateImageTransform();
+		}
+
+		if (item.type == SOUND_EFFECT || item.type == MUSIC) {
+			if (FlxG.keys.justPressed.SPACE) toggleAudioPause();
+			if (controls.ACCEPT) playAudio(item);
+		}
+	}
+
+	function switchToSingleView() {
+		viewMode = SINGLE_VIEW;
+		gridThumbnails.visible = false;
+		img.visible = true;
+		isPanning = false;
+		resetImageView();
+		loadCurrentItem();
+		updateTexts();
+		updateInstructions();
+
+		#if mobile
+		updateMobileButtonVisibility();
+		#end
+	}
+
+	function loadCurrentItem() {
+		if (filteredItems.length == 0) return;
+		var item = filteredItems[curSelected];
+
+		try {
+			img.loadGraphic(Paths.image("gallery/img/" + item.fileName));
+		} catch (e) {
+			img.makeGraphic(400, 300, bgMedium);
+		}
+		img.visible = true;
+		img.alpha = 0;
+		img.antialiasing = ClientPrefs.data.antialiasing;
+		resetImageView();
+
+		graphic.visible = false;
+		switch (item.type) {
+			case VIDEO:
+				try { graphic.loadGraphic(Paths.image("gallery/videoGraphic")); graphic.visible = true; } catch (e) {}
+			case SOUND_EFFECT | MUSIC:
+				try { graphic.loadGraphic(Paths.image("gallery/audioGraphic")); graphic.visible = true; } catch (e) {}
+			default:
+		}
+		if (graphic.visible) {
+			graphic.screenCenter();
+			graphic.scale.set(0.5, 0.5);
+			graphic.alpha = 0.6;
+		}
+
+		FlxTween.cancelTweensOf(img);
+		var sz = imgZoom * 1.08;
+		img.scale.set(sz, sz);
+		FlxTween.num(0, 1, 0.35, {ease: FlxEase.quintOut}, function(v:Float) {
+			var s = sz + (imgZoom - sz) * v;
+			img.scale.set(s, s);
+			img.alpha = v;
+			img.updateHitbox();
+			img.screenCenter();
+		});
+
+		if (item.type == SOUND_EFFECT || item.type == MUSIC) showAudioPlayer();
+		else hideAudioPlayer();
+	}
+
+	function resetImageView() {
+		imgZoom = 0.8;
+		imgOffsetX = 0;
+		imgOffsetY = 0;
+		imgRotation = 0;
+		isPanning = false;
+		if (img != null) {
+			img.angle = 0;
+			img.scale.set(imgZoom, imgZoom);
+			img.updateHitbox();
+			img.screenCenter();
+			targetX = img.x;
+			targetY = img.y;
+		}
+	}
+
+	function updateImageTransform() {
+		if (img == null) return;
+		img.scale.set(imgZoom, imgZoom);
+		img.angle = imgRotation;
+		img.updateHitbox();
+		targetX = (FlxG.width - img.width) / 2 + imgOffsetX;
+		targetY = (FlxG.height - img.height) / 2 + imgOffsetY;
+		if (!smoothPan) { img.x = targetX; img.y = targetY; }
+	}
+
+	// ==================== FULLSCREEN ====================
+
+	function handleFullscreenInput(elapsed:Float) {
+		if (FlxG.keys.pressed.Q) imgZoom = Math.min(maxZoom, imgZoom + zoomStep);
+		if (FlxG.keys.pressed.E) imgZoom = Math.max(minZoom, imgZoom - zoomStep);
+
+		// IJKL for panning (no conflict)
+		if (FlxG.keys.pressed.I) imgOffsetY -= panSpeed;
+		if (FlxG.keys.pressed.K) imgOffsetY += panSpeed;
+		if (FlxG.keys.pressed.J) imgOffsetX -= panSpeed;
+		if (FlxG.keys.pressed.L) imgOffsetX += panSpeed;
+
+		if (FlxG.keys.justPressed.C) resetImageView();
+		if (FlxG.keys.justPressed.R) imgRotation += 90;
+		updateImageTransform();
+
+		if (FlxG.keys.justPressed.SPACE || controls.BACK) exitFullscreen();
+	}
+
+	function switchToFullscreen() {
+		viewMode = FULLSCREEN;
+		FlxTween.tween(overlayDark, {alpha: 0.9}, 0.25);
+		hideHUD();
+
+		var sx = FlxG.width / img.frameWidth;
+		var sy = FlxG.height / img.frameHeight;
+		imgZoom = Math.min(sx, sy);
+		imgOffsetX = 0;
+		imgOffsetY = 0;
+		img.scale.set(imgZoom, imgZoom);
+		img.updateHitbox();
+		img.screenCenter();
+		targetX = img.x;
+		targetY = img.y;
+		updateInstructions();
+	}
+
+	function exitFullscreen() {
+		viewMode = SINGLE_VIEW;
+		FlxTween.tween(overlayDark, {alpha: 0}, 0.25);
+		restoreHUD();
+		resetImageView();
+		updateInstructions();
+	}
+
+	// ==================== VIDEO ====================
+
+	function handleVideoInput(elapsed:Float) {
+		#if VIDEOS_ALLOWED
+		if (controls.BACK) {
+			forceStopVideo();
+			switchToGridView();
+		}
+		#end
+	}
+
+	function playVideo(item:GalleryItem) {
+		#if VIDEOS_ALLOWED
+		viewMode = VIDEO_PLAYING;
+		isVideoPlaying = true;
+		disableInput = true;
+
+		if (FlxG.sound.music != null) FlxG.sound.music.pause();
+
+		img.visible = false;
+		graphic.visible = false;
+		gridThumbnails.visible = false;
+		hideAudioPlayer();
+		hideHUD();
+		bg.visible = false;
+		bgAccent.visible = false;
+		topBar.visible = false;
+		bottomBar.visible = false;
+		separator.visible = false;
+		overlayDark.alpha = 0;
+
+		#if mobile
+		if (mobileBtnGroup != null) mobileBtnGroup.visible = false;
+		#end
+
+		if (showingInfo) toggleInfoPanel(false);
+
+		var filepath = Paths.video('gallery/' + item.fileName);
+		videoObj = new VideoSprite(filepath, false, true, false);
+		videoObj.finishCallback = function() { onVideoFinished(); };
+		videoObj.onSkip = function() { onVideoFinished(); };
+		add(videoObj);
+		videoObj.play();
+
+		new FlxTimer().start(0.5, function(tmr:FlxTimer) { disableInput = false; });
+		#end
+	}
+
+	function onVideoFinished() {
+		#if VIDEOS_ALLOWED
+		isVideoPlaying = false;
+		videoObj = null;
+		restoreBackground();
+		if (FlxG.sound.music != null) FlxG.sound.music.resume();
+		switchToGridView();
+		#end
+	}
+
+	function forceStopVideo() {
+		#if VIDEOS_ALLOWED
+		if (videoObj != null) {
+			videoObj.finishCallback = null;
+			videoObj.onSkip = null;
+			videoObj.destroy();
+			videoObj = null;
+		}
+		isVideoPlaying = false;
+		restoreBackground();
+		if (FlxG.sound.music != null) FlxG.sound.music.resume();
+		#end
+	}
+
+	function restoreBackground() {
+		bg.visible = true;
+		bgAccent.visible = true;
+		topBar.visible = true;
+		bottomBar.visible = true;
+		separator.visible = true;
+	}
+
+	// ==================== AUDIO ====================
+
+	function playAudio(item:GalleryItem) {
+		stopAudio();
+		if (FlxG.sound.music != null) FlxG.sound.music.pause();
+
+		daSound = new FlxSound();
+		switch (item.type) {
+			case SOUND_EFFECT: daSound.loadEmbedded(Paths.sound('gallery/' + item.fileName), false, true);
+			case MUSIC: daSound.loadEmbedded(Paths.music('gallery/' + item.fileName), true, true);
+			default: return;
+		}
+		daSound.onComplete = function():Void {
+			audioPlaying = false;
+			if (FlxG.sound.music != null) FlxG.sound.music.resume();
+			hideAudioPlayer();
+		};
+		daSound.play(true, 0);
+		audioPlaying = true;
+		audioPaused = false;
+		audioTitleText.text = '♫ ' + item.title + (item.artist != null ? ' — ' + item.artist : '');
+		showAudioPlayer();
+	}
+
+	function stopAudio() {
+		if (daSound != null) { daSound.stop(); daSound.destroy(); daSound = null; }
+		audioPlaying = false;
+		audioPaused = false;
+		if (FlxG.sound.music != null) FlxG.sound.music.resume();
+	}
+
+	function toggleAudioPause() {
+		if (daSound == null) return;
+		if (audioPaused) { daSound.resume(); audioPaused = false; }
+		else { daSound.pause(); audioPaused = true; }
+	}
+
+	function showAudioPlayer() {
+		audioProgressBar.visible = true;
+		audioProgressFill.visible = true;
+		audioTimeText.visible = true;
+		audioTitleText.visible = true;
+	}
+
+	function hideAudioPlayer() {
+		audioProgressBar.visible = false;
+		audioProgressFill.visible = false;
+		audioTimeText.visible = false;
+		audioTitleText.visible = false;
+	}
+
+	function updateAudioProgress() {
+		if (daSound == null) return;
+		var p:Float = (daSound.length > 0) ? daSound.time / daSound.length : 0;
+		if (Math.isNaN(p)) p = 0;
+		var bw = Std.int(360 * p);
+		if (bw < 1) bw = 1;
+		audioProgressFill.makeGraphic(bw, 4, accentColor);
+		audioProgressFill.x = audioProgressBar.x;
+		audioTimeText.text = formatTime(daSound.time / 1000) + " / " + formatTime(daSound.length / 1000)
+			+ (audioPaused ? "  ||" : "  ▶");
+	}
+
+	// ==================== SLIDESHOW ====================
+
+	function handleSlideshowInput(elapsed:Float) {
+		if (controls.BACK || FlxG.keys.justPressed.P) { stopSlideshow(); switchToSingleView(); return; }
+		if (controls.UI_RIGHT_P || controls.ACCEPT) slideshowNext();
+		if (controls.UI_LEFT_P) slideshowPrev();
+	}
+
+	function toggleSlideshow() {
+		if (slideshowActive) stopSlideshow();
+		else startSlideshow();
+	}
+
+	function startSlideshow() {
+		slideshowActive = true;
+		if (viewMode != SINGLE_VIEW) switchToSingleView();
+		viewMode = SLIDESHOW;
+		updateInstructions();
+		slideshowTimer = new FlxTimer().start(slideshowInterval, function(tmr:FlxTimer) { slideshowNext(); }, 0);
+	}
+
+	function stopSlideshow() {
+		slideshowActive = false;
+		if (slideshowTimer != null) { slideshowTimer.cancel(); slideshowTimer = null; }
+		if (viewMode == SLIDESHOW) viewMode = SINGLE_VIEW;
+		updateInstructions();
+	}
+
+	function slideshowNext() {
+		var next = curSelected;
+		var tries = 0;
+		do { next = (next + 1) % filteredItems.length; tries++; }
+		while (filteredItems[next].type != IMAGE && filteredItems[next].type != ANIMATED && tries < filteredItems.length);
+		if (tries < filteredItems.length) { curSelected = next; loadCurrentItem(); updateTexts(); }
+		if (slideshowTimer != null) {
+			slideshowTimer.cancel();
+			slideshowTimer = new FlxTimer().start(slideshowInterval, function(tmr:FlxTimer) { slideshowNext(); }, 0);
+		}
+	}
+
+	function slideshowPrev() {
+		var prev = curSelected;
+		var tries = 0;
+		do { prev = (prev - 1 + filteredItems.length) % filteredItems.length; tries++; }
+		while (filteredItems[prev].type != IMAGE && filteredItems[prev].type != ANIMATED && tries < filteredItems.length);
+		if (tries < filteredItems.length) { curSelected = prev; loadCurrentItem(); updateTexts(); }
+	}
+
+	// ==================== CATEGORIES ====================
+
+	function buildCategories() {
+		categories = ["All", "Favorites"];
+		for (item in galleryItems) {
+			if (item.category != null) {
+				var found = false;
+				for (cat in categories) if (cat == item.category) { found = true; break; }
+				if (!found) categories.push(item.category);
+			}
+		}
+	}
+
+	function filterByCategory() {
+		var cat = categories[currentCategory];
+		if (cat == "All") {
+			filteredItems = galleryItems.copy();
+		} else if (cat == "Favorites") {
+			filteredItems = [];
+			for (item in galleryItems) if (item.favorited == true) filteredItems.push(item);
+		} else {
+			filteredItems = [];
+			for (item in galleryItems) if (item.category == cat) filteredItems.push(item);
+		}
+		curSelected = 0;
+		gridPage = 0;
+		categoryText.text = cat + " (" + filteredItems.length + ")";
+		if (viewMode == GALLERY_GRID) { buildGrid(); updateGridSelection(); }
+		updateTexts();
+	}
+
+	// ==================== INFO PANEL ====================
+
+	function toggleInfoPanel(show:Bool) {
+		showingInfo = show;
+		FlxTween.tween(infoBG, {alpha: show ? 0.85 : 0}, 0.25, {ease: FlxEase.sineOut});
+		for (txt in infoTextGroup)
+			FlxTween.tween(txt, {alpha: show ? 1 : 0}, 0.25, {ease: FlxEase.sineOut});
+		if (show) updateInfoPanel();
+	}
+
+	function updateInfoPanel() {
+		if (filteredItems.length == 0) return;
+		var item = filteredItems[curSelected];
+		infoTitleText.text = item.title;
+		infoDescText.text = item.description;
+		infoArtistText.text = "Artist: " + (item.artist != null ? item.artist : "—");
+		infoCategoryText.text = "Category: " + (item.category != null ? item.category : "—");
+		infoTypeText.text = "Type: " + getTypeName(item.type);
+		infoDateText.text = "Date: " + (item.dateAdded != null ? item.dateAdded : "—");
+		infoFavText.text = "Favorite: " + ((item.favorited != null && item.favorited) ? "★ Yes" : "No");
+	}
+
+	// ==================== HUD ====================
+
+	function hideHUD() {
+		for (t in [titleG, artistText, descG, typeText, instDisplay, pageDisplay, categoryText])
+			t.alpha = 0;
+	}
+
+	function restoreHUD() {
+		if (!textVisible) return;
+		for (t in [titleG, artistText, descG, typeText, instDisplay, pageDisplay, categoryText])
+			FlxTween.tween(t, {alpha: 1}, 0.25, {ease: FlxEase.sineOut});
+	}
+
+	// ==================== UTILITY ====================
+
+	function changeItem(change:Int) {
+		curSelected += change;
+		stopAudio();
+		if (curSelected < 0) curSelected = filteredItems.length - 1;
+		if (curSelected >= filteredItems.length) curSelected = 0;
+		FlxG.sound.play(Paths.sound('scrollMenu'));
+		loadCurrentItem();
+		updateTexts();
+		updateInstructions();
+		if (showingInfo) updateInfoPanel();
+	}
+
+	function updateTexts() {
+		if (filteredItems.length == 0) {
+			titleG.text = "Empty";
+			artistText.text = "";
+			descG.text = "No items in this category.";
+			typeText.text = "";
+			pageDisplay.text = "— / —";
+			return;
+		}
+		var item = filteredItems[curSelected];
+		var fav = (item.favorited != null && item.favorited) ? " ★" : "";
+		titleG.text = item.title + fav;
+		artistText.text = item.artist != null ? "by " + item.artist : "";
+		descG.text = item.description;
+		typeText.text = getTypeName(item.type)
+			+ (item.category != null ? "  ·  " + item.category : "")
+			+ (item.dateAdded != null ? "  ·  " + item.dateAdded : "");
+		pageDisplay.text = (curSelected + 1) + " / " + filteredItems.length;
+	}
+
+	function updateInstructions() {
+		#if mobile
+		// Mobile doesn't need keyboard instructions
+		instDisplay.text = "";
+		instDisplay.alpha = 0;
+		return;
+		#end
+
+		switch (viewMode) {
+			case GALLERY_GRID:
+				instDisplay.text = "Arrows · Navigate\n"
+					+ "Enter · Open\n"
+					+ "Tab · Category\n"
+					+ "F · Favorite\n"
+					+ "I · Info\n"
+					+ "P · Slideshow\n"
+					+ "X · Toggle UI\n"
+					+ "Esc · Back";
+			case SINGLE_VIEW:
+				var item = filteredItems.length > 0 ? filteredItems[curSelected] : null;
+				if (item != null && (item.type == IMAGE || item.type == ANIMATED)) {
+					instDisplay.text = "←/→ · Navigate\n"
+						+ "Q/E · Zoom\n"
+						+ "IJKL · Pan\n"
+						+ "Shift+Arrows · Pan\n"
+						+ "R/T · Rotate\n"
+						+ "C · Reset\n"
+						+ "Space · Fullscreen\n"
+						+ "F · Favorite\n"
+						+ "I · Info\n"
+						+ "P · Slideshow\n"
+						+ "Esc · Back";
+				} else {
+					instDisplay.text = "←/→ · Navigate\n"
+						+ "Enter · Play\n"
+						+ "Space · Pause\n"
+						+ "F · Favorite\n"
+						+ "I · Info\n"
+						+ "Esc · Back";
+				}
+			case FULLSCREEN:
+				instDisplay.text = "Q/E · Zoom\n"
+					+ "IJKL · Pan\n"
+					+ "R · Rotate\n"
+					+ "C · Reset\n"
+					+ "Space · Exit";
+			case SLIDESHOW:
+				instDisplay.text = "Slideshow (" + slideshowInterval + "s)\n"
+					+ "←/→ · Manual\n"
+					+ "P/Esc · Stop";
+			case VIDEO_PLAYING:
+				instDisplay.text = "Hold Enter · Skip\n"
+					+ "Esc · Stop";
+		}
+	}
+
+	function getTypeName(type:GalleryType):String {
+		return switch (type) {
+			case IMAGE: "Image";
+			case VIDEO: "Video";
+			case SOUND_EFFECT: "SFX";
+			case MUSIC: "Music";
+			case ANIMATED: "Animation";
+		}
+	}
+
+	function stopAllMedia() {
+		stopAudio();
+		forceStopVideo();
+		stopSlideshow();
+	}
+
+	function formatTime(s:Float):String {
+		if (Math.isNaN(s) || s < 0) s = 0;
+		var m = Std.int(s / 60);
+		var sec = Std.int(s % 60);
+		return m + ":" + (sec < 10 ? "0" : "") + sec;
+	}
+
+	override function destroy() {
+		stopAllMedia();
+		super.destroy();
+	}
+}

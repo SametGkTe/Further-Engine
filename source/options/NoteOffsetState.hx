@@ -38,7 +38,7 @@ class NoteOffsetState extends MusicBeatState
 	override public function create()
 	{
 		#if DISCORD_ALLOWED
-		DiscordClient.changePresence("Delay/Combo Offset Menu", null);
+		DiscordClient.changePresence(Language.getPhrase('discord_delay_combo', "Gecikme/Kombo Ofset Menüsü"), null);
 		#end
 
 		// Cameras
@@ -115,7 +115,7 @@ class NoteOffsetState extends MusicBeatState
 		repositionCombo();
 
 		// Note delay stuff
-		beatText = new Alphabet(0, 0, Language.getPhrase('delay_beat_hit', 'Beat Hit!'), true);
+		beatText = new Alphabet(0, 0, Language.getPhrase('delay_beat_hit', 'Ritim Vuruşu!'), true);
 		beatText.setScale(0.6, 0.6);
 		beatText.x += 260;
 		beatText.alpha = 0;
@@ -196,11 +196,9 @@ class NoteOffsetState extends MusicBeatState
 
 		if(controls.controllerMode != _lastControllerMode)
 		{
-			//trace('changed controller mode');
 			FlxG.mouse.visible = !controls.controllerMode;
 			controllerPointer.visible = controls.controllerMode;
 
-			// changed to controller mid state
 			if(controls.controllerMode)
 			{
 				var mousePos = FlxG.mouse.getScreenPosition(camHUD);
@@ -276,7 +274,6 @@ class NoteOffsetState extends MusicBeatState
 				}
 			}
 			
-			// controller things
 			var analogX:Float = 0;
 			var analogY:Float = 0;
 			var analogMoved:Bool = false;
@@ -296,9 +293,7 @@ class NoteOffsetState extends MusicBeatState
 				gamepadPressed = !FlxG.gamepads.anyJustPressed(START) && controls.ACCEPT;
 				gamepadReleased = !FlxG.gamepads.anyJustReleased(START) && controls.justReleased('accept');
 			}
-			//
 
-			// probably there's a better way to do this but, oh well.
 			if (FlxG.mouse.justPressed || gamepadPressed)
 			{
 				holdingObjectType = null;
@@ -313,7 +308,6 @@ class NoteOffsetState extends MusicBeatState
 					holdingObjectType = true;
 					startComboOffset.x = ClientPrefs.data.comboOffset[2];
 					startComboOffset.y = ClientPrefs.data.comboOffset[3];
-					//trace('yo bro');
 				}
 				else if (startMousePos.x - rating.x >= 0 && startMousePos.x - rating.x <= rating.width &&
 						 startMousePos.y - rating.y >= 0 && startMousePos.y - rating.y <= rating.height)
@@ -321,12 +315,10 @@ class NoteOffsetState extends MusicBeatState
 					holdingObjectType = false;
 					startComboOffset.x = ClientPrefs.data.comboOffset[0];
 					startComboOffset.y = ClientPrefs.data.comboOffset[1];
-					//trace('heya');
 				}
 			}
 			if(FlxG.mouse.justReleased || gamepadReleased) {
 				holdingObjectType = null;
-				//trace('dead');
 			}
 
 			if(holdingObjectType != null)
@@ -499,9 +491,9 @@ class NoteOffsetState extends MusicBeatState
 		{
 			switch(i)
 			{
-				case 0: dumbTexts.members[i].text = Language.getPhrase('combo_rating_offset', 'Rating Offset:');
+				case 0: dumbTexts.members[i].text = Language.getPhrase('combo_rating_offset', 'Değerlendirme Ofseti:');
 				case 1: dumbTexts.members[i].text = '[' + ClientPrefs.data.comboOffset[0] + ', ' + ClientPrefs.data.comboOffset[1] + ']';
-				case 2: dumbTexts.members[i].text = Language.getPhrase('combo_numbers_offset', 'Numbers Offset:');
+				case 2: dumbTexts.members[i].text = Language.getPhrase('combo_numbers_offset', 'Sayı Ofseti:');
 				case 3: dumbTexts.members[i].text = '[' + ClientPrefs.data.comboOffset[2] + ', ' + ClientPrefs.data.comboOffset[3] + ']';
 			}
 		}
@@ -510,7 +502,7 @@ class NoteOffsetState extends MusicBeatState
 	function updateNoteDelay()
 	{
 		ClientPrefs.data.noteOffset = Math.round(barPercent);
-		timeTxt.text = Language.getPhrase('delay_current_offset', 'Current offset: {1} ms', [Math.floor(barPercent)]);
+		timeTxt.text = Language.getPhrase('delay_current_offset', 'Mevcut ofset: {1} ms', [Math.floor(barPercent)]);
 	}
 
 	function updateMode()
@@ -535,19 +527,22 @@ class NoteOffsetState extends MusicBeatState
 
 		var str:String;
 		var str2:String;
-		final accept:String = (controls.mobileC) ? "A" : (!controls.controllerMode) ? "ACCEPT" : "Start";
+		final accept:String = (controls.mobileC) ? "A" : (!controls.controllerMode)
+			? Language.getPhrase('accept_button_name', 'KABUL')
+			: Language.getPhrase('start_button_name', 'BAŞLAT');
+
 		if(onComboMenu)
 		{
-			str = Language.getPhrase('combo_offset', 'Combo Offset');
+			str = Language.getPhrase('combo_offset', 'Kombo Ofseti');
 			addTouchPad('NONE', 'A_B_C');
 			addTouchPadCamera();
 		} else {
-			str = Language.getPhrase('note_delay', 'Note/Beat Delay');
+			str = Language.getPhrase('note_delay', 'Nota/Ritim Gecikmesi');
 			addTouchPad('LEFT_RIGHT', 'A_B_C');
 			addTouchPadCamera();
 		}
 
-		str2 = Language.getPhrase('switch_on_button', '(Press {1} to Switch)', [accept]);
+		str2 = Language.getPhrase('switch_on_button', '({1} tuşuna basarak değiştir)', [accept]);
 
 		changeModeText.text = '< ${str.toUpperCase()} ${str2.toUpperCase()} >';
 	}

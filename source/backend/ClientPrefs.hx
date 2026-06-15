@@ -8,6 +8,16 @@ import states.TitleState;
 
 // Add a variable here and it will get automatically saved
 @:structInit class SaveVariables {
+
+	// PET AYARLARI
+	public var petwatermark:Bool = true;
+	public var petloadingscreen:Bool = true;
+	public var petwatermarklogo:String = 'Varsayılan';
+	public var petloadingscreenimage:String = 'ONLINE';
+	public var disableIntroVideo:Bool = false;
+	public var menuMusic:String = 'Varsayılan';
+	public var serverConnection:Bool = true;
+	
 	// Mobile and Mobile Controls Releated
 	public var extraButtons:String = "NONE"; // mobile extra button option
 	public var hitboxPos:Bool = true; // hitbox extra button position option
@@ -20,19 +30,6 @@ import states.TitleState;
 	public var vsync:Bool = false;
 	public var gameOverVibration:Bool = false;
 	public var fpsRework:Bool = false;
-	
-	// YENİ: Yeni mobil kontrol sistemi için
-	public var storageType:String = "EXTERNAL_DATA";
-	public var mobilePadAlpha:Float = 0.7;
-	public var hitboxAlpha:Float = 0.7;
-	public var extraKeys:Int = 0;
-	public var hitboxLocation:String = "Bottom";
-	public var hitboxMode:String = "Classic";
-	public var hitboxHint:Bool = true;
-	public var ogGameControls:Bool = false;
-	public var vSliceSpacing:Float = 0;
-	public var mobileExtraKeyReturns:Array<String> = ["", "", "", ""];
-	public var controlMode:String = "Button";
 	
 	public var downScroll:Bool = false;
 	public var middleScroll:Bool = false;
@@ -225,9 +222,6 @@ class ClientPrefs {
 		for (key in Reflect.fields(data))
 			if (key != 'gameplaySettings' && Reflect.hasField(FlxG.save.data, key))
 				Reflect.setField(data, key, Reflect.field(FlxG.save.data, key));
-				
-		if (data.mobileExtraKeyReturns == null)
-			data.mobileExtraKeyReturns = ["", "", "", ""];
 		
 		if(Main.fpsVar != null)
 			Main.fpsVar.visible = data.showFPS;
@@ -317,9 +311,5 @@ class ClientPrefs {
 		FlxG.sound.muteKeys = (!Controls.instance.mobileC && turnOn) ? TitleState.muteKeys : emptyArray;
 		FlxG.sound.volumeDownKeys = (!Controls.instance.mobileC && turnOn) ? TitleState.volumeDownKeys : emptyArray;
 		FlxG.sound.volumeUpKeys = (!Controls.instance.mobileC && turnOn) ? TitleState.volumeUpKeys : emptyArray;
-	}
-	public static inline function isTouchMode():Bool
-	{
-		return data.controlMode == "Touch";
 	}
 }

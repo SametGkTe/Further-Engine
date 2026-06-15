@@ -9,9 +9,6 @@ import flixel.group.FlxGroup;
 import flixel.input.gamepad.FlxGamepad;
 import haxe.Json;
 
-import mobile.MobileConfig;
-import mobile.MobileConfig.ButtonModes;
-
 import backend.AchievementSync;
 import backend.AuthManager;
 
@@ -85,6 +82,7 @@ class TitleState extends MusicBeatState
 		Paths.clearStoredMemory();
 		super.create();
 		Paths.clearUnusedMemory();
+		startUnifiedUpdateCheck();
 
 		if(!initialized)
 		{
@@ -103,21 +101,7 @@ class TitleState extends MusicBeatState
 			}
 			persistentUpdate = true;
 			persistentDraw = true;
-			MobileConfig.init(
-				'psychengine_mobile',
-				CoolUtil.getSavePath(),
-				'assets/mobile/',
-				[
-					'MobilePad/DPadModes',
-					'MobilePad/ActionModes',
-					'Hitbox/HitboxModes'
-				],
-				[
-					DPAD,
-					ACTION,
-					HITBOX
-				]
-			);
+			MobileData.init();
 		}
 
 		if (FlxG.save.data.weekCompleted != null)
@@ -134,37 +118,23 @@ class TitleState extends MusicBeatState
 		});
 
 		FlxG.mouse.visible = false;
-
 		#if FREEPLAY
 		MusicBeatState.switchState(new FreeplayState());
-
 		#elseif CHARTING
 		MusicBeatState.switchState(new ChartingState());
-
 		#else
 		if(FlxG.save.data.flashing == null && !FlashingState.leftState)
 		{
-			controls.isInSubstate = false;
+			controls.isInSubstate = false; //idfk what's wrong
 			FlxTransitionableState.skipNextTransIn = true;
 			FlxTransitionableState.skipNextTransOut = true;
 			MusicBeatState.switchState(new FlashingState());
 		}
 		else
-		{
 			startIntro();
-
-			#if mobile
-			new FlxTimer().start(1.2, function(tmr:FlxTimer)
-			{
-				startUnifiedUpdateCheck();
-			});
-			#else
-			startUnifiedUpdateCheck();
-			#end
-		}
 		#end
 	}
-		
+
 	var logoBl:FlxSprite;
 	var gfDance:FlxSprite;
 	var danceLeft:Bool = false;
@@ -175,7 +145,7 @@ class TitleState extends MusicBeatState
 	{
 		persistentUpdate = true;
 		if (!initialized && FlxG.sound.music == null)
-			FlxG.sound.playMusic(Paths.music('freakyMenu'), 0);
+			FlxG.sound.playMusic(Paths.music(getMenuMusicName()), 0);
 
 		loadJsonData();
 		#if TITLE_SCREEN_EASTER_EGG easterEggData(); #end
@@ -511,8 +481,6 @@ class TitleState extends MusicBeatState
 	
 	function startUnifiedUpdateCheck():Void
 	{
-		if (FlxG.state != this)
-			return;
 		if (checkingUnifiedUpdates || shownUnifiedUpdatePopup)
 			return;
 
@@ -669,8 +637,7 @@ class TitleState extends MusicBeatState
 			switch (sickBeats)
 			{
 				case 1:
-					//FlxG.sound.music.stop();
-					FlxG.sound.playMusic(Paths.music('freakyMenu'), 0);
+					FlxG.sound.playMusic(Paths.music(getMenuMusicName()), 0);
 					FlxG.sound.music.fadeIn(4, 0, 0.7);
 				case 2:
 					createCoolText(['Psych Engine by'], 40);
@@ -738,7 +705,7 @@ class TitleState extends MusicBeatState
 						FlxG.camera.flash(FlxColor.WHITE, 2);
 						skippedIntro = true;
 
-						FlxG.sound.playMusic(Paths.music('freakyMenu'), 0);
+						FlxG.sound.playMusic(Paths.music(getMenuMusicName()), 0);
 						FlxG.sound.music.fadeIn(4, 0, 0.7);
 						return;
 				}
@@ -760,7 +727,7 @@ class TitleState extends MusicBeatState
 					remove(credGroup);
 					FlxG.camera.flash(FlxColor.WHITE, 3);
 					sound.onComplete = function() {
-						FlxG.sound.playMusic(Paths.music('freakyMenu'), 0);
+						FlxG.sound.playMusic(Paths.music(getMenuMusicName()), 0);
 						FlxG.sound.music.fadeIn(4, 0, 0.7);
 						transitioning = false;
 						#if ACHIEVEMENTS_ALLOWED
@@ -791,5 +758,49 @@ class TitleState extends MusicBeatState
 			}
 			skippedIntro = true;
 		}
+	}
+	
+	public static function getMenuMusicName():String
+	{
+		var selected:String = ClientPrefs.data.menuMusic;
+		if (selected == null || selected.length == 0 || selected == 'Varsayılan')
+			return 'freakyMenu';
+
+		// Mod müziği: "mod:ModAdı" formatında
+		if (StringTools.startsWith(selected, 'mod:'))
+		{
+			var modName:String = selected.substr(4);
+			#if MODS_ALLOWED
+			Mods.currentModDirectory = modName;
+			#end
+			return 'freakyMenu';
+		}
+
+		// Entegre müzikler: freakyMenu2, freakyMenu3 vs.
+		return selected;
+	}
+
+	public static function playFreakyMusic(?vol:Float = 0, ?fadeIn:Bool = true)
+	{
+		var musicName:String = getMenuMusicName();
+
+		// Mod müziği ise mod dizinini ayarla
+		if (StringTools.startsWith(ClientPrefs.data.menuMusic, 'mod:'))
+		{
+			var modName:String = ClientPrefs.data.menuMusic.substr(4);
+			#if MODS_ALLOWED
+			Mods.currentModDirectory = modName;
+			#end
+		}
+
+		FlxG.sound.playMusic(Paths.music(musicName), vol);
+
+		if (fadeIn)
+			FlxG.sound.music.fadeIn(4, 0, 0.7);
+
+		// Mod dizinini geri yükle
+		#if MODS_ALLOWED
+		Mods.loadTopMod();
+		#end
 	}
 }

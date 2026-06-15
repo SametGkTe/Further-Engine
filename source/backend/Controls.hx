@@ -170,75 +170,33 @@ class Controls
 	public var requestedInstance(get, default):Dynamic; // is set to MusicBeatState or MusicBeatSubstate when the constructor is called
 	public var requestedMobileC(get, default):IMobileControls; // for PlayState and EditorPlayState (hitbox and touchPad)
 	public var mobileC(get, never):Bool;
-	
+
 	private function touchPadPressed(keys:Array<MobileInputID>):Bool
 	{
-		if (keys == null || requestedInstance == null || requestedInstance.touchPad == null)
-			return false;
-
-		var tp:Dynamic = requestedInstance.touchPad;
-
-		try
-		{
-			if (tp.anyPressed != null)
-				return tp.anyPressed(keys) == true;
-		}
-		catch (e:Dynamic) {}
+		if (keys != null && requestedInstance.touchPad != null)
+			if (requestedInstance.touchPad.anyPressed(keys) == true)
+				return true;
 
 		return false;
 	}
 
 	private function touchPadJustPressed(keys:Array<MobileInputID>):Bool
 	{
-		if (keys == null || requestedInstance == null || requestedInstance.touchPad == null)
-			return false;
-
-		var tp:Dynamic = requestedInstance.touchPad;
-
-		try
-		{
-			if (tp.anyJustPressed != null)
-				return tp.anyJustPressed(keys) == true;
-		}
-		catch (e:Dynamic) {}
+		if (keys != null && requestedInstance.touchPad != null)
+			if (requestedInstance.touchPad.anyJustPressed(keys) == true)
+				return true;
 
 		return false;
 	}
 
 	private function touchPadJustReleased(keys:Array<MobileInputID>):Bool
 	{
-		if (keys == null || requestedInstance == null || requestedInstance.touchPad == null)
-			return false;
-
-		var tp:Dynamic = requestedInstance.touchPad;
-
-		try
-		{
-			if (tp.anyJustReleased != null)
-				return tp.anyJustReleased(keys) == true;
-		}
-		catch (e:Dynamic) {}
+		if (keys != null && requestedInstance.touchPad != null)
+			if (requestedInstance.touchPad.anyJustReleased(keys) == true)
+				return true;
 
 		return false;
 	}
-
-	private function touchPadReleased(keys:Array<MobileInputID>):Bool
-	{
-		if (keys == null || requestedInstance == null || requestedInstance.touchPad == null)
-			return false;
-
-		var tp:Dynamic = requestedInstance.touchPad;
-
-		try
-		{
-			if (tp.anyReleased != null)
-				return tp.anyReleased(keys) == true;
-		}
-		catch (e:Dynamic) {}
-
-		return false;
-	}
-	
 
 	private function mobileCPressed(keys:Array<MobileInputID>):Bool
 	{
@@ -290,7 +248,6 @@ class Controls
 		else
 			return false;
 	}
-	
 
 	// IGNORE THESE/ karim: no.
 	public static var instance:Controls;

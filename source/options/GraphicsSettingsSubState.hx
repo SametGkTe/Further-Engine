@@ -8,8 +8,8 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 	var boyfriend:Character = null;
 	public function new()
 	{
-		title = Language.getPhrase('graphics_menu', 'Graphics Settings');
-		rpcTitle = 'Graphics Settings Menu'; //for Discord Rich Presence
+		title = Language.getPhrase('graphics_menu', 'Grafik Ayarları');
+		rpcTitle = 'Graphics Settings Menu';
 
 		boyfriend = new Character(840, 170, 'bf', true);
 		boyfriend.setGraphicSize(Std.int(boyfriend.width * 0.75));
@@ -18,36 +18,35 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 		boyfriend.animation.finishCallback = function (name:String) boyfriend.dance();
 		boyfriend.visible = false;
 
-		//I'd suggest using "Low Quality" as an example for making your own option since it is the simplest here
-		var option:Option = new Option('Low Quality', //Name
-			'If checked, disables some background details,\ndecreases loading times and improves performance.', //Description
-			'lowQuality', //Save data variable name
-			BOOL); //Variable type
+		var option:Option = new Option('Düşük Kalite',
+			'Aktif edildiğinde, bazı arka plan detaylarını devre dışı bırakır,\nyükleme sürelerini kısaltır ve performansı artırır. ÖNERİ: AÇIK',
+			'lowQuality',
+			BOOL);
 		addOption(option);
 
-		var option:Option = new Option('Anti-Aliasing',
-			'If unchecked, disables anti-aliasing, increases performance\nat the cost of sharper visuals.',
+		var option:Option = new Option('Kenar Yumuşatma',
+			'Devre dışı bırakıldığında, kenar yumuşatma kapatılır,\nperformans artar ancak görseller daha keskin olur. ÖNERİ: KAPALI',
 			'antialiasing',
 			BOOL);
-		option.onChange = onChangeAntiAliasing; //Changing onChange is only needed if you want to make a special interaction after it changes the value
+		option.onChange = onChangeAntiAliasing;
 		addOption(option);
 		antialiasingOption = optionsArray.length-1;
 
-		var option:Option = new Option('Shaders', //Name
-			"If unchecked, disables shaders.\nIt's used for some visual effects, and also CPU intensive for weaker " + Main.platform + ".", //Description
+		var option:Option = new Option('Gölgeler',
+			'Devre dışı bırakıldığında, gölgelendiriciler kapatılır.\nBazı görsel efektler için kullanılır ve zayıf ' + Main.platform + ' için yoğundur. ÖNERİ: KAPALI',
 			'shaders',
 			BOOL);
 		addOption(option);
 
-		var option:Option = new Option('GPU Caching', //Name
-			"If checked, allows the GPU to be used for caching textures, decreasing RAM usage.\nDon't turn this on if you have a shitty Graphics Card.", //Description
+		var option:Option = new Option('GPU Önbellekleme',
+			'Aktif edildiğinde, GPU dokuları önbelleğe alarak RAM kullanımını azaltır.\nZayıf bir ekran kartınız varsa bunu açmayın.',
 			'cacheOnGPU',
 			BOOL);
 		addOption(option);
 
-		#if !html5 //Apparently other framerates isn't correctly supported on Browser? Probably it has some V-Sync shit enabled by default, idk
-		var option:Option = new Option('Framerate',
-			"Pretty self explanatory, isn't it?",
+		#if !html5
+		var option:Option = new Option('FPS',
+			'Bence gayet açık?',
 			'framerate',
 			INT);
 		addOption(option);
@@ -60,8 +59,8 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 		option.onChange = onChangeFramerate;
 		#end
 
-		var option:Option = new Option('FPS Rework',
-			"If checked, this works around the game becoming \"slow\" and \"smooth\" when the current FPS is lower than the FPS cap.",
+		var option:Option = new Option('Yenilenmiş FPS',
+			'Aktif edildiğinde, mevcut FPS sınırın altında olduğunda\noyunun "yavaş" ve "yumuşak" hissettirmesini önler.',
 			'fpsRework',
 			BOOL);
 		addOption(option);
