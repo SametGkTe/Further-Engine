@@ -1,18 +1,42 @@
 {
+  "lastUpdated": "2026-06-25",
+  "engineVersion": "1.0.4",
   "modpacks": [
     {
-      "packId": "test-minimal",
+      "id": "test-minimal",
       "displayName": "Test Minimal Modpack",
       "version": "1.0.5",
       "versionLabel": "v1.0.5",
       "author": "SametGkTe",
-      "description": "Test modpack",
+      "description": "Temel test modları içerir.",
       "category": "official",
-      "downloadMode": "external",
-      "directDownloadUrl": "",
-      "externalPageUrl": "https://www.mediafire.com/file/r0jggkzhmeauz4u/TestModpack.zip/file",
-      "fileSize": "1 KB",
-      "modCount": 1
+      "downloadMode": "direct",
+      "directDownloadUrl": "https://raw.githubusercontent.com/SametGkTe/Psych-Engine-1.0.4-Android/main/updates/packs/test-minimal.zip",
+      "externalPageUrl": "",
+      "fileSize": "1.2 MB",
+      "fileSizeBytes": 1258291,
+      "modCount": 1,
+      "thumbnail": "",
+      "tags": ["test", "minimal"],
+      "changelog": "İlk sürüm."
+    },
+    {
+      "id": "turkish-songs",
+      "displayName": "Türkçe Şarkı Paketi",
+      "version": "2.0.0",
+      "versionLabel": "v2.0.0",
+      "author": "SametGkTe",
+      "description": "Türkçe şarkılar ve karakterler.",
+      "category": "official",
+      "downloadMode": "direct",
+      "directDownloadUrl": "https://raw.githubusercontent.com/SametGkTe/Psych-Engine-1.0.4-Android/main/updates/packs/turkish-songs.zip",
+      "externalPageUrl": "",
+      "fileSize": "85 MB",
+      "fileSizeBytes": 89128960,
+      "modCount": 3,
+      "thumbnail": "",
+      "tags": ["turkce", "sarki", "karakter"],
+      "changelog": "3 yeni şarkı eklendi."
     }
   ]
 }
