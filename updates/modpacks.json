@@ -1,16 +1,18 @@
 {
-  "id": "test-minimal",
-  "displayName": "Test Minimal Modpack",
-  "version": "1.0.5",
-  "versionLabel": "1.0.5",
-  "author": "SametGkTe",
-  "description": "Test modpack",
-  "category": "official",
-
-  "downloadMode": "external",
-  "directDownloadUrl": "",
-  "externalPageUrl": "https://www.mediafire.com/file/r0jggkzhmeauz4u/TestModpack.zip/file",
-
-  "fileSize": "1 KB",
-  "modCount": 1
+  "modpacks": [
+    {
+      "packId": "test-minimal",
+      "displayName": "Test Minimal Modpack",
+      "version": "1.0.5",
+      "versionLabel": "v1.0.5",
+      "author": "SametGkTe",
+      "description": "Test modpack",
+      "category": "official",
+      "downloadMode": "external",
+      "directDownloadUrl": "",
+      "externalPageUrl": "https://www.mediafire.com/file/r0jggkzhmeauz4u/TestModpack.zip/file",
+      "fileSize": "1 KB",
+      "modCount": 1
+    }
+  ]
 }
