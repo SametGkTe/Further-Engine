@@ -5,8 +5,8 @@
     {
       "id": "minimal",
       "displayName": "Minimal Modpack",
-      "version": "1.0.0",
-      "versionLabel": "v1.0.0",
+      "version": "2.0.0",
+      "versionLabel": "v2.0.0",
       "author": "SametGkTe",
       "description": "Temel modlar. Hafif ve hızlı.",
       "category": "official",
@@ -39,7 +39,7 @@
     {
       "id": "high",
       "displayName": "High Modpack",
-      "version": "1.0.0",
+      "version": "2.0.0",
       "versionLabel": "v1.0.0",
       "author": "SametGkTe",
       "description": "Yüksek kaliteli içerik paketi. Çok sayıda mod.",
