@@ -20,6 +20,8 @@ haxelib git grig.audio https://gitlab.com/haxe-grig/grig.audio.git cbf91e2180fd2
 haxelib git mobile-controls https://github.com/Prohack101010/mobile-controls-dev
 haxelib install polymod
 haxelib install HtmlParser
+haxelib git flixel-animate https://github.com/MaybeMaru/flixel-animate
+haxelib install hscript 2.7.0
 
 echo Finished!
 pause
