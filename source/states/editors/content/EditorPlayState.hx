@@ -141,7 +141,7 @@ class EditorPlayState extends MusicBeatSubstate
 		FlxG.mouse.visible = false;
 		
 		addMobileControls();
-		mobileControls.instance.visible = true;
+		mobileControls.visible = true;
 		mobileControls.onButtonDown.add(onButtonPress);
 		mobileControls.onButtonUp.add(onButtonRelease);
 
@@ -513,7 +513,7 @@ class EditorPlayState extends MusicBeatSubstate
 
 		Conductor.songPosition = FlxG.sound.music.time = vocals.time = opponentVocals.time = startPos - Conductor.offset;
 
-		mobileControls.instance.visible = false;
+		mobileControls.visible = false;
 
 		close();
 	}
@@ -752,22 +752,20 @@ class EditorPlayState extends MusicBeatSubstate
 		}
 	}
 
-	private function onButtonPress(button:TouchButton):Void
+	private function onButtonPress(handler:mobile.flixel.controls.InputHandler, id:String):Void
 	{
-		if (button.IDs.filter(id -> id.toString().startsWith("EXTRA")).length > 0)
-			return;
+		if (id.startsWith("EXTRA")) return;
 
-		var buttonCode:Int = (button.IDs[0].toString().startsWith('NOTE')) ? button.IDs[0] : button.IDs[1];
-		if (button.justPressed) keyPressed(buttonCode);
+		var buttonCode:Int = id.startsWith('NOTE') ? Std.parseInt(id.substr(id.length - 1)) : -1;
+		if (buttonCode > -1) keyPressed(buttonCode);
 	}
 
-	private function onButtonRelease(button:TouchButton):Void
+	private function onButtonRelease(handler:mobile.flixel.controls.InputHandler, id:String):Void
 	{
-		if (button.IDs.filter(id -> id.toString().startsWith("EXTRA")).length > 0)
-			return;
+		if (id.startsWith("EXTRA")) return;
 
-		var buttonCode:Int = (button.IDs[0].toString().startsWith('NOTE')) ? button.IDs[0] : button.IDs[1];
-		if(buttonCode > -1) keyReleased(buttonCode);
+		var buttonCode:Int = id.startsWith('NOTE') ? Std.parseInt(id.substr(id.length - 1)) : -1;
+		if (buttonCode > -1) keyReleased(buttonCode);
 	}
 	
 	// Hold notes

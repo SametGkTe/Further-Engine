@@ -692,7 +692,7 @@ class PlayState extends MusicBeatState
 		#end
 		
 		addMobileControls();
-		mobileControls.instance.visible = true;
+		mobileControls.visible = true;
 		mobileControls.onButtonDown.add(onButtonPress);
 		mobileControls.onButtonUp.add(onButtonRelease);
 
@@ -2616,8 +2616,8 @@ class PlayState extends MusicBeatState
 			touchPad.visible = false;
 		#end
 
-		if (mobileControls != null && mobileControls.instance != null)
-			mobileControls.instance.visible = false;
+		if (mobileControls != null)
+			mobileControls.visible = false;
 
 		if(!startingSong)
 		{
@@ -3117,26 +3117,42 @@ class PlayState extends MusicBeatState
 		return -1;
 	}
 
-	private function onButtonPress(button:TouchButton):Void
+	private function mobileButtonToCode(id:String):Int
 	{
-		if (button.IDs.filter(id -> id.toString().startsWith("EXTRA")).length > 0)
-			return;
-
-		var buttonCode:Int = (button.IDs[0].toString().startsWith('NOTE')) ? button.IDs[0] : button.IDs[1];
-		callOnScripts('onButtonPressPre', [buttonCode]);
-		if (button.justPressed) keyPressed(buttonCode);
-		callOnScripts('onButtonPress', [buttonCode]);
+			return switch (id)
+			{
+					case "NOTE_LEFT", "LEFT", "HITBOX_LEFT": 0;
+					case "NOTE_DOWN", "DOWN", "HITBOX_DOWN": 1;
+					case "NOTE_UP", "UP", "HITBOX_UP": 2;
+					case "NOTE_RIGHT", "RIGHT", "HITBOX_RIGHT": 3;
+					default: -1;
+			};
 	}
 
-	private function onButtonRelease(button:TouchButton):Void
+	private function onButtonPress(handler:mobile.flixel.controls.InputHandler, id:String):Void
 	{
-		if (button.IDs.filter(id -> id.toString().startsWith("EXTRA")).length > 0)
-			return;
+			if (id != null && id.indexOf("EXTRA") == 0)
+					return;
 
-		var buttonCode:Int = (button.IDs[0].toString().startsWith('NOTE')) ? button.IDs[0] : button.IDs[1];
-		callOnScripts('onButtonReleasePre', [buttonCode]);
-		if(buttonCode > -1) keyReleased(buttonCode);
-		callOnScripts('onButtonRelease', [buttonCode]);
+			var buttonCode:Int = mobileButtonToCode(id);
+			if (buttonCode < 0) return;
+
+			callOnScripts('onButtonPressPre', [buttonCode]);
+			keyPressed(buttonCode);
+			callOnScripts('onButtonPress', [buttonCode]);
+	}
+
+	private function onButtonRelease(handler:mobile.flixel.controls.InputHandler, id:String):Void
+	{
+			if (id != null && id.indexOf("EXTRA") == 0)
+					return;
+
+			var buttonCode:Int = mobileButtonToCode(id);
+			if (buttonCode < 0) return;
+
+			callOnScripts('onButtonReleasePre', [buttonCode]);
+			keyReleased(buttonCode);
+			callOnScripts('onButtonRelease', [buttonCode]);
 	}
 
 	// Hold notes

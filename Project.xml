@@ -162,6 +162,10 @@
 
 	<!--Disable the Flixel core focus lost screen-->
 	<haxedef name="FLX_NO_FOCUS_LOST_SCREEN" />
+
+	<!-- Optimizations -->
+	<haxeflag name="-D analyzer-optimize" />
+	<haxeflag name="-dce full" />
 	
 	<!-- Show debug traces for hxCodec -->
 	<haxedef name="HXC_DEBUG_TRACE" if="debug" />

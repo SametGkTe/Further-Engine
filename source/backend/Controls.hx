@@ -207,7 +207,7 @@ class Controls
 	private function mobileCPressed(keys:Array<MobileInputID>):Bool
 	{
 		if (keys != null && requestedMobileC != null)
-			if (requestedMobileC.instance.anyPressed(keys))
+			if (requestedMobileC.anyPressed(keys))
 				return true;
 
 		return false;
@@ -216,7 +216,7 @@ class Controls
 	private function mobileCJustPressed(keys:Array<MobileInputID>):Bool
 	{
 		if (keys != null && requestedMobileC != null)
-			if (requestedMobileC.instance.anyJustPressed(keys))
+			if (requestedMobileC.anyJustPressed(keys))
 				return true;
 
 		return false;
@@ -225,7 +225,7 @@ class Controls
 	private function mobileCJustReleased(keys:Array<MobileInputID>):Bool
 	{
 		if (keys != null && requestedMobileC != null)
-			if (requestedMobileC.instance.anyJustReleased(keys))
+			if (requestedMobileC.anyJustReleased(keys))
 				return true;
 
 		return false;
