@@ -3,6 +3,8 @@ package states;
 import backend.WeekData;
 import backend.Highscore;
 import backend.Song;
+import mikolka.vslice.StickerSubState;
+import mikolka.compatibility.ModsHelper;
 
 import flixel.group.FlxGroup;
 import flixel.graphics.FlxGraphic;
@@ -26,6 +28,18 @@ class StoryMenuState extends MusicBeatState
 
 	var txtWeekTitle:FlxText;
 	var bgSprite:FlxSprite;
+	
+	var stickerSubState:StickerSubState;
+	
+	public function new(?stickers:StickerSubState = null)
+	{
+		super();
+
+		if (stickers != null)
+		{
+			stickerSubState = stickers;
+		}
+	}
 
 	private static var curWeek:Int = 0;
 
@@ -47,6 +61,17 @@ class StoryMenuState extends MusicBeatState
 	{
 		Paths.clearStoredMemory();
 		Paths.clearUnusedMemory();
+		
+		if (stickerSubState != null)
+		{
+			// this.persistentUpdate = true;
+			// this.persistentDraw = true;
+
+			openSubState(stickerSubState);
+			ModsHelper.clearStoredWithoutStickers();
+			stickerSubState.degenStickers();
+			FlxG.sound.playMusic(Paths.music('freakyMenu'));
+		}
 
 		persistentUpdate = persistentDraw = true;
 		PlayState.isStoryMode = true;
@@ -66,7 +91,7 @@ class StoryMenuState extends MusicBeatState
 			persistentUpdate = false;
 			MusicBeatState.switchState(new states.ErrorState("NO WEEKS ADDED FOR STORY MODE\n\nPress " + accept + " to go to the Week Editor Menu.\nPress " + reject + " to return to Main Menu.",
 				function() MusicBeatState.switchState(new states.editors.WeekEditorState()),
-				function() MusicBeatState.switchState(new states.MainMenuState())));
+				function() MenuStyleRouter.goToMainMenu()));
 			return;
 		}
 

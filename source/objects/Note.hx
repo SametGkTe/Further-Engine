@@ -5,6 +5,7 @@ import backend.NoteTypesConfig;
 
 import shaders.RGBPalette;
 import shaders.RGBPalette.RGBShaderReference;
+import flixel.util.FlxColor;
 
 import objects.StrumNote;
 

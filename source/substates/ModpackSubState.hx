@@ -13,6 +13,7 @@ import backend.modpack.ModpackPaths;
 import backend.modpack.ModpackInstaller;
 import backend.modpack.ModpackTypes;
 import backend.modpack.DownloadManager;
+import backend.Language;
 
 class ModpackSubState extends MusicBeatSubstate {
 
@@ -26,22 +27,18 @@ class ModpackSubState extends MusicBeatSubstate {
 	static inline final INTRO_TIME:Float = 0.3;
 	static inline final ACCENT:Int = 0xFF0D9488;
 
-	// ─── State ───
-	var screenMode:Int = 0; // 0=loading, 1=browse, 2=downloading, 3=installing, 4=complete, 5=error
+	var screenMode:Int = 0;
 	var selectedIndex:Int = 0;
 	var allowInput:Bool = false;
 	var currentProgress:Float = 0.0;
 	var targetProgress:Float = 0.0;
 
-	// ─── Veri ───
 	var allModpacks:Array<Dynamic> = [];
 	var displayList:Array<Dynamic> = [];
 
-	// ─── Sistemler ───
 	var downloader:DownloadManager;
 	var installer:ModpackInstaller;
 
-	// ─── UI ───
 	var bg:FlxSprite;
 	var titleText:FlxText;
 	var subtitleText:FlxText;
@@ -57,10 +54,6 @@ class ModpackSubState extends MusicBeatSubstate {
 	var statusText:FlxText;
 	var hintText:FlxText;
 
-	// ─────────────────────────────────────────────
-	//  Create
-	// ─────────────────────────────────────────────
-
 	override function create() {
 		super.create();
 
@@ -70,33 +63,29 @@ class ModpackSubState extends MusicBeatSubstate {
 		createUI();
 		playIntro();
 		fetchModpacks();
+		addTouchPad('NONE', 'B');
 	}
 
 	function createUI():Void {
-		// Arka plan
 		bg = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK);
 		bg.alpha = 0;
 		add(bg);
 
-		// Başlık
-		titleText = new FlxText(SIDE_MARGIN, 24, FlxG.width - SIDE_MARGIN * 2, "Modpack Arşivleri", 32);
+		titleText = new FlxText(SIDE_MARGIN, 24, FlxG.width - SIDE_MARGIN * 2, Language.getPhrase("modpack_title", "Modpack Arşivleri"), 32);
 		titleText.setFormat(Paths.font(FONT), 32, FlxColor.WHITE, CENTER);
 		titleText.alpha = 0;
 		add(titleText);
 
-		// Alt başlık
-		subtitleText = new FlxText(SIDE_MARGIN, 64, FlxG.width - SIDE_MARGIN * 2, "Yükleniyor...", 16);
+		subtitleText = new FlxText(SIDE_MARGIN, 64, FlxG.width - SIDE_MARGIN * 2, Language.getPhrase("modpack_loading", "Yükleniyor..."), 16);
 		subtitleText.setFormat(Paths.font(FONT), 16, 0xFFBFBFBF, CENTER);
 		subtitleText.alpha = 0;
 		add(subtitleText);
 
-		// Selector
 		selector = new FlxSprite(SIDE_MARGIN - 4, LIST_TOP);
 		selector.makeGraphic(Std.int(FlxG.width * 0.42), Std.int(ITEM_HEIGHT), FlxColor.WHITE);
 		selector.alpha = 0;
 		add(selector);
 
-		// Detay paneli
 		var dx = FlxG.width * 0.52;
 		var dw = FlxG.width - dx - SIDE_MARGIN;
 
@@ -120,7 +109,6 @@ class ModpackSubState extends MusicBeatSubstate {
 		detailStatus.alpha = 0;
 		add(detailStatus);
 
-		// Progress
 		var pw = Std.int(dw);
 		progressBarBg = new FlxSprite(dx, LIST_TOP + 180);
 		progressBarBg.makeGraphic(pw, 16, 0xFF222222);
@@ -141,9 +129,8 @@ class ModpackSubState extends MusicBeatSubstate {
 		statusText.setFormat(Paths.font(FONT), 12, 0xFF8F8F8F, LEFT);
 		add(statusText);
 
-		// Alt bilgi
 		hintText = new FlxText(0, FlxG.height - 48, FlxG.width,
-			"[↑/↓] Seç   [ENTER] Kur   [TAB] Filtre   [ESC] Geri");
+			Language.getPhrase("modpack_hint_browse", "[↑/↓] Seç   [ENTER] Kur   [ESC] Kapat"));
 		hintText.setFormat(Paths.font(FONT), 14, 0xFF8F8F8F, CENTER);
 		hintText.alpha = 0;
 		add(hintText);
@@ -171,19 +158,15 @@ class ModpackSubState extends MusicBeatSubstate {
 		});
 	}
 
-	// ─────────────────────────────────────────────
-	//  Veri
-	// ─────────────────────────────────────────────
-
 	function fetchModpacks():Void {
 		screenMode = 0;
-		subtitleText.text = "Yükleniyor...";
+		subtitleText.text = Language.getPhrase("modpack_loading", "Yükleniyor...");
 
 		UpdateChecker.instance.fetchModpackList(function(result) {
 			if (result == null || result.allModpacks == null || result.allModpacks.length == 0) {
 				screenMode = 5;
-				subtitleText.text = "Modpack bulunamadı veya bağlantı hatası.";
-				hintText.text = "[ENTER] Tekrar Dene   [ESC] Kapat";
+				subtitleText.text = Language.getPhrase("modpack_fetch_error", "Modpack bulunamadı veya bağlantı hatası.");
+				hintText.text = Language.getPhrase("modpack_hint_retry", "[ENTER] Tekrar Dene   [ESC] Kapat");
 				return;
 			}
 
@@ -191,15 +174,11 @@ class ModpackSubState extends MusicBeatSubstate {
 			displayList = allModpacks.copy();
 			screenMode = 1;
 
-			subtitleText.text = '${displayList.length} modpack bulundu';
+			subtitleText.text = Language.getPhrase("modpack_found", "{1} modpack bulundu", ['${displayList.length}']);
 			rebuildList();
 			updateDetail();
 		});
 	}
-
-	// ─────────────────────────────────────────────
-	//  Liste oluşturma
-	// ─────────────────────────────────────────────
 
 	function rebuildList():Void {
 		for (txt in itemTexts) {
@@ -251,10 +230,6 @@ class ModpackSubState extends MusicBeatSubstate {
 		}
 	}
 
-	// ─────────────────────────────────────────────
-	//  Detay paneli
-	// ─────────────────────────────────────────────
-
 	function updateDetail():Void {
 		if (displayList.length == 0) {
 			detailName.text = "";
@@ -273,8 +248,8 @@ class ModpackSubState extends MusicBeatSubstate {
 		var ver = mp.versionLabel != null ? mp.versionLabel : mp.version;
 		var author = mp.author != null ? mp.author : "";
 		var size = mp.fileSize != null ? mp.fileSize : "";
-		var count = mp.modCount != null ? '${mp.modCount} mod' : "";
-		detailInfo.text = 'v$ver  •  $author  •  $size  •  $count';
+		var modLabel = mp.modCount != null ? Language.getPhrase("modpack_mod_count", "{1} mod", ['${mp.modCount}']) : "";
+		detailInfo.text = 'v$ver  •  $author  •  $size  •  $modLabel';
 		detailInfo.alpha = 1;
 
 		detailDesc.text = mp.description != null ? mp.description : "";
@@ -282,29 +257,25 @@ class ModpackSubState extends MusicBeatSubstate {
 
 		switch (status) {
 			case "installed":
-				detailStatus.text = "✓ Kurulu";
+				detailStatus.text = Language.getPhrase("modpack_installed", "✓ Kurulu");
 				detailStatus.color = FlxColor.LIME;
 			case "update":
 				var installedVer = getInstalledVersion(mp.id);
-				detailStatus.text = '↑ Güncelleme: v$installedVer → v$ver';
+				detailStatus.text = Language.getPhrase("modpack_update_available", "↑ Güncelleme: v{1} → v{2}", [installedVer, ver]);
 				detailStatus.color = FlxColor.YELLOW;
 			default:
-				detailStatus.text = "Kurulmamış";
+				detailStatus.text = Language.getPhrase("modpack_not_installed", "Kurulmamış");
 				detailStatus.color = 0xFF8F8F8F;
 		}
 		detailStatus.alpha = 1;
 
 		var mode:String = mp.downloadMode != null ? mp.downloadMode : "direct";
 		if (mode == "external") {
-			hintText.text = "[ENTER] Tarayıcıda Aç   [ESC] Kapat";
+			hintText.text = Language.getPhrase("modpack_hint_external", "[ENTER] Tarayıcıda Aç   [ESC] Kapat");
 		} else {
-			hintText.text = "[↑/↓] Seç   [ENTER] Kur   [ESC] Kapat";
+			hintText.text = Language.getPhrase("modpack_hint_browse", "[↑/↓] Seç   [ENTER] Kur   [ESC] Kapat");
 		}
 	}
-
-	// ─────────────────────────────────────────────
-	//  Durum kontrolleri
-	// ─────────────────────────────────────────────
 
 	function getPackStatus(packId:String):String {
 		#if sys
@@ -346,10 +317,6 @@ class ModpackSubState extends MusicBeatSubstate {
 		#end
 	}
 
-	// ─────────────────────────────────────────────
-	//  Update
-	// ─────────────────────────────────────────────
-
 	override function update(elapsed:Float) {
 		super.update(elapsed);
 
@@ -364,17 +331,13 @@ class ModpackSubState extends MusicBeatSubstate {
 		if (!allowInput) return;
 
 		switch (screenMode) {
-			case 0: // loading
+			case 0:
 			case 1: handleBrowse();
 			case 2 | 3: handleProgress();
 			case 4: handleComplete();
 			case 5: handleError();
 		}
 	}
-
-	// ─────────────────────────────────────────────
-	//  Girdi
-	// ─────────────────────────────────────────────
 
 	function handleBrowse():Void {
 		if (controls.BACK) {
@@ -412,7 +375,7 @@ class ModpackSubState extends MusicBeatSubstate {
 			screenMode = 1;
 			hideProgress();
 			updateDetail();
-			hintText.text = "[↑/↓] Seç   [ENTER] Kur   [ESC] Kapat";
+			hintText.text = Language.getPhrase("modpack_hint_browse", "[↑/↓] Seç   [ENTER] Kur   [ESC] Kapat");
 		}
 	}
 
@@ -422,15 +385,15 @@ class ModpackSubState extends MusicBeatSubstate {
 			hideProgress();
 			rebuildList();
 			updateDetail();
-			titleText.text = "Modpack Mağazası";
+			titleText.text = Language.getPhrase("modpack_title", "Modpack Arşivleri");
 			titleText.color = FlxColor.WHITE;
-			hintText.text = "[↑/↓] Seç   [ENTER] Kur   [ESC] Kapat";
+			hintText.text = Language.getPhrase("modpack_hint_browse", "[↑/↓] Seç   [ENTER] Kur   [ESC] Kapat");
 		}
 	}
 
 	function handleError():Void {
 		if (controls.ACCEPT) {
-			titleText.text = "Modpack Mağazası";
+			titleText.text = Language.getPhrase("modpack_title", "Modpack Arşivleri");
 			titleText.color = FlxColor.WHITE;
 			fetchModpacks();
 		}
@@ -462,10 +425,6 @@ class ModpackSubState extends MusicBeatSubstate {
 		});
 	}
 
-	// ─────────────────────────────────────────────
-	//  Aksiyon
-	// ─────────────────────────────────────────────
-
 	function startAction(index:Int):Void {
 		if (index < 0 || index >= displayList.length) return;
 
@@ -482,7 +441,7 @@ class ModpackSubState extends MusicBeatSubstate {
 
 		var url:String = mp.directDownloadUrl != null ? mp.directDownloadUrl : "";
 		if (url.length == 0) {
-			showError('İndirme linki bulunamadı.');
+			showError(Language.getPhrase("modpack_no_download_link", "İndirme linki bulunamadı."));
 			return;
 		}
 
@@ -494,9 +453,9 @@ class ModpackSubState extends MusicBeatSubstate {
 		showProgress();
 		currentProgress = 0;
 		targetProgress = 0;
-		detailStatus.text = "İndiriliyor...";
+		detailStatus.text = Language.getPhrase("modpack_downloading", "İndiriliyor...");
 		detailStatus.color = FlxColor.WHITE;
-		hintText.text = "[ESC] İptal";
+		hintText.text = Language.getPhrase("modpack_hint_cancel", "[ESC] İptal");
 
 		var savePath = ModpackPaths.getDownloadDirectory() + '$packId-v$version.zip';
 
@@ -508,7 +467,7 @@ class ModpackSubState extends MusicBeatSubstate {
 				startInstall(path, packId, displayName);
 			},
 			onError: function(err) {
-				showError('İndirme hatası: $err');
+				showError(Language.getPhrase("modpack_download_error", "İndirme hatası: {1}", [err]));
 			},
 			onCancelled: function() {
 				screenMode = 1;
@@ -522,7 +481,7 @@ class ModpackSubState extends MusicBeatSubstate {
 		screenMode = 3;
 		currentProgress = 0;
 		targetProgress = 0;
-		detailStatus.text = "Kuruluyor...";
+		detailStatus.text = Language.getPhrase("modpack_installing", "Kuruluyor...");
 
 		installer.install(zipPath, packId, {
 			onProgress: function(p:ModpackInstallProgress) {
@@ -539,18 +498,18 @@ class ModpackSubState extends MusicBeatSubstate {
 
 				screenMode = 4;
 				targetProgress = 1.0;
-				titleText.text = "Tamamlandı!";
+				titleText.text = Language.getPhrase("modpack_complete", "Tamamlandı!");
 				titleText.color = FlxColor.LIME;
-				detailStatus.text = '✓ ${manifest.displayName} kuruldu!';
+				detailStatus.text = Language.getPhrase("modpack_install_success", "✓ {1} kuruldu!", [manifest.displayName]);
 				detailStatus.color = FlxColor.LIME;
-				statusText.text = '${manifest.modFolders.length} mod kuruldu';
-				hintText.text = "[ENTER] Tamam";
+				statusText.text = Language.getPhrase("modpack_mods_installed", "{1} mod kuruldu", ['${manifest.modFolders.length}']);
+				hintText.text = Language.getPhrase("modpack_hint_ok", "[ENTER] Tamam");
 			},
 			onError: function(err) {
-				showError('Kurulum hatası: $err');
+				showError(Language.getPhrase("modpack_install_error", "Kurulum hatası: {1}", [err]));
 			},
 			onWarning: function(w) {
-				trace('[ModpackSubState] Uyarı: $w');
+				trace('[ModpackSubState] Warning: $w');
 			},
 			onCancelled: function() {
 				screenMode = 1;
@@ -560,23 +519,15 @@ class ModpackSubState extends MusicBeatSubstate {
 		});
 	}
 
-	// ─────────────────────────────────────────────
-	//  Hata
-	// ─────────────────────────────────────────────
-
 	function showError(msg:String):Void {
 		screenMode = 5;
 		hideProgress();
-		titleText.text = "Hata";
+		titleText.text = Language.getPhrase("modpack_error_title", "Hata");
 		titleText.color = FlxColor.RED;
 		detailStatus.text = msg;
 		detailStatus.color = FlxColor.RED;
-		hintText.text = "[ENTER] Tekrar Dene   [ESC] Kapat";
+		hintText.text = Language.getPhrase("modpack_hint_retry", "[ENTER] Tekrar Dene   [ESC] Kapat");
 	}
-
-	// ─────────────────────────────────────────────
-	//  Progress UI
-	// ─────────────────────────────────────────────
 
 	function showProgress():Void {
 		progressBarBg.visible = true;

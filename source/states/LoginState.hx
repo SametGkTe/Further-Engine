@@ -11,9 +11,6 @@ import flixel.tweens.FlxEase;
 import flixel.util.FlxTimer;
 
 class LoginState extends MusicBeatState {
-	// ══════════════════════════════════
-	//  RENKLER
-	// ══════════════════════════════════
 	static inline final C_BG = 0xFF0a0a0a;
 	static inline final C_CARD = 0xFF161616;
 	static inline final C_FIELD = 0xFF111111;
@@ -28,9 +25,6 @@ class LoginState extends MusicBeatState {
 	static inline final C_BTN_HOVER = 0xFF383838;
 	static inline final C_BORDER = 0xFF222222;
 
-	// ══════════════════════════════════
-	//  BOYUTLAR
-	// ══════════════════════════════════
 	static inline final CARD_W = 440;
 	static inline final CARD_H = 500;
 	static inline final FIELD_W = 370;
@@ -40,7 +34,6 @@ class LoginState extends MusicBeatState {
 	var cardY:Float;
 	var fieldX:Float;
 
-	// UI
 	var bg:FlxSprite;
 	var card:FlxSprite;
 	var accentLine:FlxSprite;
@@ -84,49 +77,39 @@ class LoginState extends MusicBeatState {
 		cardY = (FlxG.height - CARD_H) / 2;
 		fieldX = cardX + (CARD_W - FIELD_W) / 2;
 
-		// ── Arka plan ──
 		bg = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, C_BG);
 		bg.scrollFactor.set(0, 0);
 		add(bg);
 
-		// ── Kart ──
 		card = new FlxSprite(cardX, cardY).makeGraphic(CARD_W, CARD_H, C_CARD);
 		card.scrollFactor.set(0, 0);
 		card.alpha = 0;
 		add(card);
 
-		// Ust accent
 		accentLine = new FlxSprite(cardX, cardY).makeGraphic(CARD_W, 2, C_ACCENT);
 		accentLine.scrollFactor.set(0, 0);
 		accentLine.alpha = 0;
 		add(accentLine);
 
-		// Alt border
 		borderBottom = new FlxSprite(cardX, cardY + CARD_H - 1).makeGraphic(CARD_W, 1, C_BORDER);
 		borderBottom.scrollFactor.set(0, 0);
 		borderBottom.alpha = 0;
 		add(borderBottom);
 
-		// ══════════════════════════════════
-		//  ICERIK
-		// ══════════════════════════════════
 		var curY:Float = cardY + 30;
 
-		// Baslik
-		titleText = makeText(cardX, curY, CARD_W, "Giriş Yapın", 28, CENTER);
+		titleText = makeText(cardX, curY, CARD_W, Language.getPhrase('login_title', 'Giriş Yapın'), 28, CENTER);
 		titleText.alpha = 0;
 		add(titleText);
 		curY += 36;
 
-		// Alt baslik
-		subtitleText = makeText(cardX, curY, CARD_W, "Hesabınıza baglanın", 14, CENTER);
+		subtitleText = makeText(cardX, curY, CARD_W, Language.getPhrase('login_subtitle', 'Hesabınıza bağlanın'), 14, CENTER);
 		subtitleText.color = C_MUTED;
 		subtitleText.alpha = 0;
 		add(subtitleText);
 		curY += 44;
 
-		// ── Username (register) ──
-		userLabel = makeText(fieldX, curY, FIELD_W, "KULLANICI ADI", 12);
+		userLabel = makeText(fieldX, curY, FIELD_W, Language.getPhrase('login_username_label', 'KULLANICI ADI'), 12);
 		userLabel.color = C_MUTED;
 		regElements.push(userLabel);
 		add(userLabel);
@@ -143,8 +126,7 @@ class LoginState extends MusicBeatState {
 		add(userInput);
 		curY += FIELD_H + 30;
 
-		// ── Email ──
-		emailLabel = makeText(fieldX, curY, FIELD_W, "E-POSTA VEYA KULLANICI ADI", 12);
+		emailLabel = makeText(fieldX, curY, FIELD_W, Language.getPhrase('login_email_or_username', 'E-POSTA VEYA KULLANICI ADI'), 12);
 		emailLabel.color = C_MUTED;
 		emailLabel.alpha = 0;
 		add(emailLabel);
@@ -160,8 +142,7 @@ class LoginState extends MusicBeatState {
 		add(emailInput);
 		curY += FIELD_H + 30;
 
-		// ── Password ──
-		passLabel = makeText(fieldX, curY, FIELD_W, "ŞİFRE", 12);
+		passLabel = makeText(fieldX, curY, FIELD_W, Language.getPhrase('login_password_label', 'ŞİFRE'), 12);
 		passLabel.color = C_MUTED;
 		passLabel.alpha = 0;
 		add(passLabel);
@@ -178,7 +159,6 @@ class LoginState extends MusicBeatState {
 		add(passInput);
 		curY += FIELD_H + 28;
 
-		// ── Buton ──
 		loginBtn = new FlxSprite(fieldX, curY).makeGraphic(FIELD_W, 46, C_BTN);
 		loginBtn.scrollFactor.set(0, 0);
 		loginBtn.alpha = 0;
@@ -189,47 +169,39 @@ class LoginState extends MusicBeatState {
 		loginBtnLine.alpha = 0;
 		add(loginBtnLine);
 
-		loginBtnText = makeText(fieldX, curY + 13, FIELD_W, "GIRIS YAP", 17, CENTER);
+		loginBtnText = makeText(fieldX, curY + 13, FIELD_W, Language.getPhrase('login_btn_login', 'GİRİŞ YAP'), 17, CENTER);
 		loginBtnText.setFormat(Paths.font("vcr.ttf"));
 		loginBtnText.alpha = 0;
 		add(loginBtnText);
 		curY += 58;
 
-		// ── Separator ──
 		sepLine = new FlxSprite(fieldX + 40, curY).makeGraphic(FIELD_W - 80, 1, C_BORDER);
 		sepLine.scrollFactor.set(0, 0);
 		sepLine.alpha = 0;
 		add(sepLine);
 		curY += 16;
 
-		// ── Toggle ──
-		toggleText = makeText(cardX, curY, CARD_W, "Hesabınız yok mu? Kayıt olun", 13, CENTER);
+		toggleText = makeText(cardX, curY, CARD_W, Language.getPhrase('login_toggle_to_register', 'Hesabınız yok mu? Kayıt olun'), 13, CENTER);
 		toggleText.color = C_ACCENT_LIGHT;
 		toggleText.alpha = 0;
 		add(toggleText);
 		curY += 26;
 
-		// ── Skip ──
-		skipText = makeText(cardX, curY, CARD_W, "Atla", 13, CENTER);
+		skipText = makeText(cardX, curY, CARD_W, Language.getPhrase('login_skip', 'Atla'), 13, CENTER);
 		skipText.color = C_MUTED;
 		skipText.alpha = 0;
 		add(skipText);
 		curY += 28;
 
-		// ── Status ──
 		statusText = makeText(cardX, curY, CARD_W, "", 13, CENTER);
 		statusText.color = C_RED;
 		statusText.alpha = 0;
 		add(statusText);
 
-		// Baslangic
 		setRegisterVisible(false);
 		playEntryAnimation();
 	}
 
-	// ══════════════════════════════════
-	//  ANIMASYON
-	// ══════════════════════════════════
 	function playEntryAnimation():Void {
 		card.scale.set(0.95, 0.95);
 		FlxTween.tween(card, {alpha: 1}, 0.25);
@@ -256,9 +228,6 @@ class LoginState extends MusicBeatState {
 		});
 	}
 
-	// ══════════════════════════════════
-	//  YARDIMCILAR
-	// ══════════════════════════════════
 	function makeText(x:Float, y:Float, w:Dynamic, content:String, size:Int, ?align:FlxTextAlign):FlxText {
 		var t = new FlxText(x, y, Std.int(w), content, size);
 		t.setFormat(Paths.font("vcr.ttf"), size, C_TEXT, align != null ? align : LEFT);
@@ -283,12 +252,9 @@ class LoginState extends MusicBeatState {
 		for (el in regElements)
 			el.visible = show;
 		userInput.active = show;
-		emailLabel.text = show ? "E-POSTA" : "E-POSTA VEYA KULLANICI ADI";
+		emailLabel.text = show ? Language.getPhrase('login_email_label', 'E-POSTA') : Language.getPhrase('login_email_or_username', 'E-POSTA VEYA KULLANICI ADI');
 	}
 
-	// ══════════════════════════════════
-	//  UPDATE
-	// ══════════════════════════════════
 	override function update(elapsed:Float):Void {
 		super.update(elapsed);
 
@@ -298,13 +264,11 @@ class LoginState extends MusicBeatState {
 			|| PsychUIInputText.focusOn == passInput
 			|| PsychUIInputText.focusOn == userInput);
 
-		// Enter
 		if (FlxG.keys.justPressed.ENTER) {
 			doSubmit();
 			return;
 		}
 
-		// ESC / Backspace
 		if (!inputActive) {
 			if (FlxG.keys.justPressed.ESCAPE || controls.BACK) {
 				goBack();
@@ -317,11 +281,9 @@ class LoginState extends MusicBeatState {
 			}
 		}
 
-		// TAB
 		if (FlxG.keys.justPressed.TAB)
 			cycleFocus();
 
-		// Hover
 		var mx = FlxG.mouse.screenX;
 		var my = FlxG.mouse.screenY;
 
@@ -344,14 +306,12 @@ class LoginState extends MusicBeatState {
 			skipText.color = sh ? C_ACCENT_LIGHT : C_MUTED;
 		}
 
-		// Mouse
 		if (FlxG.mouse.justPressed) {
 			if (isOver(loginBtn, mx, my)) { doSubmit(); return; }
 			if (isOver(toggleText, mx, my)) { toggleMode(); return; }
 			if (isOver(skipText, mx, my)) { goBack(); return; }
 		}
 
-		// Touch
 		#if mobile
 		for (touch in FlxG.touches.list) {
 			if (touch.justPressed) {
@@ -386,25 +346,19 @@ class LoginState extends MusicBeatState {
 		}
 	}
 
-	// ══════════════════════════════════
-	//  TOGGLE
-	// ══════════════════════════════════
 	function toggleMode():Void {
 		_isRegister = !_isRegister;
 		FlxG.sound.play(Paths.sound('scrollMenu'));
 
-		titleText.text = _isRegister ? "Kayıt Ol" : "Giriş Yap";
-		subtitleText.text = _isRegister ? "Yeni hesap oluşturun" : "Hesabınıza tekrar bağlanın";
-		loginBtnText.text = _isRegister ? "KAYIT OL" : "GIRIS YAP";
-		toggleText.text = _isRegister ? "Zaten hesabınız var mı? Giriş yapın" : "Hesabınız yok mu? Kayıt olun";
+		titleText.text = _isRegister ? Language.getPhrase('login_title_register', 'Kayıt Ol') : Language.getPhrase('login_title', 'Giriş Yapın');
+		subtitleText.text = _isRegister ? Language.getPhrase('login_subtitle_register', 'Yeni hesap oluşturun') : Language.getPhrase('login_subtitle', 'Hesabınıza bağlanın');
+		loginBtnText.text = _isRegister ? Language.getPhrase('login_btn_register', 'KAYIT OL') : Language.getPhrase('login_btn_login', 'GİRİŞ YAP');
+		toggleText.text = _isRegister ? Language.getPhrase('login_toggle_to_login', 'Zaten hesabınız var mı? Giriş yapın') : Language.getPhrase('login_toggle_to_register', 'Hesabınız yok mu? Kayıt olun');
 
 		setRegisterVisible(_isRegister);
 		statusText.text = "";
 	}
 
-	// ══════════════════════════════════
-	//  SUBMIT
-	// ══════════════════════════════════
 	function doSubmit():Void {
 		if (_busy) return;
 
@@ -413,19 +367,19 @@ class LoginState extends MusicBeatState {
 
 		if (_isRegister) {
 			var user = userInput.text.trim();
-			if (user.length < 4) { showError("Kullanici adi en az 4 karakter"); return; }
-			if (email == "" || email.indexOf("@") == -1) { showError("Gecerli bir e-posta girin"); return; }
-			if (pass.length < 6) { showError("Sifre en az 6 karakter"); return; }
+			if (user.length < 4) { showError(Language.getPhrase('login_err_username_short', 'Kullanıcı adı en az 4 karakter olmalı')); return; }
+			if (email == "" || email.indexOf("@") == -1) { showError(Language.getPhrase('login_err_invalid_email', 'Geçerli bir e-posta girin')); return; }
+			if (pass.length < 6) { showError(Language.getPhrase('login_err_password_short', 'Şifre en az 6 karakter olmalı')); return; }
 
 			_busy = true;
-			showStatus("Kayıt olunuyor lütfen bekleyin..", C_MUTED);
+			showStatus(Language.getPhrase('login_status_registering', 'Kayıt olunuyor, lütfen bekleyin...'), C_MUTED);
 			setBtnBusy(true);
 
 			AuthManager.register(email, pass, user, "Unknown", function(ok:Bool, msg:String) {
 				_busy = false;
 				setBtnBusy(false);
 				if (ok) {
-					showStatus("Kayit basarili!", C_GREEN);
+					showStatus(Language.getPhrase('login_status_register_success', 'Kayıt başarılı!'), C_GREEN);
 					FlxG.sound.play(Paths.sound('confirmMenu'));
 					#if ACHIEVEMENTS_ALLOWED
 					backend.AchievementSync.flushQueue();
@@ -434,18 +388,18 @@ class LoginState extends MusicBeatState {
 				} else showError(msg);
 			});
 		} else {
-			if (email == "") { showError("E-posta veya kullanici adi girin"); return; }
-			if (pass.length < 1) { showError("Sifre girin"); return; }
+			if (email == "") { showError(Language.getPhrase('login_err_email_empty', 'E-posta veya kullanıcı adı girin')); return; }
+			if (pass.length < 1) { showError(Language.getPhrase('login_err_password_empty', 'Şifre girin')); return; }
 
 			_busy = true;
-			showStatus("Giris yapiliyor...", C_MUTED);
+			showStatus(Language.getPhrase('login_status_logging_in', 'Giriş yapılıyor...'), C_MUTED);
 			setBtnBusy(true);
 
 			var callback = function(success:Bool, msg:String) {
 				_busy = false;
 				setBtnBusy(false);
 				if (success) {
-					showStatus("Giriş basarili!", C_GREEN);
+					showStatus(Language.getPhrase('login_status_login_success', 'Giriş başarılı!'), C_GREEN);
 					FlxG.sound.play(Paths.sound('confirmMenu'));
 					#if ACHIEVEMENTS_ALLOWED
 					backend.AchievementSync.flushQueue();
@@ -461,9 +415,6 @@ class LoginState extends MusicBeatState {
 		}
 	}
 
-	// ══════════════════════════════════
-	//  STATUS
-	// ══════════════════════════════════
 	function showError(msg:String):Void {
 		FlxG.sound.play(Paths.sound('cancelMenu'));
 		showStatus(msg, C_RED);
@@ -487,6 +438,6 @@ class LoginState extends MusicBeatState {
 		if (_busy) return;
 		FlxG.sound.play(Paths.sound('cancelMenu'));
 		PsychUIInputText.focusOn = null;
-		MusicBeatState.switchState(new MainMenuState());
+		MenuStyleRouter.goToMainMenu();
 	}
 }

@@ -1,6 +1,6 @@
 package backend;
 
-import objects.ProfileBox; // ProfileBox import
+import objects.ProfileBox;
 
 class AuthManager {
     public static var currentUsername:String = "Player";
@@ -14,12 +14,34 @@ class AuthManager {
     public static var currentRole:String = "player";
     public static var currentBadge:String = null;
 
+    static function dynToFloat(v:Dynamic, ?def:Float = 0.0):Float {
+        if (v == null) return def;
+        if (Std.isOfType(v, Float)) return cast v;
+        if (Std.isOfType(v, Int)) return cast v;
+        var s:String = Std.string(v);
+        var f = Std.parseFloat(s);
+        return Math.isNaN(f) ? def : f;
+    }
+
+    static function dynToInt(v:Dynamic, ?def:Int = 0):Int {
+        if (v == null) return def;
+        if (Std.isOfType(v, Int)) return cast v;
+        if (Std.isOfType(v, Float)) return Std.int(cast(v, Float));
+        var s:String = Std.string(v);
+        var i = Std.parseInt(s);
+        return i == null ? def : i;
+    }
+
+    static function dynToString(v:Dynamic, ?def:String = ""):String {
+        if (v == null) return def;
+        return Std.string(v);
+    }
+
     public static function register(
         email:String, password:String,
         username:String, country:String,
         callback:Bool->String->Void
     ):Void {
-    
         if (BadWordFilter.contains(username)) {
             callback(false, "Username contains inappropriate words.");
             return;
@@ -67,7 +89,7 @@ class AuthManager {
             }
         });
     }
-    
+
     public static function loginWithUsername(
         username:String, password:String,
         callback:Bool->String->Void
@@ -99,9 +121,9 @@ class AuthManager {
             password: password,
             grant_type: "password"
         };
-        
+
         trace("LOGIN BODY: " + haxe.Json.stringify(body));
-        
+
         SupabaseClient.postAsync("/auth/v1/token?grant_type=password", body, "", function(status, data) {
             trace("LOGIN RESPONSE: " + data);
             if (data.indexOf('"access_token"') != -1) {
@@ -119,53 +141,50 @@ class AuthManager {
         });
     }
 
-	public static function autoLogin(callback:Bool->Void):Void {
-		if (!SupabaseClient.hasToken()) {
-			trace('[AuthManager] No saved token');
-			callback(false);
-			return;
-		}
+    public static function autoLogin(callback:Bool->Void):Void {
+        if (!SupabaseClient.hasToken()) {
+            trace('[AuthManager] No saved token');
+            callback(false);
+            return;
+        }
 
-		var token = SupabaseClient.getToken();
-		var userId = SupabaseClient.getUserId();
+        var token = SupabaseClient.getToken();
+        var userId = SupabaseClient.getUserId();
 
-		trace('[AuthManager] Auto-login attempting... token exists, userId: $userId');
+        trace('[AuthManager] Auto-login attempting... token exists, userId: $userId');
 
-		if (userId == null || userId == '') {
-			trace('[AuthManager] No saved userId');
-			callback(false);
-			return;
-		}
+        if (userId == null || userId == '') {
+            trace('[AuthManager] No saved userId');
+            callback(false);
+            return;
+        }
 
-		SupabaseClient.getAsync("/auth/v1/user", token, function(status:Int, data:String) {
-			trace('[AuthManager] Auto-login /auth/v1/user response: status=$status');
+        SupabaseClient.getAsync("/auth/v1/user", token, function(status:Int, data:String) {
+            trace('[AuthManager] Auto-login /auth/v1/user response: status=$status');
 
-			if (status == 200 && data != null && data.indexOf('"id"') != -1) {
-				loadProfile(token, function(ok, msg) {
-					trace('[AuthManager] Auto-login loadProfile result: $ok - $msg');
-					if (ok) {
-						#if ACHIEVEMENTS_ALLOWED
-						backend.AchievementSync.flushQueue();
-						#end
-					}
-					callback(ok);
-				});
-			} else {
-				trace('[AuthManager] Auto-login token expired or invalid');
-				// Token geçersiz, temizle
-				// SupabaseClient.clearToken(); // bunu açarsan her seferinde login ister
-				callback(false);
-			}
-		});
-	}
-    // Şifremi unuttum
+            if (status == 200 && data != null && data.indexOf('"id"') != -1) {
+                loadProfile(token, function(ok, msg) {
+                    trace('[AuthManager] Auto-login loadProfile result: $ok - $msg');
+                    if (ok) {
+                        #if ACHIEVEMENTS_ALLOWED
+                        backend.AchievementSync.flushQueue();
+                        #end
+                    }
+                    callback(ok);
+                });
+            } else {
+                trace('[AuthManager] Auto-login token expired or invalid');
+                callback(false);
+            }
+        });
+    }
+
     public static function forgotPassword(email:String, callback:Bool->String->Void):Void {
         SupabaseClient.postAsync("/auth/v1/recover", { email: email }, "", function(_, data) {
             callback(true, "Password reset email sent!");
         });
     }
 
-    // Hesap sil
     public static function deleteAccount(callback:Bool->String->Void):Void {
         var token = SupabaseClient.getToken();
         var userId = SupabaseClient.getUserId();
@@ -181,59 +200,99 @@ class AuthManager {
         http.customRequest(false, new haxe.io.BytesOutput(), null, "DELETE");
     }
 
-    // Çıkış yap
     public static function logout():Void {
         SupabaseClient.clearToken();
         currentUsername = "Player";
         currentUserId = "";
+        currentLevel = 1;
+        currentScore = 0;
+        currentUltraPoints = 0.0;
+        currentAvatar = 0;
+        currentCountry = "";
+        currentRole = "player";
+        currentBadge = null;
         isLoggedIn = false;
     }
 
-	static function loadProfile(token:String, callback:Bool->String->Void):Void {
-		SupabaseClient.getAsync("/rest/v1/profiles?select=*&id=eq." + SupabaseClient.getUserId(), token, function(_, data) {
-			try {
-				var arr:Array<Dynamic> = haxe.Json.parse(data);
-				if (arr.length > 0) {
-					var p = arr[0];
-					currentUsername = p.username;
-					currentLevel    = p.level;
-					currentScore    = p.total_score;
-					currentAvatar   = p.avatar_id;
-					currentCountry  = p.country;
-					currentUserId   = p.id;
-					isLoggedIn = true;
-					
-					ProfileBox.syncFromAuth();
-					
-					// ══════════════════════════════════
-					//  ACHIEVEMENT SYNC
-					// ══════════════════════════════════
-					AchievementSync.flushQueue();
-					// ══════════════════════════════════
-					
-					callback(true, "OK");
-				} else {
-					_tryOfflineLogin(callback);
-				}
-			} catch(e) {
-				callback(false, "Parse error.");
-			}
-		});
-	}
+    static function loadProfile(token:String, callback:Bool->String->Void):Void {
+        SupabaseClient.getAsync(
+            "/rest/v1/profiles?select=*&id=eq." + SupabaseClient.getUserId(),
+            token,
+            function(_, data) {
+                try {
+                    var arr:Array<Dynamic> = haxe.Json.parse(data);
+                    if (arr.length > 0) {
+                        var p = arr[0];
+                        applyProfileData(p);
 
-    // Offline login denemesi - FIXED: ProfileBox kullanımı
+                        ProfileBox.syncFromAuth();
+
+                        #if ACHIEVEMENTS_ALLOWED
+                        AchievementSync.flushQueue();
+                        #end
+
+                        callback(true, "OK");
+                    } else {
+                        _tryOfflineLogin(callback);
+                    }
+                } catch(e) {
+                    trace('[AuthManager] loadProfile parse error: $e');
+                    _tryOfflineLogin(callback);
+                }
+            }
+        );
+    }
+
+    static function applyProfileData(p:Dynamic):Void {
+        currentUsername     = dynToString(Reflect.field(p, "username"), "Player");
+        currentUserId      = dynToString(Reflect.field(p, "id"), "");
+        currentLevel       = dynToInt(Reflect.field(p, "level"), 1);
+        currentScore       = dynToInt(Reflect.field(p, "total_score"), 0);
+        currentAvatar      = dynToInt(Reflect.field(p, "avatar_id"), 0);
+        currentCountry     = dynToString(Reflect.field(p, "country"), "");
+        currentRole        = dynToString(Reflect.field(p, "role"), "player");
+
+        if (Reflect.hasField(p, "badge"))
+            currentBadge = Reflect.field(p, "badge") != null ? dynToString(Reflect.field(p, "badge"), null) : null;
+        else
+            currentBadge = null;
+
+        if (Reflect.hasField(p, "ultra_points"))
+            currentUltraPoints = dynToFloat(Reflect.field(p, "ultra_points"), 0.0);
+        else if (Reflect.hasField(p, "ultraPoints"))
+            currentUltraPoints = dynToFloat(Reflect.field(p, "ultraPoints"), 0.0);
+        else if (Reflect.hasField(p, "up"))
+            currentUltraPoints = dynToFloat(Reflect.field(p, "up"), 0.0);
+        else if (Reflect.hasField(p, "ultrapoints"))
+            currentUltraPoints = dynToFloat(Reflect.field(p, "ultrapoints"), 0.0);
+        else
+            currentUltraPoints = 0.0;
+
+        isLoggedIn = true;
+
+        trace('[AuthManager] Profile loaded -> username=$currentUsername'
+            + ', level=$currentLevel'
+            + ', score=$currentScore'
+            + ', ultraPoints=$currentUltraPoints'
+            + ', role=$currentRole'
+            + ', badge=$currentBadge');
+    }
+
     private static function _tryOfflineLogin(callback:Bool->String->Void):Void {
         var cached = ProfileBox.getCachedProfile();
         if (cached != null) {
-            currentUsername = cached.username ?? "Player";
-            currentLevel = cached.level ?? 1;
-            currentScore = cached.score ?? 0;
-            currentAvatar = cached.avatar ?? 0;
-            currentCountry = "";
+            currentUsername     = dynToString(Reflect.field(cached, "username"), "Player");
+            currentLevel       = dynToInt(Reflect.field(cached, "level"), 1);
+            currentScore       = dynToInt(Reflect.field(cached, "score"), 0);
+            currentUltraPoints = dynToFloat(Reflect.field(cached, "ultraPoints"), 0.0);
+            currentAvatar      = dynToInt(Reflect.field(cached, "avatar"), 0);
+            currentCountry     = dynToString(Reflect.field(cached, "country"), "");
             isLoggedIn = true;
+            trace('[AuthManager] Offline login: $currentUsername, UP: $currentUltraPoints');
             callback(true, "Offline login");
         } else {
             currentUsername = "Player";
+            currentUltraPoints = 0.0;
             isLoggedIn = false;
             callback(false, "Login required");
         }

@@ -3,6 +3,7 @@ package substates;
 import backend.WeekData;
 import backend.Highscore;
 import backend.Song;
+import backend.Language;
 
 import flixel.util.FlxStringUtil;
 
@@ -32,7 +33,7 @@ class PauseSubState extends MusicBeatSubstate
 
 	override function create()
 	{
-		if(Difficulty.list.length < 2) menuItemsOG.remove('Change Difficulty'); //No need to change difficulty if there is only one!
+		if(Difficulty.list.length < 2) menuItemsOG.remove('Change Difficulty');
 		if(PlayState.chartingMode)
 		{
 			menuItemsOG.insert(2, 'Leave Charting Mode');
@@ -86,13 +87,13 @@ class PauseSubState extends MusicBeatSubstate
 		levelDifficulty.updateHitbox();
 		add(levelDifficulty);
 
-		var blueballedTxt:FlxText = new FlxText(20, 15 + 64, 0, Language.getPhrase("blueballed", "Blueballed: {1}", [PlayState.deathCounter]), 32);
+		var blueballedTxt:FlxText = new FlxText(20, 15 + 64, 0, Language.getPhrase("blueballed", "Ölümler: {1}", [PlayState.deathCounter]), 32);
 		blueballedTxt.scrollFactor.set();
 		blueballedTxt.setFormat(Paths.font('vcr.ttf'), 32);
 		blueballedTxt.updateHitbox();
 		add(blueballedTxt);
 
-		practiceText = new FlxText(20, 15 + 101, 0, Language.getPhrase("Practice Mode").toUpperCase(), 32);
+		practiceText = new FlxText(20, 15 + 101, 0, Language.getPhrase("practice_mode", "Pratik Mod").toUpperCase(), 32);
 		practiceText.scrollFactor.set();
 		practiceText.setFormat(Paths.font('vcr.ttf'), 32);
 		practiceText.x = FlxG.width - (practiceText.width + 20);
@@ -100,7 +101,7 @@ class PauseSubState extends MusicBeatSubstate
 		practiceText.visible = PlayState.instance.practiceMode;
 		add(practiceText);
 
-		var chartingText:FlxText = new FlxText(20, 15 + 101, 0, Language.getPhrase("Charting Mode").toUpperCase(), 32);
+		var chartingText:FlxText = new FlxText(20, 15 + 101, 0, Language.getPhrase("charting_mode", "Chart Modu").toUpperCase(), 32);
 		chartingText.scrollFactor.set();
 		chartingText.setFormat(Paths.font('vcr.ttf'), 32);
 		chartingText.x = FlxG.width - (chartingText.width + 20);
@@ -131,7 +132,7 @@ class PauseSubState extends MusicBeatSubstate
 		missingTextBG.alpha = 0.6;
 		missingTextBG.visible = false;
 		add(missingTextBG);
-		
+
 		missingText = new FlxText(50, 0, FlxG.width - 100, '', 24);
 		missingText.setFormat(Paths.font("vcr.ttf"), 24, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		missingText.scrollFactor.set();
@@ -146,7 +147,7 @@ class PauseSubState extends MusicBeatSubstate
 
 		super.create();
 	}
-	
+
 	function getPauseSong()
 	{
 		var formattedSongName:String = (songName != null ? Paths.formatToSongPath(songName) : '');
@@ -154,6 +155,26 @@ class PauseSubState extends MusicBeatSubstate
 		if(formattedSongName == 'none' || (formattedSongName != 'none' && formattedPauseMusic == 'none')) return null;
 
 		return (formattedSongName != '') ? formattedSongName : formattedPauseMusic;
+	}
+
+	function getPauseItemFallback(str:String):String
+	{
+		return switch (str)
+		{
+			case "Resume": "Devam Et";
+			case "Restart Song": "Yeniden Başlat";
+			case "Chart Editor": "Chart Düzenleyici";
+			case "Change Difficulty": "Zorluk Değiştir";
+			case "Options": "Ayarlar";
+			case "Exit to menu": "Menüye Dön";
+			case "Leave Charting Mode": "Chart Modundan Çık";
+			case "Skip Time": "Zaman Atla";
+			case "End Song": "Şarkıyı Bitir";
+			case "Toggle Practice Mode": "Pratik Modunu Aç/Kapat";
+			case "Toggle Botplay": "Bot Oynanışı Aç/Kapat";
+			case "BACK": "Geri";
+			default: str;
+		};
 	}
 
 	var holdTime:Float = 0;
@@ -243,12 +264,12 @@ class PauseSubState extends MusicBeatSubstate
 				catch(e:haxe.Exception)
 				{
 					trace('ERROR! ${e.message}');
-	
+
 					var errorStr:String = e.message;
-					if(errorStr.startsWith('[lime.utils.Assets] ERROR:')) errorStr = 'Missing file: ' + errorStr.substring(errorStr.indexOf(songLowercase), errorStr.length-1); //Missing chart
+					if(errorStr.startsWith('[lime.utils.Assets] ERROR:')) errorStr = Language.getPhrase("pause_missing_file", "Eksik dosya: ") + errorStr.substring(errorStr.indexOf(songLowercase), errorStr.length-1);
 					else errorStr += '\n\n' + e.stack;
 
-					missingText.text = 'ERROR WHILE LOADING CHART:\n$errorStr';
+					missingText.text = Language.getPhrase("pause_chart_error", "CHART YÜKLENIRKEN HATA OLUŞTU:") + '\n$errorStr';
 					missingText.screenCenter(Y);
 					missingText.visible = true;
 					missingTextBG.visible = true;
@@ -257,7 +278,6 @@ class PauseSubState extends MusicBeatSubstate
 					super.update(elapsed);
 					return;
 				}
-
 
 				menuItems = menuItemsOG;
 				regenMenu();
@@ -310,7 +330,7 @@ class PauseSubState extends MusicBeatSubstate
 					PlayState.instance.botplayTxt.alpha = 1;
 					PlayState.instance.botplaySine = 0;
 				case 'Options':
-					PlayState.instance.paused = true; // For lua
+					PlayState.instance.paused = true;
 					PlayState.instance.vocals.volume = 0;
 					PlayState.instance.canResync = false;
 					MusicBeatState.switchState(new OptionsState());
@@ -330,7 +350,7 @@ class PauseSubState extends MusicBeatSubstate
 					Mods.loadTopMod();
 					if(PlayState.isStoryMode)
 						MusicBeatState.switchState(new StoryMenuState());
-					else 
+					else
 						MusicBeatState.switchState(new FreeplayState());
 
 					FlxG.sound.playMusic(Paths.music('freakyMenu'));
@@ -340,7 +360,7 @@ class PauseSubState extends MusicBeatSubstate
 			}
 		}
 
-		if (touchPad == null) //sometimes it dosent add the tpad, hopefully this fixes it
+		if (touchPad == null)
 		{
 			addTouchPad(PlayState.chartingMode ? 'LEFT_FULL' : 'UP_DOWN', 'A');
 			addTouchPadCamera();
@@ -361,7 +381,7 @@ class PauseSubState extends MusicBeatSubstate
 
 	public static function restartSong(noTrans:Bool = false)
 	{
-		PlayState.instance.paused = true; // For lua
+		PlayState.instance.paused = true;
 		FlxG.sound.music.volume = 0;
 		PlayState.instance.vocals.volume = 0;
 
@@ -411,7 +431,7 @@ class PauseSubState extends MusicBeatSubstate
 		}
 
 		for (num => str in menuItems) {
-			var item = new Alphabet(90, 320, Language.getPhrase('pause_$str', str), true);
+			var item = new Alphabet(90, 320, Language.getPhrase('pause_${str.toLowerCase().replace(" ", "_").replace("-", "_")}', getPauseItemFallback(str)), true);
 			item.isMenuItem = true;
 			item.targetY = num;
 			grpMenuShit.add(item);
@@ -432,7 +452,7 @@ class PauseSubState extends MusicBeatSubstate
 		curSelected = 0;
 		changeSelection();
 	}
-	
+
 	function updateSkipTextStuff()
 	{
 		if(skipTimeText == null || skipTimeTracker == null) return;

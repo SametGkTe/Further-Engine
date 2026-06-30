@@ -4,6 +4,7 @@ import backend.animation.PsychAnimationController;
 
 import flixel.util.FlxSort;
 import flixel.util.FlxDestroyUtil;
+import flixel.FlxSprite;
 
 import openfl.utils.AssetType;
 import openfl.utils.Assets;

@@ -7,60 +7,80 @@ import flixel.util.FlxColor;
 import flixel.tweens.FlxTween;
 import flixel.tweens.FlxEase;
 import flixel.math.FlxMath;
-import flixel.util.FlxGradient;
-import haxe.Json;
+import flixel.util.FlxTimer;
 import backend.update.UpdateChecker;
-import backend.update.UpdateConfig;
 import backend.modpack.ModpackPaths;
 import backend.modpack.ModpackInstaller;
 import backend.modpack.ModpackTypes;
 import backend.modpack.DownloadManager;
 
-enum UpdateScreenState {
-	Browse;
+enum UpdatePhase {
+	Starting;
 	Downloading;
 	Installing;
-	Complete;
-	Error;
+	Done;
+	Failed;
+	Cancelled;
 }
 
 class UpdateState extends MusicBeatState {
 	// ─── Veri ───
-	var modpackUpdates:Array<Dynamic> = [];
-	var selectedIndex:Int = 0;
+	var modpackQueue:Array<Dynamic> = [];
+	var currentIndex:Int = 0;
+	var currentPack:Dynamic = null;
 
 	// ─── Sistemler ───
 	var downloader:DownloadManager;
 	var installer:ModpackInstaller;
 
 	// ─── Durum ───
-	var screenState:UpdateScreenState = Browse;
+	var phase:UpdatePhase = Starting;
 	var currentProgress:Float = 0.0;
 	var targetProgress:Float = 0.0;
+	var downloadedMB:Float = 0.0;
+	var totalMB:Float = 0.0;
+	var downloadSpeed:Float = 0.0;
+	var cancelConfirm:Bool = false;
 
 	// ─── UI ───
 	var bg:FlxSprite;
-	var bgGradient:FlxSprite;
-	var headerPanel:FlxSprite;
-	var headerGlow:FlxSprite;
-	var titleText:FlxText;
-	var subtitleText:FlxText;
-	var contentText:FlxText;
-	var statusText:FlxText;
-	var controlsText:FlxText;
-	var progressBarBg:FlxSprite;
-	var progressBar:FlxSprite;
-	var progressPercent:FlxText;
 
-	static inline final ACCENT:Int = 0xFF0D9488;
+	// Ortadaki ana yazılar
+	var phaseText:FlxText;
+	var packNameText:FlxText;
+	var detailText:FlxText;
+
+	// Alt progress bar
+	var barBg:FlxSprite;
+	var barFill:FlxSprite;
+	var barBorder:FlxSprite;
+	var sizeText:FlxText;
+	var speedText:FlxText;
+	var percentText:FlxText;
+
+	// Üst bilgi
+	var queueText:FlxText;
+
+	// İptal onay
+	var cancelOverlay:FlxSprite;
+	var cancelText:FlxText;
+
+	// Sabitler
+	static inline final BAR_HEIGHT:Int = 8;
+	static inline final BAR_MARGIN:Int = 60;
+	static inline final BAR_Y_OFFSET:Int = 80;
+	static inline final ACCENT:Int = 0xFF14B8A6; // teal
+	static inline final ACCENT_DIM:Int = 0xFF0D7377;
+	static inline final ERROR_COLOR:Int = 0xFFEF4444;
+	static inline final SUCCESS_COLOR:Int = 0xFF22C55E;
 
 	// ─────────────────────────────────────────────
-	//  Constructor - güncellemeler dışarıdan verilir
+	//  Constructor
 	// ─────────────────────────────────────────────
 
 	public function new(updates:Array<Dynamic>) {
 		super();
-		modpackUpdates = updates != null ? updates : [];
+		modpackQueue = updates != null ? updates : [];
 	}
 
 	// ─────────────────────────────────────────────
@@ -73,69 +93,88 @@ class UpdateState extends MusicBeatState {
 		downloader = new DownloadManager();
 		installer = new ModpackInstaller();
 
-		// Arka plan
-		bg = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, 0xFF080812);
+		// ── Siyah arkaplan ──
+		bg = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, 0xFF000000);
 		add(bg);
 
-		bgGradient = FlxGradient.createGradientFlxSprite(
-			FlxG.width, FlxG.height,
-			[0xFF0d1117, 0xFF0a0e1a, 0xFF070b14],
-			1, 120
-		);
-		bgGradient.alpha = 0.97;
-		add(bgGradient);
+		// ── Üst: kuyruk bilgisi ──
+		queueText = new FlxText(0, 20, FlxG.width, "", 13);
+		queueText.setFormat("VCR OSD Mono", 13, 0xFF555555, CENTER);
+		add(queueText);
 
-		// Header
-		headerPanel = new FlxSprite(0, 0).makeGraphic(FlxG.width, 80, 0xEE000000);
-		add(headerPanel);
+		// ── Orta: faz yazısı ──
+		phaseText = new FlxText(0, 0, FlxG.width, "Hazırlanıyor...", 36);
+		phaseText.setFormat("VCR OSD Mono", 36, FlxColor.WHITE, CENTER);
+		phaseText.screenCenter();
+		phaseText.y -= 40;
+		add(phaseText);
 
-		headerGlow = new FlxSprite(0, 77).makeGraphic(FlxG.width, 3, ACCENT);
-		headerGlow.alpha = 0.8;
-		add(headerGlow);
+		// ── Orta: modpack adı ──
+		packNameText = new FlxText(0, 0, FlxG.width, "", 16);
+		packNameText.setFormat("VCR OSD Mono", 16, 0xFF888888, CENTER);
+		packNameText.screenCenter();
+		packNameText.y += 10;
+		add(packNameText);
 
-		titleText = new FlxText(30, 10, FlxG.width - 60, "Modpack Güncellemeleri", 28);
-		titleText.setFormat(Paths.font("vcr.ttf"), 28, FlxColor.YELLOW, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
-		titleText.borderSize = 2;
-		add(titleText);
+		// ── Orta: detay yazısı (hata mesajı vs) ──
+		detailText = new FlxText(60, 0, FlxG.width - 120, "", 14);
+		detailText.setFormat("VCR OSD Mono", 14, 0xFF666666, CENTER);
+		detailText.screenCenter();
+		detailText.y += 45;
+		detailText.visible = false;
+		add(detailText);
 
-		subtitleText = new FlxText(30, 48, FlxG.width - 60, '${modpackUpdates.length} güncelleme mevcut', 14);
-		subtitleText.setFormat(Paths.font("vcr.ttf"), 14, 0xFFAABBBB, LEFT);
-		add(subtitleText);
+		// ── Alt: progress bar ──
+		var barWidth:Int = FlxG.width - (BAR_MARGIN * 2);
+		var barY:Int = FlxG.height - BAR_Y_OFFSET;
 
-		// İçerik
-		contentText = new FlxText(40, 100, FlxG.width - 80, "", 16);
-		contentText.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
-		contentText.borderSize = 1;
-		add(contentText);
+		// Border
+		barBorder = new FlxSprite(BAR_MARGIN - 1, barY - 1).makeGraphic(barWidth + 2, BAR_HEIGHT + 2, 0xFF333333);
+		add(barBorder);
 
-		// Progress bar
-		progressBarBg = new FlxSprite(40, FlxG.height - 140).makeGraphic(FlxG.width - 80, 24, 0xFF1A1A2E);
-		progressBarBg.visible = false;
-		add(progressBarBg);
+		// Arkaplan
+		barBg = new FlxSprite(BAR_MARGIN, barY).makeGraphic(barWidth, BAR_HEIGHT, 0xFF1A1A1A);
+		add(barBg);
 
-		progressBar = new FlxSprite(40, FlxG.height - 140).makeGraphic(1, 24, ACCENT);
-		progressBar.visible = false;
-		add(progressBar);
+		// Dolgu
+		barFill = new FlxSprite(BAR_MARGIN, barY).makeGraphic(1, BAR_HEIGHT, ACCENT);
+		add(barFill);
 
-		progressPercent = new FlxText(40, FlxG.height - 138, FlxG.width - 80, "0%", 14);
-		progressPercent.setFormat(Paths.font("vcr.ttf"), 14, FlxColor.WHITE, CENTER);
-		progressPercent.visible = false;
-		add(progressPercent);
+		// Yüzde (barın üstünde ortada)
+		percentText = new FlxText(0, barY - 22, FlxG.width, "0%", 14);
+		percentText.setFormat("VCR OSD Mono", 14, FlxColor.WHITE, CENTER);
+		add(percentText);
 
-		// Status
-		statusText = new FlxText(0, FlxG.height - 110, FlxG.width, "", 14);
-		statusText.setFormat(Paths.font("vcr.ttf"), 14, 0xFF667788, CENTER);
-		add(statusText);
+		// Boyut (barın sağında)
+		sizeText = new FlxText(0, barY + BAR_HEIGHT + 6, FlxG.width - BAR_MARGIN, "", 12);
+		sizeText.setFormat("VCR OSD Mono", 12, 0xFF555555, RIGHT);
+		add(sizeText);
 
-		// Controls
-		controlsText = new FlxText(0, FlxG.height - 50, FlxG.width, "", 14);
-		controlsText.setFormat(Paths.font("vcr.ttf"), 14, FlxColor.LIME, CENTER);
-		add(controlsText);
+		// Hız (barın solunda)
+		speedText = new FlxText(BAR_MARGIN, barY + BAR_HEIGHT + 6, FlxG.width / 2, "", 12);
+		speedText.setFormat("VCR OSD Mono", 12, 0xFF555555, LEFT);
+		add(speedText);
 
-		// Giriş
-		FlxG.camera.fade(FlxColor.BLACK, 0.5, true);
+		// ── İptal onay overlay ──
+		cancelOverlay = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, 0xCC000000);
+		cancelOverlay.visible = false;
+		add(cancelOverlay);
 
-		showBrowse();
+		cancelText = new FlxText(0, 0, FlxG.width, "İptal etmek istediğinize emin misiniz?\n\n[ENTER] Evet    [ESC] Hayır", 20);
+		cancelText.setFormat("VCR OSD Mono", 20, FlxColor.WHITE, CENTER);
+		cancelText.screenCenter();
+		cancelText.visible = false;
+		add(cancelText);
+		addTouchPad('LEFT_FULL', 'A_B');
+
+		// ── Başla ──
+		FlxG.camera.fade(FlxColor.BLACK, 0.3, true);
+
+		if (modpackQueue.length == 0) {
+			setPhase(Done, "Güncelleme bulunamadı.");
+		} else {
+			startNextInQueue();
+		}
 	}
 
 	// ─────────────────────────────────────────────
@@ -145,209 +184,185 @@ class UpdateState extends MusicBeatState {
 	override function update(elapsed:Float) {
 		super.update(elapsed);
 
-		// Progress animasyonu
-		if (progressBar.visible) {
-			currentProgress += (targetProgress - currentProgress) * elapsed * 6;
-			var pw = FlxG.width - 80;
-			var barW:Int = Std.int(Math.max(1, pw * currentProgress));
-			progressBar.makeGraphic(barW, 24, ACCENT);
-			progressPercent.text = '${Math.round(currentProgress * 100)}%';
-		}
+		// ── Progress bar animasyonu ──
+		currentProgress += (targetProgress - currentProgress) * elapsed * 8;
+		if (Math.abs(currentProgress - targetProgress) < 0.001)
+			currentProgress = targetProgress;
 
-		switch (screenState) {
-			case Browse:
-				handleBrowseInput();
-			case Downloading | Installing:
-				if (FlxG.keys.justPressed.ESCAPE) {
-					downloader.cancel();
-					installer.cancel();
-					screenState = Browse;
-					hideProgress();
-					showBrowse();
-				}
-			case Complete:
-				handleCompleteInput();
-			case Error:
-				handleErrorInput();
-		}
-	}
+		updateBarVisual();
 
-	// ─────────────────────────────────────────────
-	//  Ekranlar
-	// ─────────────────────────────────────────────
-
-	function showBrowse():Void {
-		screenState = Browse;
-		hideProgress();
-		refreshList();
-		controlsText.text = "[↑/↓] Seç  |  [ENTER] Kur  |  [ESC] Atla (Ana Menü)";
-	}
-
-	function refreshList():Void {
-		if (modpackUpdates.length == 0) {
-			contentText.text = "Güncelleme bulunamadı.";
-			return;
-		}
-
-		var content = "";
-
-		for (i in 0...modpackUpdates.length) {
-			var mp:Dynamic = modpackUpdates[i];
-			var prefix = i == selectedIndex ? "► " : "  ";
-			var name:String = mp.displayName != null ? mp.displayName : mp.id;
-			var ver:String = mp.versionLabel != null ? mp.versionLabel : mp.version;
-			var mode:String = mp.downloadMode != null ? mp.downloadMode : "direct";
-			var modeTag = mode == "external" ? " [Tarayıcı]" : "";
-
-			content += '$prefix$name  →  v$ver$modeTag\n';
-		}
-
-		contentText.text = content;
-	}
-
-	function showDownloading(fileName:String):Void {
-		screenState = Downloading;
-		showProgress();
-		currentProgress = 0;
-		targetProgress = 0;
-		contentText.text = 'İndiriliyor: $fileName\n\nLütfen bekleyin...';
-		controlsText.text = "[ESC] İptal";
-	}
-
-	function showInstalling(displayName:String):Void {
-		screenState = Installing;
-		contentText.text = 'Kuruluyor: $displayName\n\nLütfen bekleyin...';
-		controlsText.text = "[ESC] İptal";
-	}
-
-	function showComplete(message:String):Void {
-		screenState = Complete;
-		hideProgress();
-		titleText.text = "Tamamlandı!";
-		titleText.color = FlxColor.LIME;
-		contentText.text = message;
-		controlsText.text = "[ENTER] Ana Menü";
-	}
-
-	function showError(message:String):Void {
-		screenState = Error;
-		hideProgress();
-		titleText.text = "Hata!";
-		titleText.color = FlxColor.RED;
-		contentText.text = message;
-		controlsText.text = "[ENTER] Tekrar Dene  |  [ESC] Ana Menü";
-	}
-
-	// ─────────────────────────────────────────────
-	//  Girdi
-	// ─────────────────────────────────────────────
-
-	function handleBrowseInput():Void {
-		if (FlxG.keys.justPressed.ESCAPE) {
-			goToMainMenu();
-			return;
-		}
-
-		if (modpackUpdates.length == 0) return;
-
-		if (FlxG.keys.justPressed.UP) {
-			selectedIndex--;
-			if (selectedIndex < 0) selectedIndex = modpackUpdates.length - 1;
-			refreshList();
-			FlxG.sound.play(Paths.sound('scrollMenu'));
-		}
-
-		if (FlxG.keys.justPressed.DOWN) {
-			selectedIndex++;
-			if (selectedIndex >= modpackUpdates.length) selectedIndex = 0;
-			refreshList();
-			FlxG.sound.play(Paths.sound('scrollMenu'));
-		}
-
-		if (FlxG.keys.justPressed.ENTER) {
-			startAction(selectedIndex);
-		}
-	}
-
-	function handleCompleteInput():Void {
-		if (FlxG.keys.justPressed.ENTER || FlxG.keys.justPressed.ESCAPE) {
-			goToMainMenu();
-		}
-	}
-
-	function handleErrorInput():Void {
-		if (FlxG.keys.justPressed.ENTER) {
-			titleText.text = "Modpack Güncellemeleri";
-			titleText.color = FlxColor.YELLOW;
-			showBrowse();
-		}
-
-		if (FlxG.keys.justPressed.ESCAPE) {
-			goToMainMenu();
-		}
-	}
-
-	// ─────────────────────────────────────────────
-	//  Aksiyon
-	// ─────────────────────────────────────────────
-
-	function startAction(index:Int):Void {
-		if (index < 0 || index >= modpackUpdates.length) return;
-
-		var mp:Dynamic = modpackUpdates[index];
-		var mode:String = mp.downloadMode != null ? mp.downloadMode : "direct";
-
-		if (mode == "external") {
-			var pageUrl:String = mp.externalPageUrl != null ? mp.externalPageUrl : "";
-			if (pageUrl.length > 0) {
-				FlxG.openURL(pageUrl);
-				showComplete('${mp.displayName} tarayıcıda açıldı.');
-			} else {
-				showError("Harici indirme linki bulunamadı.");
+		// ── İptal onay modu ──
+		if (cancelConfirm) {
+			if (controls.ACCEPT) {
+				cancelConfirm = false;
+				cancelOverlay.visible = false;
+				cancelText.visible = false;
+				doCancel();
+			} else if (controls.BACK) {
+				cancelConfirm = false;
+				cancelOverlay.visible = false;
+				cancelText.visible = false;
 			}
 			return;
 		}
 
-		var directUrl:String = mp.directDownloadUrl != null ? mp.directDownloadUrl : "";
-		if (directUrl.length == 0) {
-			showError('${mp.displayName} için indirme linki bulunamadı.');
+		// ── Faz bazlı girdi ──
+		switch (phase) {
+			case Starting:
+				// bekle
+			case Downloading | Installing:
+				if (controls.BACK) {
+					showCancelConfirm();
+				}
+			case Done:
+				// otomatik geçiş timer ile yapılıyor
+			case Failed:
+				if (controls.ACCEPT) {
+					// Tekrar dene
+					resetUI();
+					startNextInQueue();
+				}
+				if (controls.BACK) {
+					goToMainMenu();
+				}
+			case Cancelled:
+				if (controls.ACCEPT || controls.BACK) {
+					goToMainMenu();
+				}
+		}
+	}
+
+	// ─────────────────────────────────────────────
+	//  Bar Güncelleme
+	// ─────────────────────────────────────────────
+
+	function updateBarVisual():Void {
+		var barWidth:Int = FlxG.width - (BAR_MARGIN * 2);
+		var fillWidth:Int = Std.int(Math.max(1, barWidth * currentProgress));
+		barFill.makeGraphic(fillWidth, BAR_HEIGHT, phase == Installing ? 0xFF3B82F6 : ACCENT);
+		percentText.text = '${Math.round(currentProgress * 100)}%';
+	}
+
+	// ─────────────────────────────────────────────
+	//  Kuyruk Yönetimi
+	// ─────────────────────────────────────────────
+
+	function startNextInQueue():Void {
+		// External modpackleri atla
+		while (currentIndex < modpackQueue.length) {
+			var mp:Dynamic = modpackQueue[currentIndex];
+			var mode:String = mp.downloadMode != null ? mp.downloadMode : "direct";
+
+			if (mode == "direct") break;
+
+			trace('[UpdateState] External modpack atlandı: ${mp.id}');
+			currentIndex++;
+		}
+
+		if (currentIndex >= modpackQueue.length) {
+			allComplete();
 			return;
 		}
 
-		startDownload(mp.id, mp.version, mp.displayName, directUrl);
+		currentPack = modpackQueue[currentIndex];
+
+		var name:String = currentPack.displayName != null ? currentPack.displayName : currentPack.id;
+		var ver:String = currentPack.versionLabel != null ? currentPack.versionLabel : currentPack.version;
+
+		packNameText.text = '$name  •  $ver';
+
+		if (modpackQueue.length > 1)
+			queueText.text = '${currentIndex + 1} / ${modpackQueue.length}';
+		else
+			queueText.text = "";
+
+		startDownload();
 	}
 
-	function startDownload(packId:String, version:String, displayName:String, url:String):Void {
+	// ─────────────────────────────────────────────
+	//  İndirme
+	// ─────────────────────────────────────────────
+
+	function startDownload():Void {
+		var directUrl:String = currentPack.directDownloadUrl != null ? currentPack.directDownloadUrl : "";
+
+		if (directUrl.length == 0) {
+			setPhase(Failed, "İndirme linki bulunamadı.");
+			return;
+		}
+
+		var packId:String = currentPack.id != null ? currentPack.id : "unknown";
+		var version:String = currentPack.version != null ? currentPack.version : "0";
 		var fileName = '$packId-v$version.zip';
 		var savePath = ModpackPaths.getDownloadDirectory() + fileName;
 
-		showDownloading(fileName);
+		setPhase(Downloading);
+		targetProgress = 0;
+		currentProgress = 0;
+		downloadedMB = 0;
+		totalMB = 0;
+		downloadSpeed = 0;
 
-		downloader.download(url, savePath, {
-			onProgress: function(progress) {
+		downloader.download(directUrl, savePath, {
+			onProgress: function(progress:DownloadProgress) {
 				targetProgress = progress.percent;
+				downloadedMB = progress.downloadedBytes / (1024 * 1024);
+				totalMB = progress.totalBytes > 0 ? progress.totalBytes / (1024 * 1024) : 0;
+				downloadSpeed = progress.speed;
+
+				// Boyut gösterimi
+				if (totalMB > 0)
+					sizeText.text = '${formatMB(downloadedMB)} / ${formatMB(totalMB)} MB';
+				else
+					sizeText.text = '${formatMB(downloadedMB)} MB';
+
+				// Hız gösterimi
+				if (downloadSpeed > 0) {
+					if (downloadSpeed > 1024 * 1024)
+						speedText.text = '${formatMB(downloadSpeed / (1024 * 1024))} MB/s';
+					else
+						speedText.text = '${Math.round(downloadSpeed / 1024)} KB/s';
+				}
 			},
-			onComplete: function(path) {
-				startInstall(path, packId, displayName);
+			onComplete: function(path:String) {
+				trace('[UpdateState] İndirme tamamlandı: $path');
+				speedText.text = "";
+				sizeText.text = "";
+				startInstall(path);
 			},
-			onError: function(error) {
-				showError('İndirme hatası:\n\n$error');
+			onError: function(error:String) {
+				setPhase(Failed, 'İndirme hatası:\n$error');
 			},
 			onCancelled: function() {
-				showBrowse();
+				setPhase(Cancelled);
 			}
 		});
 	}
 
-	function startInstall(zipPath:String, packId:String, displayName:String):Void {
-		showInstalling(displayName);
+	// ─────────────────────────────────────────────
+	//  Kurulum
+	// ─────────────────────────────────────────────
+
+	function startInstall(zipPath:String):Void {
+		var packId:String = currentPack.id != null ? currentPack.id : "unknown";
+		var name:String = currentPack.displayName != null ? currentPack.displayName : packId;
+
+		setPhase(Installing);
+		targetProgress = 0;
+		currentProgress = 0;
 
 		installer.install(zipPath, packId, {
 			onProgress: function(progress:ModpackInstallProgress) {
 				targetProgress = progress.overallProgress;
-				statusText.text = progress.message;
+
+				// Kurulum detayı
+				if (progress.currentFile.length > 0)
+					sizeText.text = progress.currentFile;
+				else
+					sizeText.text = progress.message;
 			},
 			onComplete: function(manifest:ModpackManifest) {
+				// ZIP'i sil
 				#if sys
 				try {
 					if (sys.FileSystem.exists(zipPath))
@@ -355,21 +370,172 @@ class UpdateState extends MusicBeatState {
 				} catch (_) {}
 				#end
 
-				showComplete(
-					'${manifest.displayName} v${manifest.version} başarıyla kuruldu!\n\n' +
-					'Kurulan mod sayısı: ${manifest.modFolders.length}'
-				);
+				trace('[UpdateState] Kurulum tamamlandı: ${manifest.displayName} v${manifest.version}');
+
+				// Sıradaki var mı?
+				currentIndex++;
+				if (currentIndex < modpackQueue.length) {
+					// Kısa bekleme sonra sıradakine geç
+					new FlxTimer().start(0.5, function(_) {
+						resetUI();
+						startNextInQueue();
+					});
+				} else {
+					allComplete();
+				}
 			},
-			onError: function(error) {
-				showError('Kurulum hatası:\n\n$error');
+			onError: function(error:String) {
+				setPhase(Failed, 'Kurulum hatası:\n$error');
 			},
-			onWarning: function(warning) {
+			onWarning: function(warning:String) {
 				trace('[UpdateState] Uyarı: $warning');
 			},
 			onCancelled: function() {
-				showBrowse();
+				setPhase(Cancelled);
 			}
 		});
+	}
+
+	// ─────────────────────────────────────────────
+	//  Tamamlandı
+	// ─────────────────────────────────────────────
+
+	function allComplete():Void {
+		setPhase(Done);
+		FlxG.sound.play(Paths.sound('confirmMenu'));
+
+		phaseText.text = "Tamamlandı!";
+		phaseText.color = SUCCESS_COLOR;
+
+		var totalInstalled:Int = modpackQueue.length;
+		if (totalInstalled > 1)
+			packNameText.text = '$totalInstalled modpack başarıyla kuruldu';
+		else if (currentPack != null) {
+			var name:String = currentPack.displayName != null ? currentPack.displayName : "Modpack";
+			packNameText.text = '$name başarıyla kuruldu';
+		}
+
+		sizeText.text = "";
+		speedText.text = "";
+		percentText.text = "100%";
+		targetProgress = 1.0;
+		currentProgress = 1.0;
+		updateBarVisual();
+
+		// Bar'ı yeşil yap
+		var barWidth:Int = FlxG.width - (BAR_MARGIN * 2);
+		barFill.makeGraphic(barWidth, BAR_HEIGHT, SUCCESS_COLOR);
+
+		// 2.5 saniye sonra otomatik ana menüye dön
+		new FlxTimer().start(2.5, function(_) {
+			goToMainMenu();
+		});
+	}
+
+	// ─────────────────────────────────────────────
+	//  Faz Yönetimi
+	// ─────────────────────────────────────────────
+
+	function setPhase(newPhase:UpdatePhase, ?errorMsg:String):Void {
+		phase = newPhase;
+
+		// Yazıları fade ile güncelle
+		FlxTween.cancelTweensOf(phaseText);
+		phaseText.alpha = 0;
+		FlxTween.tween(phaseText, {alpha: 1}, 0.3);
+
+		switch (newPhase) {
+			case Starting:
+				phaseText.text = "Hazırlanıyor...";
+				phaseText.color = FlxColor.WHITE;
+				detailText.visible = false;
+
+			case Downloading:
+				phaseText.text = "İndiriliyor...";
+				phaseText.color = FlxColor.WHITE;
+				detailText.visible = false;
+
+			case Installing:
+				phaseText.text = "Kuruluyor...";
+				phaseText.color = FlxColor.WHITE;
+				detailText.visible = false;
+				sizeText.text = "";
+				speedText.text = "";
+
+			case Done:
+				// allComplete() içinde özel işlem yapılıyor
+				detailText.visible = false;
+
+			case Failed:
+				phaseText.text = "Hata!";
+				phaseText.color = ERROR_COLOR;
+				targetProgress = 0;
+
+				if (errorMsg != null) {
+					detailText.text = errorMsg;
+					detailText.visible = true;
+					detailText.screenCenter();
+					detailText.y = phaseText.y + 60;
+				}
+
+				// Alt bilgi
+				sizeText.text = "";
+				speedText.text = "[ENTER] Tekrar Dene  |  [ESC] Çık";
+				speedText.alignment = CENTER;
+				speedText.x = 0;
+				speedText.fieldWidth = FlxG.width;
+
+				// Bar kırmızı
+				var barWidth:Int = FlxG.width - (BAR_MARGIN * 2);
+				barFill.makeGraphic(Std.int(Math.max(1, barWidth * 0.15)), BAR_HEIGHT, ERROR_COLOR);
+
+			case Cancelled:
+				phaseText.text = "İptal Edildi";
+				phaseText.color = 0xFFFFAA00;
+				detailText.visible = false;
+				sizeText.text = "";
+				speedText.text = "[ENTER/ESC] Ana Menü";
+				speedText.alignment = CENTER;
+				speedText.x = 0;
+				speedText.fieldWidth = FlxG.width;
+				targetProgress = 0;
+		}
+	}
+
+	// ─────────────────────────────────────────────
+	//  İptal
+	// ─────────────────────────────────────────────
+
+	function showCancelConfirm():Void {
+		cancelConfirm = true;
+		cancelOverlay.visible = true;
+		cancelText.visible = true;
+	}
+
+	function doCancel():Void {
+		downloader.cancel();
+		installer.cancel();
+		setPhase(Cancelled);
+	}
+
+	// ─────────────────────────────────────────────
+	//  UI Reset
+	// ─────────────────────────────────────────────
+
+	function resetUI():Void {
+		targetProgress = 0;
+		currentProgress = 0;
+		downloadedMB = 0;
+		totalMB = 0;
+		downloadSpeed = 0;
+		sizeText.text = "";
+		speedText.text = "";
+		speedText.alignment = LEFT;
+		speedText.x = BAR_MARGIN;
+		speedText.fieldWidth = FlxG.width / 2;
+		percentText.text = "0%";
+		detailText.visible = false;
+		phaseText.color = FlxColor.WHITE;
 	}
 
 	// ─────────────────────────────────────────────
@@ -377,25 +543,21 @@ class UpdateState extends MusicBeatState {
 	// ─────────────────────────────────────────────
 
 	function goToMainMenu():Void {
-		FlxG.camera.fade(FlxColor.BLACK, 0.5, false, function() {
+		FlxG.camera.fade(FlxColor.BLACK, 0.4, false, function() {
 			MusicBeatState.switchState(new MainMenuState());
 		});
 	}
 
 	// ─────────────────────────────────────────────
-	//  UI Yardımcı
+	//  Yardımcılar
 	// ─────────────────────────────────────────────
 
-	function showProgress():Void {
-		progressBarBg.visible = true;
-		progressBar.visible = true;
-		progressPercent.visible = true;
-	}
-
-	function hideProgress():Void {
-		progressBarBg.visible = false;
-		progressBar.visible = false;
-		progressPercent.visible = false;
-		statusText.text = "";
+	function formatMB(mb:Float):String {
+		if (mb >= 100)
+			return '${Math.round(mb)}';
+		else if (mb >= 10)
+			return '${FlxMath.roundDecimal(mb, 1)}';
+		else
+			return '${FlxMath.roundDecimal(mb, 2)}';
 	}
 }

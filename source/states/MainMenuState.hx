@@ -15,6 +15,7 @@ enum MainMenuColumn {
 class MainMenuState extends MusicBeatState
 {
 	public static var psychEngineVersion:String = '1.0.4'; // This is also used for Discord RPC
+	public static var furtherVersion:String = 'Beta 2';
 	public static var curSelected:Int = 0;
 	public static var curColumn:MainMenuColumn = CENTER;
 	var allowMouse:Bool = true; //Turn this off to block mouse movement in menus
@@ -37,6 +38,7 @@ class MainMenuState extends MusicBeatState
 
 	var magenta:FlxSprite;
 	var camFollow:FlxObject;
+	var bottomBarHeight:Int = 56;
 
 	static var showOutdatedWarning:Bool = true;
 	override function create()
@@ -128,7 +130,7 @@ class MainMenuState extends MusicBeatState
 		#end
 
 		FlxG.camera.follow(camFollow, null, 0.15);
-	
+
 		var profileBox = new objects.ProfileBox(FlxG.width - 290, 10);
 		profileBox.scrollFactor.set();
 		add(profileBox);
@@ -304,13 +306,12 @@ class MainMenuState extends MusicBeatState
 					switch (option)
 					{
 						case 'story_mode':
-							MusicBeatState.switchState(new StoryMenuState());
+							MenuStyleRouter.goToStoryMode();
 						case 'freeplay':
-							MusicBeatState.switchState(new FreeplayState());
-
+							MenuStyleRouter.goToFreeplay();
 						#if MODS_ALLOWED
 						case 'mods':
-							MusicBeatState.switchState(new ModsMenuState());
+							MenuStyleRouter.goToMods();
 						#end
 
 						#if ACHIEVEMENTS_ALLOWED
@@ -319,9 +320,9 @@ class MainMenuState extends MusicBeatState
 						#end
 
 						case 'credits':
-							MusicBeatState.switchState(new CreditsState());
+							MenuStyleRouter.goToCredits();
 						case 'options':
-							MusicBeatState.switchState(new OptionsState());
+							MenuStyleRouter.goToOptions();
 							OptionsState.onPlayState = false;
 							if (PlayState.SONG != null)
 							{
@@ -386,5 +387,45 @@ class MainMenuState extends MusicBeatState
 		selectedItem.animation.play('selected');
 		selectedItem.centerOffsets();
 		camFollow.y = selectedItem.getGraphicMidpoint().y;
+	}
+}
+
+class MainMenuButton extends FlxSprite
+{
+	public var listPositionOffset:Float = 0;
+
+	public var action:Dynamic = null;
+	public var sortOrder:Float = 0;
+	public var transition:Dynamic = {
+		instant: false,
+		sound: null,
+		stopMusic: false
+	};
+
+	public var source:String = null;
+
+	public function new(params:Dynamic)
+	{
+		super();
+
+		if(params.sort != null)
+			sortOrder = params.sort;
+
+		if(params.action != null)
+			action = params.action;
+
+		if(params.transition != null)
+		{
+			if(params.transition.instant != null) transition.instant = params.transition.instant;
+			if(params.transition.sound != null) transition.sound = params.transition.sound;
+			if(params.transition.stopMusic != null) transition.stopMusic = params.transition.stopMusic;
+		}
+
+		frames = Paths.getSparrowAtlas(params.graphic);
+		animation.addByPrefix("idle", "idle", 24);
+		animation.addByPrefix("selected", "selected", 24);
+		animation.play("idle");
+
+		antialiasing = ClientPrefs.data.antialiasing;
 	}
 }

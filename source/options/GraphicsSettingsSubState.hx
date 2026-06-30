@@ -45,7 +45,7 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 		addOption(option);
 
 		#if !html5
-		var option:Option = new Option('FPS',
+		var option:Option = new Option('FPS:',
 			'Bence gayet açık?',
 			'framerate',
 			INT);
@@ -55,11 +55,11 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 		option.minValue = 60;
 		option.maxValue = 240;
 		option.defaultValue = Std.int(FlxMath.bound(refreshRate, option.minValue, option.maxValue));
-		option.displayFormat = '%v FPS';
+		option.displayFormat = '%v';
 		option.onChange = onChangeFramerate;
 		#end
 
-		var option:Option = new Option('Yenilenmiş FPS',
+		var option:Option = new Option('Yeni FPS Sistemi',
 			'Aktif edildiğinde, mevcut FPS sınırın altında olduğunda\noyunun "yavaş" ve "yumuşak" hissettirmesini önler.',
 			'fpsRework',
 			BOOL);

@@ -18,7 +18,7 @@ class ModSettingsSubState extends BaseOptionsMenu
 
 		title = '';
 		//title = name;
-		rpcTitle = 'Mod Settings ($name)'; //for Discord Rich Presence
+		rpcTitle = Language.getPhrase('rpc_mod_settings', 'Mod Ayarları ($name)'); //for Discord Rich Presence
 
 		if(FlxG.save.data.modSettings == null) FlxG.save.data.modSettings = new Map<String, Dynamic>();
 		else
@@ -34,7 +34,7 @@ class ModSettingsSubState extends BaseOptionsMenu
 			{
 				var newOption = new Option(
 					option.name != null ? option.name : option.save,
-					option.description != null ? option.description : 'No description provided.',
+					option.description != null ? option.description : Language.getPhrase('no_description', 'Açıklama sağlanmadı.'),
 					option.save,
 					convertType(option.type),
 					option.options,
@@ -132,8 +132,8 @@ class ModSettingsSubState extends BaseOptionsMenu
 		}
 		catch(e:Dynamic)
 		{
-			var errorTitle = 'Mod name: ' + folder;
-			var errorMsg = 'An error occurred: $e';
+			var errorTitle = Language.getPhrase('mod_error_title', 'Mod adı: ') + folder;
+			var errorMsg = Language.getPhrase('mod_error_msg', 'Bir hata oluştu: ') + '$e';
 			CoolUtil.showPopUp(errorMsg, errorTitle);
 			_crashed = true;
 			close();
@@ -164,7 +164,7 @@ class ModSettingsSubState extends BaseOptionsMenu
 			case 'keybind', 'key':
 				return KEYBIND;
 		}
-		FlxG.log.error("Could not find option type: " + str);
+		FlxG.log.error(Language.getPhrase('option_type_error', "Seçenek türü bulunamadı: ") + str);
 		return BOOL;
 	}
 

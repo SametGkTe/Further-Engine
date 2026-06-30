@@ -65,10 +65,9 @@ class LoadingState extends MusicBeatState
 	#if PSYCH_WATERMARKS
 	var logo:FlxSprite;
 	var pessy:FlxSprite;
-	var loadingText:FlxText;
 
-	var timePassed:Float;
-	var shakeFl:Float;
+	var timePassed:Float = 0;
+	var shakeFl:Float = 0;
 	var shakeMult:Float = 0;
 	
 	var isSpinning:Bool = false;
@@ -102,7 +101,7 @@ class LoadingState extends MusicBeatState
 		#if HSCRIPT_ALLOWED
 		if(Mods.currentModDirectory != null && Mods.currentModDirectory.trim().length > 0)
 		{
-			var scriptPath:String = 'mods/${Mods.currentModDirectory}/data/LoadingScreen.hx'; //mods/My-Mod/data/LoadingScreen.hx
+			var scriptPath:String = 'mods/${Mods.currentModDirectory}/data/LoadingScreen.hx';
 			if(FileSystem.exists(scriptPath))
 			{
 				try
@@ -116,12 +115,12 @@ class LoadingState extends MusicBeatState
 					if(hscript.exists('onCreate'))
 					{
 						hscript.call('onCreate');
-						trace('initialized hscript interp successfully: $scriptPath');
+						trace('hscript yorumlayıcısı başarıyla başlatıldı: $scriptPath');
 						return super.create();
 					}
 					else
 					{
-						trace('"$scriptPath" contains no \"onCreate" function, stopping script.');
+						trace('"$scriptPath" dosyasında "onCreate" fonksiyonu bulunamadı, betik durduruluyor.');
 					}
 				}
 				catch(e:IrisError)
@@ -136,27 +135,69 @@ class LoadingState extends MusicBeatState
 		}
 		#end
 
-		#if PSYCH_WATERMARKS // PSYCH LOADING SCREEN
-		var bg = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
-		bg.antialiasing = ClientPrefs.data.antialiasing;
-		bg.setGraphicSize(Std.int(FlxG.width));
-		bg.color = 0xFFD16FFF;
-		bg.updateHitbox();
-		addBehindBar(bg);
-	
-		loadingText = new FlxText(520, 600, 400, Language.getPhrase('now_loading', 'Now Loading', ['...']), 32);
-		loadingText.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, LEFT, OUTLINE_FAST, FlxColor.BLACK);
-		loadingText.borderSize = 2;
-		addBehindBar(loadingText);
-	
-		logo = new FlxSprite(0, 0).loadGraphic(Paths.image('loading_screen/icon'));
-		logo.antialiasing = ClientPrefs.data.antialiasing;
-		logo.scale.set(0.75, 0.75);
-		logo.updateHitbox();
-		logo.screenCenter();
-		logo.x -= 50;
-		logo.y -= 40;
-		addBehindBar(logo);
+		#if PSYCH_WATERMARKS // P.E.T / PSYCH LOADING SCREEN
+
+		// Arka plan
+		if(ClientPrefs.data.petloadingscreen)
+		{
+			// P.E.T özel yükleme ekranı
+			var style:String = ClientPrefs.data.petloadingscreenimage;
+			var randomIndex:Int = FlxG.random.int(1, 5);
+			var bgPath:String = 'pet/petscreens/$style/loadingscreen$randomIndex';
+			
+			var bg:FlxSprite = new FlxSprite();
+			if(Paths.image(bgPath) != null)
+			{
+				bg.loadGraphic(Paths.image(bgPath));
+			}
+			else
+			{
+				// Yedek: düz arka plan
+				bg.loadGraphic(Paths.image('menuDesat'));
+				bg.color = 0xFFD16FFF;
+			}
+			bg.antialiasing = ClientPrefs.data.antialiasing;
+			bg.setGraphicSize(FlxG.width, FlxG.height);
+			bg.updateHitbox();
+			bg.screenCenter();
+			addBehindBar(bg);
+
+			// P.E.T logosu
+			logo = new FlxSprite(0, 0);
+			if(Paths.image('pet/fe') != null)
+			{
+				logo.loadGraphic(Paths.image('pet/fe'));
+			}
+			else
+			{
+				logo.loadGraphic(Paths.image('loading_screen/icon'));
+			}
+			logo.antialiasing = ClientPrefs.data.antialiasing;
+			logo.scale.set(0.75, 0.75);
+			logo.updateHitbox();
+			logo.screenCenter();
+			logo.x -= 50;
+			logo.y -= 40;
+			addBehindBar(logo);
+		}
+		else
+		{
+			var bg = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
+			bg.antialiasing = ClientPrefs.data.antialiasing;
+			bg.setGraphicSize(Std.int(FlxG.width));
+			bg.color = 0xFFD16FFF;
+			bg.updateHitbox();
+			addBehindBar(bg);
+		
+			logo = new FlxSprite(0, 0).loadGraphic(Paths.image('loading_screen/icon'));
+			logo.antialiasing = ClientPrefs.data.antialiasing;
+			logo.scale.set(0.75, 0.75);
+			logo.updateHitbox();
+			logo.screenCenter();
+			logo.x -= 50;
+			logo.y -= 40;
+			addBehindBar(logo);
+		}
 
 		#else // BASE GAME LOADING SCREEN
 		var bg = new FlxSprite().makeGraphic(1, 1, 0xFFCAFF4D);
@@ -223,20 +264,9 @@ class LoadingState extends MusicBeatState
 		}
 		#end
 
-		#if PSYCH_WATERMARKS // PSYCH LOADING SCREEN
+		#if PSYCH_WATERMARKS // PSYCH / P.E.T LOADING SCREEN
 		timePassed += elapsed;
 		shakeFl += elapsed * 3000;
-		var dots:String = '';
-		switch(Math.floor(timePassed % 1 * 3))
-		{
-			case 0:
-				dots = '.';
-			case 1:
-				dots = '..';
-			case 2:
-				dots = '...';
-		}
-		loadingText.text = Language.getPhrase('now_loading', 'Now Loading{1}', [dots]);
 
 		if(!spawnedPessy)
 		{
@@ -278,7 +308,7 @@ class LoadingState extends MusicBeatState
 					pessy.animation.play('run', true);
 					#if ACHIEVEMENTS_ALLOWED Achievements.unlock('pessy_easter_egg'); #end
 					
-					insert(members.indexOf(loadingText), pessy);
+					insert(members.indexOf(barGroup), pessy);
 				});
 			}
 		}
@@ -330,7 +360,7 @@ class LoadingState extends MusicBeatState
 		isIntrusive = false;
 
 		FlxTransitionableState.skipNextTransIn = true;
-		if (threadPool != null) threadPool.shutdown(); // kill all workers safely
+		if (threadPool != null) threadPool.shutdown();
 		threadPool = null;
 		mutex = null;
 	}
@@ -339,12 +369,11 @@ class LoadingState extends MusicBeatState
 	{
 		for (key => bitmap in requestedBitmaps)
 		{
-			if (bitmap != null && Paths.cacheBitmap(originalBitmapKeys.get(key), bitmap) != null) {} //trace('finished preloading image $key');
-			else trace('failed to cache image $key');
+			if (bitmap != null && Paths.cacheBitmap(originalBitmapKeys.get(key), bitmap) != null) {}
+			else trace('görsel önbelleğe alınamadı: $key');
 		}
 		requestedBitmaps.clear();
 		originalBitmapKeys.clear();
-		// trace('we checked if loaded');
 		return (loaded >= loadMax && initialThreadCompleted);
 	}
 
@@ -357,7 +386,7 @@ class LoadingState extends MusicBeatState
 		if (weekDir != null && weekDir.length > 0 && weekDir != '') directory = weekDir;
 
 		Paths.setCurrentLevel(directory);
-		trace('Setting asset folder to ' + directory);
+		trace('Varlık klasörü ayarlanıyor: ' + directory);
 	}
 
 	static var isIntrusive:Bool = false;
@@ -405,7 +434,6 @@ class LoadingState extends MusicBeatState
 	static function _startPool()
 	{
 		#if MULTITHREADED_LOADING
-		// Due to the Main thread and Discord thread, we decrease it by 2.
 		var threadCount:Int = Std.int(Math.max(1, CoolUtil.getCPUThreadsCount() - #if DISCORD_ALLOWED 2 #else 1 #end));
 		#else
 		var threadCount:Int = 1;
@@ -451,16 +479,13 @@ class LoadingState extends MusicBeatState
 		var song:SwagSong = PlayState.SONG;
 		var folder:String = Paths.formatToSongPath(Song.loadedSongName);
 		new Future<Bool>(() -> {
-			// LOAD NOTE IMAGE
 			var noteSkin:String = Note.defaultNoteSkin;
 			if(PlayState.SONG.arrowSkin != null && PlayState.SONG.arrowSkin.length > 1) noteSkin = PlayState.SONG.arrowSkin;
 	
 			var customSkin:String = noteSkin + Note.getNoteSkinPostfix();
 			if(Paths.fileExists('images/$customSkin.png', IMAGE)) noteSkin = customSkin;
 			imagesToPrepare.push(noteSkin);
-			//
 
-			// LOAD NOTE SPLASH IMAGE
 			var noteSplash:String = NoteSplash.defaultNoteSplash;
 			if(PlayState.SONG.splashSkin != null && PlayState.SONG.splashSkin.length > 0) noteSplash = PlayState.SONG.splashSkin;
 			else noteSplash += NoteSplash.getSplashSkinPostfix();
@@ -593,7 +618,7 @@ class LoadingState extends MusicBeatState
 			return true;
 		}, isIntrusive))
 		.onError((err:Dynamic) -> {
-			trace('ERROR! while preparing song: $err');
+			trace('HATA! şarkı hazırlanırken: $err');
 		});
 	}
 
@@ -627,25 +652,21 @@ class LoadingState extends MusicBeatState
 						}
 					}
 				}
-
-				//trace('Folder detected! ' + folder);
 			}
 		}
 
 		var i:Int = 0;
 		while(i < arr.length)
 		{
-
 			var member:String = arr[i];
 			var myKey = '$prefix/$member$ext';
 			if(parentFolder == 'songs') myKey = '$member$ext';
 
-			//trace('attempting on $prefix: $myKey');
 			var doTrace:Bool = false;
 			if(member.endsWith('/') || (!Paths.fileExists(myKey, type, false, parentFolder) && (doTrace = true)))
 			{
 				arr.remove(member);
-				if(doTrace) trace('Removed invalid $prefix: $member');
+				if(doTrace) trace('Geçersiz $prefix kaldırıldı: $member');
 			}
 			else i++;
 		}
@@ -657,47 +678,42 @@ class LoadingState extends MusicBeatState
 		loadMax = imagesToPrepare.length + soundsToPrepare.length + musicToPrepare.length + songsToPrepare.length;
 		loaded = 0;
 
-		//then start threads
 		_threadFunc();
 	}
 
 	static function _threadFunc()
 	{
 		_startPool();
-		for (sound in soundsToPrepare) initThread(() -> preloadSound('sounds/$sound'), 'sound $sound');
-		for (music in musicToPrepare) initThread(() -> preloadSound('music/$music'), 'music $music');
-		for (song in songsToPrepare) initThread(() -> preloadSound(song, 'songs', true, false), 'song $song');
+		for (sound in soundsToPrepare) initThread(() -> preloadSound('sounds/$sound'), 'ses $sound');
+		for (music in musicToPrepare) initThread(() -> preloadSound('music/$music'), 'müzik $music');
+		for (song in songsToPrepare) initThread(() -> preloadSound(song, 'songs', true, false), 'şarkı $song');
 
-		// for images, they get to have their own thread
-		for (image in imagesToPrepare) initThread(() -> preloadGraphic(image), 'image $image');
+		for (image in imagesToPrepare) initThread(() -> preloadGraphic(image), 'görsel $image');
 	}
 
 	static function initThread(func:Void->Dynamic, traceData:String)
 	{
-		// trace('scheduled $func in threadPool');
 		#if debug
 		var threadSchedule = Sys.time();
 		#end
 		threadPool.run(() -> {
 			#if debug
 			var threadStart = Sys.time();
-			trace('$traceData took ${threadStart - threadSchedule}s to start preloading');
+			trace('$traceData ön yüklemeye başlamak ${threadStart - threadSchedule}s sürdü');
 			#end
 
 			try {
 				if (func() != null) {
 					#if debug
 					var diff = Sys.time() - threadStart;
-					trace('finished preloading $traceData in ${diff}s');
+					trace('$traceData ön yüklemesi ${diff}s\'de tamamlandı');
 					#end
-				} else trace('ERROR! fail on preloading $traceData ');
+				} else trace('HATA! $traceData ön yüklemesi başarısız');
 			}
 			catch(e:Dynamic) {
-				trace('ERROR! fail on preloading $traceData: $e');
+				trace('HATA! $traceData ön yüklemesi başarısız: $e');
 			}
-			// mutex.acquire();
 			loaded++;
-			// mutex.release();
 		});
 	}
 
@@ -739,7 +755,6 @@ class LoadingState extends MusicBeatState
 	
 					if(Paths.fileExists('images/$img/spritemap$st.png', IMAGE))
 					{
-						//trace('found Sprite PNG');
 						imagesToPrepare.push('$img/spritemap$st');
 						break;
 					}
@@ -759,12 +774,10 @@ class LoadingState extends MusicBeatState
 		}
 	}
 
-	// thread safe sound loader
 	static function preloadSound(key:String, ?path:String, ?modsAllowed:Bool = true, ?beepOnNull:Bool = true):Null<Sound>
 	{
 		var file:String = Paths.getPath(Language.getFileTranslation(key) + '.${Paths.SOUND_EXT}', SOUND, path, modsAllowed);
 
-		//trace('precaching sound: $file');
 		if(!Paths.currentTrackedSounds.exists(file))
 		{
 			if (#if sys FileSystem.exists(file) || #end OpenFlAssets.exists(file, SOUND))
@@ -776,8 +789,8 @@ class LoadingState extends MusicBeatState
 			}
 			else if (beepOnNull)
 			{
-				trace('SOUND NOT FOUND: $key, PATH: $path');
-				FlxG.log.error('SOUND NOT FOUND: $key, PATH: $path');
+				trace('SES BULUNAMADI: $key, YOL: $path');
+				FlxG.log.error('SES BULUNAMADI: $key, YOL: $path');
 				return FlxAssets.getSound('flixel/sounds/beep');
 			}
 		}
@@ -788,7 +801,6 @@ class LoadingState extends MusicBeatState
 		return Paths.currentTrackedSounds.get(file);
 	}
 
-	// thread safe sound loader
 	static function preloadGraphic(key:String):Null<BitmapData>
 	{
 		try {
@@ -813,14 +825,14 @@ class LoadingState extends MusicBeatState
 					mutex.release();
 					return bitmap;
 				}
-				else trace('no such image $key exists');
+				else trace('böyle bir görsel mevcut değil: $key');
 			}
 
 			return Paths.currentTrackedAssets.get(requestKey).bitmap;
 		}
 		catch(e:haxe.Exception)
 		{
-			trace('ERROR! fail on preloading image $key');
+			trace('HATA! $key görseli ön yüklenirken başarısız');
 		}
 
 		return null;

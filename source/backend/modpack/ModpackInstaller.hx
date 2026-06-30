@@ -216,7 +216,7 @@ class ModpackInstaller {
 
 			onComplete: function(info:ExtractCompleteInfo) {
 				trace('[ModpackInstaller] Extract tamamlandı. ${info.extractedEntries} dosya.');
-				step_verify(packId, tempDir, callbacks);
+				step_verify(packId, tempDir, callbacks, zipPath);
 			},
 
 			onError: function(error:ExtractError) {
@@ -237,7 +237,8 @@ class ModpackInstaller {
 
 	function step_verify(
 		packId:String, tempDir:String,
-		callbacks:ModpackInstallCallbacks
+		callbacks:ModpackInstallCallbacks,
+		?zipPath:String
 	):Void {
 		reportPhase(callbacks, Verifying, 0.0, "", "Modpack doğrulanıyor...");
 
@@ -291,7 +292,7 @@ class ModpackInstaller {
 
 		reportPhase(callbacks, Verifying, 1.0, "", "Doğrulama tamamlandı.");
 
-		step_detectOldMods(packId, tempDir, manifest, callbacks);
+		step_detectOldMods(packId, tempDir, manifest, callbacks, zipPath);
 	}
 
 	// ─────────────────────────────────────────────
@@ -301,7 +302,8 @@ class ModpackInstaller {
 	function step_detectOldMods(
 		packId:String, tempDir:String,
 		newManifest:ModpackManifest,
-		callbacks:ModpackInstallCallbacks
+		callbacks:ModpackInstallCallbacks,
+		?zipPath:String
 	):Void {
 		reportPhase(callbacks, InstallingMods, 0.0, "", "Eski modlar kontrol ediliyor...");
 
@@ -324,7 +326,7 @@ class ModpackInstaller {
 			trace('[ModpackInstaller] İlk kurulum, eski mod silinmeyecek.');
 		}
 
-		step_install(packId, tempDir, newManifest, foldersToRemove, callbacks);
+		step_install(packId, tempDir, newManifest, foldersToRemove, callbacks, zipPath);
 	}
 
 	// ─────────────────────────────────────────────
@@ -335,7 +337,8 @@ class ModpackInstaller {
 		packId:String, tempDir:String,
 		manifest:ModpackManifest,
 		foldersToRemove:Array<String>,
-		callbacks:ModpackInstallCallbacks
+		callbacks:ModpackInstallCallbacks,
+		?zipPath:String
 	):Void {
 		var modsDir = ModpackPaths.getModsDirectory();
 
@@ -426,17 +429,14 @@ class ModpackInstaller {
 
 		reportPhase(callbacks, InstallingMods, 1.0, "", "Kurulum tamamlandı.");
 
-		step_cleanup(packId, tempDir, manifest, callbacks);
+		step_cleanup(packId, tempDir, manifest, callbacks, zipPath);
 	}
-
-	// ─────────────────────────────────────────────
-	//  Adım 6 — Temizlik
-	// ─────────────────────────────────────────────
 
 	function step_cleanup(
 		packId:String, tempDir:String,
 		manifest:ModpackManifest,
-		callbacks:ModpackInstallCallbacks
+		callbacks:ModpackInstallCallbacks,
+		?zipPath:String
 	):Void {
 		reportPhase(callbacks, Cleanup, 0.0, "", "Geçici dosyalar temizleniyor...");
 
@@ -445,12 +445,22 @@ class ModpackInstaller {
 			deleteDirectory(tempDir);
 			trace('[ModpackInstaller] Temp temizlendi: $tempDir');
 		} catch (e:Dynamic) {
-			// Kritik değil, sadece logla
-			trace('[ModpackInstaller] Temp silinemedi: ${e.message}');
+			trace('[ModpackInstaller] Temp silinemedi: ${Std.string(e)}');
+		}
+
+		// İndirilen ZIP dosyasını sil
+		if (zipPath != null && zipPath.length > 0) {
+			try {
+				if (FileSystem.exists(zipPath)) {
+					FileSystem.deleteFile(zipPath);
+					trace('[ModpackInstaller] ZIP silindi: $zipPath');
+				}
+			} catch (e:Dynamic) {
+				trace('[ModpackInstaller] ZIP silinemedi: ${Std.string(e)}');
+			}
 		}
 
 		reportPhase(callbacks, Cleanup, 1.0, "", "Temizlik tamamlandı.");
-
 		step_complete(manifest, callbacks);
 	}
 
@@ -529,15 +539,18 @@ class ModpackInstaller {
 		}
 	}
 
-	// ─────────────────────────────────────────────
-	//  Hata ve Durum Yardımcıları
-	// ─────────────────────────────────────────────
-
-	function fail(callbacks:ModpackInstallCallbacks, message:String):Void {
+	function fail(callbacks:ModpackInstallCallbacks, message:String, ?cleanupPath:String):Void {
 		_installing = false;
 		_cancelled = false;
 
 		trace('[ModpackInstaller] ✗ Hata: $message');
+
+		// Hata durumunda geçici dosyaları temizle
+		if (cleanupPath != null) {
+			try {
+				deleteDirectory(cleanupPath);
+			} catch (_) {}
+		}
 
 		reportPhase(callbacks, Failed, 0.0, "", message);
 
@@ -595,10 +608,10 @@ class ModpackInstaller {
 	 */
 	function buildAutoManifest(packId:String, tempDir:String):ModpackManifest {
 		var folders:Array<String> = [];
+		var hasPackJson:Bool = false;
 
 		try {
 			for (entry in FileSystem.readDirectory(tempDir)) {
-				// Gizli ve sistem klasörlerini atla
 				if (StringTools.startsWith(entry, ".")) continue;
 				if (StringTools.startsWith(entry, "_")) continue;
 
@@ -606,9 +619,52 @@ class ModpackInstaller {
 				if (FileSystem.isDirectory(fullPath)) {
 					folders.push(entry);
 				}
+
+				// pack.json varsa bu muhtemelen tek bir mod
+				if (entry == "pack.json") hasPackJson = true;
 			}
 		} catch (e:Dynamic) {
-			trace('[ModpackInstaller] Auto manifest tarama hatası: ${e.message}');
+			trace('[ModpackInstaller] Auto manifest tarama hatası: ${Std.string(e)}');
+		}
+
+		// Tek mod algılama:
+		// Eğer root'ta pack.json varsa ve klasörler
+		// tipik mod iç klasörleriyse (data, images, songs, etc.)
+		// bu tek bir moddur, tüm temp root'u tek mod olarak kur
+		if (hasPackJson || isSingleModLayout(folders)) {
+			trace('[ModpackInstaller] Tek mod algılandı. Tüm içerik tek mod olarak kurulacak.');
+
+			// Temp içeriğini packId adlı alt klasöre taşı
+			var modSubDir = Path.join([tempDir, packId]);
+			try {
+				FileSystem.createDirectory(modSubDir);
+
+				for (entry in FileSystem.readDirectory(tempDir)) {
+					if (entry == packId) continue; // kendini atla
+
+					var srcPath = Path.join([tempDir, entry]);
+					var dstPath = Path.join([modSubDir, entry]);
+
+					if (FileSystem.isDirectory(srcPath))
+						copyDirectory(srcPath, dstPath);
+					else
+						File.copy(srcPath, dstPath);
+				}
+
+				// Eski dosyaları temizle (taşınan klasör hariç)
+				for (entry in FileSystem.readDirectory(tempDir)) {
+					if (entry == packId) continue;
+					var fullPath = Path.join([tempDir, entry]);
+					if (FileSystem.isDirectory(fullPath))
+						deleteDirectory(fullPath);
+					else
+						FileSystem.deleteFile(fullPath);
+				}
+			} catch (e:Dynamic) {
+				trace('[ModpackInstaller] Tek mod düzenleme hatası: ${Std.string(e)}');
+			}
+
+			folders = [packId];
 		}
 
 		trace('[ModpackInstaller] Auto manifest oluşturuldu. Klasörler: $folders');
@@ -620,6 +676,32 @@ class ModpackInstaller {
 			engineVersion: "unknown",
 			modFolders: folders
 		};
+	}
+
+	/**
+	 * Klasör listesinin tipik mod iç yapısına benzeyip
+	 * benzemediğini kontrol eder.
+	 * Eğer klasörler "data", "images", "songs", "sounds",
+	 * "characters", "stages", "scripts" gibi şeyler içeriyorsa
+	 * bu tek bir moddur, modpack değil.
+	 */
+	function isSingleModLayout(folders:Array<String>):Bool {
+		var modInternalFolders = [
+			"data", "images", "songs", "sounds", "music",
+			"characters", "stages", "scripts", "videos",
+			"fonts", "weeks", "shared", "custom_events",
+			"custom_notetypes", "achievements"
+		];
+
+		var matchCount:Int = 0;
+		for (folder in folders) {
+			var lower = folder.toLowerCase();
+			if (modInternalFolders.indexOf(lower) != -1)
+				matchCount++;
+		}
+
+		// Klasörlerin yarısından fazlası iç klasörse tek mod
+		return folders.length > 0 && matchCount >= folders.length * 0.5;
 	}
 
 	function overridePackId(manifest:ModpackManifest, packId:String):ModpackManifest {

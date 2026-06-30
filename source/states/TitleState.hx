@@ -1,6 +1,7 @@
 package states;
 
 import backend.WeekData;
+import states.UpdatePromptState;
 
 import flixel.input.keyboard.FlxKey;
 import flixel.graphics.frames.FlxAtlasFrames;
@@ -58,9 +59,10 @@ class TitleState extends MusicBeatState
 	var credTextShit:Alphabet;
 	var ngSpr:FlxSprite;
 	
-	var checkingUnifiedUpdates:Bool = false;
-	var pendingUnifiedUpdateResult:Dynamic = null;
-	var shownUnifiedUpdatePopup:Bool = false;
+	var checkingUpdates:Bool = false;
+	var updateCheckDone:Bool = false;
+	var pendingUpdates:Array<Dynamic> = [];
+	var waitingForUpdateCheck:Bool = false;
 	
 	var titleTextColors:Array<FlxColor> = [0xFF33FFFF, 0xFF3333CC];
 	var titleTextAlphas:Array<Float> = [1, .64];
@@ -119,7 +121,7 @@ class TitleState extends MusicBeatState
 
 		FlxG.mouse.visible = false;
 		#if FREEPLAY
-		MusicBeatState.switchState(new FreeplayState());
+		MenuStyleRouter.goToFreeplay();
 		#elseif CHARTING
 		MusicBeatState.switchState(new ChartingState());
 		#else
@@ -397,14 +399,21 @@ class TitleState extends MusicBeatState
 				FlxG.sound.play(Paths.sound('confirmMenu'), 0.7);
 
 				transitioning = true;
-				// FlxG.sound.music.stop();
 
 				new FlxTimer().start(1, function(tmr:FlxTimer)
 				{
-					MusicBeatState.switchState(new MainMenuState());
-					closedState = true;
+					if (updateCheckDone)
+					{
+						// Güncelleme kontrolü bitti, sonuca göre geç
+						goToNextState();
+					}
+					else
+					{
+						// Güncelleme kontrolü hala devam ediyor, bekle
+						waitingForUpdateCheck = true;
+						trace('[TitleState] Güncelleme kontrolü bekleniyor...');
+					}
 				});
-				// FlxG.sound.play(Paths.music('titleShoot'), 0.7);
 			}
 			#if TITLE_SCREEN_EASTER_EGG
 			else if (FlxG.keys.firstJustPressed() != FlxKey.NONE)
@@ -472,106 +481,86 @@ class TitleState extends MusicBeatState
 		}
 
 		super.update(elapsed);
-		
-		if (!shownUnifiedUpdatePopup && pendingUnifiedUpdateResult != null && canShowUnifiedUpdatePopup())
-		{
-			openUnifiedUpdatePopup(pendingUnifiedUpdateResult);
-		}
 	}
 	
 	function startUnifiedUpdateCheck():Void
 	{
-		if (checkingUnifiedUpdates || shownUnifiedUpdatePopup)
+		if (checkingUpdates || updateCheckDone)
 			return;
 
 		if (!UpdateConfig.CHECK_ON_STARTUP)
+		{
+			updateCheckDone = true;
 			return;
+		}
 
-		checkingUnifiedUpdates = true;
-
+		checkingUpdates = true;
 		trace('[TitleState] Güncelleme kontrolü başlatılıyor...');
 
 		UpdateChecker.instance.onError = function(error:String)
 		{
-			checkingUnifiedUpdates = false;
-			trace('[TitleState] Güncelleme kontrolü başarısız: ' + error);
+			checkingUpdates = false;
+			updateCheckDone = true;
+			trace('[TitleState] Güncelleme kontrolü başarısız: $error');
+
+			// Eğer kullanıcı enter'a basıp bekliyorsa, artık geçebilir
+			if (waitingForUpdateCheck)
+			{
+				waitingForUpdateCheck = false;
+				goToNextState();
+			}
 		};
 
 		UpdateChecker.instance.fetchModpackList(function(result:backend.update.UpdateChecker.CheckResult)
 		{
-			checkingUnifiedUpdates = false;
+			checkingUpdates = false;
+			updateCheckDone = true;
 
 			if (result != null && result.hasUpdates)
 			{
-				trace('[TitleState] ${result.availableUpdates.length} modpack güncellemesi bulundu.');
-				pendingUnifiedUpdateResult = result;
+				trace('[TitleState] ${result.availableUpdates.length} güncelleme bulundu!');
+				for (u in result.availableUpdates)
+				{
+					pendingUpdates.push(u.remote);
+				}
 			}
 			else
 			{
 				trace('[TitleState] Güncelleme yok.');
 			}
+
+			// Eğer kullanıcı enter'a basıp bekliyorsa
+			if (waitingForUpdateCheck)
+			{
+				waitingForUpdateCheck = false;
+				goToNextState();
+			}
 		});
 	}
-
-	function canShowUnifiedUpdatePopup():Bool
-	{
-		if (subState != null)
-			return false;
-
-		return true;
-	}
 	
-	function openUnifiedUpdatePopup(result:Dynamic):Void
+	function goToNextState():Void
 	{
-		shownUnifiedUpdatePopup = true;
-		pendingUnifiedUpdateResult = null;
-
-		if (result == null) return;
-
-		var typedResult:Dynamic = result;
-		var updates:Array<Dynamic> = [];
-
-		if (typedResult.availableUpdates != null)
+		// External modpackleri filtrele (sadece direct olanları say)
+		var directUpdates:Array<Dynamic> = [];
+		for (mp in pendingUpdates)
 		{
-			var rawUpdates:Array<Dynamic> = cast typedResult.availableUpdates;
-
-			for (update in rawUpdates)
-			{
-				updates.push(update.remote);
-			}
+			var mode:String = mp.downloadMode != null ? mp.downloadMode : "direct";
+			if (mode == "direct")
+				directUpdates.push(mp);
 		}
 
-		if (updates.length > 0)
+		if (directUpdates.length > 0)
 		{
-			MusicBeatState.switchState(new states.UpdateState(updates));
+			trace('[TitleState] ${directUpdates.length} güncelleme bulundu, kullanıcıya soruluyor...');
+			FlxTransitionableState.skipNextTransIn = true;
+			FlxTransitionableState.skipNextTransOut = true;
+			MusicBeatState.switchState(new UpdatePromptState(directUpdates));
 		}
-	}
-
-	function findBestModpackDownloadUrl(release:Dynamic):String
-	{
-		if (release == null)
-			return "";
-
-		if (release.assets != null)
+		else
 		{
-			var assets:Array<Dynamic> = cast release.assets;
-
-			for (asset in assets)
-			{
-				if (asset != null && asset.name != null)
-				{
-					var lowerName:String = asset.name.toLowerCase();
-
-					if (StringTools.endsWith(lowerName, ".zip"))
-						return asset.browser_download_url;
-				}
-			}
+			MenuStyleRouter.goToMainMenu();
 		}
-
-		if (release.html_url != null)
-			return release.html_url;
-
-		return "";
+		closedState = true;
 	}
 
 	function createCoolText(textArray:Array<String>, ?offset:Float = 0)
@@ -609,7 +598,7 @@ class TitleState extends MusicBeatState
 		}
 	}
 
-	private var sickBeats:Int = 0; //Basically curBeat but won't be skipped if you hold the tab or resize the screen
+	private var sickBeats:Int = 0;
 	public static var closedState:Bool = false;
 	override function beatHit()
 	{
@@ -634,22 +623,27 @@ class TitleState extends MusicBeatState
 		if(!closedState)
 		{
 			sickBeats++;
+			var isTR:Bool = ClientPrefs.data.language == 'tr-TR';
+			
 			switch (sickBeats)
 			{
 				case 1:
 					FlxG.sound.playMusic(Paths.music(getMenuMusicName()), 0);
 					FlxG.sound.music.fadeIn(4, 0, 0.7);
 				case 2:
-					createCoolText(['Psych Engine by'], 40);
+					createCoolText([isTR ? 'Psych Engine yapımcıları' : 'Psych Engine by'], 40);
 				case 4:
 					addMoreText('Shadow Mario', 40);
 					addMoreText('Riveren', 40);
 				case 5:
 					deleteCoolText();
 				case 6:
-					createCoolText(['Not associated', 'with'], -40);
+					if (isTR)
+						createCoolText(['Newgrounds', 'ile'], -40);
+					else
+						createCoolText(['Not associated', 'with'], -40);
 				case 8:
-					addMoreText('newgrounds', -40);
+					addMoreText(isTR ? 'Alakası yoktur' : 'newgrounds', -40);
 					ngSpr.visible = true;
 				case 9:
 					deleteCoolText();
@@ -665,8 +659,7 @@ class TitleState extends MusicBeatState
 				case 15:
 					addMoreText('Night');
 				case 16:
-					addMoreText('Funkin'); // credTextShit.text += '\nFunkin';
-
+					addMoreText("Funkin'");
 				case 17:
 					skipIntro();
 			}
@@ -766,7 +759,9 @@ class TitleState extends MusicBeatState
 		if (selected == null || selected.length == 0 || selected == 'Varsayılan')
 			return 'freakyMenu';
 
-		// Mod müziği: "mod:ModAdı" formatında
+		if (selected == 'nothing')
+			return null;
+
 		if (StringTools.startsWith(selected, 'mod:'))
 		{
 			var modName:String = selected.substr(4);
@@ -776,7 +771,6 @@ class TitleState extends MusicBeatState
 			return 'freakyMenu';
 		}
 
-		// Entegre müzikler: freakyMenu2, freakyMenu3 vs.
 		return selected;
 	}
 
@@ -784,7 +778,17 @@ class TitleState extends MusicBeatState
 	{
 		var musicName:String = getMenuMusicName();
 
-		// Mod müziği ise mod dizinini ayarla
+		if (musicName == null)
+		{
+			if (FlxG.sound.music != null)
+				FlxG.sound.music.stop();
+
+			#if MODS_ALLOWED
+			Mods.loadTopMod();
+			#end
+			return;
+		}
+
 		if (StringTools.startsWith(ClientPrefs.data.menuMusic, 'mod:'))
 		{
 			var modName:String = ClientPrefs.data.menuMusic.substr(4);
@@ -798,7 +802,6 @@ class TitleState extends MusicBeatState
 		if (fadeIn)
 			FlxG.sound.music.fadeIn(4, 0, 0.7);
 
-		// Mod dizinini geri yükle
 		#if MODS_ALLOWED
 		Mods.loadTopMod();
 		#end

@@ -122,26 +122,37 @@ class UpdateChecker {
     /**
      * Kurulu modpackleri kontrol et, güncelleme var mı bak.
      */
-    function findUpdates(remoteList:Array<RemoteModpackInfo>):Array<ModpackUpdateInfo> {
-        var updates:Array<ModpackUpdateInfo> = [];
+	function findUpdates(remoteList:Array<RemoteModpackInfo>):Array<ModpackUpdateInfo> {
+		var updates:Array<ModpackUpdateInfo> = [];
 
-        for (remote in remoteList) {
-            var installedVersion = getInstalledVersion(remote.id);
+		for (remote in remoteList) {
+			var installedVersion = getInstalledVersion(remote.id);
 
-            if (installedVersion == null)
-                continue;
+			if (UpdateConfig.DEBUG_FORCE_UPDATES) {
+				// Debug: tüm modpackleri güncelleme olarak göster
+				updates.push({
+					remote: remote,
+					installedVersion: installedVersion != null ? installedVersion : "0.0.0",
+					newVersion: remote.version
+				});
+				trace('[UpdateChecker] DEBUG: Zorla güncelleme eklendi: ${remote.id}');
+				continue;
+			}
 
-            if (isRemoteNewer(installedVersion, remote.version)) {
-                updates.push({
-                    remote: remote,
-                    installedVersion: installedVersion,
-                    newVersion: remote.version
-                });
-            }
-        }
+			if (installedVersion == null)
+				continue;
 
-        return updates;
-    }
+			if (isRemoteNewer(installedVersion, remote.version)) {
+				updates.push({
+					remote: remote,
+					installedVersion: installedVersion,
+					newVersion: remote.version
+				});
+			}
+		}
+
+		return updates;
+	}
 
     /**
      * Kurulu modpack'in versiyonunu oku.
@@ -191,6 +202,14 @@ class UpdateChecker {
 
         return false;
     }
+	
+	
+	public function fetchStoreList(?callback:Array<RemoteModpackInfo>->Void):Void {
+		fetchModpackList(function(result:CheckResult) {
+			if (callback != null)
+				callback(result.allModpacks);
+		});
+	}
 
     static function parseVersion(v:String):Array<Int> {
         if (v == null || v.length == 0)

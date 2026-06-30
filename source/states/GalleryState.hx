@@ -3,6 +3,7 @@ package states;
 import backend.Paths;
 import backend.ClientPrefs;
 import backend.Conductor;
+import backend.Language;
 import backend.MusicBeatState;
 
 import flixel.FlxG;
@@ -27,6 +28,13 @@ import mobile.objects.TouchButton;
 import mobile.input.MobileInputID;
 #end
 
+#if sys
+import sys.FileSystem;
+import sys.io.File;
+#end
+
+import haxe.Json;
+
 using StringTools;
 
 typedef GalleryItem = {
@@ -39,6 +47,7 @@ typedef GalleryItem = {
 	var ?unlocked:Bool;
 	var ?favorited:Bool;
 	var ?dateAdded:String;
+	var ?modDirectory:String;
 }
 
 enum GalleryType {
@@ -68,7 +77,8 @@ class GalleryState extends MusicBeatState {
 			artist: "Güneş",
 			unlocked: true,
 			favorited: false,
-			dateAdded: "2026-06-12"
+			dateAdded: "2026-06-12",
+			modDirectory: null
 		},
 		{
 			fileName: "ekip2",
@@ -79,7 +89,8 @@ class GalleryState extends MusicBeatState {
 			artist: "Güneş",
 			unlocked: true,
 			favorited: false,
-			dateAdded: "2026-06-12"
+			dateAdded: "2026-06-12",
+			modDirectory: null
 		},
 		{
 			fileName: "cool",
@@ -90,7 +101,8 @@ class GalleryState extends MusicBeatState {
 			artist: "s1r3nmoney0 / klavye",
 			unlocked: true,
 			favorited: false,
-			dateAdded: "2026-06-15"
+			dateAdded: "2026-06-15",
+			modDirectory: null
 		},
 		{
 			fileName: "ivy",
@@ -101,7 +113,8 @@ class GalleryState extends MusicBeatState {
 			artist: "s1r3nmoney0 / klavye",
 			unlocked: true,
 			favorited: false,
-			dateAdded: "2026-06-15"
+			dateAdded: "2026-06-15",
+			modDirectory: null
 		},
 		{
 			fileName: "deneme",
@@ -112,7 +125,8 @@ class GalleryState extends MusicBeatState {
 			artist: "SametGkTe",
 			unlocked: true,
 			favorited: false,
-			dateAdded: "2026-06-15"
+			dateAdded: "2026-06-15",
+			modDirectory: null
 		},
 		{
 			fileName: "balcaraba",
@@ -123,7 +137,8 @@ class GalleryState extends MusicBeatState {
 			artist: "Team",
 			unlocked: true,
 			favorited: false,
-			dateAdded: "2026-06-15"
+			dateAdded: "2026-06-15",
+			modDirectory: null
 		},
 		{
 			fileName: "balcaraba2",
@@ -134,7 +149,8 @@ class GalleryState extends MusicBeatState {
 			artist: "Balc & Güneş & XQ",
 			unlocked: true,
 			favorited: false,
-			dateAdded: "2026-06-15"
+			dateAdded: "2026-06-15",
+			modDirectory: null
 		},
 		{
 			fileName: "petu",
@@ -145,7 +161,8 @@ class GalleryState extends MusicBeatState {
 			artist: "SametGkTe",
 			unlocked: true,
 			favorited: false,
-			dateAdded: "2026-06-15"
+			dateAdded: "2026-06-15",
+			modDirectory: null
 		},
 		{
 			fileName: "petv1cancelledscreen",
@@ -156,7 +173,8 @@ class GalleryState extends MusicBeatState {
 			artist: "SametGkTe",
 			unlocked: true,
 			favorited: false,
-			dateAdded: "2026-06-15"
+			dateAdded: "2026-06-15",
+			modDirectory: null
 		},
 		{
 			fileName: "sans",
@@ -167,8 +185,9 @@ class GalleryState extends MusicBeatState {
 			artist: "sans",
 			unlocked: true,
 			favorited: false,
-			dateAdded: "sans"
-		},
+			dateAdded: "sans",
+			modDirectory: null
+		}
 		/*
 		*{
 		*	fileName: "animated_example",
@@ -179,12 +198,11 @@ class GalleryState extends MusicBeatState {
 		*	artist: "Animator",
 		*	unlocked: true,
 		*	favorited: false,
-		*	dateAdded: "2024-03-15"
+		*	dateAdded: "2027-03-15"
 		*}
 		*/
 	];
 
-	// ==================== STATE ====================
 	var filteredItems:Array<GalleryItem> = [];
 	var categories:Array<String> = ["All"];
 	var currentCategory:Int = 0;
@@ -195,13 +213,11 @@ class GalleryState extends MusicBeatState {
 	var showingInfo:Bool = false;
 	var isPanning:Bool = false;
 
-	// ==================== GRID ====================
 	var gridColumns:Int = 4;
 	var gridRows:Int = 2;
 	var gridPage:Int = 0;
 	var gridThumbnails:FlxTypedGroup<FlxSprite>;
 
-	// ==================== SINGLE VIEW ====================
 	var img:FlxSprite;
 	var imgZoom:Float = 0.8;
 	var imgOffsetX:Float = 0;
@@ -215,13 +231,11 @@ class GalleryState extends MusicBeatState {
 	var targetX:Float = 0;
 	var targetY:Float = 0;
 
-	// ==================== VIDEO ====================
 	#if VIDEOS_ALLOWED
 	var videoObj:VideoSprite;
 	#end
 	var isVideoPlaying:Bool = false;
 
-	// ==================== AUDIO ====================
 	var daSound:FlxSound;
 	var audioPlaying:Bool = false;
 	var audioPaused:Bool = false;
@@ -230,7 +244,6 @@ class GalleryState extends MusicBeatState {
 	var audioTimeText:FlxText;
 	var audioTitleText:FlxText;
 
-	// ==================== UI ====================
 	var bg:FlxSprite;
 	var bgAccent:FlxSprite;
 	var bottomBar:FlxSprite;
@@ -246,7 +259,6 @@ class GalleryState extends MusicBeatState {
 	var overlayDark:FlxSprite;
 	var separator:FlxSprite;
 
-	// ==================== INFO PANEL ====================
 	var infoBG:FlxSprite;
 	var infoTitleText:FlxText;
 	var infoDescText:FlxText;
@@ -257,12 +269,10 @@ class GalleryState extends MusicBeatState {
 	var infoFavText:FlxText;
 	var infoTextGroup:Array<FlxText> = [];
 
-	// ==================== SLIDESHOW ====================
 	var slideshowTimer:FlxTimer;
 	var slideshowInterval:Float = 3.0;
 	var slideshowActive:Bool = false;
 
-	// ==================== MOBILE ====================
 	#if mobile
 	var mobileBtnGroup:FlxSpriteGroup;
 	var btnBack:TouchButton;
@@ -279,7 +289,6 @@ class GalleryState extends MusicBeatState {
 	var btnPause:TouchButton;
 	var btnSlideshow:TouchButton;
 
-	// Swipe tracking
 	var touchStartX:Float = 0;
 	var touchStartY:Float = 0;
 	var isTouching:Bool = false;
@@ -288,7 +297,6 @@ class GalleryState extends MusicBeatState {
 	var isPinching:Bool = false;
 	#end
 
-	// ==================== STYLE ====================
 	var fontPath:String;
 	var accentColor:FlxColor = FlxColor.fromRGB(80, 160, 255);
 	var bgDark:FlxColor = FlxColor.fromRGB(18, 18, 24);
@@ -298,14 +306,16 @@ class GalleryState extends MusicBeatState {
 
 	override function create() {
 		#if DISCORD_ALLOWED
-		DiscordClient.changePresence("Browsing the Gallery", null);
+		DiscordClient.changePresence(phrase("discord_gallery_browsing", "Galeriyi İnceliyor"), null);
 		#end
 
 		fontPath = Paths.font("vcr.ttf");
+
+		loadModGalleryItems();
+
 		buildCategories();
 		filteredItems = galleryItems.copy();
 
-		// ===== BACKGROUND =====
 		bg = new FlxSprite().makeGraphic(FlxG.width + 100, FlxG.height + 100, bgDark);
 		bg.screenCenter();
 		bg.scrollFactor.set(0, 0);
@@ -336,33 +346,28 @@ class GalleryState extends MusicBeatState {
 		separator.alpha = 0.4;
 		add(separator);
 
-		// Grid thumbnails
 		gridThumbnails = new FlxTypedGroup<FlxSprite>();
 		add(gridThumbnails);
 
-		// Main image
 		img = new FlxSprite();
 		img.scrollFactor.set(0, 0);
 		img.antialiasing = ClientPrefs.data.antialiasing;
 		img.visible = false;
 		add(img);
 
-		// Media overlay
 		graphic = new FlxSprite();
 		graphic.scrollFactor.set(0, 0);
 		graphic.antialiasing = ClientPrefs.data.antialiasing;
 		graphic.visible = false;
 		add(graphic);
 
-		// Dark overlay
 		overlayDark = new FlxSprite().makeGraphic(FlxG.width + 100, FlxG.height + 100, FlxColor.BLACK);
 		overlayDark.screenCenter();
 		overlayDark.scrollFactor.set(0, 0);
 		overlayDark.alpha = 0;
 		add(overlayDark);
 
-		// ===== TOP BAR =====
-		categoryText = new FlxText(20, 12, 300, "All");
+		categoryText = new FlxText(20, 12, 300, "");
 		categoryText.setFormat(fontPath, 20, accentColor, LEFT);
 		categoryText.scrollFactor.set(0, 0);
 		categoryText.alpha = 0;
@@ -374,7 +379,6 @@ class GalleryState extends MusicBeatState {
 		pageDisplay.alpha = 0;
 		add(pageDisplay);
 
-		// ===== BOTTOM BAR =====
 		titleG = new FlxText(40, FlxG.height - 120, FlxG.width - 80, "");
 		titleG.setFormat(fontPath, 28, textBright, LEFT);
 		titleG.scrollFactor.set(0, 0);
@@ -399,29 +403,23 @@ class GalleryState extends MusicBeatState {
 		typeText.alpha = 0;
 		add(typeText);
 
-		// Instructions (desktop only, mobile uses buttons)
 		instDisplay = new FlxText(15, 60, 280, "");
 		instDisplay.setFormat(fontPath, 13, FlxColor.fromRGB(80, 80, 100), LEFT);
 		instDisplay.scrollFactor.set(0, 0);
 		instDisplay.alpha = 0;
 		add(instDisplay);
 
-		// ===== INFO PANEL =====
 		createInfoPanel();
-
-		// ===== AUDIO PLAYER =====
 		createAudioPlayer();
 
-		// ===== MOBILE BUTTONS =====
 		#if mobile
 		createMobileButtons();
 		#end
 
-		// ===== INIT =====
 		switchToGridView();
 		updateInstructions();
+		refreshCategoryText();
 
-		// Entrance
 		FlxTween.tween(categoryText, {alpha: 1}, 0.5, {ease: FlxEase.sineOut, startDelay: 0.1});
 		FlxTween.tween(titleG, {alpha: 1}, 0.5, {ease: FlxEase.sineOut, startDelay: 0.15});
 		FlxTween.tween(artistText, {alpha: 1}, 0.5, {ease: FlxEase.sineOut, startDelay: 0.2});
@@ -438,6 +436,129 @@ class GalleryState extends MusicBeatState {
 			FlxG.sound.playMusic(Paths.music('freakyMenu'), 0.5);
 
 		super.create();
+	}
+
+	function loadModGalleryItems() {
+		#if MODS_ALLOWED
+		var modsPath:String = "mods/";
+
+		if (!FileSystem.exists(modsPath)) return;
+
+		for (modFolder in FileSystem.readDirectory(modsPath)) {
+			var modDir:String = modsPath + modFolder + "/";
+			if (!FileSystem.isDirectory(modDir)) continue;
+
+			var galleryJsonPath:String = modDir + "other/gallery.json";
+			if (!FileSystem.exists(galleryJsonPath)) continue;
+
+			try {
+				var rawJson:String = File.getContent(galleryJsonPath);
+				var parsed:Array<Dynamic> = Json.parse(rawJson);
+
+				if (parsed == null) continue;
+
+				for (entry in parsed) {
+					var item:GalleryItem = {
+						fileName: entry.fileName != null ? entry.fileName : "",
+						title: entry.title != null ? entry.title : "???",
+						description: entry.description != null ? entry.description : "",
+						type: parseGalleryType(entry.type),
+						category: entry.category != null ? entry.category : "Mods",
+						artist: entry.artist != null ? entry.artist : "",
+						unlocked: entry.unlocked != null ? entry.unlocked : true,
+						favorited: entry.favorited != null ? entry.favorited : false,
+						dateAdded: entry.dateAdded != null ? entry.dateAdded : "",
+						modDirectory: modFolder
+					};
+
+					if (item.fileName.length > 0 && validateModAsset(item, modDir)) {
+						galleryItems.push(item);
+					}
+				}
+			} catch (e) {
+				trace('[GalleryState] Mod gallery JSON hatasi ($modFolder): $e');
+			}
+		}
+		#end
+	}
+
+	function validateModAsset(item:GalleryItem, modDir:String):Bool {
+		#if MODS_ALLOWED
+		switch (item.type) {
+			case IMAGE | ANIMATED:
+				return FileSystem.exists(modDir + "images/gallery/" + item.fileName + ".png");
+			case VIDEO:
+				var mp4 = modDir + "videos/gallery/" + item.fileName + ".mp4";
+				var webm = modDir + "videos/gallery/" + item.fileName + ".webm";
+				return FileSystem.exists(mp4) || FileSystem.exists(webm);
+			case SOUND_EFFECT:
+				return FileSystem.exists(modDir + "sounds/gallery/" + item.fileName + ".ogg");
+			case MUSIC:
+				return FileSystem.exists(modDir + "music/gallery/" + item.fileName + ".ogg");
+		}
+		#end
+		return false;
+	}
+
+	function parseGalleryType(typeStr:Dynamic):GalleryType {
+		if (typeStr == null) return IMAGE;
+		var s:String = Std.string(typeStr).toUpperCase();
+		return switch (s) {
+			case "IMAGE": IMAGE;
+			case "VIDEO": VIDEO;
+			case "SOUND_EFFECT" | "SFX": SOUND_EFFECT;
+			case "MUSIC": MUSIC;
+			case "ANIMATED" | "ANIMATION": ANIMATED;
+			default: IMAGE;
+		};
+	}
+
+	function getItemImagePath(item:GalleryItem):Dynamic {
+		if (item.modDirectory != null && item.modDirectory.length > 0) {
+			#if MODS_ALLOWED
+			var modPath:String = "mods/" + item.modDirectory + "/images/gallery/" + item.fileName + ".png";
+			if (FileSystem.exists(modPath)) {
+				return openfl.display.BitmapData.fromFile(modPath);
+			}
+			#end
+		}
+		return Paths.image("gallery/img/" + item.fileName);
+	}
+
+	function getItemSoundPath(item:GalleryItem):Dynamic {
+		if (item.modDirectory != null && item.modDirectory.length > 0) {
+			#if MODS_ALLOWED
+			var soundPath:String = "mods/" + item.modDirectory + "/sounds/gallery/" + item.fileName + ".ogg";
+			if (FileSystem.exists(soundPath)) {
+				return soundPath;
+			}
+			#end
+		}
+		return Paths.sound('gallery/' + item.fileName);
+	}
+
+	function getItemMusicPath(item:GalleryItem):Dynamic {
+		if (item.modDirectory != null && item.modDirectory.length > 0) {
+			#if MODS_ALLOWED
+			var musicPath:String = "mods/" + item.modDirectory + "/music/gallery/" + item.fileName + ".ogg";
+			if (FileSystem.exists(musicPath)) {
+				return musicPath;
+			}
+			#end
+		}
+		return Paths.music('gallery/' + item.fileName);
+	}
+
+	function getItemVideoPath(item:GalleryItem):String {
+		if (item.modDirectory != null && item.modDirectory.length > 0) {
+			#if MODS_ALLOWED
+			var mp4Path:String = "mods/" + item.modDirectory + "/videos/gallery/" + item.fileName + ".mp4";
+			if (FileSystem.exists(mp4Path)) return mp4Path;
+			var webmPath:String = "mods/" + item.modDirectory + "/videos/gallery/" + item.fileName + ".webm";
+			if (FileSystem.exists(webmPath)) return webmPath;
+			#end
+		}
+		return Paths.video('gallery/' + item.fileName);
 	}
 
 	function createInfoPanel() {
@@ -496,8 +617,6 @@ class GalleryState extends MusicBeatState {
 		add(audioTitleText);
 	}
 
-	// ==================== MOBILE BUTTONS ====================
-
 	#if mobile
 	function createMobileButtons() {
 		mobileBtnGroup = new FlxSpriteGroup();
@@ -508,32 +627,28 @@ class GalleryState extends MusicBeatState {
 		var btnY:Float = FlxG.height - 185;
 		var startX:Float = FlxG.width - btnSize - 15;
 
-		// Row 1 (right side, bottom) - Main actions
 		btnBack = makeMobileBtn(startX, btnY, btnSize, "←", FlxColor.fromRGB(200, 60, 60));
-		btnAccept = makeMobileBtn(startX - (btnSize + btnGap), btnY, btnSize, "OK", FlxColor.fromRGB(60, 200, 60));
+		btnAccept = makeMobileBtn(startX - (btnSize + btnGap), btnY, btnSize, phrase("gallery_mobile_ok", "Tamam"), FlxColor.fromRGB(60, 200, 60));
 		btnFav = makeMobileBtn(startX - (btnSize + btnGap) * 2, btnY, btnSize, "★", FlxColor.fromRGB(255, 200, 50));
-		btnInfo = makeMobileBtn(startX - (btnSize + btnGap) * 3, btnY, btnSize, "i", FlxColor.fromRGB(80, 160, 255));
-		btnCategory = makeMobileBtn(startX - (btnSize + btnGap) * 4, btnY, btnSize, "TAB", FlxColor.fromRGB(160, 80, 255));
-		btnToggleUI = makeMobileBtn(startX - (btnSize + btnGap) * 5, btnY, btnSize, "UI", FlxColor.fromRGB(100, 100, 120));
+		btnInfo = makeMobileBtn(startX - (btnSize + btnGap) * 3, btnY, btnSize, phrase("gallery_mobile_info", "Bilgi"), FlxColor.fromRGB(80, 160, 255));
+		btnCategory = makeMobileBtn(startX - (btnSize + btnGap) * 4, btnY, btnSize, phrase("gallery_mobile_tab", "KAT"), FlxColor.fromRGB(160, 80, 255));
+		btnToggleUI = makeMobileBtn(startX - (btnSize + btnGap) * 5, btnY, btnSize, phrase("gallery_mobile_ui", "AY"), FlxColor.fromRGB(100, 100, 120));
 
-		// Row 2 (right side, above row 1) - Image controls (hidden by default)
 		var row2Y:Float = btnY - btnSize - btnGap;
 		btnZoomIn = makeMobileBtn(startX, row2Y, btnSize, "+", FlxColor.fromRGB(60, 180, 60));
 		btnZoomOut = makeMobileBtn(startX - (btnSize + btnGap), row2Y, btnSize, "-", FlxColor.fromRGB(200, 60, 60));
 		btnRotate = makeMobileBtn(startX - (btnSize + btnGap) * 2, row2Y, btnSize, "↻", FlxColor.fromRGB(200, 160, 60));
-		btnReset = makeMobileBtn(startX - (btnSize + btnGap) * 3, row2Y, btnSize, "R", FlxColor.fromRGB(100, 100, 140));
+		btnReset = makeMobileBtn(startX - (btnSize + btnGap) * 3, row2Y, btnSize, "S", FlxColor.fromRGB(100, 100, 140));
 		btnFullscreen = makeMobileBtn(startX - (btnSize + btnGap) * 4, row2Y, btnSize, "⛶", FlxColor.fromRGB(80, 160, 255));
 		btnPause = makeMobileBtn(startX - (btnSize + btnGap) * 5, row2Y, btnSize, "||", FlxColor.fromRGB(200, 160, 60));
 		btnSlideshow = makeMobileBtn(startX - (btnSize + btnGap) * 6, row2Y, btnSize, "▶", FlxColor.fromRGB(60, 200, 160));
 
-		// Hide image control row initially
 		hideImageButtons();
 
 		add(mobileBtnGroup);
 	}
 
 	function makeMobileBtn(x:Float, y:Float, size:Int, label:String, color:FlxColor):TouchButton {
-		// Create a simple colored button with text
 		var btn = new FlxSprite(x, y).makeGraphic(size, size, color);
 		btn.scrollFactor.set(0, 0);
 		btn.alpha = 0.7;
@@ -544,14 +659,10 @@ class GalleryState extends MusicBeatState {
 		txt.scrollFactor.set(0, 0);
 		mobileBtnGroup.add(txt);
 
-		// We'll use FlxSprite for hit detection instead of TouchButton
-		// since we need simple tap detection
-		return null; // We handle touch differently below
+		return null;
 	}
 
 	function showImageButtons() {
-		if (btnZoomIn != null) { /* handled via sprite visibility */ }
-		// Show row 2 buttons
 		setRow2Visible(true);
 	}
 
@@ -560,12 +671,8 @@ class GalleryState extends MusicBeatState {
 	}
 
 	function setRow2Visible(vis:Bool) {
-		// Row 2 sprites are at indices 12+ in mobileBtnGroup
-		// We'll track them differently
 	}
 	#end
-
-	// ==================== UPDATE ====================
 
 	override function update(elapsed:Float) {
 		if (daSound != null && daSound.playing)
@@ -586,11 +693,8 @@ class GalleryState extends MusicBeatState {
 		super.update(elapsed);
 	}
 
-	// ==================== MOBILE INPUT ====================
-
 	#if mobile
 	function handleMobileInput(elapsed:Float) {
-		// Swipe detection
 		var touches = FlxG.touches.list;
 
 		if (touches.length == 1) {
@@ -609,24 +713,19 @@ class GalleryState extends MusicBeatState {
 				var dist = Math.sqrt(dx * dx + dy * dy);
 
 				if (dist > swipeThreshold) {
-					// It's a swipe
 					if (Math.abs(dx) > Math.abs(dy)) {
-						// Horizontal swipe
 						if (dx < 0) onMobileSwipe("left");
 						else onMobileSwipe("right");
 					} else {
-						// Vertical swipe
 						if (dy < 0) onMobileSwipe("up");
 						else onMobileSwipe("down");
 					}
 				} else {
-					// It's a tap - check button areas
 					handleMobileTap(touch.screenX, touch.screenY);
 				}
 				isTouching = false;
 			}
 
-			// Drag for panning in single/fullscreen view
 			if (touch.pressed && isTouching && (viewMode == SINGLE_VIEW || viewMode == FULLSCREEN)) {
 				var item = filteredItems.length > 0 ? filteredItems[curSelected] : null;
 				if (item != null && (item.type == IMAGE || item.type == ANIMATED)) {
@@ -644,7 +743,6 @@ class GalleryState extends MusicBeatState {
 			}
 		}
 
-		// Pinch to zoom (2 fingers)
 		if (touches.length >= 2 && (viewMode == SINGLE_VIEW || viewMode == FULLSCREEN)) {
 			var t1 = touches[0];
 			var t2 = touches[1];
@@ -703,38 +801,31 @@ class GalleryState extends MusicBeatState {
 		var btnY:Float = FlxG.height - 185;
 		var startX:Float = FlxG.width - btnSize - 15;
 
-		// Row 1 buttons hit detection
 		if (ty >= btnY && ty <= btnY + btnSize) {
-			// Back button
 			if (tx >= startX && tx <= startX + btnSize) {
 				onMobileBack();
 				return;
 			}
-			// Accept/OK button
 			var okX = startX - (btnSize + btnGap);
 			if (tx >= okX && tx <= okX + btnSize) {
 				onMobileAccept();
 				return;
 			}
-			// Favorite button
 			var favX = startX - (btnSize + btnGap) * 2;
 			if (tx >= favX && tx <= favX + btnSize) {
 				onMobileFavorite();
 				return;
 			}
-			// Info button
 			var infoX = startX - (btnSize + btnGap) * 3;
 			if (tx >= infoX && tx <= infoX + btnSize) {
 				onMobileInfo();
 				return;
 			}
-			// Category/TAB button
 			var catX = startX - (btnSize + btnGap) * 4;
 			if (tx >= catX && tx <= catX + btnSize) {
 				onMobileCategory();
 				return;
 			}
-			// Toggle UI button
 			var uiX = startX - (btnSize + btnGap) * 5;
 			if (tx >= uiX && tx <= uiX + btnSize) {
 				onMobileToggleUI();
@@ -742,49 +833,41 @@ class GalleryState extends MusicBeatState {
 			}
 		}
 
-		// Row 2 buttons hit detection (only in single/fullscreen view)
 		var row2Y:Float = btnY - btnSize - btnGap;
 		if (ty >= row2Y && ty <= row2Y + btnSize && (viewMode == SINGLE_VIEW || viewMode == FULLSCREEN)) {
-			// Zoom In
 			if (tx >= startX && tx <= startX + btnSize) {
 				imgZoom = Math.min(maxZoom, imgZoom + zoomStep * 3);
 				updateImageTransform();
 				return;
 			}
-			// Zoom Out
 			var zoX = startX - (btnSize + btnGap);
 			if (tx >= zoX && tx <= zoX + btnSize) {
 				imgZoom = Math.max(minZoom, imgZoom - zoomStep * 3);
 				updateImageTransform();
 				return;
 			}
-			// Rotate
 			var rotX = startX - (btnSize + btnGap) * 2;
 			if (tx >= rotX && tx <= rotX + btnSize) {
 				imgRotation += 90;
 				updateImageTransform();
 				return;
 			}
-			// Reset
 			var resX = startX - (btnSize + btnGap) * 3;
 			if (tx >= resX && tx <= resX + btnSize) {
 				resetImageView();
 				return;
 			}
-			// Fullscreen
 			var fsX = startX - (btnSize + btnGap) * 4;
 			if (tx >= fsX && tx <= fsX + btnSize) {
 				if (viewMode == FULLSCREEN) exitFullscreen();
 				else switchToFullscreen();
 				return;
 			}
-			// Pause (audio)
 			var psX = startX - (btnSize + btnGap) * 5;
 			if (tx >= psX && tx <= psX + btnSize) {
 				toggleAudioPause();
 				return;
 			}
-			// Slideshow
 			var slX = startX - (btnSize + btnGap) * 6;
 			if (tx >= slX && tx <= slX + btnSize) {
 				toggleSlideshow();
@@ -792,7 +875,6 @@ class GalleryState extends MusicBeatState {
 			}
 		}
 
-		// Tap on grid thumbnail
 		if (viewMode == GALLERY_GRID) {
 			gridThumbnails.forEachAlive(function(spr:FlxSprite) {
 				if (tx >= spr.x && tx <= spr.x + spr.width && ty >= spr.y && ty <= spr.y + spr.height) {
@@ -812,7 +894,7 @@ class GalleryState extends MusicBeatState {
 		if (viewMode == SINGLE_VIEW || viewMode == FULLSCREEN || viewMode == SLIDESHOW) {
 			switchToGridView();
 		} else {
-			MusicBeatState.switchState(new MainMenuState());
+			MenuStyleRouter.goToMainMenu();
 		}
 	}
 
@@ -857,7 +939,6 @@ class GalleryState extends MusicBeatState {
 		var a:Float = textVisible ? 1 : 0;
 		for (t in [instDisplay, titleG, artistText, descG, typeText, pageDisplay, categoryText])
 			FlxTween.tween(t, {alpha: a}, 0.25, {ease: FlxEase.sineOut});
-		// Also toggle mobile buttons
 		if (mobileBtnGroup != null)
 			FlxTween.tween(mobileBtnGroup, {alpha: a}, 0.25, {ease: FlxEase.sineOut});
 	}
@@ -874,15 +955,9 @@ class GalleryState extends MusicBeatState {
 
 	function updateMobileButtonVisibility() {
 		if (mobileBtnGroup == null) return;
-
-		// Row 2 buttons visibility based on view mode
-		// For simplicity we show/hide the entire group
-		// and let the tap handler filter by view mode
 		mobileBtnGroup.visible = (viewMode != VIDEO_PLAYING);
 	}
 	#end
-
-	// ==================== DESKTOP INPUT ====================
 
 	function handleInput(elapsed:Float) {
 		if (controls.BACK) {
@@ -892,7 +967,7 @@ class GalleryState extends MusicBeatState {
 				switchToGridView();
 				return;
 			}
-			MusicBeatState.switchState(new MainMenuState());
+			MenuStyleRouter.goToMainMenu();
 			return;
 		}
 
@@ -932,8 +1007,6 @@ class GalleryState extends MusicBeatState {
 			case SLIDESHOW: handleSlideshowInput(elapsed);
 		}
 	}
-
-	// ==================== GRID VIEW ====================
 
 	function handleGridInput(elapsed:Float) {
 		var changed = false;
@@ -984,6 +1057,7 @@ class GalleryState extends MusicBeatState {
 		updateGridSelection();
 		updateTexts();
 		updateInstructions();
+		refreshCategoryText();
 
 		#if mobile
 		updateMobileButtonVisibility();
@@ -1015,7 +1089,12 @@ class GalleryState extends MusicBeatState {
 
 			var thumb = new FlxSprite();
 			try {
-				thumb.loadGraphic(Paths.image("gallery/img/" + item.fileName));
+				var imgData = getItemImagePath(item);
+				if (Std.isOfType(imgData, openfl.display.BitmapData)) {
+					thumb.loadGraphic(cast imgData);
+				} else {
+					thumb.loadGraphic(imgData);
+				}
 			} catch (e) {
 				thumb.makeGraphic(Std.int(tw), Std.int(th), bgMedium);
 			}
@@ -1063,25 +1142,19 @@ class GalleryState extends MusicBeatState {
 		});
 	}
 
-	// ==================== SINGLE VIEW ====================
-
 	function handleSingleViewInput(elapsed:Float) {
 		if (filteredItems.length == 0) return;
 		var item = filteredItems[curSelected];
 
-		// Navigation only when NOT panning
 		if (!isPanning) {
 			if (controls.UI_LEFT_P) changeItem(-1);
 			if (controls.UI_RIGHT_P) changeItem(1);
 		}
 
 		if (item.type == IMAGE || item.type == ANIMATED) {
-			// Zoom with Q/E only (no WASD conflict)
 			if (FlxG.keys.pressed.Q) imgZoom = Math.min(maxZoom, imgZoom + zoomStep);
 			if (FlxG.keys.pressed.E) imgZoom = Math.max(minZoom, imgZoom - zoomStep);
 
-			// Pan with arrow keys + shift OR dedicated keys
-			// Use IJKL for panning to avoid WASD/arrow conflict
 			if (FlxG.keys.pressed.I || (FlxG.keys.pressed.UP && FlxG.keys.pressed.SHIFT)) {
 				imgOffsetY -= panSpeed;
 				isPanning = true;
@@ -1099,7 +1172,6 @@ class GalleryState extends MusicBeatState {
 				isPanning = true;
 			}
 
-			// Reset panning flag when no pan keys pressed
 			if (!FlxG.keys.pressed.I && !FlxG.keys.pressed.K &&
 				!FlxG.keys.pressed.J && !FlxG.keys.pressed.L &&
 				!(FlxG.keys.pressed.SHIFT && (FlxG.keys.pressed.UP || FlxG.keys.pressed.DOWN || FlxG.keys.pressed.LEFT || FlxG.keys.pressed.RIGHT))) {
@@ -1128,6 +1200,7 @@ class GalleryState extends MusicBeatState {
 		loadCurrentItem();
 		updateTexts();
 		updateInstructions();
+		refreshCategoryText();
 
 		#if mobile
 		updateMobileButtonVisibility();
@@ -1139,7 +1212,12 @@ class GalleryState extends MusicBeatState {
 		var item = filteredItems[curSelected];
 
 		try {
-			img.loadGraphic(Paths.image("gallery/img/" + item.fileName));
+			var imgData = getItemImagePath(item);
+			if (Std.isOfType(imgData, openfl.display.BitmapData)) {
+				img.loadGraphic(cast imgData);
+			} else {
+				img.loadGraphic(imgData);
+			}
 		} catch (e) {
 			img.makeGraphic(400, 300, bgMedium);
 		}
@@ -1203,13 +1281,10 @@ class GalleryState extends MusicBeatState {
 		if (!smoothPan) { img.x = targetX; img.y = targetY; }
 	}
 
-	// ==================== FULLSCREEN ====================
-
 	function handleFullscreenInput(elapsed:Float) {
 		if (FlxG.keys.pressed.Q) imgZoom = Math.min(maxZoom, imgZoom + zoomStep);
 		if (FlxG.keys.pressed.E) imgZoom = Math.max(minZoom, imgZoom - zoomStep);
 
-		// IJKL for panning (no conflict)
 		if (FlxG.keys.pressed.I) imgOffsetY -= panSpeed;
 		if (FlxG.keys.pressed.K) imgOffsetY += panSpeed;
 		if (FlxG.keys.pressed.J) imgOffsetX -= panSpeed;
@@ -1248,8 +1323,6 @@ class GalleryState extends MusicBeatState {
 		updateInstructions();
 	}
 
-	// ==================== VIDEO ====================
-
 	function handleVideoInput(elapsed:Float) {
 		#if VIDEOS_ALLOWED
 		if (controls.BACK) {
@@ -1285,7 +1358,7 @@ class GalleryState extends MusicBeatState {
 
 		if (showingInfo) toggleInfoPanel(false);
 
-		var filepath = Paths.video('gallery/' + item.fileName);
+		var filepath = getItemVideoPath(item);
 		videoObj = new VideoSprite(filepath, false, true, false);
 		videoObj.finishCallback = function() { onVideoFinished(); };
 		videoObj.onSkip = function() { onVideoFinished(); };
@@ -1328,16 +1401,30 @@ class GalleryState extends MusicBeatState {
 		separator.visible = true;
 	}
 
-	// ==================== AUDIO ====================
-
 	function playAudio(item:GalleryItem) {
 		stopAudio();
 		if (FlxG.sound.music != null) FlxG.sound.music.pause();
 
 		daSound = new FlxSound();
 		switch (item.type) {
-			case SOUND_EFFECT: daSound.loadEmbedded(Paths.sound('gallery/' + item.fileName), false, true);
-			case MUSIC: daSound.loadEmbedded(Paths.music('gallery/' + item.fileName), true, true);
+			case SOUND_EFFECT:
+				var sndPath = getItemSoundPath(item);
+				if (Std.isOfType(sndPath, String)) {
+					#if sys
+					daSound.loadEmbedded(sndPath, false, true);
+					#end
+				} else {
+					daSound.loadEmbedded(sndPath, false, true);
+				}
+			case MUSIC:
+				var musPath = getItemMusicPath(item);
+				if (Std.isOfType(musPath, String)) {
+					#if sys
+					daSound.loadEmbedded(musPath, true, true);
+					#end
+				} else {
+					daSound.loadEmbedded(musPath, true, true);
+				}
 			default: return;
 		}
 		daSound.onComplete = function():Void {
@@ -1391,8 +1478,6 @@ class GalleryState extends MusicBeatState {
 			+ (audioPaused ? "  ||" : "  ▶");
 	}
 
-	// ==================== SLIDESHOW ====================
-
 	function handleSlideshowInput(elapsed:Float) {
 		if (controls.BACK || FlxG.keys.justPressed.P) { stopSlideshow(); switchToSingleView(); return; }
 		if (controls.UI_RIGHT_P || controls.ACCEPT) slideshowNext();
@@ -1439,8 +1524,6 @@ class GalleryState extends MusicBeatState {
 		if (tries < filteredItems.length) { curSelected = prev; loadCurrentItem(); updateTexts(); }
 	}
 
-	// ==================== CATEGORIES ====================
-
 	function buildCategories() {
 		categories = ["All", "Favorites"];
 		for (item in galleryItems) {
@@ -1465,12 +1548,10 @@ class GalleryState extends MusicBeatState {
 		}
 		curSelected = 0;
 		gridPage = 0;
-		categoryText.text = cat + " (" + filteredItems.length + ")";
+		refreshCategoryText();
 		if (viewMode == GALLERY_GRID) { buildGrid(); updateGridSelection(); }
 		updateTexts();
 	}
-
-	// ==================== INFO PANEL ====================
 
 	function toggleInfoPanel(show:Bool) {
 		showingInfo = show;
@@ -1485,14 +1566,12 @@ class GalleryState extends MusicBeatState {
 		var item = filteredItems[curSelected];
 		infoTitleText.text = item.title;
 		infoDescText.text = item.description;
-		infoArtistText.text = "Artist: " + (item.artist != null ? item.artist : "—");
-		infoCategoryText.text = "Category: " + (item.category != null ? item.category : "—");
-		infoTypeText.text = "Type: " + getTypeName(item.type);
-		infoDateText.text = "Date: " + (item.dateAdded != null ? item.dateAdded : "—");
-		infoFavText.text = "Favorite: " + ((item.favorited != null && item.favorited) ? "★ Yes" : "No");
+		infoArtistText.text = phrase("gallery_info_artist", "Sanatçı") + ": " + (item.artist != null ? item.artist : "—");
+		infoCategoryText.text = phrase("gallery_info_category", "Kategori") + ": " + (item.category != null ? item.category : "—");
+		infoTypeText.text = phrase("gallery_info_type", "Tür") + ": " + getTypeName(item.type);
+		infoDateText.text = phrase("gallery_info_date", "Tarih") + ": " + (item.dateAdded != null ? item.dateAdded : "—");
+		infoFavText.text = phrase("gallery_info_favorite", "Favori") + ": " + ((item.favorited != null && item.favorited) ? "★ " + phrase("general_yes", "Evet") : phrase("general_no", "Hayır"));
 	}
-
-	// ==================== HUD ====================
 
 	function hideHUD() {
 		for (t in [titleG, artistText, descG, typeText, instDisplay, pageDisplay, categoryText])
@@ -1504,8 +1583,6 @@ class GalleryState extends MusicBeatState {
 		for (t in [titleG, artistText, descG, typeText, instDisplay, pageDisplay, categoryText])
 			FlxTween.tween(t, {alpha: 1}, 0.25, {ease: FlxEase.sineOut});
 	}
-
-	// ==================== UTILITY ====================
 
 	function changeItem(change:Int) {
 		curSelected += change;
@@ -1521,27 +1598,28 @@ class GalleryState extends MusicBeatState {
 
 	function updateTexts() {
 		if (filteredItems.length == 0) {
-			titleG.text = "Empty";
+			titleG.text = phrase("gallery_empty_title", "Boş");
 			artistText.text = "";
-			descG.text = "No items in this category.";
+			descG.text = phrase("gallery_empty_desc", "Bu kategoride öğe yok.");
 			typeText.text = "";
-			pageDisplay.text = "— / —";
+			pageDisplay.text = phrase("gallery_page_empty", "— / —");
 			return;
 		}
 		var item = filteredItems[curSelected];
 		var fav = (item.favorited != null && item.favorited) ? " ★" : "";
-		titleG.text = item.title + fav;
-		artistText.text = item.artist != null ? "by " + item.artist : "";
+		var modTag = (item.modDirectory != null && item.modDirectory.length > 0) ? " [MOD]" : "";
+		titleG.text = item.title + fav + modTag;
+		artistText.text = item.artist != null ? phrase("gallery_by", "Yapımcı:") + " " + item.artist : "";
 		descG.text = item.description;
 		typeText.text = getTypeName(item.type)
 			+ (item.category != null ? "  ·  " + item.category : "")
-			+ (item.dateAdded != null ? "  ·  " + item.dateAdded : "");
+			+ (item.dateAdded != null ? "  ·  " + item.dateAdded : "")
+			+ (item.modDirectory != null && item.modDirectory.length > 0 ? "  ·  " + item.modDirectory : "");
 		pageDisplay.text = (curSelected + 1) + " / " + filteredItems.length;
 	}
 
 	function updateInstructions() {
 		#if mobile
-		// Mobile doesn't need keyboard instructions
 		instDisplay.text = "";
 		instDisplay.alpha = 0;
 		return;
@@ -1549,59 +1627,36 @@ class GalleryState extends MusicBeatState {
 
 		switch (viewMode) {
 			case GALLERY_GRID:
-				instDisplay.text = "Arrows · Navigate\n"
-					+ "Enter · Open\n"
-					+ "Tab · Category\n"
-					+ "F · Favorite\n"
-					+ "I · Info\n"
-					+ "P · Slideshow\n"
-					+ "X · Toggle UI\n"
-					+ "Esc · Back";
+				instDisplay.text = phrase("gallery_inst_grid",
+					"Yön Tuşları · Gezin\nEnter · Aç\nTab · Kategori\nF · Favori\nI · Bilgi\nP · Slayt Gösterisi\nX · Arayüzü Aç/Kapat\nEsc · Geri");
 			case SINGLE_VIEW:
 				var item = filteredItems.length > 0 ? filteredItems[curSelected] : null;
 				if (item != null && (item.type == IMAGE || item.type == ANIMATED)) {
-					instDisplay.text = "←/→ · Navigate\n"
-						+ "Q/E · Zoom\n"
-						+ "IJKL · Pan\n"
-						+ "Shift+Arrows · Pan\n"
-						+ "R/T · Rotate\n"
-						+ "C · Reset\n"
-						+ "Space · Fullscreen\n"
-						+ "F · Favorite\n"
-						+ "I · Info\n"
-						+ "P · Slideshow\n"
-						+ "Esc · Back";
+					instDisplay.text = phrase("gallery_inst_single_image",
+						"←/→ · Gezin\nQ/E · Yakınlaştır\nIJKL · Kaydır\nShift+Yön · Kaydır\nR/T · Döndür\nC · Sıfırla\nBoşluk · Tam Ekran\nF · Favori\nI · Bilgi\nP · Slayt Gösterisi\nEsc · Geri");
 				} else {
-					instDisplay.text = "←/→ · Navigate\n"
-						+ "Enter · Play\n"
-						+ "Space · Pause\n"
-						+ "F · Favorite\n"
-						+ "I · Info\n"
-						+ "Esc · Back";
+					instDisplay.text = phrase("gallery_inst_single_audio",
+						"←/→ · Gezin\nEnter · Oynat\nBoşluk · Duraklat\nF · Favori\nI · Bilgi\nEsc · Geri");
 				}
 			case FULLSCREEN:
-				instDisplay.text = "Q/E · Zoom\n"
-					+ "IJKL · Pan\n"
-					+ "R · Rotate\n"
-					+ "C · Reset\n"
-					+ "Space · Exit";
+				instDisplay.text = phrase("gallery_inst_fullscreen",
+					"Q/E · Yakınlaştır\nIJKL · Kaydır\nR · Döndür\nC · Sıfırla\nBoşluk · Çık");
 			case SLIDESHOW:
-				instDisplay.text = "Slideshow (" + slideshowInterval + "s)\n"
-					+ "←/→ · Manual\n"
-					+ "P/Esc · Stop";
+				instDisplay.text = phrase("gallery_inst_slideshow_label", "Slayt Gösterisi") + " (" + slideshowInterval + phrase("gallery_seconds_suffix", "sn") + ")\n"
+					+ phrase("gallery_inst_slideshow_controls", "←/→ · Manuel\nP/Esc · Durdur");
 			case VIDEO_PLAYING:
-				instDisplay.text = "Hold Enter · Skip\n"
-					+ "Esc · Stop";
+				instDisplay.text = phrase("gallery_inst_video",
+					"Enter Basılı Tut · Atla\nEsc · Durdur");
 		}
 	}
 
 	function getTypeName(type:GalleryType):String {
 		return switch (type) {
-			case IMAGE: "Image";
-			case VIDEO: "Video";
-			case SOUND_EFFECT: "SFX";
-			case MUSIC: "Music";
-			case ANIMATED: "Animation";
+			case IMAGE: phrase("gallery_type_image", "Görsel");
+			case VIDEO: phrase("gallery_type_video", "Video");
+			case SOUND_EFFECT: phrase("gallery_type_sfx", "Ses Efekti");
+			case MUSIC: phrase("gallery_type_music", "Müzik");
+			case ANIMATED: phrase("gallery_type_animation", "Animasyon");
 		}
 	}
 
@@ -1616,6 +1671,23 @@ class GalleryState extends MusicBeatState {
 		var m = Std.int(s / 60);
 		var sec = Std.int(s % 60);
 		return m + ":" + (sec < 10 ? "0" : "") + sec;
+	}
+
+	function getCategoryDisplayName(cat:String):String {
+		return switch (cat) {
+			case "All": phrase("gallery_category_all", "Tümü");
+			case "Favorites": phrase("gallery_category_favorites", "Favoriler");
+			default: cat;
+		}
+	}
+
+	function refreshCategoryText() {
+		if (categoryText == null || categories.length == 0) return;
+		categoryText.text = getCategoryDisplayName(categories[currentCategory]) + " (" + filteredItems.length + ")";
+	}
+
+	inline function phrase(key:String, fallback:String):String {
+		return Language.getPhrase(key, fallback);
 	}
 
 	override function destroy() {

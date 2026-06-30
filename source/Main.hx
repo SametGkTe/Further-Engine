@@ -7,7 +7,6 @@ import openfl.Lib;
 import openfl.display.Sprite;
 import openfl.events.Event;
 import openfl.display.StageScaleMode;
-import backend.IOSKeyboardFix;
 import lime.app.Application;
 import states.TitleState;
 #if HSCRIPT_ALLOWED
@@ -77,6 +76,10 @@ class Main extends Sprite
 
 		#if VIDEOS_ALLOWED
 		hxvlc.util.Handle.init(#if (hxvlc >= "1.8.0")  ['--no-lua'] #end);
+		#end
+		
+		#if ios
+		sys.ssl.Socket.DEFAULT_VERIFY_CERT = false;
 		#end
 
 		#if LUA_ALLOWED
@@ -154,9 +157,6 @@ class Main extends Sprite
 		});
 		#end
 		addChild(new FlxGame(game.width, game.height, #if COPYSTATE_ALLOWED !CopyState.checkExistingFiles() ? CopyState : #end game.initialState, game.framerate, game.framerate, game.skipSplash, game.startFullscreen));
-		#if ios
-		IOSKeyboardFix.init();
-		#end
 		fpsVar = new FPSCounter(10, 3, 0xFFFFFF);
 		addChild(fpsVar);
 		Lib.current.stage.align = "tl";

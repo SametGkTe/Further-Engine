@@ -78,6 +78,7 @@ class SystemZipExtractor implements IZipExtractor {
 	// ─────────────────────────────────────────────
 
 	public function extract(zipPath:String, destinationPath:String, callbacks:ExtractCallbacks):Void {
+		var skippedEntries:Int = 0;
 		if (_extracting) {
 			safeError(callbacks, Unknown("Zaten bir extraction devam ediyor."));
 			return;
@@ -213,9 +214,14 @@ class SystemZipExtractor implements IZipExtractor {
 				}
 			}
 
-			// Dosyayı çıkar
 			try {
-				var data:Bytes = safeUnzip(entry);
+				var data:Null<Bytes> = safeUnzip(entry);
+				if (data == null) {
+					trace('[SystemZipExtractor] Dosya atlandı (açılamadı): ${entry.fileName}');
+					skippedEntries++;
+					loopIndex++;
+					continue;
+				}
 				File.saveBytes(fullDestPath, data);
 				extractedBytes += data.length;
 			} catch (e:Dynamic) {
@@ -363,37 +369,22 @@ class SystemZipExtractor implements IZipExtractor {
 		return result;
 	}
 
-	// ─────────────────────────────────────────────
-	//  Güvenli unzip
-	// ─────────────────────────────────────────────
-
-	/**
-	 * Entry verisini güvenli şekilde aç.
-	 * Reader.unzip() kullanır (doğru ZIP deflate).
-	 */
-	function safeUnzip(entry:Entry):Bytes {
+	function safeUnzip(entry:Entry):Null<Bytes> {
 		if (entry.data == null)
-			return Bytes.alloc(0);
+			return null;
 
 		if (entry.compressed) {
-			// Reader.unzip entry'yi yerinde açar
-			// data alanını uncompressed data ile değiştirir
-			// compressed flag'ı false yapar
 			try {
 				Reader.unzip(entry);
 			} catch (e:Dynamic) {
-				// İlk yöntem başarısız olursa
-				// raw inflate dene (farklı header)
 				trace('[SystemZipExtractor] Reader.unzip başarısız, raw inflate deneniyor...');
 				try {
 					var inflated = rawInflate(entry.data, entry.fileSize);
 					entry.data = inflated;
 					entry.compressed = false;
 				} catch (e2:Dynamic) {
-					trace('[SystemZipExtractor] Raw inflate de başarısız: ${Std.string(e2)}');
-					// Son çare: veriyi olduğu gibi döndür
-					// Bozuk olabilir ama en azından crash olmaz
-					trace('[SystemZipExtractor] Dosya sıkıştırılmış olarak kaydedilecek (bozuk olabilir).');
+					trace('[SystemZipExtractor] ✗ Dosya açılamadı: ${entry.fileName} — ${Std.string(e2)}');
+					return null; // Bozuk veri yazmak yerine null dön
 				}
 			}
 		}

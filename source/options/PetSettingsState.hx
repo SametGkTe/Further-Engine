@@ -77,6 +77,16 @@ class PetSettingsState extends BaseOptionsMenu
 			applyMenuMusic();
 		};
 		addOption(menuMusicOption);
+		
+		option = new Option(
+			'Menü Stili:',
+			'P.E.T\'nin kullanacağı menü stilini seçin.',
+			'menuStyle',
+			STRING,
+			['Orjinal', 'Yeni'],
+			'pet_loading_screen_style'
+		);
+		addOption(option);
 
 		super();
 	}

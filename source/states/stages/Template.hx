@@ -1,4 +1,5 @@
 package states.stages;
+import objects.Note;
 
 import states.stages.objects.*;
 

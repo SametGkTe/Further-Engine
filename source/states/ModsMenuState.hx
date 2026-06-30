@@ -116,7 +116,7 @@ class ModsMenuState extends MusicBeatState
 		
 		var modpackY = buttonReload.y + buttonReload.bg.height + 20;
 		buttonModpacks = new MenuButton(buttonX, modpackY, buttonWidth, buttonHeight, Language.getPhrase('modpacks_button', 'MOD PAKETLERi'), function() {
-			openSubState(new ModpackSubState());
+			MusicBeatState.switchState(new ModpackStoreState());
 		});
 		buttonModpacks.bg.color = 0xFF0D9488;
 		buttonModpacks.focusChangeCallback = function(focus:Bool) {
@@ -365,7 +365,7 @@ class ModsMenuState extends MusicBeatState
 				}
 				FlxG.camera.fade(FlxColor.BLACK, 0.5, false, FlxG.resetGame, false);
 			}
-			else MusicBeatState.switchState(new MainMenuState());
+			else MenuStyleRouter.goToMainMenu();
 
 			persistentUpdate = false;
 			FlxG.autoPause = ClientPrefs.data.autoPause;
@@ -810,7 +810,7 @@ class ModsMenuState extends MusicBeatState
 		FlxTransitionableState.skipNextTransIn = true;
 		FlxTransitionableState.skipNextTransOut = true;
 		var curMod:ModItem = modsGroup.members[curSelectedMod];
-		MusicBeatState.switchState(new ModsMenuState(curMod != null ? curMod.folder : null));
+		MenuStyleRouter.goToMods();
 	}
 	
 	function saveTxt()

@@ -1,6 +1,5 @@
 package objects;
 
-
 import backend.AuthManager;
 import backend.Paths;
 import backend.ClientPrefs;
@@ -25,9 +24,6 @@ import sys.io.File;
 #end
 
 class ProfileBox extends FlxSpriteGroup {
-	// ══════════════════════════════════
-	//  RENKLER
-	// ══════════════════════════════════
 	static inline final COL_BG = 0xEE0D0D1A;
 	static inline final COL_ACCENT = 0xFFA855F7;
 	static inline final COL_GREEN = 0xFF22c55e;
@@ -40,10 +36,7 @@ class ProfileBox extends FlxSpriteGroup {
 	static inline final COL_TEXT = 0xFFE2E2F0;
 	static inline final COL_TEXT_DIM = 0xFF8888A8;
 	static inline final COL_AVATAR_BG = 0xFF1A1A32;
-	
-	// ══════════════════════════════════
-	//  DROPDOWN
-	// ══════════════════════════════════
+
 	var dropdownOpen:Bool = false;
 	var dropdownBg:FlxSprite;
 	var dropdownAccent:FlxSprite;
@@ -71,9 +64,6 @@ class ProfileBox extends FlxSpriteGroup {
 	static inline final COL_LOGOUT = 0xFFef4444;
 	static inline final COL_SETTINGS = 0xFF888888;
 
-	// ══════════════════════════════════
-	//  BOYUTLAR
-	// ══════════════════════════════════
 	static inline final BOX_W = 330;
 	static inline final BOX_H = 108;
 	static inline final BOX_H_GUEST = 64;
@@ -82,9 +72,6 @@ class ProfileBox extends FlxSpriteGroup {
 
 	static inline final CACHE_FILE = "profile_cache.json";
 
-	// ══════════════════════════════════
-	//  SPRİTELER
-	// ══════════════════════════════════
 	var bg:FlxSprite;
 	var accentBar:FlxSprite;
 	var accentTop:FlxSprite;
@@ -101,17 +88,12 @@ class ProfileBox extends FlxSpriteGroup {
 	var levelBadge:FlxSprite;
 	var levelNumText:FlxText;
 	var upText:FlxText;
-	var rankIcon:FlxText;
-	var rankText:FlxText;
 	var achievementLabel:FlxText;
 
 	var guestText:FlxText;
 	var guestSubText:FlxText;
 	var guestArrow:FlxText;
 
-	// ══════════════════════════════════
-	//  STATE
-	// ══════════════════════════════════
 	var _pulseTime:Float = 0;
 	var _built:Bool = false;
 	var _isGuest:Bool = true;
@@ -130,9 +112,6 @@ class ProfileBox extends FlxSpriteGroup {
 			buildGuest();
 	}
 
-	// ══════════════════════════════════════════════════════
-	//  GUEST
-	// ══════════════════════════════════════════════════════
 	function buildGuest():Void {
 		_isGuest = true;
 		_built = true;
@@ -154,12 +133,12 @@ class ProfileBox extends FlxSpriteGroup {
 		statusDot = makeRect(ACCENT_W + 14, BOX_H_GUEST / 2 - 5, 10, 10, COL_RED);
 		add(statusDot);
 
-		guestText = new FlxText(ACCENT_W + 32, 12, BOX_W - 80, "Giriş Yapılmadı");
+		guestText = new FlxText(ACCENT_W + 32, 12, BOX_W - 80, Language.getPhrase('profile_not_logged_in', 'Giriş Yapılmadı'));
 		guestText.setFormat(Paths.font("Avgardd.ttf"), 16, COL_TEXT, LEFT);
 		guestText.scrollFactor.set(0, 0);
 		add(guestText);
 
-		guestSubText = new FlxText(ACCENT_W + 32, 34, BOX_W - 80, "Hesabına giriş yap");
+		guestSubText = new FlxText(ACCENT_W + 32, 34, BOX_W - 80, Language.getPhrase('profile_login_prompt', 'Hesabına giriş yap'));
 		guestSubText.setFormat(Paths.font("Avgardd.ttf"), 11, COL_TEXT_DIM, LEFT);
 		guestSubText.scrollFactor.set(0, 0);
 		add(guestSubText);
@@ -172,20 +151,15 @@ class ProfileBox extends FlxSpriteGroup {
 		animateEntry();
 	}
 
-	// ══════════════════════════════════════════════════════
-	//  LOGGED IN
-	// ══════════════════════════════════════════════════════
 	function buildLoggedIn():Void {
 		_isGuest = false;
 		_built = true;
 
-		var username = AuthManager.currentUsername ?? "Player";
+		var username = AuthManager.currentUsername ?? Language.getPhrase('profile_default_player', 'Oyuncu');
 		var level = AuthManager.currentLevel ?? 1;
 		var up = AuthManager.currentUltraPoints ?? 0.0;
-		var rank = getRankFromUP(up);
-		var rankColor = getRankColor(rank);
+		var rankColor = getRankColorFromUP(up);
 
-		// Arka plan
 		bg = makeRect(0, 0, BOX_W, BOX_H, COL_BG);
 		bg.alpha = 0.95;
 		add(bg);
@@ -200,7 +174,6 @@ class ProfileBox extends FlxSpriteGroup {
 		borderBottom = makeRect(0, BOX_H - 1, BOX_W, 1, COL_BORDER);
 		add(borderBottom);
 
-		// ── Avatar ──
 		var avX:Float = ACCENT_W + 12;
 		var avY:Float = (BOX_H - AVATAR_SIZE) / 2 - 2;
 
@@ -211,7 +184,6 @@ class ProfileBox extends FlxSpriteGroup {
 		avatarBg = makeRect(avX, avY, AVATAR_SIZE, AVATAR_SIZE, COL_AVATAR_BG);
 		add(avatarBg);
 
-		// Avatar resmi
 		avatarSprite = new FlxSprite(0, 0);
 		avatarSprite.scrollFactor.set(0, 0);
 		avatarSprite.antialiasing = ClientPrefs.data.antialiasing;
@@ -224,7 +196,6 @@ class ProfileBox extends FlxSpriteGroup {
 			var sc = Math.min(AVATAR_SIZE / imgW, AVATAR_SIZE / imgH);
 			avatarSprite.scale.set(sc, sc);
 			avatarSprite.updateHitbox();
-			// Group icinde relative pozisyon
 			avatarSprite.x = avX + (AVATAR_SIZE - avatarSprite.width) / 2;
 			avatarSprite.y = avY + (AVATAR_SIZE - avatarSprite.height) / 2;
 			avatarLoaded = true;
@@ -234,26 +205,23 @@ class ProfileBox extends FlxSpriteGroup {
 		avatarSprite.visible = avatarLoaded;
 		add(avatarSprite);
 
-		// Avatar harf (fallback)
 		avatarLetter = new FlxText(avX, avY + 10, AVATAR_SIZE, username.charAt(0).toUpperCase());
 		avatarLetter.setFormat(Paths.font("vcr.ttf"), 26, rankColor, CENTER);
 		avatarLetter.scrollFactor.set(0, 0);
 		avatarLetter.visible = !avatarLoaded;
 		add(avatarLetter);
 
-		// ── Online durum ──
 		statusRing = makeRect(avX + AVATAR_SIZE - 14, avY + AVATAR_SIZE - 14, 14, 14, COL_BG);
 		add(statusRing);
 
 		statusDot = makeRect(avX + AVATAR_SIZE - 12, avY + AVATAR_SIZE - 12, 10, 10, COL_GREEN);
 		add(statusDot);
 
-		// ── Metin alani ──
 		var textX:Float = avX + AVATAR_SIZE + 14;
 		var textW:Int = Std.int(BOX_W - textX - 14);
 
 		usernameText = new FlxText(textX, 10, textW - 50, username);
-		usernameText.setFormat(Paths.font("Exa.ttf"), 20, COL_TEXT, LEFT);
+		usernameText.setFormat(Paths.font("Avgardd.ttf"), 20, COL_TEXT, LEFT);
 		usernameText.scrollFactor.set(0, 0);
 		add(usernameText);
 
@@ -262,33 +230,26 @@ class ProfileBox extends FlxSpriteGroup {
 		levelBadge.alpha = 0.25;
 		add(levelBadge);
 
-		levelNumText = new FlxText(lvBadgeX, 12, 42, 'Lv.$level');
+		levelNumText = new FlxText(lvBadgeX, 12, 42, Language.getPhrase('profile_level_prefix', 'Sv') + '.$level');
 		levelNumText.setFormat(Paths.font("vcr.ttf"), 11, rankColor, CENTER);
 		levelNumText.scrollFactor.set(0, 0);
 		add(levelNumText);
 
-		upText = new FlxText(textX, 30, textW, '${formatNumber(up)} UP');
+		upText = new FlxText(textX, 38, textW, '${formatNumber(up)} UP');
 		upText.setFormat(Paths.font("vcr.ttf"), 11, COL_TEXT_DIM, LEFT);
 		upText.scrollFactor.set(0, 0);
 		add(upText);
 
-		var row3Y:Float = 48;
-
-		rankIcon = new FlxText(textX, row3Y, 16, getRankSymbol(rank));
-		rankIcon.setFormat(Paths.font("vcr.ttf"), 11, rankColor, LEFT);
-		rankIcon.scrollFactor.set(0, 0);
-		add(rankIcon);
-
-		rankText = new FlxText(textX + 14, row3Y, Std.int(textW * 0.45), getRankTitle(rank));
-		rankText.setFormat(Paths.font("vcr.ttf"), 11, rankColor, LEFT);
-		rankText.scrollFactor.set(0, 0);
-		add(rankText);
+		var badge = AuthManager.currentBadge;
+		if (badge != null && badge.length > 0) {
+			upText.text = '${formatNumber(up)} UP  ·  $badge';
+		}
 
 		#if ACHIEVEMENTS_ALLOWED
 		var achUnlocked = Achievements.achievementsUnlocked.length;
 		var achTotal = Lambda.count(Achievements.achievements);
 
-		achievementLabel = new FlxText(textX + Std.int(textW * 0.5), row3Y, Std.int(textW * 0.5), 'Başarımlar: $achUnlocked/$achTotal');
+		achievementLabel = new FlxText(textX, 58, textW, Language.getPhrase('profile_achievements', 'Başarımlar') + ': $achUnlocked/$achTotal');
 		achievementLabel.setFormat(Paths.font("vcr.ttf"), 11, COL_GOLD, LEFT);
 		achievementLabel.scrollFactor.set(0, 0);
 		add(achievementLabel);
@@ -298,9 +259,6 @@ class ProfileBox extends FlxSpriteGroup {
 		saveCache();
 	}
 
-	// ══════════════════════════════════
-	//  YARDIMCI
-	// ══════════════════════════════════
 	function makeRect(rx:Float, ry:Float, w:Dynamic, h:Dynamic, color:FlxColor):FlxSprite {
 		var spr = new FlxSprite(rx, ry);
 		spr.makeGraphic(Std.int(w), Std.int(h), color);
@@ -345,8 +303,6 @@ class ProfileBox extends FlxSpriteGroup {
 		levelBadge = null;
 		levelNumText = null;
 		upText = null;
-		rankIcon = null;
-		rankText = null;
 		achievementLabel = null;
 		guestText = null;
 		guestSubText = null;
@@ -472,21 +428,19 @@ class ProfileBox extends FlxSpriteGroup {
 		} else {
 			FlxG.sound.play(Paths.sound('confirmMenu'));
 			if (dropdownOpen) closeDropdown();
-			LinkSubState.requestURL("https://samedcan1234.github.io/Psych-Engine-Ultra-Android/", "Profil sayfanızı açmak istiyor musunuz?");
+			LinkSubState.requestURL("https://samedcan1234.github.io/Psych-Engine-Ultra-Android/", Language.getPhrase('profile_open_page', 'Profil sayfanızı açmak istiyor musunuz?'));
 		}
 	}
-	
+
 	function openDropdown():Void {
 		if (dropdownOpen) return;
 		if (FlxG.state == null) return;
 		dropdownOpen = true;
 
-		// Absolute pozisyon hesapla
 		var dropX:Float = this.x;
 		var dropY:Float = this.y + BOX_H + 4;
 		var totalH:Int = DROP_ITEM_H * 2 + 1;
 
-		// State'e ekle (group'a degil)
 		dropdownBg = new FlxSprite(dropX, dropY).makeGraphic(DROP_W, totalH, COL_DROP_BG);
 		dropdownBg.scrollFactor.set(0, 0);
 		dropdownBg.alpha = 0;
@@ -504,7 +458,6 @@ class ProfileBox extends FlxSpriteGroup {
 
 		var itemY:Float = dropY;
 
-		// ── Ayarlar ──
 		dropSettingsBg = new FlxSprite(dropX, itemY).makeGraphic(DROP_W, DROP_ITEM_H, COL_DROP_BG);
 		dropSettingsBg.scrollFactor.set(0, 0);
 		dropSettingsBg.alpha = 0;
@@ -524,7 +477,7 @@ class ProfileBox extends FlxSpriteGroup {
 		dropSettingsIcon.y = itemY + (DROP_ITEM_H - DROP_ICON_SIZE) / 2;
 		FlxG.state.add(dropSettingsIcon);
 
-		dropSettingsText = new FlxText(Std.int(dropX + 38), Std.int(itemY + 10), Std.int(DROP_W - 50), "Ayarlar");
+		dropSettingsText = new FlxText(Std.int(dropX + 38), Std.int(itemY + 10), Std.int(DROP_W - 50), Language.getPhrase('profile_settings', 'Ayarlar'));
 		dropSettingsText.setFormat(Paths.font("vcr.ttf"), 13, COL_TEXT, LEFT);
 		dropSettingsText.scrollFactor.set(0, 0);
 		dropSettingsText.alpha = 0;
@@ -532,7 +485,6 @@ class ProfileBox extends FlxSpriteGroup {
 
 		itemY += DROP_ITEM_H;
 
-		// ── Separator ──
 		dropSeparator = new FlxSprite(dropX + 10, itemY).makeGraphic(DROP_W - 20, 1, COL_DROP_SEP);
 		dropSeparator.scrollFactor.set(0, 0);
 		dropSeparator.alpha = 0;
@@ -540,7 +492,6 @@ class ProfileBox extends FlxSpriteGroup {
 
 		itemY += 1;
 
-		// ── Cikis Yap ──
 		dropLogoutBg = new FlxSprite(dropX, itemY).makeGraphic(DROP_W, DROP_ITEM_H, COL_DROP_BG);
 		dropLogoutBg.scrollFactor.set(0, 0);
 		dropLogoutBg.alpha = 0;
@@ -560,13 +511,12 @@ class ProfileBox extends FlxSpriteGroup {
 		dropLogoutIcon.y = itemY + (DROP_ITEM_H - DROP_ICON_SIZE) / 2;
 		FlxG.state.add(dropLogoutIcon);
 
-		dropLogoutText = new FlxText(Std.int(dropX + 38), Std.int(itemY + 10), Std.int(DROP_W - 50), "Hesaptan Çık");
+		dropLogoutText = new FlxText(Std.int(dropX + 38), Std.int(itemY + 10), Std.int(DROP_W - 50), Language.getPhrase('profile_logout', 'Hesaptan Çık'));
 		dropLogoutText.setFormat(Paths.font("vcr.ttf"), 13, COL_LOGOUT, LEFT);
 		dropLogoutText.scrollFactor.set(0, 0);
 		dropLogoutText.alpha = 0;
 		FlxG.state.add(dropLogoutText);
 
-		// Alpha animasyonu
 		FlxTween.tween(dropdownBg, {alpha: 1}, 0.18, {ease: FlxEase.sineOut});
 		FlxTween.tween(dropdownAccent, {alpha: 1}, 0.18, {ease: FlxEase.sineOut});
 		FlxTween.tween(dropdownBorder, {alpha: 0.5}, 0.18, {ease: FlxEase.sineOut});
@@ -674,7 +624,7 @@ class ProfileBox extends FlxSpriteGroup {
 			if (_dropHoverIdx == 0) {
 				FlxG.sound.play(Paths.sound('confirmMenu'));
 				closeDropdown();
-				LinkSubState.requestURL("https://samedcan1234.github.io/Psych-Engine-Ultra-Android/settings", "Profilinizin ayarlarını açmak istiyor musunuz?");
+				LinkSubState.requestURL("https://samedcan1234.github.io/Psych-Engine-Ultra-Android/settings", Language.getPhrase('profile_open_settings', 'Profilinizin ayarlarını açmak istiyor musunuz?'));
 			} else if (_dropHoverIdx == 1) {
 				FlxG.sound.play(Paths.sound('cancelMenu'));
 				closeDropdown();
@@ -711,10 +661,6 @@ class ProfileBox extends FlxSpriteGroup {
 		return false;
 	}
 
-
-	// ══════════════════════════════════
-	//  REFRESH
-	// ══════════════════════════════════
 	public function refresh():Void {
 		if (!AuthManager.isLoggedIn && !_isGuest) {
 			rebuild();
@@ -728,11 +674,10 @@ class ProfileBox extends FlxSpriteGroup {
 		if (_isGuest)
 			return;
 
-		var username = AuthManager.currentUsername ?? "Player";
+		var username = AuthManager.currentUsername ?? Language.getPhrase('profile_default_player', 'Oyuncu');
 		var level = AuthManager.currentLevel ?? 1;
 		var up = AuthManager.currentUltraPoints ?? 0.0;
-		var rank = getRankFromUP(up);
-		var rankColor = getRankColor(rank);
+		var rankColor = getRankColorFromUP(up);
 
 		if (usernameText != null)
 			usernameText.text = username;
@@ -746,7 +691,7 @@ class ProfileBox extends FlxSpriteGroup {
 			avatarBorder.color = rankColor;
 
 		if (levelNumText != null) {
-			levelNumText.text = 'Lv.$level';
+			levelNumText.text = Language.getPhrase('profile_level_prefix', 'Sv') + '.$level';
 			levelNumText.color = rankColor;
 		}
 
@@ -755,16 +700,6 @@ class ProfileBox extends FlxSpriteGroup {
 
 		if (upText != null)
 			upText.text = '${formatNumber(up)} UP';
-
-		if (rankIcon != null) {
-			rankIcon.text = getRankSymbol(rank);
-			rankIcon.color = rankColor;
-		}
-
-		if (rankText != null) {
-			rankText.text = getRankTitle(rank);
-			rankText.color = rankColor;
-		}
 
 		if (accentBar != null)
 			accentBar.color = rankColor;
@@ -775,67 +710,22 @@ class ProfileBox extends FlxSpriteGroup {
 		if (achievementLabel != null) {
 			var achUnlocked = Achievements.achievementsUnlocked.length;
 			var achTotal = Lambda.count(Achievements.achievements);
-			achievementLabel.text = 'Basarim: $achUnlocked/$achTotal';
+			achievementLabel.text = Language.getPhrase('profile_achievements', 'Başarımlar') + ': $achUnlocked/$achTotal';
 		}
 		#end
 
 		saveCache();
 	}
 
-	// ══════════════════════════════════
-	//  RANK
-	// ══════════════════════════════════
-	function getRankFromUP(up:Float):String {
-		if (up >= 100000) return "legend";
-		if (up >= 50000) return "grandmaster";
-		if (up >= 25000) return "master";
-		if (up >= 10000) return "diamond";
-		if (up >= 5000) return "platinum";
-		if (up >= 2000) return "gold";
-		if (up >= 500) return "silver";
-		return "bronze";
-	}
-
-	function getRankTitle(rank:String):String {
-		return switch (rank) {
-			case "bronze": "Bronze";
-			case "silver": "Silver";
-			case "gold": "Gold";
-			case "platinum": "Platinum";
-			case "diamond": "Diamond";
-			case "master": "Master";
-			case "grandmaster": "Grandmaster";
-			case "legend": "LEGEND";
-			default: rank;
-		};
-	}
-
-	function getRankSymbol(rank:String):String {
-		return switch (rank) {
-			case "bronze": "I";
-			case "silver": "II";
-			case "gold": "III";
-			case "platinum": "IV";
-			case "diamond": "V";
-			case "master": "VI";
-			case "grandmaster": "VII";
-			case "legend": "X";
-			default: "-";
-		};
-	}
-
-	function getRankColor(rank:String):FlxColor {
-		return switch (rank) {
-			case "bronze": 0xFFCD7F32;
-			case "silver": 0xFFC0C0C0;
-			case "gold": COL_GOLD;
-			case "platinum": 0xFFE5E4E2;
-			case "diamond": COL_CYAN;
-			case "master": COL_ACCENT;
-			case "grandmaster": COL_PINK;
-			case "legend": 0xFFFF6B6B;
-			default: COL_MUTED;
-		};
+	function getRankColorFromUP(up:Float):FlxColor {
+		if (up >= 100000) return 0xFFFF6B6B;
+		if (up >= 50000) return COL_PINK;
+		if (up >= 25000) return COL_ACCENT;
+		if (up >= 10000) return COL_CYAN;
+		if (up >= 5000) return 0xFFE5E4E2;
+		if (up >= 2000) return COL_GOLD;
+		if (up >= 500) return 0xFFC0C0C0;
+		return 0xFFCD7F32;
 	}
 
 	function formatNumber(num:Float):String {
@@ -846,9 +736,6 @@ class ProfileBox extends FlxSpriteGroup {
 		return Std.string(Std.int(num));
 	}
 
-	// ══════════════════════════════════
-	//  CACHE
-	// ══════════════════════════════════
 	static function cachePath():String {
 		#if android
 		return StorageUtil.getExternalStorageDirectory() + CACHE_FILE;
@@ -888,11 +775,8 @@ class ProfileBox extends FlxSpriteGroup {
 			AuthManager.currentScore = data.score ?? 0;
 			AuthManager.currentUltraPoints = data.ultraPoints ?? 0.0;
 			AuthManager.currentCountry = data.country ?? "";
-			trace('[ProfileBox] Cache loaded: ${data.username}');
 			return true;
-		} catch (e:Dynamic) {
-			trace('[ProfileBox] Cache load failed: $e');
-		}
+		} catch (e:Dynamic) {}
 		#end
 		return false;
 	}
@@ -913,9 +797,7 @@ class ProfileBox extends FlxSpriteGroup {
 			var path = cachePath();
 			if (!FileSystem.exists(path)) return null;
 			return haxe.Json.parse(File.getContent(path));
-		} catch (e:Dynamic) {
-			trace('[ProfileBox] getCachedProfile failed: $e');
-		}
+		} catch (e:Dynamic) {}
 		#end
 		return null;
 	}
@@ -934,9 +816,7 @@ class ProfileBox extends FlxSpriteGroup {
 				timestamp: Date.now().toString()
 			};
 			File.saveContent(cachePath(), haxe.Json.stringify(data));
-		} catch (e:Dynamic) {
-			trace('[ProfileBox] syncFromAuth failed: $e');
-		}
+		} catch (e:Dynamic) {}
 		#end
 
 		if (instance != null)

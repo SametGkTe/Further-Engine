@@ -3,6 +3,7 @@ package states;
 import backend.WeekData;
 import backend.Highscore;
 import backend.Song;
+import backend.Language;
 
 import objects.HealthIcon;
 import objects.MusicPlayer;
@@ -55,11 +56,9 @@ class FreeplayState extends MusicBeatState
 
 	var player:MusicPlayer;
 
-	// ========== RANDOM SONG ITEM ==========
 	var randomText:Alphabet;
 	var randomIcon:HealthIcon;
 
-	// ========== SEARCH BAR SYSTEM ==========
 	var searchBarBG:FlxSprite;
 	var searchBarOutline:FlxSprite;
 	var searchIcon:FlxSprite;
@@ -84,11 +83,9 @@ class FreeplayState extends MusicBeatState
 	var dropdownTargetY:Float = 0;
 	var dropdownCurrentY:Float = 0;
 
-	// Favorites & Recently played
 	public static var recentlyPlayed:Array<String> = [];
 	public static var favoriteSongs:Array<String> = [];
 
-	// Search bar dimensions
 	static inline var SEARCH_BAR_HEIGHT:Int = 44;
 	static inline var SEARCH_BAR_MARGIN:Int = 10;
 	static inline var DROPDOWN_ITEM_HEIGHT:Int = 44;
@@ -102,7 +99,7 @@ class FreeplayState extends MusicBeatState
 		WeekData.reloadWeekFiles(false);
 
 		#if DISCORD_ALLOWED
-		DiscordClient.changePresence("In the Menus", null);
+		DiscordClient.changePresence(Language.getPhrase("freeplay_discord", "Menülerde"), null);
 		#end
 
 		final accept:String = (controls.mobileC) ? "A" : "ACCEPT";
@@ -112,7 +109,9 @@ class FreeplayState extends MusicBeatState
 		{
 			FlxTransitionableState.skipNextTransIn = true;
 			persistentUpdate = false;
-			MusicBeatState.switchState(new states.ErrorState("NO WEEKS ADDED FOR FREEPLAY\n\nPress " + accept + " to go to the Week Editor Menu.\nPress " + reject + " to return to Main Menu.",
+			MusicBeatState.switchState(new states.ErrorState(Language.getPhrase("freeplay_no_weeks",
+				"SERBEST OYUN İÇİN HAFTA EKLENMEMİŞ\n\nHafta Düzenleyici Menüsüne gitmek için {1} tuşuna basın.\nAna Menüye dönmek için {2} tuşuna basın.",
+				[accept, reject]),
 				function() MusicBeatState.switchState(new states.editors.WeekEditorState()),
 				function() MusicBeatState.switchState(new states.MainMenuState())));
 			return;
@@ -154,8 +153,7 @@ class FreeplayState extends MusicBeatState
 		grpIcons = new FlxTypedGroup<HealthIcon>();
 		add(grpIcons);
 
-		// ========== RANDOM ITEM (index -1) ==========
-		randomText = new Alphabet(90, 320, "RANDOM", true);
+		randomText = new Alphabet(90, 320, Language.getPhrase("freeplay_random", "RASTGELE"), true);
 		randomText.scaleX = Math.min(1, 980 / randomText.width);
 		randomText.targetY = -1;
 		randomText.snapToPosition();
@@ -165,7 +163,6 @@ class FreeplayState extends MusicBeatState
 		randomIcon.sprTracker = randomText;
 		add(randomIcon);
 
-		// ========== SONG ITEMS ==========
 		for (i in 0...initSongs.length)
 		{
 			var songText:Alphabet = new Alphabet(90, 320, initSongs[i].songName, true);
@@ -220,13 +217,7 @@ class FreeplayState extends MusicBeatState
 		bottomBG.alpha = 0.6;
 		add(bottomBG);
 
-		final space:String = (controls.mobileC) ? "X" : "SPACE";
-		final control:String = (controls.mobileC) ? "C" : "CTRL";
-		final reset:String = (controls.mobileC) ? "Y" : "RESET";
-
-		var leText:String = Language.getPhrase("freeplay_tip",
-			"Press {1} to listen / {2} for Changers / {3} to Reset / C to Search / F to Favorite",
-			[space, control, reset]);
+		var leText:String = getFreeplayTipText();
 		bottomString = leText;
 		var size:Int = 16;
 		bottomText = new FlxText(bottomBG.x, bottomBG.y + 4, FlxG.width, leText, size);
@@ -247,6 +238,32 @@ class FreeplayState extends MusicBeatState
 		FlxG.stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
 
 		super.create();
+	}
+	
+	inline function getSearchHintText():String
+	{
+		if (controls.mobileC)
+			return Language.getPhrase("freeplay_search_hint_mobile", "Aramak için Tıklayın");
+
+		return Language.getPhrase("freeplay_search_hint_pc", "Aramak için C tuşuna basın");
+	}
+
+	inline function getFreeplayTipText():String
+	{
+		final space:String = controls.mobileC ? "X" : "SPACE";
+		final control:String = controls.mobileC ? "C" : "CTRL";
+		final reset:String = controls.mobileC ? "Y" : "RESET";
+
+		if (controls.mobileC)
+		{
+			return Language.getPhrase("freeplay_tip_mobile",
+				"Dinlemek için {1} / Değiştiriciler için {2} / Sıfırlamak için {3} / Aramak için Tıklayın",
+				[space, control, reset]);
+		}
+
+		return Language.getPhrase("freeplay_tip_pc",
+			"Dinlemek için {1} / Değiştiriciler için {2} / Sıfırlamak için {3} / Aramak için C / Favori için F",
+			[space, control, reset]);
 	}
 
 	function createSearchBar()
@@ -280,7 +297,7 @@ class FreeplayState extends MusicBeatState
 		searchIcon.alpha = 0.7;
 		add(searchIcon);
 
-		searchBarHint = new FlxText(barX + 44, barY + 12, SEARCH_BAR_WIDTH - 60, "Press C or click to search...", 18);
+		searchBarHint = new FlxText(barX + 44, barY + 12, SEARCH_BAR_WIDTH - 60, getSearchHintText(), 18);
 		searchBarHint.setFormat(Paths.font("vcr.ttf"), 18, FlxColor.fromRGB(150, 150, 170), LEFT);
 		searchBarHint.scrollFactor.set();
 		add(searchBarHint);
@@ -388,12 +405,11 @@ class FreeplayState extends MusicBeatState
 
 		if (searchString.length == 0)
 		{
-			// --- LAST PLAYED (only 1 song) ---
 			if (recentlyPlayed.length > 0)
 			{
 				dropdownItems.push({
 					type: HEADER,
-					text: "LAST PLAYED",
+					text: Language.getPhrase("freeplay_last_played", "SON OYNANAN"),
 					songIndex: -1,
 					icon: "",
 					color: FlxColor.fromRGB(255, 200, 60)
@@ -416,12 +432,11 @@ class FreeplayState extends MusicBeatState
 				}
 			}
 
-			// --- FAVORITES ---
 			if (favoriteSongs.length > 0)
 			{
 				dropdownItems.push({
 					type: HEADER,
-					text: "FAVORITES",
+					text: Language.getPhrase("freeplay_favorites", "FAVORİLER"),
 					songIndex: -1,
 					icon: "",
 					color: FlxColor.fromRGB(255, 100, 100)
@@ -450,7 +465,7 @@ class FreeplayState extends MusicBeatState
 			{
 				dropdownItems.push({
 					type: HEADER,
-					text: "TYPE TO SEARCH SONGS...",
+					text: Language.getPhrase("freeplay_type_to_search", "ŞARKI ARAMAK İÇİN YAZIN..."),
 					songIndex: -1,
 					icon: "",
 					color: FlxColor.fromRGB(150, 150, 170)
@@ -464,7 +479,7 @@ class FreeplayState extends MusicBeatState
 
 			dropdownItems.push({
 				type: HEADER,
-				text: 'RESULTS: "$searchString"',
+				text: Language.getPhrase("freeplay_results", "SONUÇLAR") + ': "$searchString"',
 				songIndex: -1,
 				icon: "",
 				color: FlxColor.fromRGB(100, 200, 255)
@@ -491,7 +506,7 @@ class FreeplayState extends MusicBeatState
 			{
 				dropdownItems.push({
 					type: HEADER,
-					text: "NO RESULTS FOUND",
+					text: Language.getPhrase("freeplay_no_results", "SONUÇ BULUNAMADI"),
 					songIndex: -1,
 					icon: "",
 					color: FlxColor.fromRGB(255, 80, 80)
@@ -798,7 +813,6 @@ class FreeplayState extends MusicBeatState
 		return false;
 	}
 
-	// ========== RANDOM SONG SELECTION ==========
 	function pickRandomSong()
 	{
 		if (songs.length < 1) return;
@@ -841,7 +855,6 @@ class FreeplayState extends MusicBeatState
 		if(WeekData.weeksList.length < 1)
 			return;
 
-		// Block input frames after closing search
 		if (blockInputFrames > 0)
 		{
 			blockInputFrames--;
@@ -850,7 +863,6 @@ class FreeplayState extends MusicBeatState
 			return;
 		}
 
-		// Cursor blink
 		if (searchOpen)
 		{
 			cursorTimer += elapsed;
@@ -861,7 +873,6 @@ class FreeplayState extends MusicBeatState
 			}
 		}
 
-		// Dropdown slide animation
 		if (searchOpen && dropdownBG.alpha > 0)
 		{
 			dropdownCurrentY = FlxMath.lerp(dropdownCurrentY, dropdownTargetY, Math.min(1, elapsed * 12));
@@ -871,7 +882,6 @@ class FreeplayState extends MusicBeatState
 
 		checkSearchBarClick();
 
-		// Mouse wheel in dropdown
 		if (searchOpen && FlxG.mouse.wheel != 0)
 		{
 			dropdownScrollOffset -= FlxG.mouse.wheel;
@@ -881,7 +891,6 @@ class FreeplayState extends MusicBeatState
 			refreshDropdownVisuals();
 		}
 
-		// ===== SEARCH MODE =====
 		if (searchInputWait)
 		{
 			if (controls.UI_UP_P)
@@ -894,7 +903,6 @@ class FreeplayState extends MusicBeatState
 			return;
 		}
 
-		// ===== NORMAL MODE =====
 		if (FlxG.sound.music.volume < 0.7)
 			FlxG.sound.music.volume += 0.5 * elapsed;
 
@@ -917,11 +925,10 @@ class FreeplayState extends MusicBeatState
 
 		if (!player.playingMusic)
 		{
-			// Update score text based on selection
 			if (curSelected == -1)
-				scoreText.text = "SELECT RANDOM TO PICK A SONG!";
+				scoreText.text = Language.getPhrase("freeplay_random_hint", "RASTGELE ŞARKI SEÇMEK İÇİN SEÇİN!");
 			else
-				scoreText.text = Language.getPhrase('personal_best', 'PERSONAL BEST: {1} ({2}%)', [lerpScore, ratingSplit.join('.')]);
+				scoreText.text = Language.getPhrase('personal_best', 'EN İYİ SKOR: {1} ({2}%)', [lerpScore, ratingSplit.join('.')]);
 			positionHighscore();
 
 			if(songs.length > 0)
@@ -981,13 +988,11 @@ class FreeplayState extends MusicBeatState
 			}
 		}
 
-		// C key to open search bar
 		if (FlxG.keys.justPressed.C && !player.playingMusic && !searchOpen)
 		{
 			openSearchBar();
 		}
 
-		// F key to toggle favorite (only when a real song is selected)
 		if (FlxG.keys.justPressed.F && !player.playingMusic && !searchOpen && curSelected != -1 && songs.length > 0)
 		{
 			toggleFavorite();
@@ -1110,12 +1115,10 @@ class FreeplayState extends MusicBeatState
 		}
 		else if (controls.ACCEPT && !player.playingMusic)
 		{
-			// ===== RANDOM SELECTED =====
 			if (curSelected == -1)
 			{
 				pickRandomSong();
 			}
-			// ===== NORMAL SONG SELECTED =====
 			else if (songs.length > 0)
 			{
 				persistentUpdate = false;
@@ -1137,10 +1140,10 @@ class FreeplayState extends MusicBeatState
 					trace('ERROR! ${e.message}');
 
 					var errorStr:String = e.message;
-					if(errorStr.contains('There is no TEXT asset with an ID of')) errorStr = 'Missing file: ' + errorStr.substring(errorStr.indexOf(songLowercase), errorStr.length-1);
+					if(errorStr.contains('There is no TEXT asset with an ID of')) errorStr = Language.getPhrase("freeplay_missing_file", "Eksik dosya: ") + errorStr.substring(errorStr.indexOf(songLowercase), errorStr.length-1);
 					else errorStr += '\n\n' + e.stack;
 
-					missingText.text = 'ERROR WHILE LOADING CHART:\n$errorStr';
+					missingText.text = Language.getPhrase("freeplay_chart_error", "NOTA HARİTASI YÜKLENIRKEN HATA:") + '\n$errorStr';
 					missingText.screenCenter(Y);
 					missingText.visible = true;
 					missingTextBG.visible = true;
@@ -1275,7 +1278,6 @@ class FreeplayState extends MusicBeatState
 
 		curSelected += change;
 
-		// Wrap: -1 (RANDOM) -> 0 -> 1 -> ... -> songs.length-1 -> -1
 		if (curSelected < -1)
 			curSelected = songs.length - 1;
 		if (curSelected >= songs.length)
@@ -1283,10 +1285,9 @@ class FreeplayState extends MusicBeatState
 
 		if(playSound) FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
 
-		// Update colors
 		var newColor:Int;
 		if (curSelected == -1)
-			newColor = FlxColor.fromRGB(253, 113, 155); // Pink for random
+			newColor = FlxColor.fromRGB(253, 113, 155);
 		else
 			newColor = songs[curSelected].color;
 
@@ -1297,7 +1298,6 @@ class FreeplayState extends MusicBeatState
 			FlxTween.color(bg, 1, bg.color, intendedColor);
 		}
 
-		// Update alpha for song items
 		for (num => item in grpSongs.members)
 		{
 			item.alpha = 0.6;
@@ -1312,7 +1312,6 @@ class FreeplayState extends MusicBeatState
 			}
 		}
 
-		// Update random item alpha
 		if (curSelected == -1)
 		{
 			randomText.alpha = 1;
@@ -1324,7 +1323,6 @@ class FreeplayState extends MusicBeatState
 			randomIcon.alpha = 0.6;
 		}
 
-		// Load difficulty for selected song
 		if (curSelected >= 0)
 		{
 			_updateSongLastDifficulty();
@@ -1349,7 +1347,6 @@ class FreeplayState extends MusicBeatState
 		}
 		else
 		{
-			// RANDOM selected - hide diff
 			diffText.text = "";
 			intendedScore = 0;
 			intendedRating = 0;
@@ -1417,7 +1414,6 @@ class FreeplayState extends MusicBeatState
 		{
 			if (curSelected >= songs.length)
 				curSelected = songs.length - 1;
-			// Keep -1 if it was -1 (RANDOM)
 		}
 
 		if (!init)
@@ -1433,13 +1429,13 @@ class FreeplayState extends MusicBeatState
 
 		var key = e.keyCode;
 
-		if (key == 27) // ESC
+		if (key == 27)
 		{
 			closeSearchBar();
 			return;
 		}
 
-		if (key == 13) // ENTER
+		if (key == 13)
 		{
 			if (dropdownSelected >= 0 && dropdownSelected < dropdownItems.length
 				&& dropdownItems[dropdownSelected].type == SONG)
@@ -1456,10 +1452,10 @@ class FreeplayState extends MusicBeatState
 		if (e.charCode == 0)
 			return;
 
-		if (key == 46) // delete
+		if (key == 46)
 			return;
 
-		if (key == 8) // backspace
+		if (key == 8)
 		{
 			searchString = searchString.substring(0, searchString.length - 1);
 			updateSearchBarDisplay();
@@ -1490,16 +1486,13 @@ class FreeplayState extends MusicBeatState
 	{
 		lerpSelected = FlxMath.lerp(curSelected, lerpSelected, Math.exp(-elapsed * 9.6));
 
-		// Update RANDOM text position
 		randomText.x = ((randomText.targetY - lerpSelected) * randomText.distancePerItem.x) + randomText.startPosition.x;
 		randomText.y = ((randomText.targetY - lerpSelected) * 1.3 * randomText.distancePerItem.y) + randomText.startPosition.y;
 
-		// Hide/show random based on distance
 		var randomDist:Float = Math.abs(-1 - lerpSelected);
 		randomText.visible = randomDist < _drawDistance;
 		randomIcon.visible = randomText.visible;
 
-		// Update song items
 		for (i in _lastVisibles)
 		{
 			if (i < grpSongs.members.length)
@@ -1533,11 +1526,15 @@ class FreeplayState extends MusicBeatState
 	override function destroy():Void
 	{
 		FlxG.stage.removeEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
-		super.destroy();
 
 		FlxG.autoPause = ClientPrefs.data.autoPause;
-		if (!FlxG.sound.music.playing && !stopMusicPlay)
-			FlxG.sound.playMusic(Paths.music('freakyMenu'));
+
+		if (!stopMusicPlay && (FlxG.sound.music == null || !FlxG.sound.music.playing))
+		{
+			TitleState.playFreakyMusic();
+		}
+
+		super.destroy();
 	}
 }
 

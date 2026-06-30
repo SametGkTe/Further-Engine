@@ -2,24 +2,13 @@ package backend.modpack.zip;
 
 class ZipExtractorFactory {
 	public static function create():IZipExtractor {
-		#if (windows || linux || mac)
+		#if sys
+		// sys hedeflerin hepsi destekleniyor:
+		// Windows, Linux, Mac, Android, iOS
 		return new SystemZipExtractor();
-
-		#elseif android
-		// Android backend ileride eklenecek
-		return new UnsupportedZipExtractor(
-			"Android ZIP backend henüz eklenmedi."
-		);
-
-		#elseif ios
-		// iOS backend ileride eklenecek
-		return new UnsupportedZipExtractor(
-			"iOS ZIP backend henüz eklenmedi."
-		);
-
 		#else
 		return new UnsupportedZipExtractor(
-			"Bu platform desteklenmiyor."
+			"Bu platformda ZIP çıkarma desteklenmiyor (sys gerekli)."
 		);
 		#end
 	}

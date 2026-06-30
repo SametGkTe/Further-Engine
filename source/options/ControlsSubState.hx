@@ -17,37 +17,37 @@ class ControlsSubState extends MusicBeatSubstate
 
 	//Show on gamepad - Display name - Save file key - Rebind display name
 	var options:Array<Dynamic> = [
-		[true, 'NOTES'],
-		[true, 'Left', 'note_left', 'Note Left'],
-		[true, 'Down', 'note_down', 'Note Down'],
-		[true, 'Up', 'note_up', 'Note Up'],
-		[true, 'Right', 'note_right', 'Note Right'],
+		[true, 'NOTALAR'],
+		[true, 'Sol', 'note_left', 'Nota Sol'],
+		[true, 'Aşağı', 'note_down', 'Nota Aşağı'],
+		[true, 'Yukarı', 'note_up', 'Nota Yukarı'],
+		[true, 'Sağ', 'note_right', 'Nota Sağ'],
 		[true],
-		[true, 'UI'],
-		[true, 'Left', 'ui_left', 'UI Left'],
-		[true, 'Down', 'ui_down', 'UI Down'],
-		[true, 'Up', 'ui_up', 'UI Up'],
-		[true, 'Right', 'ui_right', 'UI Right'],
+		[true, 'ARAYÜZ'],
+		[true, 'Sol', 'ui_left', 'Arayüz Sol'],
+		[true, 'Aşağı', 'ui_down', 'Arayüz Aşağı'],
+		[true, 'Yukarı', 'ui_up', 'Arayüz Yukarı'],
+		[true, 'Sağ', 'ui_right', 'Arayüz Sağ'],
 		[true],
-		[true, 'Reset', 'reset', 'Reset'],
-		[true, 'Accept', 'accept', 'Accept'],
-		[true, 'Back', 'back', 'Back'],
-		[true, 'Pause', 'pause', 'Pause'],
+		[true, 'Sıfırla', 'reset', 'Sıfırla'],
+		[true, 'Kabul Et', 'accept', 'Kabul Et'],
+		[true, 'Geri', 'back', 'Geri'],
+		[true, 'Duraklat', 'pause', 'Duraklat'],
 		[false],
-		[false, 'VOLUME'],
-		[false, 'Mute', 'volume_mute', 'Volume Mute'],
-		[false, 'Up', 'volume_up', 'Volume Up'],
-		[false, 'Down', 'volume_down', 'Volume Down'],
+		[false, 'SES'],
+		[false, 'Sessize Al', 'volume_mute', 'Sesi Kapat'],
+		[false, 'Arttır', 'volume_up', 'Ses Yukarı'],
+		[false, 'Azalt', 'volume_down', 'Ses Aşağı'],
 		[false],
-		[false, 'DEBUG'],
-		[false, 'Key 1', 'debug_1', 'Debug Key #1'],
-		[false, 'Key 2', 'debug_2', 'Debug Key #2'],
-		[false, 'WINDOW'],
-		[false, 'Fullscreen', 'fullscreen', 'Fullscreen Toggel']
+		[false, 'HATA AYIKLAMA'],
+		[false, 'Tuş 1', 'debug_1', 'Hata Ayıklama Tuşu #1'],
+		[false, 'Tuş 2', 'debug_2', 'Hata Ayıklama Tuşu #2'],
+		[false, 'PENCERE'],
+		[false, 'Tam Ekran', 'fullscreen', 'Tam Ekran Değiştir']
 	];
 	var curOptions:Array<Int>;
 	var curOptionsValid:Array<Int>;
-	static var defaultKey:String = 'Reset to Default Keys';
+	static var defaultKey:String = 'Varsayılan Tuşlara Sıfırla';
 
 	var bg:FlxSprite;
 	var grpDisplay:FlxTypedGroup<Alphabet>;
@@ -69,7 +69,7 @@ class ControlsSubState extends MusicBeatSubstate
 		super();
 
 		#if DISCORD_ALLOWED
-		DiscordClient.changePresence("Controls Menu", null);
+		DiscordClient.changePresence("Kontroller Menüsü", null);
 		#end
 
 		options.push([true]);
@@ -311,14 +311,14 @@ class ControlsSubState extends MusicBeatSubstate
 					FlxTween.tween(bindingBlack, {alpha: 0.6}, 0.35, {ease: FlxEase.linear});
 					add(bindingBlack);
 
-					bindingText = new Alphabet(FlxG.width / 2, 160, Language.getPhrase('controls_rebinding', 'Rebinding {1}', [options[curOptions[curSelected]][3]]), false);
+					bindingText = new Alphabet(FlxG.width / 2, 160, Language.getPhrase('controls_rebinding', '{1} Yeniden Atanıyor', [options[curOptions[curSelected]][3]]), false);
 					bindingText.alignment = CENTERED;
 					add(bindingText);
 
 					final escape:String = (controls.mobileC) ? "B" : "ESC";
 					final backspace:String = (controls.mobileC) ? "C" : "Backspace";
 					
-					bindingText2 = new Alphabet(FlxG.width / 2, 340, Language.getPhrase('controls_rebinding2', 'Hold {1} to Cancel\nHold {2} to Delete', [escape, backspace]), true);
+					bindingText2 = new Alphabet(FlxG.width / 2, 340, Language.getPhrase('controls_rebinding2', 'İptal etmek için {1} basılı tutun\nSilmek için {2} basılı tutun', [escape, backspace]), true);
 					bindingText2.alignment = CENTERED;
 					add(bindingText2);
 
@@ -329,7 +329,7 @@ class ControlsSubState extends MusicBeatSubstate
 				}
 				else
 				{
-					// Reset to Default
+					// Varsayılana Sıfırla
 					ClientPrefs.resetKeys(!onKeyboardMode);
 					ClientPrefs.reloadVolumeKeys();
 					var lastSel:Int = curSelected;

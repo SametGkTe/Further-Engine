@@ -2,24 +2,23 @@ package options;
 
 import objects.AttachedText;
 import objects.CheckboxThingie;
-
 import options.Option.OptionType;
 
 class GameplayChangersSubstate extends MusicBeatSubstate
 {
 	private var curSelected:Int = 0;
 	private var optionsArray:Array<Dynamic> = [];
-
 	private var grpOptions:FlxTypedGroup<Alphabet>;
 	private var checkboxGroup:FlxTypedGroup<CheckboxThingie>;
 	private var grpTexts:FlxTypedGroup<AttachedText>;
-
 	private var curOption(get, never):GameplayOption;
+
 	function get_curOption() return optionsArray[curSelected];
 
 	function getOptions()
 	{
 		var goption:GameplayOption = new GameplayOption('Ok Hızı Türü', 'scrolltype', STRING, 'multiplicative', ["multiplicative", "constant"]);
+		goption.displayOptions = ['Çarpan', 'Sabit'];
 		optionsArray.push(goption);
 
 		var option:GameplayOption = new GameplayOption('Ok Hızı', 'scrollspeed', FLOAT, 1);
@@ -85,24 +84,19 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 	public function new()
 	{
 		controls.isInSubstate = true;
-
 		super();
-		
+
 		var bg:FlxSprite = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK);
 		bg.alpha = 0.6;
 		add(bg);
-
 		grpOptions = new FlxTypedGroup<Alphabet>();
 		add(grpOptions);
-
 		grpTexts = new FlxTypedGroup<AttachedText>();
 		add(grpTexts);
-
 		checkboxGroup = new FlxTypedGroup<CheckboxThingie>();
 		add(checkboxGroup);
-		
-		getOptions();
 
+		getOptions();
 		for (i in 0...optionsArray.length)
 		{
 			var optionText:Alphabet = new Alphabet(150, 360, optionsArray[i].name, true);
@@ -135,10 +129,8 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 			}
 			updateTextFrom(optionsArray[i]);
 		}
-
 		addTouchPad('LEFT_FULL', 'A_B_C');
 		addTouchPadCamera();
-
 		changeSelection();
 		reloadCheckboxes();
 	}
@@ -146,14 +138,13 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 	var nextAccept:Int = 5;
 	var holdTime:Float = 0;
 	var holdValue:Float = 0;
+
 	override function update(elapsed:Float)
 	{
 		if (controls.UI_UP_P)
 			changeSelection(-1);
-
 		if (controls.UI_DOWN_P)
 			changeSelection(1);
-
 		if (controls.BACK)
 		{
 			close();
@@ -187,27 +178,22 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 							var add:Dynamic = null;
 							if(curOption.type != STRING)
 								add = controls.UI_LEFT ? -curOption.changeValue : curOption.changeValue;
-
 							switch(curOption.type)
 							{
 								case INT, FLOAT, PERCENT:
 									holdValue = curOption.getValue() + add;
 									if(holdValue < curOption.minValue) holdValue = curOption.minValue;
 									else if (holdValue > curOption.maxValue) holdValue = curOption.maxValue;
-
 									switch(curOption.type)
 									{
 										case INT:
 											holdValue = Math.round(holdValue);
 											curOption.setValue(holdValue);
-
 										case FLOAT, PERCENT:
 											holdValue = FlxMath.roundDecimal(holdValue, curOption.decimals);
 											curOption.setValue(holdValue);
-
 										default:
 									}
-
 								case STRING:
 									var num:Int = curOption.curOption;
 									if(controls.UI_LEFT_P) --num;
@@ -220,10 +206,10 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 
 									curOption.curOption = num;
 									curOption.setValue(curOption.options[num]);
-									
-									if (curOption._name == "Kaydırma Türü")
+
+									if (curOption._name == "Ok Hızı Türü")
 									{
-										var oOption:GameplayOption = getOptionByName("Kaydırma Hızı");
+										var oOption:GameplayOption = getOptionByName("Ok Hızı");
 										if (oOption != null)
 										{
 											if (curOption.getValue() == "constant")
@@ -240,7 +226,6 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 											updateTextFrom(oOption);
 										}
 									}
-
 								default:
 							}
 							updateTextFrom(curOption);
@@ -250,30 +235,26 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 						else if(curOption.type != STRING)
 						{
 							holdValue = Math.max(curOption.minValue, Math.min(curOption.maxValue, holdValue + curOption.scrollSpeed * elapsed * (controls.UI_LEFT ? -1 : 1)));
-
 							switch(curOption.type)
 							{
 								case INT:
 									curOption.setValue(Math.round(holdValue));
-								
+
 								case FLOAT, PERCENT:
 									var blah:Float = Math.max(curOption.minValue, Math.min(curOption.maxValue, holdValue + curOption.changeValue - (holdValue % curOption.changeValue)));
 									curOption.setValue(FlxMath.roundDecimal(blah, curOption.decimals));
-
 								default:
 							}
 							updateTextFrom(curOption);
 							curOption.change();
 						}
 					}
-
 					if(curOption.type != STRING)
 						holdTime += elapsed;
 				}
 				else if(controls.UI_LEFT_R || controls.UI_RIGHT_R)
 					clearHold();
 			}
-
 			if(controls.RESET || touchPad.buttonC.justPressed)
 			{
 				for (i in 0...optionsArray.length)
@@ -284,17 +265,14 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 					{
 						if(leOption.type == STRING)
 							leOption.curOption = leOption.options.indexOf(leOption.getValue());
-
 						updateTextFrom(leOption);
 					}
-
-					if(leOption._name == 'Kaydırma Hızı')
+					if(leOption._name == 'Ok Hızı')
 					{
 						leOption.displayFormat = "%vX";
 						leOption.maxValue = 3;
 						if(leOption.getValue() > 3)
 							leOption.setValue(3);
-
 						updateTextFrom(leOption);
 					}
 					leOption.change();
@@ -327,10 +305,9 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 	{
 		if(holdTime > 0.5)
 			FlxG.sound.play(Paths.sound('scrollMenu'));
-
 		holdTime = 0;
 	}
-	
+
 	function changeSelection(change:Int = 0)
 	{
 		curSelected = FlxMath.wrap(curSelected + change, 0, optionsArray.length - 1);
@@ -363,22 +340,21 @@ class GameplayOption
 	public var text(get, set):String;
 	public var onChange:Void->Void = null;
 	public var type:OptionType = BOOL;
-
 	public var showBoyfriend:Bool = false;
 	public var scrollSpeed:Float = 50;
-
 	private var variable:String = null;
 	public var defaultValue:Dynamic = null;
-
 	public var curOption:Int = 0;
 	public var options:Array<String> = null;
 	public var changeValue:Dynamic = 1;
 	public var minValue:Dynamic = null;
 	public var maxValue:Dynamic = null;
 	public var decimals:Int = 1;
-
 	public var displayFormat:String = '%v';
 	public var name:String = 'Unknown';
+	// STRING değerlerinin GÖRÜNTÜ etiketleri (örn. Türkçe).
+	// İç (kaydedilen) değer İngilizce kalır, sadece ekranda görünen metin değişir.
+	public var displayOptions:Array<String> = null;
 
 	public function new(name:String, variable:String, type:OptionType, defaultValue:Dynamic = 'null variable value', ?options:Array<String> = null)
 	{
@@ -403,21 +379,17 @@ class GameplayOption
 					defaultValue = '';
 					if(options.length > 0)
 						defaultValue = options[0];
-
 				default:
 			}
 		}
-
 		if(getValue() == null)
 			setValue(defaultValue);
-
 		switch(type)
 		{
 			case STRING:
 				var num:Int = options.indexOf(getValue());
 				if(num > -1)
 					curOption = num;
-
 			case PERCENT:
 				displayFormat = '%v%';
 				changeValue = 0.01;
@@ -425,7 +397,6 @@ class GameplayOption
 				maxValue = 1;
 				scrollSpeed = 0.5;
 				decimals = 2;
-
 			default:
 		}
 	}
@@ -455,7 +426,16 @@ class GameplayOption
 		if(child != null)
 		{
 			_text = newValue;
-			child.text = Language.getPhrase('setting_$_name-$_text', _text);
+			var fallback:String = _text;
+			// STRING için: kaydedilen değer İngilizce kalır,
+			// ama ekranda displayOptions'taki Türkçe etiket gösterilir.
+			if(type == STRING && displayOptions != null && options != null)
+			{
+				var idx:Int = options.indexOf(getValue());
+				if(idx > -1 && idx < displayOptions.length)
+					fallback = displayOptions[idx];
+			}
+			child.text = Language.getPhrase('setting_$_name-$_text', fallback);
 			return _text;
 		}
 		return null;

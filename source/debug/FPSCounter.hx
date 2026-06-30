@@ -5,12 +5,15 @@ import openfl.Lib;
 import haxe.Timer;
 import openfl.text.TextField;
 import openfl.text.TextFormat;
+import openfl.text.TextFieldAutoSize;
 import openfl.system.System as OpenFlSystem;
 import lime.system.System as LimeSystem;
 import lime.app.Application;
 import backend.Language;
+import openfl.display.Sprite;
+import openfl.display.Shape;
 
-class FPSCounter extends TextField
+class FPSCounter extends Sprite
 {
 	public var currentFPS(default, null):Int;
 	public var memoryMegas(get, never):Float;
@@ -22,6 +25,12 @@ class FPSCounter extends TextField
 	@:noCompletion private var framesCount:Int;
 	@:noCompletion private var prevTime:Int;
 
+	private var textField:TextField;
+	private var bg:Shape;
+
+	private var bgPaddingX:Float = 6;
+	private var bgPaddingY:Float = 4;
+
 	public var os:String = '';
 
 	public function new(x:Float = 10, y:Float = 10, color:Int = 0x000000)
@@ -29,45 +38,65 @@ class FPSCounter extends TextField
 		super();
 
 		#if !officialBuild
-		var systemText:String = Language.getPhrase('debug_system', 'System');
+		var systemText:String = Language.getPhrase('debug_system', 'Sistem');
 		if (LimeSystem.platformName == LimeSystem.platformVersion || LimeSystem.platformVersion == null)
 			os = '\n$systemText: ${LimeSystem.platformName}' #if cpp + ' ${getArch() != 'Unknown' ? getArch() : ''}' #end;
 		else
 			os = '\n$systemText: ${LimeSystem.platformName}' #if cpp + ' ${getArch() != 'Unknown' ? getArch() : ''}' #end + ' - ${LimeSystem.platformVersion}';
 		#end
 
+		mouseEnabled = false;
+		mouseChildren = false;
+
+		bg = new Shape();
+		addChild(bg);
+
+		textField = new TextField();
+		textField.selectable = false;
+		textField.mouseEnabled = false;
+		textField.multiline = true;
+		textField.autoSize = TextFieldAutoSize.LEFT;
+
+		var fontName:String = Paths.font("vcr.ttf");
+		textField.defaultTextFormat = new TextFormat(fontName, 14, color);
+		textField.embedFonts = true;
+		textField.textColor = 0xFFFFFFFF;
+		textField.text = "FPS: ";
+		textField.x = bgPaddingX;
+		textField.y = bgPaddingY;
+		addChild(textField);
+
 		positionFPS(x, y);
 
 		currentFPS = 0;
-		selectable = false;
-		mouseEnabled = false;
-		
-		// VCR Font Ayarı
-		var fontName:String = Paths.font("vcr.ttf");
-		defaultTextFormat = new TextFormat(fontName, 14, color);
-		embedFonts = true;
-		
-		width = FlxG.width;
-		multiline = true;
-		text = "FPS: ";
-
+		framesCount = 0;
 		times = [];
 		lastFramerateUpdateTime = Timer.stamp();
 		prevTime = Lib.getTimer();
 		updateTime = prevTime + 500;
+
+		redrawBackground();
 	}
 
 	public dynamic function updateText():Void
 	{
+		if (!ClientPrefs.data.fpsCounter)
+		{
+			textField.text = '';
+			bg.graphics.clear();
+			visible = false;
+			return;
+		}
+
+		visible = true;
+
 		if (memoryMegas > memoryPeak) memoryPeak = memoryMegas;
 
-		// Dil dosyasından anahtarları çekiyoruz
 		var memoryText:String = Language.getPhrase('debug_memory', 'Bellek');
 		var peakText:String = Language.getPhrase('debug_peak', 'En Yüksek');
-		var versionText:String = Language.getPhrase('debug_version', 'Versiyon');
+		var versionText:String = Language.getPhrase('debug_version', 'Sürüm');
 		var systemText:String = Language.getPhrase('debug_system', 'Sistem');
 
-		// İşletim sistemi bilgisini de anlık dile göre oluşturuyoruz
 		var osText:String = '';
 		#if !officialBuild
 		if (LimeSystem.platformName == LimeSystem.platformVersion || LimeSystem.platformVersion == null)
@@ -76,52 +105,87 @@ class FPSCounter extends TextField
 			osText = '\n$systemText: ${LimeSystem.platformName}' #if cpp + ' ${getArch() != 'Unknown' ? getArch() : ''}' #end + ' - ${LimeSystem.platformVersion}';
 		#end
 
-		text = 
-			'FPS: $currentFPS' + 
+		textField.text =
+			'FPS: $currentFPS' +
 			'\n$memoryText: ${flixel.util.FlxStringUtil.formatBytes(memoryMegas)} ($peakText: ${flixel.util.FlxStringUtil.formatBytes(memoryPeak)})' +
 			'\n$versionText: ${Application.current.meta.get('version')}' +
-			osText; // Artık her güncellemede yeni sistem metnini kullanır
+			osText;
 
-		textColor = 0xFFFFFFFF;
+		textField.textColor = 0xFFFFFFFF;
 		if (currentFPS < FlxG.stage.window.frameRate * 0.5)
-			textColor = 0xFFFF0000;
+			textField.textColor = 0xFFFF0000;
+
+		redrawBackground();
 	}
 
 	private override function __enterFrame(deltaTime:Float):Void
 	{
-		if (ClientPrefs.data.fpsRework) {
-			var currentTime = openfl.Lib.getTimer();
+		if (ClientPrefs.data.fpsRework)
+		{
+			var currentTime = Lib.getTimer();
 			framesCount++;
-			if (currentTime >= updateTime) {
+
+			if (currentTime >= updateTime)
+			{
 				var elapsed = currentTime - prevTime;
 				currentFPS = Math.ceil((framesCount * 1000) / elapsed);
 				framesCount = 0;
 				prevTime = currentTime;
 				updateTime = currentTime + 500;
 			}
-		} else {
-			final now:Float = haxe.Timer.stamp() * 1000;
+		}
+		else
+		{
+			final now:Float = Timer.stamp() * 1000;
 			times.push(now);
-			while (times[0] < now - 1000) times.shift();
+
+			while (times.length > 0 && times[0] < now - 1000)
+				times.shift();
+
 			currentFPS = times.length;
 		}
 
 		updateText();
 	}
 
+	private function redrawBackground():Void
+	{
+		bg.graphics.clear();
+
+		if (!ClientPrefs.data.fpsCounter)
+			return;
+
+		var opacity:Int = ClientPrefs.data.fpsCounterOpacity;
+
+		if (opacity < 0) opacity = 0;
+		if (opacity > 100) opacity = 100;
+
+		if (opacity <= 0)
+			return;
+
+		var boxW:Float = textField.width + (bgPaddingX * 2);
+		var boxH:Float = textField.height + (bgPaddingY * 2);
+		var radius:Float = 8;
+
+		bg.graphics.beginFill(0x000000, opacity / 100);
+		bg.graphics.drawRoundRect(0, 0, boxW, boxH, radius, radius);
+		bg.graphics.endFill();
+	}
+
 	inline function get_memoryMegas():Float
 		return cast(OpenFlSystem.totalMemory, Float);
 
-	public inline function positionFPS(X:Float, Y:Float, ?scale:Float = 1){
+	public inline function positionFPS(X:Float, Y:Float, ?scale:Float = 1)
+	{
 		scaleX = scaleY = #if android (scale > 1 ? scale : 1) #else (scale < 1 ? scale : 1) #end;
-		x = FlxG.game.x + X;
-		y = FlxG.game.y + Y;
+		this.x = FlxG.game.x + X;
+		this.y = FlxG.game.y + Y;
 	}
 
 	#if cpp
-	private function getArch():String { 
-		// ... (Önceki getArch fonksiyonun burada durmalı)
-		return "Unknown"; 
+	private function getArch():String
+	{
+		return "Unknown";
 	}
 	#end
 }

@@ -107,7 +107,13 @@ class Controls
 			|| mobileCPressed(mobileBinds[key]) == true
 			|| touchPadPressed(mobileBinds[key]) == true;
 	}
-
+	
+	public var FAVORITE(get, never):Bool;
+	private function get_FAVORITE():Bool
+	{
+		return justPressed('F');
+	}
+	
 	public function justReleased(key:String)
 	{
 		var result:Bool = (FlxG.keys.anyJustReleased(keyboardBinds[key]) == true);

@@ -21,28 +21,26 @@ class Option
 	public var text(get, set):String;
 	public var onChange:Void->Void = null;
 	public var type:OptionType = BOOL;
-
 	public var scrollSpeed:Float = 50;
 	public var variable(default, null):String = null;
 	public var defaultValue:Dynamic = null;
-
 	public var curOption:Int = 0;
 	public var options:Array<String> = null;
 	public var changeValue:Dynamic = 1;
 	public var minValue:Dynamic = null;
 	public var maxValue:Dynamic = null;
 	public var decimals:Int = 1;
-
 	public var displayFormat:String = '%v';
 	public var description:String = '';
 	public var name:String = 'Unknown';
-
 	public var defaultKeys:Keybind = null;
 	public var keys:Keybind = null;
-
 	// DROPDOWN specific
 	public var dropdownLabels:Array<String> = null;
 	public var dropdownIcons:Array<String> = null;
+	// STRING/DROPDOWN değerlerinin GÖRÜNTÜ etiketleri (örn. Türkçe).
+	// İç (kaydedilen) değer İngilizce kalır, sadece ekranda görünen metin değişir.
+	public var displayOptions:Array<String> = null;
 
 	public function new(name:String, description:String = '', variable:String, type:OptionType = BOOL, ?options:Array<String> = null, ?translation:String = null)
 	{
@@ -89,7 +87,6 @@ class Option
 		{
 			if(getValue() == null)
 				setValue(defaultValue);
-
 			switch(type)
 			{
 				case STRING:
@@ -140,7 +137,16 @@ class Option
 		if(child != null)
 		{
 			_text = newValue;
-			child.text = Language.getPhrase('setting_$_translationKey-${getValue()}', _text);
+			var fallback:String = _text;
+			// STRING/DROPDOWN için: kaydedilen değer İngilizce kalır,
+			// ama ekranda displayOptions'taki Türkçe etiket gösterilir.
+			if((type == STRING || type == DROPDOWN) && displayOptions != null && options != null)
+			{
+				var idx:Int = options.indexOf(getValue());
+				if(idx > -1 && idx < displayOptions.length)
+					fallback = displayOptions[idx];
+			}
+			child.text = Language.getPhrase('setting_$_translationKey-${getValue()}', fallback);
 			return _text;
 		}
 		return null;

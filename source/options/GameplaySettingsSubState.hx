@@ -52,7 +52,7 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 		addOption(option);
 		
 		var option:Option = new Option('Sunucu Bağlantısı',
-			'Aktif edildiğinde, Online özellikler devre-dışı kalır ve skorlarınız / başarımlarınız sunucuya gönderilmez.',
+			'Devre dışı bırakıldığında, Online özellikler devre-dışı kalır ve skorlarınız / başarımlarınız sunucuya gönderilmez.',
 			'serverConnection',
 			BOOL);
 		addOption(option);
@@ -92,7 +92,7 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 		option.maxValue = 30;
 		addOption(option);
 
-		var option:Option = new Option('Sick! Vuruş Gecikmesi',
+		var option:Option = new Option('Müq! Vuruş Gecikmesi',
 			'"Sick!" almanız için sahip olduğunuz süreyi\nmilisaniye cinsinden değiştirir.',
 			'sickWindow',
 			FLOAT);
@@ -103,7 +103,7 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 		option.changeValue = 0.1;
 		addOption(option);
 
-		var option:Option = new Option('Good Vuruş Gecikmesi',
+		var option:Option = new Option('iyi Vuruş Gecikmesi',
 			'"Good" almanız için sahip olduğunuz süreyi\nmilisaniye cinsinden değiştirir.',
 			'goodWindow',
 			FLOAT);
@@ -114,7 +114,7 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 		option.changeValue = 0.1;
 		addOption(option);
 
-		var option:Option = new Option('Bad Vuruş Gecikmesi',
+		var option:Option = new Option('Kötü Vuruş Gecikmesi',
 			'"Bad" almanız için sahip olduğunuz süreyi\nmilisaniye cinsinden değiştirir.',
 			'badWindow',
 			FLOAT);
@@ -133,6 +133,22 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 		option.minValue = 2;
 		option.maxValue = 10;
 		option.changeValue = 0.1;
+		addOption(option);
+		
+		var option:Option = new Option('FPS Sayacı',
+			'Devre dışı bırakıldığında, Fps göstergesi ve diğer istatistikler gözükmez.',
+			'fpsCounter',
+			BOOL);
+		addOption(option);
+		
+		var option = new Option(
+			'FPS Sayacı Opaklığı',
+			'FPS Sayacının arkasındaki siyah kutunun opaklığını ayarlar.',
+			'fpsCounterOpacity',
+			INT);
+		option.minValue = 0;
+		option.maxValue = 100;
+		option.changeValue = 10;
 		addOption(option);
 
 		super();
