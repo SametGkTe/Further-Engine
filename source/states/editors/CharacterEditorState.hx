@@ -1085,8 +1085,8 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 		{
 			if (controls.mobileC)
 			{
-				touchPad.forEachAlive(function(button:flixel.FlxSprite){
-					if(Reflect.field(button, "name") != 'F')
+				touchPad.forEachAlive(function(button:TouchButton){
+					if(button.tag != 'F')
 						button.visible = !button.visible;
 				});
 			}

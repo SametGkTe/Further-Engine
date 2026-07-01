@@ -795,8 +795,8 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 				{
 					if (controls.mobileC)
 					{
-						touchPad.forEachAlive(function(button:flixel.FlxSprite){
-							if(Reflect.field(button, "name") != 'F')
+						touchPad.forEachAlive(function(button:TouchButton){
+							if(button.tag != 'F')
 								button.visible = !button.visible;
 						});
 					}
@@ -808,8 +808,8 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 				{
 					if (controls.mobileC)
 					{
-						touchPad.forEachAlive(function(button:flixel.FlxSprite){
-							if(Reflect.field(button, "name") != 'Z' && Reflect.field(button, "name") != 'LEFT' && Reflect.field(button, "name") != 'RIGHT' && Reflect.field(button, "name") != 'UP' && Reflect.field(button, "name") != 'DOWN')
+						touchPad.forEachAlive(function(button:TouchButton){
+							if(button.tag != 'Z' && button.tag != 'LEFT' && button.tag != 'RIGHT' && button.tag != 'UP' && button.tag != 'DOWN')
 								touchPad.buttonUp2.visible = touchPad.buttonDown2.visible = button.visible = !button.visible;
 						});
 					}

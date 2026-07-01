@@ -1,26 +1,42 @@
+/*
+ * Copyright (C) 2025 Mobile Porting Team
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ * DEALINGS IN THE SOFTWARE.
+ */
+
 package mobile.objects;
 
 import flixel.util.FlxSignal.FlxTypedSignal;
-import mobile.flixel.controls.InputHandler;
-import mobile.flixel.controls.MobileControls;
-import mobile.input.MobileInputID;
 
+/**
+ * ...
+ * @author: Karim Akra
+ */
 interface IMobileControls
 {
-	public var instance:MobileControls;
-
-	public var onButtonDown:FlxTypedSignal<(InputHandler, String) -> Void>;
-	public var onButtonUp:FlxTypedSignal<(InputHandler, String) -> Void>;
-
-	public var buttonLeft:VirtualButton;
-	public var buttonUp:VirtualButton;
-	public var buttonRight:VirtualButton;
-	public var buttonDown:VirtualButton;
-	public var buttonExtra:VirtualButton;
-	public var buttonExtra2:VirtualButton;
-
-	public function anyPressed(keys:Array<MobileInputID>):Bool;
-	public function anyJustPressed(keys:Array<MobileInputID>):Bool;
-	public function anyJustReleased(keys:Array<MobileInputID>):Bool;
-	public function anyReleased(keys:Array<MobileInputID>):Bool;
+	public var buttonLeft:TouchButton;
+	public var buttonUp:TouchButton;
+	public var buttonRight:TouchButton;
+	public var buttonDown:TouchButton;
+	public var buttonExtra:TouchButton;
+	public var buttonExtra2:TouchButton;
+	public var instance:MobileInputManager;
+	public var onButtonDown:FlxTypedSignal<TouchButton->Void>;
+	public var onButtonUp:FlxTypedSignal<TouchButton->Void>;
 }

@@ -206,27 +206,57 @@ class Controls
 
 	private function mobileCPressed(keys:Array<MobileInputID>):Bool
 	{
-		if (keys != null && requestedMobileC != null)
-			if (requestedMobileC.anyPressed(keys))
+		if (keys != null)
+		{
+			if (requestedMobileC != null && requestedMobileC.instance != null && requestedMobileC.instance.anyPressed(keys))
 				return true;
+
+			if (requestedInstance != null && requestedInstance.mobileManager != null)
+			{
+				if (requestedInstance.mobileManager.mobilePad != null && requestedInstance.mobileManager.mobilePad.anyPressed(keys))
+					return true;
+				if (requestedInstance.mobileManager.hitbox != null && requestedInstance.mobileManager.hitbox.anyPressed(keys))
+					return true;
+			}
+		}
 
 		return false;
 	}
 
 	private function mobileCJustPressed(keys:Array<MobileInputID>):Bool
 	{
-		if (keys != null && requestedMobileC != null)
-			if (requestedMobileC.anyJustPressed(keys))
+		if (keys != null)
+		{
+			if (requestedMobileC != null && requestedMobileC.instance != null && requestedMobileC.instance.anyJustPressed(keys))
 				return true;
+
+			if (requestedInstance != null && requestedInstance.mobileManager != null)
+			{
+				if (requestedInstance.mobileManager.mobilePad != null && requestedInstance.mobileManager.mobilePad.anyJustPressed(keys))
+					return true;
+				if (requestedInstance.mobileManager.hitbox != null && requestedInstance.mobileManager.hitbox.anyJustPressed(keys))
+					return true;
+			}
+		}
 
 		return false;
 	}
 
 	private function mobileCJustReleased(keys:Array<MobileInputID>):Bool
 	{
-		if (keys != null && requestedMobileC != null)
-			if (requestedMobileC.anyJustReleased(keys))
+		if (keys != null)
+		{
+			if (requestedMobileC != null && requestedMobileC.instance != null && requestedMobileC.instance.anyJustReleased(keys))
 				return true;
+
+			if (requestedInstance != null && requestedInstance.mobileManager != null)
+			{
+				if (requestedInstance.mobileManager.mobilePad != null && requestedInstance.mobileManager.mobilePad.anyJustReleased(keys))
+					return true;
+				if (requestedInstance.mobileManager.hitbox != null && requestedInstance.mobileManager.hitbox.anyJustReleased(keys))
+					return true;
+			}
+		}
 
 		return false;
 	}

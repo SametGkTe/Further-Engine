@@ -1399,9 +1399,9 @@ class StageEditorState extends MusicBeatState implements PsychUIEventHandler.Psy
 		{
 			if (controls.mobileC)
 			{
-				touchPad.forEachAlive(function(button:flixel.FlxSprite)
+				touchPad.forEachAlive(function(button:TouchButton)
 				{
-					if(Reflect.field(button, "name") != 'F')
+					if(button.tag != 'F')
 						button.visible = !button.visible;
 				});
 			}
@@ -1416,9 +1416,9 @@ class StageEditorState extends MusicBeatState implements PsychUIEventHandler.Psy
 
 			if (controls.mobileC)
 			{
-				touchPad.forEachAlive(function(button:flixel.FlxSprite)
+				touchPad.forEachAlive(function(button:TouchButton)
 				{
-					if(Reflect.field(button, "name") != 'S')
+					if(button.tag != 'S')
 						button.visible = !button.visible;
 				});
 			}

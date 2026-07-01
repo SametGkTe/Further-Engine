@@ -2,6 +2,7 @@ package states;
 
 import backend.WeekData;
 import states.UpdatePromptState;
+import mobile.MobileConfig;
 
 import flixel.input.keyboard.FlxKey;
 import flixel.graphics.frames.FlxAtlasFrames;
@@ -103,7 +104,11 @@ class TitleState extends MusicBeatState
 			}
 			persistentUpdate = true;
 			persistentDraw = true;
-			MobileData.init();
+			MobileConfig.init('MobileControls', CoolUtil.getSavePath(), 'assets/mobile/', [
+				['MobilePad/DPadModes', ButtonModes.DPAD],
+				['MobilePad/ActionModes', ButtonModes.ACTION],
+				['Hitbox/HitboxModes', ButtonModes.HITBOX]
+			]);
 		}
 
 		if (FlxG.save.data.weekCompleted != null)
@@ -412,6 +417,16 @@ class TitleState extends MusicBeatState
 						// Güncelleme kontrolü hala devam ediyor, bekle
 						waitingForUpdateCheck = true;
 						trace('[TitleState] Güncelleme kontrolü bekleniyor...');
+						// Timeout koruması (1.5 saniye) — Yavaş internetli oyuncuların takılı kalmasını önler!
+						new FlxTimer().start(1.5, function(timeoutTmr:FlxTimer)
+						{
+							if (waitingForUpdateCheck)
+							{
+								waitingForUpdateCheck = false;
+								trace('[TitleState] Güncelleme kontrolü zaman aşımına uğradı, ana menüye geçiliyor...');
+								goToNextState();
+							}
+						});
 					}
 				});
 			}

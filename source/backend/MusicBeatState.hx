@@ -2,6 +2,11 @@ package backend;
 
 import flixel.FlxState;
 import backend.PsychCamera;
+import mobile.MobileControlManager;
+import mobile.objects.FunkinHitbox;
+import mobile.objects.FunkinMobilePad;
+import mobile.objects.IMobileControls;
+import mobile.objects.TouchPad;
 
 class MusicBeatState extends FlxState
 {
@@ -21,22 +26,37 @@ class MusicBeatState extends FlxState
 
 	public var touchPad:TouchPad;
 	public var touchPadCam:FlxCamera;
-	public var mobileControls:mobile.flixel.controls.MobileControls;
+	public var mobileControls:IMobileControls;
 	public var mobileControlsCam:FlxCamera;
+	public var mobileManager:MobileControlManager;
+
+	public function new()
+	{
+		super();
+		mobileManager = new MobileControlManager();
+	}
 
 	public function addTouchPad(DPad:String, Action:String)
 	{
-		touchPad = new TouchPad(DPad, Action);
-		add(touchPad);
+		if (mobileManager == null) mobileManager = new MobileControlManager();
+		mobileManager.addMobilePad(DPad, Action);
+		touchPad = mobileManager.mobilePad;
+		mobileControls = touchPad;
 	}
 
 	public function removeTouchPad()
 	{
+		if (mobileManager != null)
+		{
+			mobileManager.removeMobilePad();
+		}
+
 		if (touchPad != null)
 		{
-			remove(touchPad);
 			touchPad = FlxDestroyUtil.destroy(touchPad);
 		}
+
+		mobileControls = null;
 
 		if(touchPadCam != null)
 		{
@@ -45,39 +65,62 @@ class MusicBeatState extends FlxState
 		}
 	}
 
-	public function addMobileControls(defaultDrawTarget:Bool = false):Void
+	public function addMobileControls(defaultDrawTarget:Bool = false, ?DPad:String, ?Action:String):Void
 	{
-		var extraMode = MobileData.extraActions.get(ClientPrefs.data.extraButtons);
+		if (mobileManager == null) mobileManager = new MobileControlManager();
 
-		switch (MobileData.mode)
+		if (DPad != null && Action != null)
 		{
-			case 0: // RIGHT_FULL
-				mobileControls = new TouchPad('RIGHT_FULL', 'NONE', extraMode);
-			case 1: // LEFT_FULL
-				mobileControls = new TouchPad('LEFT_FULL', 'NONE', extraMode);
-			case 2: // CUSTOM
-				mobileControls = MobileData.getTouchPadCustom(new TouchPad('RIGHT_FULL', 'NONE', extraMode));
-			case 3: // HITBOX
-				mobileControls = new Hitbox(extraMode);
+			mobileManager.addMobilePad(DPad, Action);
+			mobileControls = mobileManager.mobilePad;
+			touchPad = mobileManager.mobilePad;
+		}
+		else
+		{
+			var extraMode = MobileData.extraActions.get(ClientPrefs.data.extraButtons);
+
+			switch (MobileData.mode)
+			{
+				case 0: // RIGHT_FULL
+					mobileManager.addMobilePad('RIGHT_FULL', 'NONE');
+					mobileControls = mobileManager.mobilePad;
+				case 1: // LEFT_FULL
+					mobileManager.addMobilePad('LEFT_FULL', 'NONE');
+					mobileControls = mobileManager.mobilePad;
+				case 2: // CUSTOM
+					mobileManager.addMobilePad('RIGHT_FULL', 'NONE');
+					mobileControls = mobileManager.mobilePad;
+				case 3: // HITBOX
+					mobileManager.addHitbox(extraMode != null ? Std.string(extraMode) : null);
+					mobileControls = mobileManager.hitbox;
+			}
+
+			if (mobileManager.mobilePad != null)
+				touchPad = mobileManager.mobilePad;
 		}
 
-		MobileData.setButtonsColors(cast mobileControls);
 		mobileControlsCam = new FlxCamera();
 		mobileControlsCam.bgColor.alpha = 0;
 		FlxG.cameras.add(mobileControlsCam, defaultDrawTarget);
 
-		mobileControls.cameras = [mobileControlsCam];
-		mobileControls.visible = false;
-		add(mobileControls);
+		mobileControls.instance.cameras = [mobileControlsCam];
+		mobileControls.instance.visible = false;
 	}
 
 	public function removeMobileControls()
 	{
 		if (mobileControls != null)
 		{
-			remove(mobileControls);
-			mobileControls = FlxDestroyUtil.destroy(mobileControls);
+			mobileControls.instance = FlxDestroyUtil.destroy(mobileControls.instance);
 			mobileControls = null;
+		}
+
+		touchPad = null;
+
+		if (mobileManager != null)
+		{
+			mobileManager.removeMobilePad();
+			mobileManager.removeHitbox();
 		}
 
 		if (mobileControlsCam != null)
@@ -102,6 +145,7 @@ class MusicBeatState extends FlxState
 	{
 		removeTouchPad();
 		removeMobileControls();
+		if (mobileManager != null) mobileManager.destroy();
 		
 		super.destroy();
 	}
@@ -117,6 +161,9 @@ class MusicBeatState extends FlxState
 		#if MODS_ALLOWED Mods.updatedOnState = false; #end
 
 		if(!_psychCameraInitialized) initPsychCamera();
+
+		if (mobileManager == null) mobileManager = new MobileControlManager();
+		if (!members.contains(mobileManager)) add(mobileManager);
 
 		super.create();
 

@@ -79,7 +79,13 @@ class ModpackInstaller {
 
 		ModpackPaths.ensureDirectories();
 
+		#if target.threaded
+		sys.thread.Thread.create(() -> {
+			step_validate(zipPath, packId, callbacks);
+		});
+		#else
 		step_validate(zipPath, packId, callbacks);
+		#end
 	}
 
 	/**

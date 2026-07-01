@@ -31,7 +31,7 @@ class MusicBeatSubstate extends FlxSubState
 
 	public var touchPad:TouchPad;
 	public var touchPadCam:FlxCamera;
-	public var mobileControls:mobile.flixel.controls.MobileControls;
+	public var mobileControls:IMobileControls;
 	public var mobileControlsCam:FlxCamera;
 
 	public function addTouchPad(DPad:String, Action:String)
@@ -71,22 +71,22 @@ class MusicBeatSubstate extends FlxSubState
 				mobileControls = new Hitbox(extraMode);
 		}
 
-		MobileData.setButtonsColors(cast mobileControls);
+		mobileControls.instance = MobileData.setButtonsColors(mobileControls.instance);
 		mobileControlsCam = new FlxCamera();
 		mobileControlsCam.bgColor.alpha = 0;
 		FlxG.cameras.add(mobileControlsCam, defaultDrawTarget);
 
-		mobileControls.cameras = [mobileControlsCam];
-		mobileControls.visible = false;
-		add(mobileControls);
+		mobileControls.instance.cameras = [mobileControlsCam];
+		mobileControls.instance.visible = false;
+		add(mobileControls.instance);
 	}
 
 	public function removeMobileControls()
 	{
 		if (mobileControls != null)
 		{
-			remove(mobileControls);
-			mobileControls = FlxDestroyUtil.destroy(mobileControls);
+			remove(mobileControls.instance);
+			mobileControls.instance = FlxDestroyUtil.destroy(mobileControls.instance);
 			mobileControls = null;
 		}
 
