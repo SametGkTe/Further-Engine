@@ -24,6 +24,7 @@ import lime.graphics.Image;
 import states.CopyState;
 #end
 import backend.Highscore;
+import objects.PopupThing.PopupMgr; // <<< BU SATIRR EKLENDİ
 
 // NATIVE API STUFF, YOU CAN IGNORE THIS AND SCROLL //
 #if (linux && !debug)
@@ -164,6 +165,9 @@ class Main extends Sprite
 		if(fpsVar != null) {
 			fpsVar.visible = ClientPrefs.data.showFPS;
 		}
+
+		// <<< POPUP MANAGER - FlxGame'den SONRA eklenmeli ki en üstte olsun >>>
+		addChild(new PopupMgr());
 
 		#if (linux || mac) // fix the app icon not showing up on the Linux Panel / Mac Dock
 		var icon = Image.fromFile("icon.png");

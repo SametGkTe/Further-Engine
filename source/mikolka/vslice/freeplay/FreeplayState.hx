@@ -1,5 +1,10 @@
 package mikolka.vslice.freeplay;
 
+#if TOUCH_CONTROLS_ALLOWED
+import mobile.objects.TouchButton;
+import mobile.objects.TouchZone;
+import mobile.objects.ScrollableObject;
+#end
 
 import objects.HealthIcon;
 import flixel.sound.FlxSound;
@@ -205,9 +210,49 @@ class FreeplayState extends MusicBeatSubstate
 
 	var holdTime:Float = 0;
 
-	// ═══════════════════════════════════════════
-	//  CONSTRUCTOR
-	// ═══════════════════════════════════════════
+	#if TOUCH_CONTROLS_ALLOWED
+	inline function isDirectionalTouchButton(button:TouchButton):Bool
+	{
+		return button != null && (
+			button.tag == 'UP'
+			|| button.tag == 'DOWN'
+			|| button.tag == 'LEFT'
+			|| button.tag == 'RIGHT'
+		);
+	}
+
+	function addFreeplayTouchPad(?skipAnim:Bool):Void
+	{
+		addTouchPad('LEFT_FULL', 'A_B_C_X_Y_Z');
+		addTouchPadCamera();
+
+		if (skipAnim == true)
+			return;
+
+		if (prepForNewRank)
+		{
+			final lastAlpha:Float = touchPad.alpha;
+			touchPad.alpha = 0;
+			FlxTween.tween(touchPad, {alpha: lastAlpha}, 1.6, {ease: FlxEase.circOut});
+		}
+		else if (fromCharSelect != true)
+		{
+			touchPad.forEachAlive(function(button:TouchButton)
+			{
+				if (isDirectionalTouchButton(button))
+				{
+					button.x -= 350;
+					FlxTween.tween(button, {x: button.x + 350}, 0.6, {ease: FlxEase.backInOut});
+				}
+				else
+				{
+					button.x += 450;
+					FlxTween.tween(button, {x: button.x - 450}, 0.6, {ease: FlxEase.backInOut});
+				}
+			});
+		}
+	}
+	#end
 
 	public function new(?params:FreeplayStateParams, ?stickers:StickerSubState)
 	{
@@ -758,32 +803,9 @@ class FreeplayState extends MusicBeatSubstate
 		// ── Arama Barını Oluştur ──
 		createSearchBar();
 
-		// ── Mobil Kontroller ──
 		#if TOUCH_CONTROLS_ALLOWED
-		addTouchPad('NONE', 'A_B_C_X_Y_F_Z');
-		addTouchPadCamera();
-		if (prepForNewRank)
-		{
-			final lastAlpha:Float = touchPad.alpha;
-			touchPad.alpha = 0;
-			FlxTween.tween(touchPad, {alpha: lastAlpha}, 1.6, {ease: FlxEase.circOut});
-		}
-		else if (!fromCharSelect)
-		{
-			touchPad.forEachAlive(function(button:TouchButton)
-			{
-				if (button.tag == 'UP' || button.tag == 'DOWN')
-				{
-					button.x -= 350;
-					FlxTween.tween(button, {x: button.x + 350}, 0.6, {ease: FlxEase.backInOut});
-				}
-				else
-				{
-					button.x += 450;
-					FlxTween.tween(button, {x: button.x - 450}, 0.6, {ease: FlxEase.backInOut});
-				}
-			});
-		}
+		addFreeplayTouchPad();
+		
 		#if !LEGACY_PSYCH
 		var button = new TouchZone((CUTOUT_WIDTH * SONGS_POS_MULTI) + 420, 260, 450, 95);
 		button.cameras = [funnyCam];
@@ -866,9 +888,8 @@ class FreeplayState extends MusicBeatSubstate
 		searchIcon.cameras = [funnyCam];
 		add(searchIcon);
 
-		// İpucu metni
 		var hintText:String = controls.mobileC
-			? Language.getPhrase('freeplay_search_tap', 'Aramak için Tıklayın')
+			? Language.getPhrase('freeplay_search_tap', 'X butonu veya dokunarak arayın')
 			: Language.getPhrase('freeplay_search_key', 'Aramak için C tuşuna basın');
 		searchBarHint = new FlxText(barX + 44, barY + 11, SEARCH_BAR_WIDTH - 60, hintText, 16);
 		searchBarHint.setFormat("VCR OSD Mono", 16, FlxColor.fromRGB(150, 150, 170), LEFT);
@@ -1076,11 +1097,21 @@ class FreeplayState extends MusicBeatSubstate
 				if (song == null)
 					continue;
 				var songNameLower:String = song.songName.toLowerCase().replace('-', ' ');
-				if (songNameLower.contains(searchLower))
+				var searchTermClean:String = searchLower.replace('-', ' ');
+				if (songNameLower.contains(searchTermClean))
 				{
+					var diffInfo:String = '';
+					if (song.songDifficulties != null && song.songDifficulties.length > 0)
+					{
+						var diffs:Array<String> = [];
+						for (d in song.songDifficulties)
+							diffs.push(d.toUpperCase().charAt(0) + d.substr(1));
+						diffInfo = ' [' + diffs.join(', ') + ']';
+					}
+
 					dropdownItems.push({
 						type: SONG,
-						text: song.songName,
+						text: song.songName + diffInfo,
 						songData: song,
 						color: song.color
 					});
@@ -1301,10 +1332,32 @@ class FreeplayState extends MusicBeatSubstate
 
 		var targetSongData:FreeplaySongData = item.songData;
 
-		// Aramayı temizle
 		searchString = '';
+		if (targetSongData.songDifficulties != null
+			&& !targetSongData.songDifficulties.contains(currentDifficulty))
+		{
+			var preferredDiffs:Array<String> = ['normal', 'hard', 'easy'];
+			var foundDiff:Bool = false;
 
-		// Capsule listesinde bul
+			for (pref in preferredDiffs)
+			{
+				if (targetSongData.songDifficulties.contains(pref))
+				{
+					currentDifficulty = pref;
+					rememberedDifficulty = currentDifficulty;
+					foundDiff = true;
+					break;
+				}
+			}
+
+			if (!foundDiff && targetSongData.songDifficulties.length > 0)
+			{
+				currentDifficulty = targetSongData.songDifficulties[0];
+				rememberedDifficulty = currentDifficulty;
+			}
+		}
+
+		generateSongList(null, true, false, true);
 		var foundIndex:Int = -1;
 		for (ci in 0...grpCapsules.activeSongItems.length)
 		{
@@ -1316,19 +1369,22 @@ class FreeplayState extends MusicBeatSubstate
 			}
 		}
 
-		// Eğer mevcut listede yoksa, filtreyi temizle
-		if (foundIndex == -1)
+		if (foundIndex != -1)
 		{
-			generateSongList(null, true);
-			// Tekrar ara
-			for (ci in 0...grpCapsules.activeSongItems.length)
+			curSelected = foundIndex;
+			curSelectedFractal = curSelected;
+			changeSelection();
+		}
+
+		generateSongList(null, true);
+		foundIndex = -1;
+		for (ci in 0...grpCapsules.activeSongItems.length)
+		{
+			var cap = grpCapsules.activeSongItems[ci];
+			if (cap != null && cap.songData != null && cap.songData.songId == targetSongData.songId)
 			{
-				var cap = grpCapsules.activeSongItems[ci];
-				if (cap != null && cap.songData != null && cap.songData.songId == targetSongData.songId)
-				{
-					foundIndex = ci;
-					break;
-				}
+				foundIndex = ci;
+				break;
 			}
 		}
 
@@ -1338,6 +1394,7 @@ class FreeplayState extends MusicBeatSubstate
 			curSelectedFractal = curSelected;
 			changeSelection();
 		}
+		changeDiff(0, true);
 
 		closeSearchBar();
 		updateSearchBarDisplay();
@@ -1369,22 +1426,47 @@ class FreeplayState extends MusicBeatSubstate
 
 	function checkSearchBarClick():Bool
 	{
-		if (FlxG.mouse.justPressed)
+		var justClicked:Bool = FlxG.mouse.justPressed;
+
+		#if TOUCH_CONTROLS_ALLOWED
+		if (!justClicked)
+		{
+			for (touch in FlxG.touches.list)
+			{
+				if (touch.justPressed)
+				{
+					justClicked = true;
+					break;
+				}
+			}
+		}
+		#end
+
+		if (justClicked)
 		{
 			var barX:Int = Std.int((FlxG.width - SEARCH_BAR_WIDTH) / 2);
 			var barY:Int = SEARCH_BAR_MARGIN;
 			var mx:Float = FlxG.mouse.screenX;
 			var my:Float = FlxG.mouse.screenY;
 
-			// Arama barına tıklama
+			#if TOUCH_CONTROLS_ALLOWED
+			for (touch in FlxG.touches.list)
+			{
+				if (touch.justPressed)
+				{
+					mx = touch.screenX;
+					my = touch.screenY;
+					break;
+				}
+			}
+			#end
+
 			if (mx >= barX && mx <= barX + SEARCH_BAR_WIDTH && my >= barY && my <= barY + SEARCH_BAR_HEIGHT)
 			{
 				if (!searchOpen)
 					openSearchBar();
 				return true;
 			}
-
-			// Dropdown öğesine tıklama
 			if (searchOpen && dropdownBG.alpha > 0.5)
 			{
 				var dropStartY:Float = dropdownBG.y + 5;
@@ -1402,8 +1484,6 @@ class FreeplayState extends MusicBeatSubstate
 					}
 				}
 			}
-
-			// Dışarıya tıklama → kapat
 			if (searchOpen)
 			{
 				closeSearchBar();
@@ -1420,7 +1500,6 @@ class FreeplayState extends MusicBeatSubstate
 
 		var key = e.keyCode;
 
-		// ESC → Kapat
 		if (key == 27)
 		{
 			closeSearchBar();
@@ -1494,17 +1573,15 @@ class FreeplayState extends MusicBeatSubstate
 	{
 		if (searchString.length > 0)
 		{
-			generateSongList({filterType: STARTSWITH, filterData: searchString.toLowerCase()}, true, false);
+			// Arama sırasında zorluk filtresi uygulanmasın
+			// böylece tüm şarkılar bulunabilir
+			generateSongList({filterType: STARTSWITH, filterData: searchString.toLowerCase()}, true, false, true);
 		}
 		else
 		{
 			generateSongList(currentFilter, true, false);
 		}
 	}
-
-	// ═══════════════════════════════════════════
-	//  SON OYNANAN SİSTEMİ
-	// ═══════════════════════════════════════════
 
 	public static function addToRecentlyPlayed(songName:String):Void
 	{
@@ -1540,14 +1617,14 @@ class FreeplayState extends MusicBeatSubstate
 	var currentFilter:SongFilter = null;
 	var currentFilteredSongs:Array<FreeplaySongData> = [];
 
-	public function generateSongList(filterStuff:Null<SongFilter>, force:Bool = false, onlyIfChanged:Bool = true):Void
+	public function generateSongList(filterStuff:Null<SongFilter>, force:Bool = false, onlyIfChanged:Bool = true, ?skipDiffFilter:Bool = false):Void
 	{
 		var tempSongs:Array<Null<FreeplaySongData>> = songs;
 
 		if (filterStuff != null)
 			tempSongs = sortSongs(tempSongs, filterStuff);
 
-		if (currentDifficulty != null)
+		if (currentDifficulty != null && !skipDiffFilter)
 		{
 			tempSongs = tempSongs.filter(song ->
 			{
@@ -1927,7 +2004,7 @@ class FreeplayState extends MusicBeatSubstate
 		#end
 		persistentUpdate = true;
 		removeTouchPad();
-		addTouchPad('UP_DOWN', 'A_B_C_X_Y_F_Z');
+		addFreeplayTouchPad(true);
 		addTouchPadCamera();
 		#end
 	}
@@ -2142,17 +2219,49 @@ class FreeplayState extends MusicBeatSubstate
 			refreshDropdownVisuals();
 		}
 
-		// ── Arama girdi modu: sadece dropdown navigasyonu ──
 		if (searchInputActive)
 		{
-			// Yukarı/aşağı ok tuşları → dropdown gezinme (kontrol tuşları ile)
-			if (controls.UI_UP_P)
+			var mobileUp:Bool = false;
+			var mobileDown:Bool = false;
+			var mobileAccept:Bool = false;
+			var mobileBack:Bool = false;
+			var mobileSearchClose:Bool = false;
+
+			#if TOUCH_CONTROLS_ALLOWED
+			if (touchPad != null)
+			{
+				mobileUp = touchPad.buttonUp.justPressed;
+				mobileDown = touchPad.buttonDown.justPressed;
+				mobileAccept = touchPad.buttonA.justPressed;
+				mobileBack = touchPad.buttonB.justPressed;
+				mobileSearchClose = touchPad.buttonX.justPressed;
+			}
+			#end
+
+			if (controls.UI_UP_P || mobileUp)
 				navigateDropdown(-1);
-			if (controls.UI_DOWN_P)
+
+			if (controls.UI_DOWN_P || mobileDown)
 				navigateDropdown(1);
 
+			if (controls.ACCEPT || mobileAccept)
+			{
+				if (dropdownSelected >= 0 && dropdownSelected < dropdownItems.length
+					&& dropdownItems[dropdownSelected].type == SONG)
+					selectDropdownItem();
+				else
+					closeSearchBar();
+			}
+
+			if (controls.BACK || mobileBack || mobileSearchClose)
+			{
+				closeSearchBar();
+				lerpScoreDisplays(elapsed);
+				return;
+			}
+
 			lerpScoreDisplays(elapsed);
-			return; // Diğer girdileri engelle
+			return;
 		}
 
 		#if FEATURE_DEBUG_FUNCTIONS
@@ -2215,8 +2324,12 @@ class FreeplayState extends MusicBeatSubstate
 				});
 				FunkinSound.playOnce(Paths.sound('scrollMenu'), 0.4);
 			}
-			// ── Arama Açma: C tuşu ──
-			else if (FlxG.keys.justPressed.C && !searchOpen)
+			else if (!searchOpen && (
+				FlxG.keys.justPressed.C
+				#if TOUCH_CONTROLS_ALLOWED
+				|| (touchPad != null && touchPad.buttonX.justPressed)
+				#end
+			))
 			{
 				openSearchBar();
 			}
@@ -2403,7 +2516,17 @@ class FreeplayState extends MusicBeatSubstate
 		}
 		#end
 
-		if (controls.UI_LEFT_P || (TouchUtil.overlapsComplex(diffSelLeft) && TouchUtil.justPressed))
+		var leftDiff:Bool = controls.UI_LEFT_P
+			#if TOUCH_CONTROLS_ALLOWED
+			|| (touchPad != null && touchPad.buttonLeft.justPressed)
+			#end;
+
+		var rightDiff:Bool = controls.UI_RIGHT_P
+			#if TOUCH_CONTROLS_ALLOWED
+			|| (touchPad != null && touchPad.buttonRight.justPressed)
+			#end;
+
+		if (leftDiff || (TouchUtil.overlapsComplex(diffSelLeft) && TouchUtil.justPressed))
 		{
 			if (dj != null)
 				dj.resetAFKTimer();
@@ -2412,13 +2535,13 @@ class FreeplayState extends MusicBeatSubstate
 			if (diffSelLeft != null)
 				diffSelLeft.setPress(true);
 		}
-		if (controls.UI_RIGHT_P || (TouchUtil.overlapsComplex(diffSelRight) && TouchUtil.justPressed))
+		if (rightDiff || (TouchUtil.overlapsComplex(diffSelRight) && TouchUtil.justPressed))
 		{
 			if (dj != null)
 				dj.resetAFKTimer();
 			changeDiff(1);
 			rememberedDifficulty = currentDifficulty;
-			if (diffSelLeft != null)
+			if (diffSelRight != null)
 				diffSelRight.setPress(true);
 		}
 
@@ -2461,13 +2584,16 @@ class FreeplayState extends MusicBeatSubstate
 			backingCard?.disappear();
 
 			#if TOUCH_CONTROLS_ALLOWED
-			touchPad.forEachAlive(function(button:TouchButton)
+			if (touchPad != null)
 			{
-				if (button.tag == 'UP' || button.tag == 'DOWN')
-					FlxTween.tween(button, {x: button.x - 350}, 1.2, {ease: FlxEase.backOut});
-				else
-					FlxTween.tween(button, {x: button.x + 450}, 1.2, {ease: FlxEase.backOut});
-			});
+				touchPad.forEachAlive(function(button:TouchButton)
+				{
+					if (isDirectionalTouchButton(button))
+						FlxTween.tween(button, {x: button.x - 350}, 1.2, {ease: FlxEase.backOut});
+					else
+						FlxTween.tween(button, {x: button.x + 450}, 1.2, {ease: FlxEase.backOut});
+				});
+			}
 			#end
 
 			for (grpSpr in exitMovers.keys())

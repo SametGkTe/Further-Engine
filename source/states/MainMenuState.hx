@@ -5,6 +5,7 @@ import flixel.effects.FlxFlicker;
 import lime.app.Application;
 import states.editors.MasterEditorMenu;
 import options.OptionsState;
+import substates.RehberSubState;
 
 enum MainMenuColumn {
 	LEFT;
@@ -134,6 +135,15 @@ class MainMenuState extends MusicBeatState
 		var profileBox = new objects.ProfileBox(FlxG.width - 290, 10);
 		profileBox.scrollFactor.set();
 		add(profileBox);
+		
+		// Rehber butonu - sağda sabit placeholder
+		var rehberButton = new flixel.ui.FlxButton(0, 0, "REHBER", function() {
+			openSubState(new RehberSubState());
+		});
+		rehberButton.x = FlxG.width - rehberButton.width - 20;
+		rehberButton.y = FlxG.height / 2 - rehberButton.height / 2;
+		rehberButton.scrollFactor.set();
+		add(rehberButton);
 		
 		addTouchPad('NONE', 'E');
 	}

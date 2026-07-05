@@ -183,6 +183,8 @@ class PlayState extends MusicBeatState
 	public static var uiPrefix:String = "";
 	public static var uiPostfix:String = "";
 	public static var isPixelStage(get, never):Bool;
+	
+	var canSaveScore:Bool = false;
 
 	@:noCompletion
 	static function set_stageUI(value:String):String
@@ -211,6 +213,9 @@ class PlayState extends MusicBeatState
 	// P.E.T Filigran değişkenleri
 	var petLogo:FlxSprite;
 	var petText:FlxText;
+	
+	
+	var leaderboardSubmitted:Bool = false;
 
 	public var inst:FlxSound;
 	public var vocals:FlxSound;
@@ -1561,6 +1566,64 @@ class PlayState extends MusicBeatState
 		unspawnNotes.sort(sortByTime);
 		generatedMusic = true;
 	}
+	
+	function submitLeaderboardOnce():Void
+	{
+		if (leaderboardSubmitted)
+			return;
+
+		leaderboardSubmitted = true;
+
+		var submitPercent:Float = ratingPercent;
+		if (Math.isNaN(submitPercent))
+			submitPercent = 0;
+
+		trace('[LeaderboardAPI] submitLeaderboardOnce()');
+		trace('[LeaderboardAPI] canSaveScore=' + canSaveScore
+			+ ' loggedIn=' + backend.AuthManager.isLoggedIn
+			+ ' score=' + songScore
+			+ ' percent=' + submitPercent
+			+ ' misses=' + songMisses
+			+ ' combo=' + combo
+			+ ' song=' + (PlayState.SONG != null ? PlayState.SONG.song : 'null'));
+
+		if (!canSaveScore)
+		{
+			trace('[LeaderboardAPI] SKIP: canSaveScore false');
+			return;
+		}
+
+		if (!backend.AuthManager.isLoggedIn)
+		{
+			trace('[LeaderboardAPI] SKIP: not logged in');
+			return;
+		}
+
+		if (songScore <= 0)
+		{
+			trace('[LeaderboardAPI] SKIP: songScore <= 0');
+			return;
+		}
+
+		if (submitPercent <= 0)
+		{
+			trace('[LeaderboardAPI] SKIP: submitPercent <= 0');
+			return;
+		}
+
+		trace('[LeaderboardAPI] Calling submitScore...');
+
+		LeaderboardAPI.submitScore(
+			backend.AuthManager.currentUsername,
+			PlayState.SONG.song,
+			Difficulty.getString(storyDifficulty),
+			songScore,
+			submitPercent * 100,
+			ratingName,
+			songMisses,
+			combo
+		);
+	}
 
 	// called only once per different event (Used for precaching)
 	function eventPushed(event:EventNote) {
@@ -2672,8 +2735,7 @@ class PlayState extends MusicBeatState
 
 			var currentTallies:SaveScoreData = buildCurrentSaveScoreData();
 
-			// SCORE SUBMIT
-			if (canSaveScore && backend.AuthManager.isLoggedIn)
+			if (canSaveScore && backend.AuthManager.isLoggedIn && ClientPrefs.data.serverConnection)
 			{
 				var submitPercent:Float = ratingPercent;
 				if (Math.isNaN(submitPercent)) submitPercent = 0;
@@ -2760,6 +2822,7 @@ class PlayState extends MusicBeatState
 			}
 			else
 			{
+				submitLeaderboardOnce();
 				trace('WENT BACK TO FREEPLAY??');
 				Mods.loadTopMod();
 

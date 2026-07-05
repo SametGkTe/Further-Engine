@@ -37,6 +37,10 @@ class AuthManager {
         return Std.string(v);
     }
 
+    // ============================================
+    // REGISTER (her zaman çalışır)
+    // ============================================
+
     public static function register(
         email:String, password:String,
         username:String, country:String,
@@ -68,6 +72,7 @@ class AuthManager {
 
                     if (parsed.access_token != null) {
                         SupabaseClient.saveToken(parsed.access_token, parsed.user.id);
+                        _saveRefreshFromParsed(parsed);
                         loadProfile(parsed.access_token, callback);
                     }
                     else if (parsed.id != null) {
@@ -89,6 +94,10 @@ class AuthManager {
             }
         });
     }
+
+    // ============================================
+    // LOGIN WITH USERNAME (her zaman çalışır)
+    // ============================================
 
     public static function loginWithUsername(
         username:String, password:String,
@@ -112,6 +121,10 @@ class AuthManager {
         );
     }
 
+    // ============================================
+    // LOGIN WITH EMAIL (her zaman çalışır)
+    // ============================================
+
     public static function login(
         email:String, password:String,
         callback:Bool->String->Void
@@ -129,6 +142,7 @@ class AuthManager {
             if (data.indexOf('"access_token"') != -1) {
                 var parsed = haxe.Json.parse(data);
                 SupabaseClient.saveToken(parsed.access_token, parsed.user.id);
+                _saveRefreshFromParsed(parsed);
                 loadProfile(parsed.access_token, callback);
             } else {
                 try {
@@ -141,6 +155,10 @@ class AuthManager {
         });
     }
 
+    // ============================================
+    // AUTO LOGIN (her zaman çalışır)
+    // ============================================
+
     public static function autoLogin(callback:Bool->Void):Void {
         if (!SupabaseClient.hasToken()) {
             trace('[AuthManager] No saved token');
@@ -151,7 +169,7 @@ class AuthManager {
         var token = SupabaseClient.getToken();
         var userId = SupabaseClient.getUserId();
 
-        trace('[AuthManager] Auto-login attempting... token exists, userId: $userId');
+        trace('[AuthManager] Auto-login attempting... userId: $userId');
 
         if (userId == null || userId == '') {
             trace('[AuthManager] No saved userId');
@@ -160,11 +178,12 @@ class AuthManager {
         }
 
         SupabaseClient.getAsync("/auth/v1/user", token, function(status:Int, data:String) {
-            trace('[AuthManager] Auto-login /auth/v1/user response: status=$status');
+            trace('[AuthManager] Auto-login /auth/v1/user: status=$status');
 
             if (status == 200 && data != null && data.indexOf('"id"') != -1) {
+                trace('[AuthManager] Token valid, loading profile...');
                 loadProfile(token, function(ok, msg) {
-                    trace('[AuthManager] Auto-login loadProfile result: $ok - $msg');
+                    trace('[AuthManager] Auto-login loadProfile: $ok - $msg');
                     if (ok) {
                         #if ACHIEVEMENTS_ALLOWED
                         backend.AchievementSync.flushQueue();
@@ -173,17 +192,106 @@ class AuthManager {
                     callback(ok);
                 });
             } else {
-                trace('[AuthManager] Auto-login token expired or invalid');
-                callback(false);
+                trace('[AuthManager] Token expired, trying refresh...');
+                refreshAccessToken(function(refreshOk:Bool) {
+                    if (refreshOk) {
+                        var newToken = SupabaseClient.getToken();
+                        trace('[AuthManager] Token refreshed, loading profile...');
+                        loadProfile(newToken, function(ok, msg) {
+                            trace('[AuthManager] Auto-login after refresh: $ok - $msg');
+                            if (ok) {
+                                #if ACHIEVEMENTS_ALLOWED
+                                backend.AchievementSync.flushQueue();
+                                #end
+                            }
+                            callback(ok);
+                        });
+                    } else {
+                        trace('[AuthManager] Refresh failed, clearing auth, re-login required');
+                        SupabaseClient.clearToken();
+                        callback(false);
+                    }
+                });
             }
         });
     }
+
+    // ============================================
+    // TOKEN REFRESH (her zaman çalışır)
+    // ============================================
+
+    public static function refreshAccessToken(callback:Bool->Void):Void {
+        var refreshTk = SupabaseClient.getRefreshToken();
+
+        if (refreshTk == null || refreshTk == "") {
+            trace('[AuthManager] No refresh token available');
+            callback(false);
+            return;
+        }
+
+        trace('[AuthManager] Refreshing access token...');
+
+        var body = {
+            grant_type: "refresh_token",
+            refresh_token: refreshTk
+        };
+
+        SupabaseClient.postAsync("/auth/v1/token?grant_type=refresh_token", body, "", function(status:Int, data:String) {
+            trace('[AuthManager] Refresh response: status=$status');
+
+            if (status == 200 && data != null && data.indexOf('"access_token"') != -1) {
+                try {
+                    var parsed = haxe.Json.parse(data);
+                    var newToken:String = Reflect.field(parsed, "access_token");
+
+                    if (newToken != null && newToken != "") {
+                        var userId = SupabaseClient.getUserId();
+                        var user = Reflect.field(parsed, "user");
+                        if (user != null && Reflect.hasField(user, "id"))
+                            userId = Std.string(Reflect.field(user, "id"));
+
+                        SupabaseClient.saveToken(newToken, userId);
+                        _saveRefreshFromParsed(parsed);
+
+                        trace('[AuthManager] Token refreshed successfully!');
+                        callback(true);
+                        return;
+                    }
+                } catch (e) {
+                    trace('[AuthManager] Refresh parse error: $e');
+                }
+            }
+
+            trace('[AuthManager] Token refresh failed');
+            callback(false);
+        });
+    }
+
+    static function _saveRefreshFromParsed(parsed:Dynamic):Void {
+        if (parsed == null) return;
+        var rt = Reflect.field(parsed, "refresh_token");
+        if (rt != null) {
+            var rtStr = Std.string(rt);
+            if (rtStr != "" && rtStr != "null") {
+                SupabaseClient.saveRefreshToken(rtStr);
+                trace('[AuthManager] Refresh token saved');
+            }
+        }
+    }
+
+    // ============================================
+    // FORGOT PASSWORD (her zaman çalışır)
+    // ============================================
 
     public static function forgotPassword(email:String, callback:Bool->String->Void):Void {
         SupabaseClient.postAsync("/auth/v1/recover", { email: email }, "", function(_, data) {
             callback(true, "Password reset email sent!");
         });
     }
+
+    // ============================================
+    // DELETE ACCOUNT (her zaman çalışır)
+    // ============================================
 
     public static function deleteAccount(callback:Bool->String->Void):Void {
         var token = SupabaseClient.getToken();
@@ -199,6 +307,10 @@ class AuthManager {
         http.onError = function(e) callback(false, e);
         http.customRequest(false, new haxe.io.BytesOutput(), null, "DELETE");
     }
+
+    // ============================================
+    // LOGOUT (her zaman çalışır)
+    // ============================================
 
     public static function logout():Void {
         SupabaseClient.clearToken();
@@ -233,11 +345,14 @@ class AuthManager {
 
                         callback(true, "OK");
                     } else {
-                        _tryOfflineLogin(callback);
+                        trace('[AuthManager] Profile not found, re-login required');
+                        SupabaseClient.clearToken();
+                        callback(false, "Profile not found");
                     }
                 } catch(e) {
                     trace('[AuthManager] loadProfile parse error: $e');
-                    _tryOfflineLogin(callback);
+                    SupabaseClient.clearToken();
+                    callback(false, "Parse error");
                 }
             }
         );
@@ -276,26 +391,6 @@ class AuthManager {
             + ', ultraPoints=$currentUltraPoints'
             + ', role=$currentRole'
             + ', badge=$currentBadge');
-    }
-
-    private static function _tryOfflineLogin(callback:Bool->String->Void):Void {
-        var cached = ProfileBox.getCachedProfile();
-        if (cached != null) {
-            currentUsername     = dynToString(Reflect.field(cached, "username"), "Player");
-            currentLevel       = dynToInt(Reflect.field(cached, "level"), 1);
-            currentScore       = dynToInt(Reflect.field(cached, "score"), 0);
-            currentUltraPoints = dynToFloat(Reflect.field(cached, "ultraPoints"), 0.0);
-            currentAvatar      = dynToInt(Reflect.field(cached, "avatar"), 0);
-            currentCountry     = dynToString(Reflect.field(cached, "country"), "");
-            isLoggedIn = true;
-            trace('[AuthManager] Offline login: $currentUsername, UP: $currentUltraPoints');
-            callback(true, "Offline login");
-        } else {
-            currentUsername = "Player";
-            currentUltraPoints = 0.0;
-            isLoggedIn = false;
-            callback(false, "Login required");
-        }
     }
 
     static function tryParseError(data:String):String {

@@ -135,7 +135,10 @@ class CreditsState extends MusicBeatState
 
 					var sIcon:FlxSprite = new FlxSprite().loadGraphic(Paths.image(str));
 					sIcon.antialiasing = ClientPrefs.data.antialiasing;
-					sIcon.scrollFactor.set();
+					// scrollFactor.set() KALDIRILDI - tracker ile birlikte scroll edecek
+					var iconScale:Float = Math.min(36 / sIcon.width, 36 / sIcon.height);
+					sIcon.scale.set(iconScale, iconScale);
+					sIcon.updateHitbox();
 					sectionIconArray.push({icon: sIcon, tracker: optionText});
 					add(sIcon);
 				}
@@ -354,7 +357,15 @@ class CreditsState extends MusicBeatState
 		{
 			if (entry.icon != null && entry.tracker != null)
 			{
-				entry.icon.x = entry.tracker.x - entry.icon.width - 14;
+				// Başlığın tam genişliğini hesapla
+				var trackerWidth:Float = entry.tracker.width;
+				// Başlığın merkez X'ini bul
+				var trackerCenterX:Float = entry.tracker.x + trackerWidth / 2;
+				// İkonu başlığın soluna koy (başlık + ikon toplam genişliği merkeze göre)
+				var totalWidth:Float = entry.icon.width + 10 + trackerWidth;
+				var startX:Float = trackerCenterX - totalWidth / 2;
+
+				entry.icon.x = startX;
 				entry.icon.y = entry.tracker.y + (entry.tracker.height - entry.icon.height) / 2;
 				entry.icon.alpha = entry.tracker.alpha;
 			}

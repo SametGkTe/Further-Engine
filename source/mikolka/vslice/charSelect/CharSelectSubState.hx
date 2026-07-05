@@ -1,5 +1,9 @@
 package mikolka.vslice.charSelect;
 
+#if TOUCH_CONTROLS_ALLOWED
+import mobile.objects.TouchZone;
+#end
+
 import flixel.group.FlxGroup;
 import mikolka.funkin.custom.mobile.MobileScaleMode;
 import mikolka.compatibility.ModsHelper;
@@ -507,9 +511,8 @@ class CharSelectSubState extends MusicBeatSubState
 		});
 
 		#if TOUCH_CONTROLS_ALLOWED
-		addTouchPad('NONE', 'NONE');
+		addTouchPad('NONE', 'A_B');
 		addTouchPadCamera();
-		// if (allowInput && pressedSelect && controls.BACK) onAcceptPress();
 		#end
 	}
 	
@@ -844,7 +847,8 @@ class CharSelectSubState extends MusicBeatSubState
 			}
 		});
 		#if TOUCH_CONTROLS_ALLOWED
-		FlxTween.tween(touchPad, {alpha: 0}, 0.8, {ease: FlxEase.expoOut});
+		if (touchPad != null)
+			FlxTween.tween(touchPad, {alpha: 0}, 0.8, {ease: FlxEase.expoOut});
 		#end
 	}
 
@@ -946,7 +950,7 @@ class CharSelectSubState extends MusicBeatSubState
 				selectSound.play(true);
 			}
 
-			if (controls.BACK)
+			if (controls.BACK #if TOUCH_CONTROLS_ALLOWED || (touchPad != null && touchPad.buttonB.justPressed) #end)
 			{
 				wentBackToFreeplay = true;
 				FunkinSound.playOnce(Paths.sound('cancelMenu'));
@@ -1007,9 +1011,9 @@ class CharSelectSubState extends MusicBeatSubState
 			}
 		}
 		#end
-		if (controls.ACCEPT)
+		if (controls.ACCEPT #if TOUCH_CONTROLS_ALLOWED || (touchPad != null && touchPad.buttonA.justPressed) #end)
 			onAcceptPress();
-		if (controls.BACK)
+		if (controls.BACK #if TOUCH_CONTROLS_ALLOWED || (touchPad != null && touchPad.buttonB.justPressed) #end)
 			onBackPress();
 
 		updateLockAnims();

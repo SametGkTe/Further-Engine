@@ -200,6 +200,11 @@ class LoginState extends MusicBeatState {
 
 		setRegisterVisible(false);
 		playEntryAnimation();
+		
+		#if TOUCH_CONTROLS_ALLOWED
+		addTouchPad('NONE', 'A_B');
+		addTouchPadCamera();
+		#end
 	}
 
 	function playEntryAnimation():Void {
@@ -264,18 +269,30 @@ class LoginState extends MusicBeatState {
 			|| PsychUIInputText.focusOn == passInput
 			|| PsychUIInputText.focusOn == userInput);
 
-		if (FlxG.keys.justPressed.ENTER) {
+		if (FlxG.keys.justPressed.ENTER
+			#if TOUCH_CONTROLS_ALLOWED
+			|| (touchPad != null && touchPad.buttonA.justPressed)
+			#end
+		) {
 			doSubmit();
 			return;
 		}
 
 		if (!inputActive) {
-			if (FlxG.keys.justPressed.ESCAPE || controls.BACK) {
+			if (FlxG.keys.justPressed.ESCAPE || controls.BACK
+				#if TOUCH_CONTROLS_ALLOWED
+				|| (touchPad != null && touchPad.buttonB.justPressed)
+				#end
+			) {
 				goBack();
 				return;
 			}
 		} else {
-			if (FlxG.keys.justPressed.ESCAPE) {
+			if (FlxG.keys.justPressed.ESCAPE
+				#if TOUCH_CONTROLS_ALLOWED
+				|| (touchPad != null && touchPad.buttonB.justPressed)
+				#end
+			) {
 				PsychUIInputText.focusOn = null;
 				return;
 			}

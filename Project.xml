@@ -100,7 +100,6 @@
 		<assets path='list.txt' rename='modsList.txt' />
 	</section>
 	
-	<assets path='mobile/assets' rename='assets/shared/mobile' />
 	<assets path='art/readme.txt' rename='do NOT readme.txt' unless="mobile" />
 
 	<!-- OpenAL config -->
@@ -160,6 +159,13 @@
 
 	<!--Disable the Flixel sound management code-->
 	<!--<haxedef name="FLX_NO_SOUND_SYSTEM" />-->
+	
+	<!-- Performance -->
+	<section unless="debug">
+		<haxedef name="HXCPP_GC_MOVING" />
+		<haxedef name="HXCPP_GC_BIG_BLOCKS" />
+		<haxedef name="analyzer-optimize" />
+	</section>
 
 	<!--Disable the Flixel core focus lost screen-->
 	<haxedef name="FLX_NO_FOCUS_LOST_SCREEN" />
@@ -197,6 +203,9 @@
 
 	<!-- Allow Access to Engine Files in iOS -->
 	<haxedef name="SHARE_MOBILE_FILES" if="ios" />
+	
+	<define name="TOUCH_CONTROLS_ALLOWED" if="android" />
+	<define name="TOUCH_CONTROLS_ALLOWED" if="ios" />
 
 	<!--Macro fixes-->
 	<haxeflag name="--macro" value="allowPackage('flash')" />

@@ -2,7 +2,6 @@ package states;
 
 import backend.WeekData;
 import states.UpdatePromptState;
-import mobile.MobileConfig;
 
 import flixel.input.keyboard.FlxKey;
 import flixel.graphics.frames.FlxAtlasFrames;
@@ -104,11 +103,7 @@ class TitleState extends MusicBeatState
 			}
 			persistentUpdate = true;
 			persistentDraw = true;
-			MobileConfig.init('MobileControls', CoolUtil.getSavePath(), 'assets/mobile/', [
-				['MobilePad/DPadModes', ButtonModes.DPAD],
-				['MobilePad/ActionModes', ButtonModes.ACTION],
-				['Hitbox/HitboxModes', ButtonModes.HITBOX]
-			]);
+			MobileData.init();
 		}
 
 		if (FlxG.save.data.weekCompleted != null)

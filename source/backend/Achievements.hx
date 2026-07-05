@@ -32,32 +32,33 @@ enum abstract AchievementOp(String)
 class Achievements {
 	public static function init()
 	{
-		createAchievement('friday_night_play',		{name: "Freaky on a Friday Night", description: "Play on a Friday... Night.", hidden: true});
+		createAchievement('friday_night_play',		{name: Language.getPhrase('achievement_friday_night_play', "Cuma Gecesi Çılgınlığı"), description: Language.getPhrase('achievement_desc_friday_night_play', "Bir Cuma... Gecesi oyna."), hidden: true});
 		#if BASE_GAME_FILES
-		createAchievement('week1_nomiss',			{name: "She Calls Me Daddy Too", description: "Beat Week 1 on Hard with no Misses."});
-		createAchievement('week2_nomiss',			{name: "No More Tricks", description: "Beat Week 2 on Hard with no Misses."});
-		createAchievement('week3_nomiss',			{name: "Call Me The Hitman", description: "Beat Week 3 on Hard with no Misses."});
-		createAchievement('week4_nomiss',			{name: "Lady Killer", description: "Beat Week 4 on Hard with no Misses."});
-		createAchievement('week5_nomiss',			{name: "Missless Christmas", description: "Beat Week 5 on Hard with no Misses."});
-		createAchievement('week6_nomiss',			{name: "Highscore!!", description: "Beat Week 6 on Hard with no Misses."});
-		createAchievement('week7_nomiss',			{name: "God Effing Damn It!", description: "Beat Week 7 on Hard with no Misses."});
-		createAchievement('weekend1_nomiss',		{name: "Just a Friendly Sparring", description: "Beat Weekend 1 on Hard with no Misses."});
+		createAchievement('week1_nomiss',			{name: Language.getPhrase('achievement_week1_nomiss', "O Bana da Baba Diyor"), description: Language.getPhrase('achievement_desc_week1_nomiss', "Hafta 1'i Zor modda Iskasız bitir.")});
+		createAchievement('week2_nomiss',			{name: Language.getPhrase('achievement_week2_nomiss', "Artık Numara Yok"), description: Language.getPhrase('achievement_desc_week2_nomiss', "Hafta 2'yi Zor modda Iskasız bitir.")});
+		createAchievement('week3_nomiss',			{name: Language.getPhrase('achievement_week3_nomiss', "Bana Tetikçi Deyin"), description: Language.getPhrase('achievement_desc_week3_nomiss', "Hafta 3'ü Zor modda Iskasız bitir.")});
+		createAchievement('week4_nomiss',			{name: Language.getPhrase('achievement_week4_nomiss', "Hanım Avcısı"), description: Language.getPhrase('achievement_desc_week4_nomiss', "Hafta 4'ü Zor modda Iskasız bitir.")});
+		createAchievement('week5_nomiss',			{name: Language.getPhrase('achievement_week5_nomiss', "Iskasız Noel"), description: Language.getPhrase('achievement_desc_week5_nomiss', "Hafta 5'i Zor modda Iskasız bitir.")});
+		createAchievement('week6_nomiss',			{name: Language.getPhrase('achievement_week6_nomiss', "Yüksek Skor!!"), description: Language.getPhrase('achievement_desc_week6_nomiss', "Hafta 6'yı Zor modda Iskasız bitir.")});
+		createAchievement('week7_nomiss',			{name: Language.getPhrase('achievement_week7_nomiss', "Kahretsin Ya!"), description: Language.getPhrase('achievement_desc_week7_nomiss', "Hafta 7'yi Zor modda Iskasız bitir.")});
+		createAchievement('weekend1_nomiss',		{name: Language.getPhrase('achievement_weekend1_nomiss', "Sadece Dostça Bir Antrenman"), description: Language.getPhrase('achievement_desc_weekend1_nomiss', "Hafta Sonu 1'i Zor modda Iskasız bitir.")});
 		#end
-		createAchievement('ur_bad',					{name: "What a Funkin' Disaster!", description: "Complete a Song with a rating lower than 20%."});
-		createAchievement('ur_good',				{name: "Perfectionist", description: "Complete a Song with a rating of 100%."});
+		createAchievement('ur_bad',					{name: Language.getPhrase('achievement_ur_bad', "Ne Büyük Bir Felaket!"), description: Language.getPhrase('achievement_desc_ur_bad', "Bir şarkıyı %20'nin altında bir doğruluk ile tamamla.")});
+		createAchievement('ur_good',				{name: Language.getPhrase('achievement_ur_good', "Mükemmeliyetçi"), description: Language.getPhrase('achievement_desc_ur_good', "Bir şarkıyı %100 doğruluk ile tamamla.")});
 		#if BASE_GAME_FILES
-		createAchievement('roadkill_enthusiast',	{name: "Roadkill Enthusiast", description: "Watch the Henchmen die 50 times.", maxScore: 50, maxDecimals: 0});
+		createAchievement('roadkill_enthusiast',	{name: Language.getPhrase('achievement_roadkill_enthusiast', "Ezilme Meraklısı"), description: Language.getPhrase('achievement_desc_roadkill_enthusiast', "Uşakların 50 kez ölmesini izle."), maxScore: 50, maxDecimals: 0});
 		#end
-		createAchievement('oversinging', 			{name: "Oversinging Much...?", description: "Sing for 10 seconds without going back to Idle."});
-		createAchievement('hype',					{name: "Hyperactive", description: "Finish a Song without going back to Idle."});
-		createAchievement('two_keys',				{name: "Just the Two of Us", description: "Finish a Song pressing only two keys."});
-		createAchievement('toastie',				{name: "Toaster Gamer", description: "Have you tried to run the game on a toaster?"});
+		createAchievement('oversinging', 			{name: Language.getPhrase('achievement_oversinging', "Fazla Söyleme...?"), description: Language.getPhrase('achievement_desc_oversinging', "Boş duruma \"idle\" dönmeden 10 saniye boyunca şarkı söyle.")});
+		createAchievement('hype',					{name: Language.getPhrase('achievement_hype', "Hiperaktif"), description: Language.getPhrase('achievement_desc_hype', "Bir şarkıyı boş duruma \"idle\" dönmeden bitir.")});
+		createAchievement('two_keys',				{name: Language.getPhrase('achievement_two_keys', "Sadece İkimiz"), description: Language.getPhrase('achievement_desc_two_keys', "Bir şarkıyı sadece iki tuşa basarak bitir.")});
+		createAchievement('toastie',				{name: Language.getPhrase('achievement_toastie', "Tost Makinesi Oyuncusu"), description: Language.getPhrase('achievement_desc_toastie', "Oyunu tost makinesinde çalıştırmayı denedin mi?")});
+		createAchievement('keyboard',				{name: Language.getPhrase('achievement_keyboard', "Klavye Kıran"), description: Language.getPhrase('achievement_desc_keyboard', "Hiç bunları okumayı düşünmemiştin.")});
 		#if BASE_GAME_FILES
-		createAchievement('debugger',				{name: "Debugger", description: "Beat the \"Test\" Stage from the Chart Editor.", hidden: true});
-		createAchievement('pet', 			{name: "Oynadığın için Teşekkürler!", description: "Psych Engine Türkiye Oyuncularından biri ol!"});
+		createAchievement('debugger',				{name: Language.getPhrase('achievement_debugger', "Hata Ayıklayıcı"), description: Language.getPhrase('achievement_desc_debugger', "Nota Editöründen \"Test\" Şarkısını bitir."), hidden: true});
+		createAchievement('pet', 			{name: Language.getPhrase('achievement_pet', "Oynadığın için Teşekkürler!"), description: Language.getPhrase('achievement_desc_pet', "Psych Engine Türkiye Oyuncularından biri ol!")});
 		#end
 		#if (TITLE_SCREEN_EASTER_EGG || PSYCH_WATERMARKS)
-		createAchievement('pessy_easter_egg',		{name: "Engine Gal Pal", description: "Teehee, you found me~!", hidden: true});
+		createAchievement('pessy_easter_egg',		{name: Language.getPhrase('achievement_pessy_easter_egg', "Pessy Kızı"), description: Language.getPhrase('achievement_desc_pessy_easter_egg', "Heehee, beni buldun~!"), hidden: true});
 		#end
 
 		//dont delete this thing below

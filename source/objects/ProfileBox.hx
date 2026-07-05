@@ -69,6 +69,7 @@ class ProfileBox extends FlxSpriteGroup {
 	static inline final BOX_H_GUEST = 64;
 	static inline final AVATAR_SIZE = 56;
 	static inline final ACCENT_W = 3;
+	static inline final UNPLUG_SIZE = 20;
 
 	static inline final CACHE_FILE = "profile_cache.json";
 
@@ -85,14 +86,18 @@ class ProfileBox extends FlxSpriteGroup {
 	var statusRing:FlxSprite;
 
 	var usernameText:FlxText;
-	var levelBadge:FlxSprite;
-	var levelNumText:FlxText;
+	var levelText:FlxText;
 	var upText:FlxText;
 	var achievementLabel:FlxText;
 
 	var guestText:FlxText;
 	var guestSubText:FlxText;
 	var guestArrow:FlxText;
+
+	// Server connection göstergeleri
+	var unplugIcon:FlxSprite;
+	var unplugLabel:FlxText;
+	var _lastServerConn:Bool = true;
 
 	var _pulseTime:Float = 0;
 	var _built:Bool = false;
@@ -105,6 +110,7 @@ class ProfileBox extends FlxSpriteGroup {
 	public function new(?xPos:Float = 0, ?yPos:Float = 0) {
 		super(xPos, yPos);
 		instance = this;
+		_lastServerConn = ClientPrefs.data.serverConnection;
 
 		if (AuthManager.isLoggedIn)
 			buildLoggedIn();
@@ -159,6 +165,7 @@ class ProfileBox extends FlxSpriteGroup {
 		var level = AuthManager.currentLevel ?? 1;
 		var up = AuthManager.currentUltraPoints ?? 0.0;
 		var rankColor = getRankColorFromUP(up);
+		var serverOn = ClientPrefs.data.serverConnection;
 
 		bg = makeRect(0, 0, BOX_W, BOX_H, COL_BG);
 		bg.alpha = 0.95;
@@ -214,28 +221,31 @@ class ProfileBox extends FlxSpriteGroup {
 		statusRing = makeRect(avX + AVATAR_SIZE - 14, avY + AVATAR_SIZE - 14, 14, 14, COL_BG);
 		add(statusRing);
 
-		statusDot = makeRect(avX + AVATAR_SIZE - 12, avY + AVATAR_SIZE - 12, 10, 10, COL_GREEN);
+		statusDot = makeRect(avX + AVATAR_SIZE - 12, avY + AVATAR_SIZE - 12, 10, 10, serverOn ? COL_GREEN : COL_RED);
 		add(statusDot);
 
+		// ============================================
+		// TEXT ALANI
+		// ============================================
 		var textX:Float = avX + AVATAR_SIZE + 14;
 		var textW:Int = Std.int(BOX_W - textX - 14);
 
-		usernameText = new FlxText(textX, 10, textW - 50, username);
-		usernameText.setFormat(Paths.font("Avgardd.ttf"), 20, COL_TEXT, LEFT);
+		// Satır 1: username · Sv.20
+		usernameText = new FlxText(textX, 14, textW, username + '  ·  '
+			+ Language.getPhrase('profile_level_prefix', 'Sv') + '.$level');
+		usernameText.setFormat(Paths.font("Avgardd.ttf"), 18, COL_TEXT, LEFT);
 		usernameText.scrollFactor.set(0, 0);
 		add(usernameText);
 
-		var lvBadgeX:Float = textX + textW - 44;
-		levelBadge = makeRect(lvBadgeX, 11, 42, 16, rankColor);
-		levelBadge.alpha = 0.25;
-		add(levelBadge);
+		// Seviye numarası ayrı renkte göstermek için ek text
+		levelText = new FlxText(textX, 14, textW, "");
+		levelText.setFormat(Paths.font("Avgardd.ttf"), 18, rankColor, LEFT);
+		levelText.scrollFactor.set(0, 0);
+		levelText.visible = false;
+		add(levelText);
 
-		levelNumText = new FlxText(lvBadgeX, 12, 42, Language.getPhrase('profile_level_prefix', 'Sv') + '.$level');
-		levelNumText.setFormat(Paths.font("vcr.ttf"), 11, rankColor, CENTER);
-		levelNumText.scrollFactor.set(0, 0);
-		add(levelNumText);
-
-		upText = new FlxText(textX, 38, textW, '${formatNumber(up)} UP');
+		// Satır 2: UP + badge
+		upText = new FlxText(textX, 40, textW, '${formatNumber(up)} UP');
 		upText.setFormat(Paths.font("vcr.ttf"), 11, COL_TEXT_DIM, LEFT);
 		upText.scrollFactor.set(0, 0);
 		add(upText);
@@ -245,6 +255,7 @@ class ProfileBox extends FlxSpriteGroup {
 			upText.text = '${formatNumber(up)} UP  ·  $badge';
 		}
 
+		// Satır 3: Başarımlar
 		#if ACHIEVEMENTS_ALLOWED
 		var achUnlocked = Achievements.achievementsUnlocked.length;
 		var achTotal = Lambda.count(Achievements.achievements);
@@ -255,8 +266,79 @@ class ProfileBox extends FlxSpriteGroup {
 		add(achievementLabel);
 		#end
 
+		// Satır 4 (sol alt): Sunucu bağlantısı kapalı
+		buildUnplugIndicator(serverOn);
+
 		animateEntry();
 		saveCache();
+	}
+
+	// ============================================
+	// UNPLUG GÖSTERGE (sol alt)
+	// ============================================
+	function buildUnplugIndicator(serverOn:Bool):Void {
+		destroyUnplugElements();
+
+		if (serverOn) return;
+
+		var textX:Float = ACCENT_W + 12;
+		var indicatorY:Float = BOX_H - UNPLUG_SIZE - 6;
+
+		unplugIcon = new FlxSprite(textX, indicatorY);
+		unplugIcon.scrollFactor.set(0, 0);
+		unplugIcon.antialiasing = ClientPrefs.data.antialiasing;
+
+		try {
+			unplugIcon.loadGraphic(Paths.image("other/unplug"));
+			unplugIcon.setGraphicSize(UNPLUG_SIZE, UNPLUG_SIZE);
+			unplugIcon.updateHitbox();
+			unplugIcon.x = textX;
+			unplugIcon.y = indicatorY;
+		} catch (e:Dynamic) {
+			unplugIcon.makeGraphic(UNPLUG_SIZE, UNPLUG_SIZE, COL_RED);
+			trace('[ProfileBox] unplug.png not found, using fallback');
+		}
+
+		unplugIcon.alpha = 0.85;
+		add(unplugIcon);
+
+		var labelX:Float = textX + UNPLUG_SIZE + 6;
+		var labelW:Int = Std.int(BOX_W - labelX - 10);
+
+		unplugLabel = new FlxText(labelX, indicatorY + 2, labelW,
+			Language.getPhrase('profile_server_off', 'Sunucu bağlantısı kapalı'));
+		unplugLabel.setFormat(Paths.font("vcr.ttf"), 11, COL_RED, LEFT);
+		unplugLabel.scrollFactor.set(0, 0);
+		unplugLabel.alpha = 0.85;
+		add(unplugLabel);
+	}
+
+	function destroyUnplugElements():Void {
+		if (unplugIcon != null) {
+			remove(unplugIcon, true);
+			unplugIcon.destroy();
+			unplugIcon = null;
+		}
+		if (unplugLabel != null) {
+			remove(unplugLabel, true);
+			unplugLabel.destroy();
+			unplugLabel = null;
+		}
+	}
+
+	function checkServerConnectionChanged():Void {
+		if (_isGuest) return;
+
+		var currentConn = ClientPrefs.data.serverConnection;
+		if (currentConn != _lastServerConn) {
+			_lastServerConn = currentConn;
+			trace('[ProfileBox] Server connection changed to: $currentConn');
+
+			if (statusDot != null)
+				statusDot.color = currentConn ? COL_GREEN : COL_RED;
+
+			buildUnplugIndicator(currentConn);
+		}
 	}
 
 	function makeRect(rx:Float, ry:Float, w:Dynamic, h:Dynamic, color:FlxColor):FlxSprite {
@@ -282,6 +364,8 @@ class ProfileBox extends FlxSpriteGroup {
 			destroyDropElements();
 		}
 
+		destroyUnplugElements();
+
 		while (members.length > 0) {
 			var m = members[0];
 			remove(m, true);
@@ -300,14 +384,17 @@ class ProfileBox extends FlxSpriteGroup {
 		statusDot = null;
 		statusRing = null;
 		usernameText = null;
-		levelBadge = null;
-		levelNumText = null;
+		levelText = null;
 		upText = null;
 		achievementLabel = null;
 		guestText = null;
 		guestSubText = null;
 		guestArrow = null;
+		unplugIcon = null;
+		unplugLabel = null;
 		_built = false;
+
+		_lastServerConn = ClientPrefs.data.serverConnection;
 
 		if (AuthManager.isLoggedIn)
 			buildLoggedIn();
@@ -327,6 +414,8 @@ class ProfileBox extends FlxSpriteGroup {
 
 		if (_isGuest && guestArrow != null)
 			guestArrow.x = (BOX_W - 28) + x + Math.sin(_pulseTime * 3) * 3;
+
+		checkServerConnectionChanged();
 
 		if (dropdownOpen)
 			handleDropdownInput();
@@ -529,17 +618,6 @@ class ProfileBox extends FlxSpriteGroup {
 		FlxTween.tween(dropLogoutText, {alpha: 1}, 0.18, {ease: FlxEase.sineOut, startDelay: 0.07});
 	}
 
-	function fadeIn(obj:Dynamic, targetAlpha:Float, delay:Float):Void {
-		if (obj == null) return;
-		obj.alpha = 0;
-		FlxTween.tween(obj, {alpha: targetAlpha}, 0.18, {ease: FlxEase.sineOut, startDelay: delay});
-	}
-
-	function fadeOut(obj:Dynamic):Void {
-		if (obj == null) return;
-		FlxTween.tween(obj, {alpha: 0}, 0.1);
-	}
-
 	function closeDropdown():Void {
 		if (!dropdownOpen) return;
 		dropdownOpen = false;
@@ -678,9 +756,11 @@ class ProfileBox extends FlxSpriteGroup {
 		var level = AuthManager.currentLevel ?? 1;
 		var up = AuthManager.currentUltraPoints ?? 0.0;
 		var rankColor = getRankColorFromUP(up);
+		var serverOn = ClientPrefs.data.serverConnection;
 
 		if (usernameText != null)
-			usernameText.text = username;
+			usernameText.text = username + '  ·  '
+				+ Language.getPhrase('profile_level_prefix', 'Sv') + '.$level';
 
 		if (avatarLetter != null && avatarLetter.visible) {
 			avatarLetter.text = username.charAt(0).toUpperCase();
@@ -690,21 +770,26 @@ class ProfileBox extends FlxSpriteGroup {
 		if (avatarBorder != null)
 			avatarBorder.color = rankColor;
 
-		if (levelNumText != null) {
-			levelNumText.text = Language.getPhrase('profile_level_prefix', 'Sv') + '.$level';
-			levelNumText.color = rankColor;
+		if (upText != null) {
+			var badge = AuthManager.currentBadge;
+			if (badge != null && badge.length > 0)
+				upText.text = '${formatNumber(up)} UP  ·  $badge';
+			else
+				upText.text = '${formatNumber(up)} UP';
 		}
-
-		if (levelBadge != null)
-			levelBadge.color = rankColor;
-
-		if (upText != null)
-			upText.text = '${formatNumber(up)} UP';
 
 		if (accentBar != null)
 			accentBar.color = rankColor;
 		if (accentTop != null)
 			accentTop.color = rankColor;
+
+		if (statusDot != null)
+			statusDot.color = serverOn ? COL_GREEN : COL_RED;
+
+		if (serverOn != _lastServerConn) {
+			_lastServerConn = serverOn;
+			buildUnplugIndicator(serverOn);
+		}
 
 		#if ACHIEVEMENTS_ALLOWED
 		if (achievementLabel != null) {
@@ -837,6 +922,7 @@ class ProfileBox extends FlxSpriteGroup {
 
 	override function destroy():Void {
 		if (dropdownOpen) closeDropdown();
+		destroyUnplugElements();
 		if (instance == this)
 			instance = null;
 		super.destroy();

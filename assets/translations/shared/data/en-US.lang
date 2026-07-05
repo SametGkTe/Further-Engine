@@ -41,6 +41,12 @@ practice_mode: "Practice Mode"
 charting_mode: "Charting Mode"
 blueballed: "Blueballed: {1}"
 
+
+// İMAGES
+
+images/menudifficulties/easy: "images/menudifficulties/easy"
+images/menudifficulties/hard: "images/menudifficulties/hard"
+
 // Main Menu
 images/mainmenu/menu_story_mode: "images/en-US/mainmenu/menu_story_mode"
 images/mainmenu/menu_freeplay: "images/en-US/mainmenu/menu_freeplay"
@@ -50,6 +56,30 @@ images/charSelect/dipshitBacking: "images/en-US/charSelect/dipshitBacking"
 
 images/freeplay/freeplayDifficulties/freeplayeasy: "images/en-US/freeplay/freeplayDifficulties/freeplayeasy"
 images/freeplay/freeplayDifficulties/freeplayhard: "images/en-US/freeplay/freeplayDifficulties/freeplayhard"
+
+images/titleEnter: "images/en-US/titleEnter"
+images/ready: "images/en-US/ratings/ready"
+images/set: "images/en-US/ratings/set"
+images/go: "images/en-US/ratings/go"
+
+images/sick: "images/en-US/ratings/sick"
+images/good: "images/en-US/ratings/good"
+images/bad: "images/en-US/ratings/bad"
+images/sick: "images/en-US/ratings/shit"
+
+// PİXEL
+
+images/pixelUI/ready-pixel: "images/en-US/ratings/pixelUI/ready-pixel"
+images/pixelUI/set-pixel: "images/en-US/ratings/pixelUI/set-pixel"
+images/pixelUI/date-pixel: "images/en-US/ratings/pixelUI/date-pixel"
+
+images/pixelUI/sick-pixel: "images/en-US/ratings/pixelUI/shit-pixel"
+images/pixelUI/good-pixel: "images/en-US/ratings/pixelUI/good-pixel"
+images/pixelUI/bad-pixel: "images/en-US/ratings/pixelUI/bad-pixel"
+images/pixelUI/shit-pixel: "images/en-US/ratings/pixelUI/shit-pixel"
+
+
+
 
 
 // Story Mode
@@ -390,6 +420,48 @@ description_safe_frames: "Adjusts how much extra or less time you have\nto hit a
 setting_sustains_as_one_note: "Sustains as One Note"
 description_sustains_as_one_note: "If checked, long notes cannot be hit if the main note is missed,\nand will count as a single miss."
 
+// Achievements
+achievement_friday_night_play: "Freaky on a Friday Night"
+achievement_desc_friday_night_play: "Play on a Friday... Night."
+achievement_week1_nomiss: "She Calls Me Daddy Too"
+achievement_desc_week1_nomiss: "Beat Week 1 on Hard with no Misses."
+achievement_week2_nomiss: "No More Tricks"
+achievement_desc_week2_nomiss: "Beat Week 2 on Hard with no Misses."
+achievement_week3_nomiss: "Call Me The Hitman"
+achievement_desc_week3_nomiss: "Beat Week 3 on Hard with no Misses."
+achievement_week4_nomiss: "Lady Killer"
+achievement_desc_week4_nomiss: "Beat Week 4 on Hard with no Misses."
+achievement_week5_nomiss: "Missless Christmas"
+achievement_desc_week5_nomiss: "Beat Week 5 on Hard with no Misses."
+achievement_week6_nomiss: "Highscore!!"
+achievement_desc_week6_nomiss: "Beat Week 6 on Hard with no Misses."
+achievement_week7_nomiss: "God Effing Damn It!"
+achievement_desc_week7_nomiss: "Beat Week 7 on Hard with no Misses."
+achievement_weekend1_nomiss: "Just a Friendly Sparring"
+achievement_desc_weekend1_nomiss: "Beat Weekend 1 on Hard with no Misses."
+achievement_ur_bad: "What a Funkin' Disaster!"
+achievement_desc_ur_bad: "Complete a Song with a rating lower than 20%."
+achievement_ur_good: "Perfectionist"
+achievement_desc_ur_good: "Complete a Song with a rating of 100%."
+achievement_roadkill_enthusiast: "Roadkill Enthusiast"
+achievement_desc_roadkill_enthusiast: "Watch the Henchmen die 50 times."
+achievement_oversinging: "Oversinging Much...?"
+achievement_desc_oversinging: "Sing for 10 seconds without going back to Idle."
+achievement_hype: "Hyperactive"
+achievement_desc_hype: "Finish a Song without going back to Idle."
+achievement_two_keys: "Just the Two of Us"
+achievement_desc_two_keys: "Finish a Song pressing only two keys."
+achievement_toastie: "Toaster Gamer"
+achievement_desc_toastie: "Have you tried to run the game on a toaster?"
+achievement_keyboard: "Keyboard Breaker"
+achievement_desc_keyboard: "You never thought of reading these."
+achievement_debugger: "Debugger"
+achievement_desc_debugger: "Beat the \"Test\" Stage from the Chart Editor."
+achievement_pet: "Thanks for Playing!"
+achievement_desc_pet: "Be one of the Psych Engine Türkiye Players!"
+achievement_pessy_easter_egg: "Engine Gal Pal"
+achievement_desc_pessy_easter_egg: "Teehee, you found me~!"
+
 // Loading Screen
 now_loading: "Loading{1}"
 
@@ -397,9 +469,6 @@ now_loading: "Loading{1}"
 difficulty_easy: "Easy"
 difficulty_normal: "Normal"
 difficulty_hard: "Hard"
-
-images/menudifficulties/easy: "images/menudifficulties/easy"
-images/menudifficulties/hard: "images/menudifficulties/hard"
 
 // Mobile
 mobile_notice: "Notice!"
@@ -571,22 +640,22 @@ credits_people: "people"
 
 // FPS Counter / Debug
 debug_memory: "Memory"
-debug_peak: "Peak"
+debug_peak: "Max"
 debug_version: "Version"
 debug_system: "System"
 
 // New Freeplay
 freeplay_title: "FREEPLAY"
 freeplay_ost: "OFFICIAL SONG"
-freeplay_char_hint_mobile: "Press [ Z ] to change characters"
-freeplay_char_hint_pc: "Press [ {1} ] to change characters"
+freeplay_char_hint_mobile: "Press [ Z ] to change character"
+freeplay_char_hint_pc: "Press [ {1} ] to change character"
 freeplay_recent: "── RECENTLY PLAYED ──"
 freeplay_favorites: "── FAVORITES ──"
 freeplay_search_hint: "TYPE TO SEARCH SONGS..."
 freeplay_search_results: "RESULTS: \"{1}\""
 freeplay_no_results: "NO RESULTS FOUND"
 freeplay_search_tap: "Tap to Search"
-freeplay_search_key: "Press C to Search"
+freeplay_search_key: "Press X to Search"
 freeplay_rpc: "In Menus"
 
 // Profile Box

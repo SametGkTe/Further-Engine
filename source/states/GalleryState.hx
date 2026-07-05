@@ -5,6 +5,7 @@ import backend.ClientPrefs;
 import backend.Conductor;
 import backend.Language;
 import backend.MusicBeatState;
+import substates.KlavyeSubState;
 
 import flixel.FlxG;
 import flixel.FlxSprite;
@@ -187,20 +188,19 @@ class GalleryState extends MusicBeatState {
 			favorited: false,
 			dateAdded: "sans",
 			modDirectory: null
+		},
+		{
+			fileName: "ayran",
+			title: "Syran ifşa",
+			description: "Ayran",
+			type: IMAGE,
+			category: "Art",
+			artist: "sametgkte",
+			unlocked: true,
+			favorited: false,
+			dateAdded: "2026-07-3",
+			modDirectory: null
 		}
-		/*
-		*{
-		*	fileName: "animated_example",
-		*	title: "Animated Sprite",
-		*	description: "An animated gallery entry with spritesheet support.",
-		*	type: ANIMATED,
-		*	category: "Animation",
-		*	artist: "Animator",
-		*	unlocked: true,
-		*	favorited: false,
-		*	dateAdded: "2027-03-15"
-		*}
-		*/
 	];
 
 	var filteredItems:Array<GalleryItem> = [];
@@ -217,6 +217,12 @@ class GalleryState extends MusicBeatState {
 	var gridRows:Int = 2;
 	var gridPage:Int = 0;
 	var gridThumbnails:FlxTypedGroup<FlxSprite>;
+	
+	// görmeyin
+	var secretRCount:Int = 0;
+	var secretRTimer:Float = 0;
+	static inline var SECRET_R_TIMEOUT:Float = 2.0;
+	static inline var SECRET_R_NEEDED:Int = 4;
 
 	var img:FlxSprite;
 	var imgZoom:Float = 0.8;
@@ -273,21 +279,9 @@ class GalleryState extends MusicBeatState {
 	var slideshowInterval:Float = 3.0;
 	var slideshowActive:Bool = false;
 
+	// Mobile touch controls
 	#if mobile
-	var mobileBtnGroup:FlxSpriteGroup;
-	var btnBack:TouchButton;
-	var btnAccept:TouchButton;
-	var btnFav:TouchButton;
-	var btnInfo:TouchButton;
-	var btnCategory:TouchButton;
-	var btnToggleUI:TouchButton;
-	var btnZoomIn:TouchButton;
-	var btnZoomOut:TouchButton;
-	var btnRotate:TouchButton;
-	var btnReset:TouchButton;
-	var btnFullscreen:TouchButton;
-	var btnPause:TouchButton;
-	var btnSlideshow:TouchButton;
+	var galleryPad:TouchPad;
 
 	var touchStartX:Float = 0;
 	var touchStartY:Float = 0;
@@ -413,7 +407,7 @@ class GalleryState extends MusicBeatState {
 		createAudioPlayer();
 
 		#if mobile
-		createMobileButtons();
+		createMobileControls();
 		#end
 
 		switchToGridView();
@@ -617,62 +611,340 @@ class GalleryState extends MusicBeatState {
 		add(audioTitleText);
 	}
 
+		// ==================== MOBILE CONTROLS ====================
 	#if mobile
-	function createMobileButtons() {
-		mobileBtnGroup = new FlxSpriteGroup();
-		mobileBtnGroup.scrollFactor.set(0, 0);
+	function createMobileControls() {
+		galleryPad = new TouchPad('LEFT_FULL', 'NONE', NONE);
 
-		var btnSize:Int = 52;
-		var btnGap:Int = 8;
-		var btnY:Float = FlxG.height - 185;
-		var startX:Float = FlxG.width - btnSize - 15;
+		var rightBaseX:Float = FlxG.width - 132;
+		var rightBaseY:Float = FlxG.height - 137;
+		var btnSpacing:Float = 132;
 
-		btnBack = makeMobileBtn(startX, btnY, btnSize, "←", FlxColor.fromRGB(200, 60, 60));
-		btnAccept = makeMobileBtn(startX - (btnSize + btnGap), btnY, btnSize, phrase("gallery_mobile_ok", "Tamam"), FlxColor.fromRGB(60, 200, 60));
-		btnFav = makeMobileBtn(startX - (btnSize + btnGap) * 2, btnY, btnSize, "★", FlxColor.fromRGB(255, 200, 50));
-		btnInfo = makeMobileBtn(startX - (btnSize + btnGap) * 3, btnY, btnSize, phrase("gallery_mobile_info", "Bilgi"), FlxColor.fromRGB(80, 160, 255));
-		btnCategory = makeMobileBtn(startX - (btnSize + btnGap) * 4, btnY, btnSize, phrase("gallery_mobile_tab", "KAT"), FlxColor.fromRGB(160, 80, 255));
-		btnToggleUI = makeMobileBtn(startX - (btnSize + btnGap) * 5, btnY, btnSize, phrase("gallery_mobile_ui", "AY"), FlxColor.fromRGB(100, 100, 120));
+		// Row 1 (bottom-right): A (Accept), B (Back)
+		galleryPad.buttonA = createGalleryButton(rightBaseX, rightBaseY, 'a', 0xFF00FF00, [MobileInputID.A]);
+		galleryPad.add(galleryPad.buttonA);
 
-		var row2Y:Float = btnY - btnSize - btnGap;
-		btnZoomIn = makeMobileBtn(startX, row2Y, btnSize, "+", FlxColor.fromRGB(60, 180, 60));
-		btnZoomOut = makeMobileBtn(startX - (btnSize + btnGap), row2Y, btnSize, "-", FlxColor.fromRGB(200, 60, 60));
-		btnRotate = makeMobileBtn(startX - (btnSize + btnGap) * 2, row2Y, btnSize, "↻", FlxColor.fromRGB(200, 160, 60));
-		btnReset = makeMobileBtn(startX - (btnSize + btnGap) * 3, row2Y, btnSize, "S", FlxColor.fromRGB(100, 100, 140));
-		btnFullscreen = makeMobileBtn(startX - (btnSize + btnGap) * 4, row2Y, btnSize, "⛶", FlxColor.fromRGB(80, 160, 255));
-		btnPause = makeMobileBtn(startX - (btnSize + btnGap) * 5, row2Y, btnSize, "||", FlxColor.fromRGB(200, 160, 60));
-		btnSlideshow = makeMobileBtn(startX - (btnSize + btnGap) * 6, row2Y, btnSize, "▶", FlxColor.fromRGB(60, 200, 160));
+		galleryPad.buttonB = createGalleryButton(rightBaseX - btnSpacing, rightBaseY, 'b', 0xFFFF0000, [MobileInputID.B]);
+		galleryPad.add(galleryPad.buttonB);
 
-		hideImageButtons();
+		// Row 1 continued: C (Favorite), X (Category)
+		galleryPad.buttonC = createGalleryButton(rightBaseX, rightBaseY - btnSpacing, 'c', 0xFFFFCC00, [MobileInputID.C]);
+		galleryPad.add(galleryPad.buttonC);
 
-		add(mobileBtnGroup);
+		galleryPad.buttonX = createGalleryButton(rightBaseX - btnSpacing, rightBaseY - btnSpacing, 'x', 0xFFA020F0, [MobileInputID.X]);
+		galleryPad.add(galleryPad.buttonX);
+
+		// Row 2: P (Info/Pause/Slideshow), E (Zoom out), Q (Zoom in), R (Rotate)
+		galleryPad.buttonP = createGalleryButton(rightBaseX, rightBaseY - btnSpacing * 2, 'p', 0xFF0088FF, [MobileInputID.P]);
+		galleryPad.add(galleryPad.buttonP);
+
+		galleryPad.buttonE = createGalleryButton(rightBaseX - btnSpacing, rightBaseY - btnSpacing * 2, 'e', 0xFFFF4444, [MobileInputID.E]);
+		galleryPad.add(galleryPad.buttonE);
+
+		galleryPad.buttonQ = createGalleryButton(rightBaseX - btnSpacing * 2, rightBaseY - btnSpacing * 2, 'q', 0xFF44FF44, [MobileInputID.Q]);
+		galleryPad.add(galleryPad.buttonQ);
+
+		galleryPad.buttonR = createGalleryButton(rightBaseX - btnSpacing * 2, rightBaseY - btnSpacing, 'r', 0xFFFFAA00, [MobileInputID.R]);
+		galleryPad.add(galleryPad.buttonR);
+
+		galleryPad.alpha = ClientPrefs.data.controlsAlpha;
+		galleryPad.updateTrackedButtons();
+		add(galleryPad);
+
+		updateMobileButtonVisibility();
 	}
 
-	function makeMobileBtn(x:Float, y:Float, size:Int, label:String, color:FlxColor):TouchButton {
-		var btn = new FlxSprite(x, y).makeGraphic(size, size, color);
-		btn.scrollFactor.set(0, 0);
-		btn.alpha = 0.7;
-		mobileBtnGroup.add(btn);
+	#if mobile
+	function createGalleryButton(x:Float, y:Float, graphicName:String, color:FlxColor, ids:Array<MobileInputID>):TouchButton {
+		var button = new TouchButton(x, y, ids);
+		button.label = new FlxSprite();
 
-		var txt = new FlxText(x, y + size / 2 - 10, size, label);
-		txt.setFormat(fontPath, 14, FlxColor.WHITE, CENTER);
-		txt.scrollFactor.set(0, 0);
-		mobileBtnGroup.add(txt);
+		button.loadGraphic(Paths.image('touchpad/bg', "mobile"));
+		button.label.loadGraphic(Paths.image('touchpad/' + graphicName.toUpperCase(), "mobile"));
 
-		return null;
-	}
+		button.scale.set(0.243, 0.243);
+		button.updateHitbox();
 
-	function showImageButtons() {
-		setRow2Visible(true);
-	}
+		button.label.scale.set(0.243, 0.243);
+		button.label.updateHitbox();
 
-	function hideImageButtons() {
-		setRow2Visible(false);
-	}
+		// updateLabelPosition() private olduğu için manuel ortala
+		button.label.x = button.x + (button.width - button.label.width) / 2;
+		button.label.y = button.y + (button.height - button.label.height) / 2;
 
-	function setRow2Visible(vis:Bool) {
+		button.statusBrightness = [1, 0.8, 0.4];
+		button.statusIndicatorType = BRIGHTNESS;
+
+		// indicateStatus() private olduğu için status'u tekrar set edip uygulat
+		button.status = TouchButton.NORMAL;
+
+		button.bounds.makeGraphic(Std.int(button.width - 50), Std.int(button.height - 50), FlxColor.TRANSPARENT);
+		button.centerBounds();
+
+		button.immovable = true;
+		button.solid = false;
+		button.moves = false;
+		button.label.antialiasing = ClientPrefs.data.antialiasing;
+		button.antialiasing = ClientPrefs.data.antialiasing;
+		button.tag = graphicName.toUpperCase();
+		button.color = color;
+		button.parentAlpha = button.alpha;
+
+		button.onDown.callback = function() {
+			if (galleryPad != null) galleryPad.onButtonDown.dispatch(button);
+		};
+		button.onOut.callback = function() {
+			if (galleryPad != null) galleryPad.onButtonUp.dispatch(button);
+		};
+		button.onUp.callback = function() {
+			if (galleryPad != null) galleryPad.onButtonUp.dispatch(button);
+		};
+
+		return button;
 	}
 	#end
+
+	function createTouchButton(x:Float, y:Float, graphicName:String, color:FlxColor, ids:Array<MobileInputID>):TouchButton {
+		var button = new TouchButton(x, y, ids);
+		button.label = new FlxSprite();
+
+		button.loadGraphic(Paths.image('touchpad/bg', "mobile"));
+		button.label.loadGraphic(Paths.image('touchpad/' + graphicName.toUpperCase(), "mobile"));
+
+		button.scale.set(0.243, 0.243);
+		button.updateHitbox();
+
+		// updateLabelPosition() private olduğu için etiketi elle ortalıyoruz
+		button.label.x = button.x + (button.width - button.label.width) / 2;
+		button.label.y = button.y + (button.height - button.label.height) / 2;
+
+		button.statusBrightness = [1, 0.8, 0.4];
+		button.statusIndicatorType = StatusIndicators.BRIGHTNESS;
+
+		// indicateStatus() private olduğu için status set ederek uygulatıyoruz
+		button.status = TouchButton.NORMAL;
+
+		button.bounds.makeGraphic(Std.int(button.width - 50), Std.int(button.height - 50), FlxColor.TRANSPARENT);
+		button.centerBounds();
+
+		button.immovable = true;
+		button.solid = false;
+		button.moves = false;
+		button.label.antialiasing = ClientPrefs.data.antialiasing;
+		button.antialiasing = ClientPrefs.data.antialiasing;
+		button.tag = graphicName.toUpperCase();
+		button.color = color;
+		button.parentAlpha = button.alpha;
+
+		button.onDown.callback = function() {
+			if (galleryPad != null) galleryPad.onButtonDown.dispatch(button);
+		};
+		button.onOut.callback = function() {
+			if (galleryPad != null) galleryPad.onButtonUp.dispatch(button);
+		};
+		button.onUp.callback = function() {
+			if (galleryPad != null) galleryPad.onButtonUp.dispatch(button);
+		};
+
+		return button;
+	}
+
+	function updateMobileButtonVisibility() {
+		if (galleryPad == null) return;
+
+		var inImageView = (viewMode == SINGLE_VIEW || viewMode == FULLSCREEN);
+		var inVideoView = (viewMode == VIDEO_PLAYING);
+
+		galleryPad.visible = !inVideoView;
+
+		var showImageBtns = inImageView;
+		if (showImageBtns && filteredItems.length > 0) {
+			var item = filteredItems[curSelected];
+			showImageBtns = (item.type == IMAGE || item.type == ANIMATED);
+		}
+
+		if (galleryPad.buttonQ != null) galleryPad.buttonQ.visible = showImageBtns;
+		if (galleryPad.buttonE != null) galleryPad.buttonE.visible = showImageBtns;
+		if (galleryPad.buttonR != null) galleryPad.buttonR.visible = showImageBtns;
+	}
+
+	function handleMobileInput(elapsed:Float) {
+		if (galleryPad == null) return;
+
+		// ---- B = Back ----
+		if (galleryPad.buttonB.justPressed) {
+			FlxG.sound.play(Paths.sound('cancelMenu'));
+			stopAllMedia();
+			if (viewMode == SINGLE_VIEW || viewMode == FULLSCREEN || viewMode == SLIDESHOW) {
+				switchToGridView();
+			} else {
+				MenuStyleRouter.goToMainMenu();
+			}
+			return;
+		}
+
+		// ---- A = Accept ----
+		if (galleryPad.buttonA.justPressed) {
+			if (filteredItems.length > 0) {
+				FlxG.sound.play(Paths.sound('confirmMenu'));
+				var item = filteredItems[curSelected];
+
+				if (viewMode == GALLERY_GRID) {
+					switch (item.type) {
+						case VIDEO: playVideo(item);
+						case SOUND_EFFECT | MUSIC: switchToSingleView(); playAudio(item);
+						default: switchToSingleView();
+					}
+				} else if (viewMode == SINGLE_VIEW) {
+					if (item.type == SOUND_EFFECT || item.type == MUSIC)
+						playAudio(item);
+					else if (item.type == IMAGE || item.type == ANIMATED)
+						switchToFullscreen();
+				} else if (viewMode == FULLSCREEN) {
+					exitFullscreen();
+				}
+			}
+		}
+
+		// ---- C = Favorite ----
+		if (galleryPad.buttonC.justPressed) {
+			if (filteredItems.length > 0) {
+				filteredItems[curSelected].favorited = !filteredItems[curSelected].favorited;
+				FlxG.sound.play(Paths.sound('confirmMenu'));
+				updateTexts();
+				if (showingInfo) updateInfoPanel();
+			}
+		}
+
+		// ---- X = Category ----
+		if (galleryPad.buttonX.justPressed) {
+			currentCategory = (currentCategory + 1) % categories.length;
+			filterByCategory();
+			FlxG.sound.play(Paths.sound('scrollMenu'));
+		}
+
+		// ---- P = Info / Pause / Slideshow ----
+		if (galleryPad.buttonP.justPressed) {
+			if (viewMode == GALLERY_GRID) {
+				showingInfo = !showingInfo;
+				toggleInfoPanel(showingInfo);
+			} else if (viewMode == SINGLE_VIEW || viewMode == FULLSCREEN) {
+				var item = filteredItems.length > 0 ? filteredItems[curSelected] : null;
+				if (item != null && (item.type == SOUND_EFFECT || item.type == MUSIC)) {
+					toggleAudioPause();
+				} else {
+					toggleSlideshow();
+				}
+			} else if (viewMode == SLIDESHOW) {
+				stopSlideshow();
+				switchToSingleView();
+			}
+		}
+
+		// ---- Q = Zoom In ----
+		if (galleryPad.buttonQ != null && galleryPad.buttonQ.pressed) {
+			if (viewMode == SINGLE_VIEW || viewMode == FULLSCREEN) {
+				imgZoom = Math.min(maxZoom, imgZoom + zoomStep);
+				updateImageTransform();
+			}
+		}
+
+		// ---- E = Zoom Out ----
+		if (galleryPad.buttonE != null && galleryPad.buttonE.pressed) {
+			if (viewMode == SINGLE_VIEW || viewMode == FULLSCREEN) {
+				imgZoom = Math.max(minZoom, imgZoom - zoomStep);
+				updateImageTransform();
+			}
+		}
+
+		// ---- R = Rotate ----
+		if (galleryPad.buttonR != null && galleryPad.buttonR.justPressed) {
+			if (viewMode == SINGLE_VIEW || viewMode == FULLSCREEN) {
+				imgRotation += 90;
+				updateImageTransform();
+			}
+		}
+
+		// ---- D-Pad navigation ----
+		switch (viewMode) {
+			case GALLERY_GRID:
+				handleMobileGridNav();
+			case SINGLE_VIEW | SLIDESHOW:
+				handleMobileSingleNav(elapsed);
+			case FULLSCREEN:
+				handleMobileFullscreenNav(elapsed);
+			case VIDEO_PLAYING:
+			default:
+		}
+
+		handlePinchZoom();
+	}
+
+	function handleMobileGridNav() {
+		var changed = false;
+		var perPage = gridColumns * gridRows;
+
+		if (galleryPad.buttonLeft.justPressed) { curSelected--; changed = true; }
+		if (galleryPad.buttonRight.justPressed) { curSelected++; changed = true; }
+		if (galleryPad.buttonUp.justPressed) { curSelected -= gridColumns; changed = true; }
+		if (galleryPad.buttonDown.justPressed) { curSelected += gridColumns; changed = true; }
+
+		if (changed) {
+			curSelected = Std.int(Math.max(0, Math.min(curSelected, filteredItems.length - 1)));
+			var newPage = Math.floor(curSelected / perPage);
+			if (newPage != gridPage) { gridPage = newPage; buildGrid(); }
+			updateGridSelection();
+			updateTexts();
+			if (showingInfo) updateInfoPanel();
+			FlxG.sound.play(Paths.sound('scrollMenu'));
+		}
+	}
+
+	function handleMobileSingleNav(elapsed:Float) {
+		if (galleryPad.buttonLeft.justPressed) changeItem(-1);
+		if (galleryPad.buttonRight.justPressed) changeItem(1);
+
+		if (filteredItems.length > 0) {
+			var item = filteredItems[curSelected];
+			if (item.type == IMAGE || item.type == ANIMATED) {
+				if (galleryPad.buttonUp.pressed) { imgOffsetY -= panSpeed; updateImageTransform(); }
+				if (galleryPad.buttonDown.pressed) { imgOffsetY += panSpeed; updateImageTransform(); }
+			}
+		}
+	}
+
+	function handleMobileFullscreenNav(elapsed:Float) {
+		if (galleryPad.buttonUp.pressed) { imgOffsetY -= panSpeed; updateImageTransform(); }
+		if (galleryPad.buttonDown.pressed) { imgOffsetY += panSpeed; updateImageTransform(); }
+		if (galleryPad.buttonLeft.pressed) { imgOffsetX -= panSpeed; updateImageTransform(); }
+		if (galleryPad.buttonRight.pressed) { imgOffsetX += panSpeed; updateImageTransform(); }
+	}
+
+	function handlePinchZoom() {
+		var touches = FlxG.touches.list;
+
+		if (touches.length >= 2 && (viewMode == SINGLE_VIEW || viewMode == FULLSCREEN)) {
+			var t1 = touches[0];
+			var t2 = touches[1];
+			var currentDist = Math.sqrt(
+				Math.pow(t1.screenX - t2.screenX, 2) + Math.pow(t1.screenY - t2.screenY, 2)
+			);
+
+			if (!isPinching) {
+				pinchStartDist = currentDist;
+				isPinching = true;
+			} else {
+				var scale = currentDist / pinchStartDist;
+				imgZoom = Math.max(minZoom, Math.min(maxZoom, imgZoom * scale));
+				pinchStartDist = currentDist;
+				updateImageTransform();
+			}
+		} else {
+			isPinching = false;
+		}
+	}
+	#end
+	// ==================== END MOBILE CONTROLS ====================
 
 	override function update(elapsed:Float) {
 		if (daSound != null && daSound.playing)
@@ -692,272 +964,6 @@ class GalleryState extends MusicBeatState {
 
 		super.update(elapsed);
 	}
-
-	#if mobile
-	function handleMobileInput(elapsed:Float) {
-		var touches = FlxG.touches.list;
-
-		if (touches.length == 1) {
-			var touch = touches[0];
-
-			if (touch.justPressed) {
-				touchStartX = touch.screenX;
-				touchStartY = touch.screenY;
-				isTouching = true;
-				isPinching = false;
-			}
-
-			if (touch.justReleased && isTouching && !isPinching) {
-				var dx = touch.screenX - touchStartX;
-				var dy = touch.screenY - touchStartY;
-				var dist = Math.sqrt(dx * dx + dy * dy);
-
-				if (dist > swipeThreshold) {
-					if (Math.abs(dx) > Math.abs(dy)) {
-						if (dx < 0) onMobileSwipe("left");
-						else onMobileSwipe("right");
-					} else {
-						if (dy < 0) onMobileSwipe("up");
-						else onMobileSwipe("down");
-					}
-				} else {
-					handleMobileTap(touch.screenX, touch.screenY);
-				}
-				isTouching = false;
-			}
-
-			if (touch.pressed && isTouching && (viewMode == SINGLE_VIEW || viewMode == FULLSCREEN)) {
-				var item = filteredItems.length > 0 ? filteredItems[curSelected] : null;
-				if (item != null && (item.type == IMAGE || item.type == ANIMATED)) {
-					var dx = touch.screenX - touchStartX;
-					var dy = touch.screenY - touchStartY;
-					if (Math.abs(dx) > 10 || Math.abs(dy) > 10) {
-						isPanning = true;
-						imgOffsetX += (touch.screenX - touchStartX) * 0.5;
-						imgOffsetY += (touch.screenY - touchStartY) * 0.5;
-						touchStartX = touch.screenX;
-						touchStartY = touch.screenY;
-						updateImageTransform();
-					}
-				}
-			}
-		}
-
-		if (touches.length >= 2 && (viewMode == SINGLE_VIEW || viewMode == FULLSCREEN)) {
-			var t1 = touches[0];
-			var t2 = touches[1];
-			var currentDist = Math.sqrt(
-				Math.pow(t1.screenX - t2.screenX, 2) + Math.pow(t1.screenY - t2.screenY, 2)
-			);
-
-			if (!isPinching) {
-				pinchStartDist = currentDist;
-				isPinching = true;
-			} else {
-				var scale = currentDist / pinchStartDist;
-				imgZoom = Math.max(minZoom, Math.min(maxZoom, imgZoom * scale));
-				pinchStartDist = currentDist;
-				updateImageTransform();
-			}
-			isTouching = false;
-		} else {
-			isPinching = false;
-		}
-	}
-
-	function onMobileSwipe(direction:String) {
-		switch (viewMode) {
-			case GALLERY_GRID:
-				switch (direction) {
-					case "left":
-						curSelected++;
-						if (curSelected >= filteredItems.length) curSelected = filteredItems.length - 1;
-						onGridSelectionChanged();
-					case "right":
-						curSelected--;
-						if (curSelected < 0) curSelected = 0;
-						onGridSelectionChanged();
-					case "up":
-						curSelected += gridColumns;
-						if (curSelected >= filteredItems.length) curSelected = filteredItems.length - 1;
-						onGridSelectionChanged();
-					case "down":
-						curSelected -= gridColumns;
-						if (curSelected < 0) curSelected = 0;
-						onGridSelectionChanged();
-				}
-			case SINGLE_VIEW | SLIDESHOW:
-				switch (direction) {
-					case "left": changeItem(1);
-					case "right": changeItem(-1);
-				}
-			default:
-		}
-	}
-
-	function handleMobileTap(tx:Float, ty:Float) {
-		var btnSize:Int = 52;
-		var btnGap:Int = 8;
-		var btnY:Float = FlxG.height - 185;
-		var startX:Float = FlxG.width - btnSize - 15;
-
-		if (ty >= btnY && ty <= btnY + btnSize) {
-			if (tx >= startX && tx <= startX + btnSize) {
-				onMobileBack();
-				return;
-			}
-			var okX = startX - (btnSize + btnGap);
-			if (tx >= okX && tx <= okX + btnSize) {
-				onMobileAccept();
-				return;
-			}
-			var favX = startX - (btnSize + btnGap) * 2;
-			if (tx >= favX && tx <= favX + btnSize) {
-				onMobileFavorite();
-				return;
-			}
-			var infoX = startX - (btnSize + btnGap) * 3;
-			if (tx >= infoX && tx <= infoX + btnSize) {
-				onMobileInfo();
-				return;
-			}
-			var catX = startX - (btnSize + btnGap) * 4;
-			if (tx >= catX && tx <= catX + btnSize) {
-				onMobileCategory();
-				return;
-			}
-			var uiX = startX - (btnSize + btnGap) * 5;
-			if (tx >= uiX && tx <= uiX + btnSize) {
-				onMobileToggleUI();
-				return;
-			}
-		}
-
-		var row2Y:Float = btnY - btnSize - btnGap;
-		if (ty >= row2Y && ty <= row2Y + btnSize && (viewMode == SINGLE_VIEW || viewMode == FULLSCREEN)) {
-			if (tx >= startX && tx <= startX + btnSize) {
-				imgZoom = Math.min(maxZoom, imgZoom + zoomStep * 3);
-				updateImageTransform();
-				return;
-			}
-			var zoX = startX - (btnSize + btnGap);
-			if (tx >= zoX && tx <= zoX + btnSize) {
-				imgZoom = Math.max(minZoom, imgZoom - zoomStep * 3);
-				updateImageTransform();
-				return;
-			}
-			var rotX = startX - (btnSize + btnGap) * 2;
-			if (tx >= rotX && tx <= rotX + btnSize) {
-				imgRotation += 90;
-				updateImageTransform();
-				return;
-			}
-			var resX = startX - (btnSize + btnGap) * 3;
-			if (tx >= resX && tx <= resX + btnSize) {
-				resetImageView();
-				return;
-			}
-			var fsX = startX - (btnSize + btnGap) * 4;
-			if (tx >= fsX && tx <= fsX + btnSize) {
-				if (viewMode == FULLSCREEN) exitFullscreen();
-				else switchToFullscreen();
-				return;
-			}
-			var psX = startX - (btnSize + btnGap) * 5;
-			if (tx >= psX && tx <= psX + btnSize) {
-				toggleAudioPause();
-				return;
-			}
-			var slX = startX - (btnSize + btnGap) * 6;
-			if (tx >= slX && tx <= slX + btnSize) {
-				toggleSlideshow();
-				return;
-			}
-		}
-
-		if (viewMode == GALLERY_GRID) {
-			gridThumbnails.forEachAlive(function(spr:FlxSprite) {
-				if (tx >= spr.x && tx <= spr.x + spr.width && ty >= spr.y && ty <= spr.y + spr.height) {
-					curSelected = spr.ID;
-					updateGridSelection();
-					updateTexts();
-					if (showingInfo) updateInfoPanel();
-					FlxG.sound.play(Paths.sound('scrollMenu'));
-				}
-			});
-		}
-	}
-
-	function onMobileBack() {
-		FlxG.sound.play(Paths.sound('cancelMenu'));
-		stopAllMedia();
-		if (viewMode == SINGLE_VIEW || viewMode == FULLSCREEN || viewMode == SLIDESHOW) {
-			switchToGridView();
-		} else {
-			MenuStyleRouter.goToMainMenu();
-		}
-	}
-
-	function onMobileAccept() {
-		if (filteredItems.length == 0) return;
-		FlxG.sound.play(Paths.sound('confirmMenu'));
-		var item = filteredItems[curSelected];
-
-		if (viewMode == GALLERY_GRID) {
-			switch (item.type) {
-				case VIDEO: playVideo(item);
-				case SOUND_EFFECT | MUSIC: switchToSingleView(); playAudio(item);
-				default: switchToSingleView();
-			}
-		} else if (viewMode == SINGLE_VIEW) {
-			if (item.type == SOUND_EFFECT || item.type == MUSIC)
-				playAudio(item);
-		}
-	}
-
-	function onMobileFavorite() {
-		if (filteredItems.length == 0) return;
-		filteredItems[curSelected].favorited = !filteredItems[curSelected].favorited;
-		FlxG.sound.play(Paths.sound('confirmMenu'));
-		updateTexts();
-		if (showingInfo) updateInfoPanel();
-	}
-
-	function onMobileInfo() {
-		showingInfo = !showingInfo;
-		toggleInfoPanel(showingInfo);
-	}
-
-	function onMobileCategory() {
-		currentCategory = (currentCategory + 1) % categories.length;
-		filterByCategory();
-		FlxG.sound.play(Paths.sound('scrollMenu'));
-	}
-
-	function onMobileToggleUI() {
-		textVisible = !textVisible;
-		var a:Float = textVisible ? 1 : 0;
-		for (t in [instDisplay, titleG, artistText, descG, typeText, pageDisplay, categoryText])
-			FlxTween.tween(t, {alpha: a}, 0.25, {ease: FlxEase.sineOut});
-		if (mobileBtnGroup != null)
-			FlxTween.tween(mobileBtnGroup, {alpha: a}, 0.25, {ease: FlxEase.sineOut});
-	}
-
-	function onGridSelectionChanged() {
-		var perPage = gridColumns * gridRows;
-		var newPage = Math.floor(curSelected / perPage);
-		if (newPage != gridPage) { gridPage = newPage; buildGrid(); }
-		updateGridSelection();
-		updateTexts();
-		if (showingInfo) updateInfoPanel();
-		FlxG.sound.play(Paths.sound('scrollMenu'));
-	}
-
-	function updateMobileButtonVisibility() {
-		if (mobileBtnGroup == null) return;
-		mobileBtnGroup.visible = (viewMode != VIDEO_PLAYING);
-	}
-	#end
 
 	function handleInput(elapsed:Float) {
 		if (controls.BACK) {
@@ -1141,8 +1147,29 @@ class GalleryState extends MusicBeatState {
 			}
 		});
 	}
+	
+	function openKlavyeSubState() {
+		#if ACHIEVEMENTS_ALLOWED
+		Achievements.load();
+		if (!Achievements.isUnlocked('keyboard')) {
+			Achievements.unlock('keyboard');
+		}
+		#end
+
+		persistentUpdate = false;
+		persistentDraw = true;
+		openSubState(new KlavyeSubState());
+	}
 
 	function handleSingleViewInput(elapsed:Float) {
+		// :D
+		if (secretRCount > 0) {
+			secretRTimer += elapsed;
+			if (secretRTimer >= SECRET_R_TIMEOUT) {
+				secretRCount = 0;
+				secretRTimer = 0;
+			}
+		}
 		if (filteredItems.length == 0) return;
 		var item = filteredItems[curSelected];
 
@@ -1178,7 +1205,23 @@ class GalleryState extends MusicBeatState {
 				isPanning = false;
 			}
 
-			if (FlxG.keys.justPressed.R) imgRotation += 90;
+			if (FlxG.keys.justPressed.R) {
+				imgRotation += 90;
+
+				if (filteredItems.length > 0) {
+					var item = filteredItems[curSelected];
+					if (item.artist != null && item.artist.toLowerCase() == "s1r3nmoney0 / klavye") {
+						secretRCount++;
+						secretRTimer = 0;
+						if (secretRCount >= SECRET_R_NEEDED) {
+							secretRCount = 0;
+							secretRTimer = 0;
+							openKlavyeSubState(); // ;D
+							return;
+						}
+					}
+				}
+			}
 			if (FlxG.keys.justPressed.T) imgRotation -= 90;
 			if (FlxG.keys.justPressed.C) resetImageView();
 			if (FlxG.keys.justPressed.SPACE) switchToFullscreen();
@@ -1313,6 +1356,10 @@ class GalleryState extends MusicBeatState {
 		targetX = img.x;
 		targetY = img.y;
 		updateInstructions();
+
+		#if mobile
+		updateMobileButtonVisibility();
+		#end
 	}
 
 	function exitFullscreen() {
@@ -1321,6 +1368,10 @@ class GalleryState extends MusicBeatState {
 		restoreHUD();
 		resetImageView();
 		updateInstructions();
+
+		#if mobile
+		updateMobileButtonVisibility();
+		#end
 	}
 
 	function handleVideoInput(elapsed:Float) {
@@ -1353,7 +1404,7 @@ class GalleryState extends MusicBeatState {
 		overlayDark.alpha = 0;
 
 		#if mobile
-		if (mobileBtnGroup != null) mobileBtnGroup.visible = false;
+		if (galleryPad != null) galleryPad.visible = false;
 		#end
 
 		if (showingInfo) toggleInfoPanel(false);
@@ -1594,6 +1645,10 @@ class GalleryState extends MusicBeatState {
 		updateTexts();
 		updateInstructions();
 		if (showingInfo) updateInfoPanel();
+
+		#if mobile
+		updateMobileButtonVisibility();
+		#end
 	}
 
 	function updateTexts() {
@@ -1620,8 +1675,29 @@ class GalleryState extends MusicBeatState {
 
 	function updateInstructions() {
 		#if mobile
-		instDisplay.text = "";
-		instDisplay.alpha = 0;
+		switch (viewMode) {
+			case GALLERY_GRID:
+				instDisplay.text = phrase("gallery_inst_grid_mobile",
+					"D-Pad · Gezin\nA · Aç\nB · Geri\nC · Favori\nX · Kategori\nP · Bilgi");
+			case SINGLE_VIEW:
+				var item = filteredItems.length > 0 ? filteredItems[curSelected] : null;
+				if (item != null && (item.type == IMAGE || item.type == ANIMATED)) {
+					instDisplay.text = phrase("gallery_inst_single_image_mobile",
+						"←/→ · Gezin\nQ/E · Yakınlaştır\nR · Döndür\nA · Tam Ekran\nP · Slayt\nC · Favori\nB · Geri");
+				} else {
+					instDisplay.text = phrase("gallery_inst_single_audio_mobile",
+						"←/→ · Gezin\nA · Oynat\nP · Duraklat\nC · Favori\nB · Geri");
+				}
+			case FULLSCREEN:
+				instDisplay.text = phrase("gallery_inst_fullscreen_mobile",
+					"Q/E · Yakınlaştır\nD-Pad · Kaydır\nR · Döndür\nA/B · Çık");
+			case SLIDESHOW:
+				instDisplay.text = phrase("gallery_inst_slideshow_mobile",
+					"Slayt Gösterisi\n←/→ · Manuel\nP/B · Durdur");
+			case VIDEO_PLAYING:
+				instDisplay.text = phrase("gallery_inst_video_mobile",
+					"B · Durdur");
+		}
 		return;
 		#end
 
@@ -1692,6 +1768,12 @@ class GalleryState extends MusicBeatState {
 
 	override function destroy() {
 		stopAllMedia();
+		#if mobile
+		if (galleryPad != null) {
+			galleryPad.destroy();
+			galleryPad = null;
+		}
+		#end
 		super.destroy();
 	}
 }

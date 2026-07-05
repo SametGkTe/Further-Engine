@@ -63,7 +63,6 @@ class MainMenuState extends MusicBeatState
     var descriptionText:FlxText;
     var psychVerText:FlxText;
     var fnfVerText:FlxText;
-    var navHintText:FlxText;
     var topBarHeight:Int = 50;
     var bottomBarHeight:Int = 56;
 
@@ -179,17 +178,7 @@ class MainMenuState extends MusicBeatState
         descriptionText.scrollFactor.set();
         descriptionText.alpha = 0.6;
         add(descriptionText);
-
-        // Nav hint - right side below description
-        navHintText = new FlxText(0, FlxG.height - bottomBarHeight + 30, FlxG.width - 30, "ENTER to Select | ESC to Exit", 11);
-        navHintText.setFormat(Paths.font("vcr.ttf"), 11, 0xFF888888, RIGHT);
-        navHintText.scrollFactor.set();
-        navHintText.alpha = 0.4;
-        add(navHintText);
-
-        // ═══════════════════════════════════════
-        // MENU ITEMS
-        // ═══════════════════════════════════════
+		
         menuItems = new FlxTypedGroup<FlxSprite>();
         add(menuItems);
 
@@ -368,13 +357,11 @@ class MainMenuState extends MusicBeatState
         psychVerText.y = FlxG.height;
         fnfVerText.y = FlxG.height;
         descriptionText.y = FlxG.height;
-        navHintText.y = FlxG.height;
         FlxTween.tween(bottomBar, {y: bottomBarTargetY}, 0.4, {ease: FlxEase.quartOut, startDelay: 0.05});
         FlxTween.tween(bottomBarLine, {y: bottomLineTargetY}, 0.4, {ease: FlxEase.quartOut, startDelay: 0.05});
         FlxTween.tween(psychVerText, {y: FlxG.height - bottomBarHeight + 10}, 0.4, {ease: FlxEase.quartOut, startDelay: 0.1});
         FlxTween.tween(fnfVerText, {y: FlxG.height - bottomBarHeight + 30}, 0.4, {ease: FlxEase.quartOut, startDelay: 0.1});
         FlxTween.tween(descriptionText, {y: FlxG.height - bottomBarHeight + 10}, 0.4, {ease: FlxEase.quartOut, startDelay: 0.1});
-        FlxTween.tween(navHintText, {y: FlxG.height - bottomBarHeight + 30}, 0.4, {ease: FlxEase.quartOut, startDelay: 0.1});
 
         // Menu items
         for (item in menuItems)
