@@ -69,7 +69,7 @@ class CreditsState extends MusicBeatState
 		#end
 
 		var defaultList:Array<Array<String>> = [
-			['Psych Engine Türkiye', '', 'pet_icon'],
+			['Psych Engine Türkiye', '', 'pet'],
 			['SametGkTe', 'gkte', 'Psych Engine Türkiye nin ana yapımcısı', 'tiktok::https://tiktok.com/@gktegameplay||youtube::https://youtube.com/@gkte', 'FFE7C0'],
 			['Mobile Porting Team', '', 'mobile_icon'],
 			['HomuHomu833', 'homura', 'Head Porter of Psych Engine and Author of linc_luajit-rewriten', 'youtube::https://youtube.com/@HomuHomu833', 'FFE7C0'],

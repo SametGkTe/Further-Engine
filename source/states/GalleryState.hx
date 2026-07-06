@@ -223,6 +223,11 @@ class GalleryState extends MusicBeatState {
 	var secretRTimer:Float = 0;
 	static inline var SECRET_R_TIMEOUT:Float = 2.0;
 	static inline var SECRET_R_NEEDED:Int = 4;
+	
+	var gridIntroTweens:Array<FlxTween> = [];
+	var imageIntroTween:FlxTween;
+	var gridBuildToken:Int = 0;
+	var imageTweenToken:Int = 0;
 
 	var img:FlxSprite;
 	var imgZoom:Float = 0.8;
@@ -553,6 +558,20 @@ class GalleryState extends MusicBeatState {
 			#end
 		}
 		return Paths.video('gallery/' + item.fileName);
+	}
+	
+	function cancelGridIntroTweens() {
+		for (t in gridIntroTweens) {
+			if (t != null) t.cancel();
+		}
+		gridIntroTweens = [];
+	}
+
+	function cancelImageIntroTween() {
+		if (imageIntroTween != null) {
+			imageIntroTween.cancel();
+			imageIntroTween = null;
+		}
 	}
 
 	function createInfoPanel() {
@@ -1071,6 +1090,9 @@ class GalleryState extends MusicBeatState {
 	}
 
 	function buildGrid() {
+		cancelGridIntroTweens();
+		gridBuildToken++;
+
 		gridThumbnails.forEachAlive(function(spr:FlxSprite) {
 			FlxTween.cancelTweensOf(spr);
 			spr.kill();
@@ -1122,12 +1144,22 @@ class GalleryState extends MusicBeatState {
 			thumb.alpha = 0;
 			var ss = fs * 0.6;
 			thumb.scale.set(ss, ss);
-			FlxTween.num(0, 1, 0.35, {ease: FlxEase.quintOut, startDelay: i * 0.04}, function(v:Float) {
+
+			var thisGridToken = gridBuildToken;
+			var thumbRef = thumb;
+
+			var introTween = FlxTween.num(0, 1, 0.35, {ease: FlxEase.quintOut, startDelay: i * 0.04}, function(v:Float) {
+				if (thisGridToken != gridBuildToken) return;
+				if (thumbRef == null || !thumbRef.exists) return;
+				if (!gridThumbnails.members.contains(thumbRef)) return;
+
 				var s = ss + (fs - ss) * v;
-				thumb.scale.set(s, s);
-				thumb.alpha = v;
-				thumb.updateHitbox();
+				thumbRef.scale.set(s, s);
+				thumbRef.alpha = v;
+				thumbRef.updateHitbox();
 			});
+
+			gridIntroTweens.push(introTween);
 
 			gridThumbnails.add(thumb);
 		}
@@ -1284,14 +1316,23 @@ class GalleryState extends MusicBeatState {
 		}
 
 		FlxTween.cancelTweensOf(img);
+		cancelImageIntroTween();
+		imageTweenToken++;
+
+		var thisImageToken = imageTweenToken;
+		var imgRef = img;
 		var sz = imgZoom * 1.08;
 		img.scale.set(sz, sz);
-		FlxTween.num(0, 1, 0.35, {ease: FlxEase.quintOut}, function(v:Float) {
+
+		imageIntroTween = FlxTween.num(0, 1, 0.35, {ease: FlxEase.quintOut}, function(v:Float) {
+			if (thisImageToken != imageTweenToken) return;
+			if (imgRef == null || !imgRef.exists || !imgRef.visible) return;
+
 			var s = sz + (imgZoom - sz) * v;
-			img.scale.set(s, s);
-			img.alpha = v;
-			img.updateHitbox();
-			img.screenCenter();
+			imgRef.scale.set(s, s);
+			imgRef.alpha = v;
+			imgRef.updateHitbox();
+			imgRef.screenCenter();
 		});
 
 		if (item.type == SOUND_EFFECT || item.type == MUSIC) showAudioPlayer();
@@ -1636,6 +1677,8 @@ class GalleryState extends MusicBeatState {
 	}
 
 	function changeItem(change:Int) {
+		cancelImageIntroTween();
+		imageTweenToken++;
 		curSelected += change;
 		stopAudio();
 		if (curSelected < 0) curSelected = filteredItems.length - 1;
