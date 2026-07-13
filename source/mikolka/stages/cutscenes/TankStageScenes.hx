@@ -11,7 +11,6 @@ class TankStageScenes {
         stage = host;
         game =  PlayState.instance;
     }
-    	// Cutscenes
 	var stage:Tank;
     var game:PlayState;
 	var cutsceneHandler:CutsceneHandler;
@@ -25,7 +24,6 @@ class TankStageScenes {
 
 		game.dadGroup.alpha = 0.00001;
 		game.camHUD.visible = false;
-		//inCutscene = true; //this would stop the camera movement, oops
 
 		tankman = new FlxAnimate(game.dad.x + 419, game.dad.y + 225);
 		tankman.showPivot = false;
@@ -97,21 +95,18 @@ class TankStageScenes {
 		tankman.anim.play('wellWell', true);
 		FlxG.camera.zoom *= 1.2;
 
-		// Well well well, what do we got here?
 		cutsceneHandler.timer(0.1, function()
 		{
 			wellWellWell.play(true);
 			audioPlaying = wellWellWell;
 		});
 
-		// Move camera to BF
 		cutsceneHandler.timer(3, function()
 		{
 			game.camFollow.x += 750;
 			game.camFollow.y += 100;
 		});
 
-		// Beep!
 		cutsceneHandler.timer(4.5, function()
 		{
 			game.boyfriend.playAnim('singUP', true);
@@ -119,13 +114,11 @@ class TankStageScenes {
 			FlxG.sound.play(Paths.sound('bfBeep'));
 		});
 
-		// Move camera to Tankman
 		cutsceneHandler.timer(6, function()
 		{
 			game.camFollow.x -= 750;
 			game.camFollow.y -= 100;
 
-			// We should just kill you but... what the hell, it's been a boring day... let's see what you've got!
 			tankman.anim.play('killYou', true);
 			killYou.play(true);
 			audioPlaying = killYou;
@@ -191,7 +184,6 @@ class TankStageScenes {
 		stage.addBehindGF(pico);
 		cutsceneHandler.push(pico);
 
-		// prepare pico animation cycle
 		function picoStressCycle() {
 			switch (pico.anim.curInstance.symbol.name) {
 				case "dieBitch", "GF Time to Die sequence":
@@ -204,7 +196,7 @@ class TankStageScenes {
 						if(name != 'idle')
 						{
 							game.boyfriend.playAnim('idle', true);
-							game.boyfriend.animation.curAnim.finish(); //Instantly goes to last frame
+							game.boyfriend.animation.curAnim.finish(); 
 						}
 					};
 				case "picoAppears", "Pico Saves them sequence":
@@ -212,7 +204,7 @@ class TankStageScenes {
 				case "picoEnd", "Pico Dual Wield on Speaker idle":
 					game.gfGroup.alpha = 1;
 					pico.visible = false;
-					if (pico.anim.onComplete.has(picoStressCycle)) // for safety
+					if (pico.anim.onComplete.has(picoStressCycle)) 
 						pico.anim.onComplete.remove(picoStressCycle);
 			}
 		}
@@ -270,7 +262,7 @@ class TankStageScenes {
 				if (name == 'singUPmiss')
 				{
 					game.boyfriend.playAnim('idle', true);
-					game.boyfriend.animation.curAnim.finish(); //Instantly goes to last frame
+					game.boyfriend.animation.curAnim.finish(); 
 				}
 			};
 

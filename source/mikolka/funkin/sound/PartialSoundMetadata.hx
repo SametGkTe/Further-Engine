@@ -1,10 +1,5 @@
 package mikolka.funkin.sound;
 
-/**
- * Assists in caching metadata for partial sounds.
- * This is useful for when you want to play a sound with a specific kbps or intro offset, we can use this to get the data.
- * If you want to get info from this cache, we save it as `path + startRange` from `FlxPartialSound`
- */
 class PartialSoundMetadata
 {
 	public static var instance(get, never):PartialSoundMetadata;
@@ -17,11 +12,6 @@ class PartialSoundMetadata
 		this.cache = new Map<String, SoundMetadata>();
 	}
 
-	/**
-	 * Return metadata from the cache
-	 * @param sound
-	 * @return SoundMetadata
-	 */
 	public function get(sound:String):SoundMetadata
 	{
 		return this.cache.get(sound);

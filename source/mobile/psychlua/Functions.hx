@@ -30,10 +30,6 @@ import psychlua.LuaUtils;
 import mobile.backend.TouchUtil;
 #if android import mobile.backend.PsychJNI; #end
 
-/**
- * ...
- * @author: Karim Akra and Homura Akemi (HomuHomu833)
- */
 class MobileFunctions
 {
 	public static function implement(funk:FunkinLua)
@@ -325,17 +321,14 @@ class MobileFunctions
 #if android
 class AndroidFunctions
 {
-	// static var spicyPillow:AndroidBatteryManager = new AndroidBatteryManager();
 	public static function implement(funk:FunkinLua)
 	{
 		var lua:State = funk.lua;
-		// Lua_helper.add_callback(lua, "isRooted", AndroidTools.isRooted());
 		Lua_helper.add_callback(lua, "isDolbyAtmos", AndroidTools.isDolbyAtmos());
 		Lua_helper.add_callback(lua, "isAndroidTV", AndroidTools.isAndroidTV());
 		Lua_helper.add_callback(lua, "isTablet", AndroidTools.isTablet());
 		Lua_helper.add_callback(lua, "isChromebook", AndroidTools.isChromebook());
 		Lua_helper.add_callback(lua, "isDeXMode", AndroidTools.isDeXMode());
-		// Lua_helper.add_callback(lua, "isCharging", spicyPillow.isCharging());
 
 		Lua_helper.add_callback(lua, "backJustPressed", FlxG.android.justPressed.BACK);
 		Lua_helper.add_callback(lua, "backPressed", FlxG.android.pressed.BACK);
@@ -368,7 +361,7 @@ class AndroidFunctions
 
 		Lua_helper.add_callback(lua, "minimizeWindow", () -> AndroidTools.minimizeWindow());
 
-		Lua_helper.add_callback(lua, "showToast", function(text:String, ?duration:Int, ?xOffset:Int, ?yOffset:Int) /* , ?gravity:Int*/
+		Lua_helper.add_callback(lua, "showToast", function(text:String, ?duration:Int, ?xOffset:Int, ?yOffset:Int)  
 		{
 			if (text == null)
 				return FunkinLua.luaTrace('showToast: No text specified.');

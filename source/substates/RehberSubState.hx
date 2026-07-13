@@ -79,28 +79,23 @@ class RehberSubState extends MusicBeatSubstate {
 		clipTop = contentAreaY;
 		clipBottom = contentAreaY + contentAreaHeight;
 
-		// === ARKA PLAN ===
 		dimBg = new FlxSprite();
 		dimBg.makeGraphic(FlxG.width, FlxG.height, FlxColor.fromRGB(0, 0, 0, 180));
 		dimBg.scrollFactor.set();
 		add(dimBg);
 
-		// Panel
 		panelBg = new FlxSprite(panelX, panelY);
 		panelBg.makeGraphic(PANEL_WIDTH, Std.int(panelHeight), FlxColor.fromRGB(45, 45, 50));
 		panelBg.scrollFactor.set();
 		add(panelBg);
 
-		// === İÇERİK ===
 		buildContent();
 
-		// === LOGO ALANI ÜSTÜNE MASKE (içerik logonun altına girmesin) ===
 		var topMask = new FlxSprite(panelX, panelY);
 		topMask.makeGraphic(PANEL_WIDTH, LOGO_AREA_HEIGHT, FlxColor.fromRGB(45, 45, 50));
 		topMask.scrollFactor.set();
 		add(topMask);
 
-		// === ALT MASKE (içerik panel altından taşmasın) ===
 		var bottomMask = new FlxSprite(panelX, Std.int(clipBottom));
 		var bottomMaskH = Std.int(FlxG.height - clipBottom);
 		if (bottomMaskH > 0) {
@@ -109,13 +104,11 @@ class RehberSubState extends MusicBeatSubstate {
 			add(bottomMask);
 		}
 
-		// Panel alt kısmı düzeltme - panelin alt kenarı
 		var panelBottom = new FlxSprite(panelX, panelY + panelHeight - 5);
 		panelBottom.makeGraphic(PANEL_WIDTH, 5, FlxColor.fromRGB(45, 45, 50));
 		panelBottom.scrollFactor.set();
 		add(panelBottom);
 
-		// Logo
 		logoSprite = new FlxSprite();
 		var logoGraphic = Paths.image('pet/petlogos/logo');
 		if (logoGraphic != null) {
@@ -131,20 +124,17 @@ class RehberSubState extends MusicBeatSubstate {
 		logoSprite.scrollFactor.set();
 		add(logoSprite);
 
-		// "REHBERİ" yazısı
 		var rehberTitle = new FlxText(panelX, logoSprite.y + logoSprite.height + 4, PANEL_WIDTH, "REHBERİ");
 		rehberTitle.setFormat(Paths.font('vcr.ttf'), 20, FlxColor.fromRGB(200, 200, 210), CENTER);
 		rehberTitle.scrollFactor.set();
 		rehberTitle.antialiasing = true;
 		add(rehberTitle);
 
-		// Logo altı çizgi
 		var logoSep = new FlxSprite(panelX + 15, panelY + LOGO_AREA_HEIGHT - 2);
 		logoSep.makeGraphic(PANEL_WIDTH - 30, 1, FlxColor.fromRGB(80, 80, 90));
 		logoSep.scrollFactor.set();
 		add(logoSep);
 
-		// === SCROLLBAR ===
 		scrollBarBg = new FlxSprite(panelX + PANEL_WIDTH - SCROLLBAR_WIDTH - 8, contentAreaY + 5);
 		scrollBarBg.makeGraphic(SCROLLBAR_WIDTH, Std.int(contentAreaHeight - 10), FlxColor.fromRGB(60, 60, 65));
 		scrollBarBg.scrollFactor.set();
@@ -159,7 +149,6 @@ class RehberSubState extends MusicBeatSubstate {
 		add(scrollBar);
 	}
 
-	// İÇERİK TANIMLAMALARI
 
 	function getSections():Array<SectionData> {
 		return [
@@ -202,7 +191,6 @@ class RehberSubState extends MusicBeatSubstate {
 		for (i in 0...sections.length) {
 			var section = sections[i];
 
-			// Başlık
 			var titleText = new FlxText(contentStartX, 0, contentWidth, section.title);
 			titleText.setFormat(Paths.font('vcr.ttf'), 24, FlxColor.WHITE, LEFT);
 			titleText.scrollFactor.set();
@@ -211,7 +199,6 @@ class RehberSubState extends MusicBeatSubstate {
 			allContentElements.push({sprite: titleText, offsetY: curY, baseX: contentStartX});
 			curY += titleText.height + 8;
 
-			// İçerik yazısı
 			if (section.content != null && section.content.length > 0) {
 				var bodyText = new FlxText(contentStartX, 0, contentWidth, section.content);
 				bodyText.setFormat(Paths.font('vcr.ttf'), 16, FlxColor.fromRGB(200, 200, 210), LEFT);
@@ -222,7 +209,6 @@ class RehberSubState extends MusicBeatSubstate {
 				curY += bodyText.height + 12;
 			}
 
-			// Görsel
 			if (section.image != null) {
 				var img = new FlxSprite();
 				var imgPath = Paths.image(section.image);
@@ -245,14 +231,12 @@ class RehberSubState extends MusicBeatSubstate {
 				curY += img.height + 8;
 			}
 
-			// Video
 			#if VIDEOS_ALLOWED
 			if (section.video != null) {
 				curY = buildVideoEntry(section.video, curY);
 			}
 			#end
 
-			// Alt yazı
 			if (section.imageCaption != null && section.imageCaption.length > 0) {
 				var capText = new FlxText(contentStartX, 0, contentWidth, section.imageCaption);
 				capText.setFormat(Paths.font('vcr.ttf'), 14, FlxColor.fromRGB(160, 160, 175), CENTER);
@@ -263,7 +247,6 @@ class RehberSubState extends MusicBeatSubstate {
 				curY += capText.height + 12;
 			}
 
-			// Ayırıcı bar
 			if (i < sections.length - 1) {
 				var sep = new FlxSprite();
 				sep.makeGraphic(SEPARATOR_WIDTH, SEPARATOR_HEIGHT, FlxColor.fromRGB(80, 80, 90));
@@ -380,7 +363,6 @@ class RehberSubState extends MusicBeatSubstate {
 			elem.sprite.y = newY;
 			elem.sprite.x = elem.baseX;
 
-			// Tamamen dışarıda mı?
 			var sprH = elem.sprite.height;
 			if (newY + sprH <= clipTop || newY >= clipBottom) {
 				elem.sprite.visible = false;
@@ -409,13 +391,11 @@ class RehberSubState extends MusicBeatSubstate {
 		var cropBottom:Float = sprH;
 		var needsClip = false;
 
-		// Üstten taşıyor
 		if (screenY < clipTop) {
 			cropTop = (clipTop - screenY) / spr.scale.y;
 			needsClip = true;
 		}
 
-		// Alttan taşıyor
 		if (screenY + spr.height > clipBottom) {
 			cropBottom = (clipBottom - screenY) / spr.scale.y;
 			needsClip = true;
@@ -529,7 +509,6 @@ class RehberSubState extends MusicBeatSubstate {
 		});
 
 		vid.bitmap.onEndReached.add(function() {
-			// Video bitti - ilk frame'i tekrar yakala
 			entry.isPlaying = false;
 			entry.isLoaded = false;
 			entry.pauseIcon.visible = true;
@@ -541,7 +520,6 @@ class RehberSubState extends MusicBeatSubstate {
 				entry.videoSprite = null;
 			}
 
-			// Thumbnail'i yenile
 			if (!entry.thumbnailCaptured) {
 				captureFirstFrame(entry);
 			}

@@ -13,7 +13,6 @@ import shaders.WarpEffect;
 
 class BetaWarningState extends MusicBeatState
 {
-	// CONFIGURATION
 
 	static inline final FONT_PATH:String = "Avgardd.ttf";
 	static inline final FONT_SIZE_TITLE:Int = 48;
@@ -42,7 +41,6 @@ class BetaWarningState extends MusicBeatState
 	static inline final PORTAL_PULSE_AMOUNT:Float = 0.015;
 	static inline final PORTAL_PULSE_SPEED:Float = 1.5;
 
-	// -- Exit --
 	static inline final EXIT_ZOOM_TIME:Float = 1.4;
 	static inline final EXIT_ZOOM_TARGET_SCALE:Float = 2.5;
 	static inline final EXIT_FADE_DELAY_RATIO:Float = 0.45;
@@ -70,7 +68,6 @@ class BetaWarningState extends MusicBeatState
 	static inline final HINT_DESKTOP:String = "[ENTER] Devam Et    [ESC] Atla";
 	static inline final HINT_MOBILE:String = "[A] Devam Et    [B] Atla";
 
-	// STATE VARS
 
 	var leftState:Bool = false;
 	var allowInput:Bool = false;
@@ -98,7 +95,6 @@ class BetaWarningState extends MusicBeatState
 
 	var ambiencePlaying:Bool = false;
 
-	// CREATE
 
 	override function create()
 	{
@@ -281,7 +277,6 @@ class BetaWarningState extends MusicBeatState
 		touchPad.alpha = 0;
 	}
 
-	// INTRO SEQUENCE
 
 	function playIntroSequence():Void
 	{
@@ -388,7 +383,6 @@ class BetaWarningState extends MusicBeatState
 		});
 	}
 
-	// UPDATE
 
 	override function update(elapsed:Float)
 	{
@@ -446,7 +440,6 @@ class BetaWarningState extends MusicBeatState
 		hintText.alpha = 0.45 + Math.sin(elapsed_total * HINT_PULSE_SPEED) * 0.45;
 	}
 
-	// INPUT
 
 	function handleInput():Void
 	{
@@ -457,7 +450,6 @@ class BetaWarningState extends MusicBeatState
 		}
 	}
 
-	// EXIT - ZOOM IN + FADE OUT
 
 	function confirmAndExit():Void
 	{
@@ -471,22 +463,16 @@ class BetaWarningState extends MusicBeatState
 		FlxG.sound.play(Paths.sound("confirmMenu"));
 		skipTransitions();
 
-		// ---- Yazıları hemen fade out ----
 		fadeOutTexts();
 
-		// ---- Center image fade out ----
 		FlxTween.tween(centerImage, {alpha: 0}, EXIT_TEXT_FADE, {ease: FlxEase.quadIn});
 
-		// ---- Parçacıkları merkeze çek ve kaybet ----
 		suckParticlesIn();
 
-		// ---- Vignette fade out ----
 		FlxTween.tween(vignette, {alpha: 0}, EXIT_TEXT_FADE, {ease: FlxEase.quadIn});
 
-		// ---- Mobile pad fade out ----
 		FlxTween.tween(touchPad, {alpha: 0}, EXIT_TEXT_FADE * 0.6, {ease: FlxEase.quadIn});
 
-		// ---- Portal: zoom in (scale büyür) ----
 		tweenShaderFloat(currentPortalScale, EXIT_ZOOM_TARGET_SCALE, EXIT_ZOOM_TIME, FlxEase.quadInOut,
 			function(v:Float)
 			{
@@ -494,7 +480,6 @@ class BetaWarningState extends MusicBeatState
 				warpEffect.setPortalScale(v);
 			});
 
-		// ---- Edge softness artır (kenarlar yumuşasın zoom sırasında) ----
 		tweenShaderFloat(currentEdgeSoftness, 0.6, EXIT_ZOOM_TIME * 0.8, FlxEase.quadOut,
 			function(v:Float)
 			{
@@ -502,12 +487,10 @@ class BetaWarningState extends MusicBeatState
 				warpEffect.setPortalEdgeSoftness(v);
 			});
 
-		// ---- Portal yaklaşıp ortaya geldiğinde fade out başlasın ----
 		final fadeStartDelay = EXIT_ZOOM_TIME * EXIT_FADE_DELAY_RATIO;
 
 		new FlxTimer().start(fadeStartDelay, function(_)
 		{
-			// Portal alpha fade out
 			tweenShaderFloat(currentPortalAlpha, 0.0, EXIT_FADE_TIME, FlxEase.quadIn,
 				function(v:Float)
 				{
@@ -516,12 +499,10 @@ class BetaWarningState extends MusicBeatState
 				});
 		});
 
-		// ---- Tam süre bitince siyah ekran + geçiş ----
 		final totalExitTime = fadeStartDelay + EXIT_FADE_TIME;
 
 		new FlxTimer().start(totalExitTime, function(_)
 		{
-			// Blackout'u en üste getir
 			remove(blackout, true);
 			add(blackout);
 
@@ -572,7 +553,6 @@ class BetaWarningState extends MusicBeatState
 		}
 	}
 
-	// SHADER FLOAT TWEEN HELPER
 
 	function tweenShaderFloat(from:Float, to:Float, duration:Float, ease:flixel.tweens.FlxEase.EaseFunction,
 		onUpdate:Float->Void, ?onDone:Void->Void):Void
@@ -607,7 +587,6 @@ class BetaWarningState extends MusicBeatState
 		FlxTransitionableState.skipNextTransOut = true;
 	}
 
-	// DESTROY
 
 	override function destroy()
 	{
@@ -621,7 +600,6 @@ class BetaWarningState extends MusicBeatState
 	}
 }
 
-// PORTAL PARTICLE
 
 class PortalParticle extends FlxSprite
 {

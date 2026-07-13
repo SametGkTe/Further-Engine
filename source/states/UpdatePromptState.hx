@@ -30,7 +30,7 @@ class UpdatePromptState extends MusicBeatState
 	static inline final AUTO_SELECT_TIME:Float = 20.0;
 	static inline final CONFIRM_EXIT_DELAY:Float = 0.45;
 
-	var selectedIndex:Int = 0; // 0 = Evet, 1 = Hayır
+	var selectedIndex:Int = 0; 
 	var allowInput:Bool = false;
 
 	var autoSelectRemaining:Float = AUTO_SELECT_TIME;
@@ -38,7 +38,6 @@ class UpdatePromptState extends MusicBeatState
 	var autoSelectCancelled:Bool = false;
 	var lastCountdownSecond:Int = -1;
 
-	// UI
 	var bg:FlxSprite;
 	var titleText:FlxText;
 	var infoText:FlxText;
@@ -87,7 +86,6 @@ class UpdatePromptState extends MusicBeatState
 		super.update(elapsed);
 	}
 
-	//  UI Oluşturma
 
 	function createBackground():Void
 	{
@@ -100,13 +98,11 @@ class UpdatePromptState extends MusicBeatState
 	{
 		final centerX = FlxG.width * 0.5;
 
-		// Başlık
 		titleText = new FlxText(SIDE_MARGIN, 0, FlxG.width - (SIDE_MARGIN * 2), "Modpack Güncellemesi Mevcut!", 28);
 		titleText.setFormat(Paths.font(FONT_PATH), 28, 0xFF14B8A6, CENTER);
 		titleText.y = FlxG.height * 0.18;
 		add(titleText);
 
-		// Bilgi
 		var updateCount:Int = pendingUpdates.length;
 		var totalSize:String = calculateTotalSize();
 		var updateNames:String = getUpdateNames();
@@ -121,7 +117,6 @@ class UpdatePromptState extends MusicBeatState
 		infoText.y = titleText.y + titleText.height + 24;
 		add(infoText);
 
-		// Butonlar
 		final buttonsY = infoText.y + infoText.height + BUTTON_Y_OFFSET;
 		final leftButtonX = centerX - BUTTON_WIDTH - (BUTTON_GAP * 0.5);
 		final rightButtonX = centerX + (BUTTON_GAP * 0.5);
@@ -134,7 +129,6 @@ class UpdatePromptState extends MusicBeatState
 		noButton.setFormat(Paths.font(FONT_PATH), 32, FlxColor.WHITE, CENTER);
 		add(noButton);
 
-		// İpucu
 		var hintStr = controls.mobileC
 			? "[SOL / SAĞ] Seç   [A] Kabul Et   [B] Atla"
 			: "[← →] Seç   [ENTER] Kabul Et   [ESC] Atla";
@@ -143,7 +137,6 @@ class UpdatePromptState extends MusicBeatState
 		hintText.setFormat(Paths.font(FONT_PATH), 16, 0xFFBFBFBF, CENTER);
 		add(hintText);
 
-		// Geri sayım
 		countdownText = new FlxText(0, FlxG.height - 58, FlxG.width, "", 14);
 		countdownText.setFormat(Paths.font(FONT_PATH), 14, 0xFF8F8F8F, CENTER);
 		add(countdownText);
@@ -161,7 +154,6 @@ class UpdatePromptState extends MusicBeatState
 		touchPad.alpha = 0;
 	}
 
-	//  Intro Animasyonu
 
 	function playIntro():Void
 	{
@@ -203,7 +195,6 @@ class UpdatePromptState extends MusicBeatState
 		});
 	}
 
-	//  Girdi
 
 	function handleInput():Void
 	{
@@ -228,7 +219,6 @@ class UpdatePromptState extends MusicBeatState
 		}
 	}
 
-	//  Seçim
 
 	function updateSelection(?instant:Bool = false):Void
 	{
@@ -260,7 +250,6 @@ class UpdatePromptState extends MusicBeatState
 		});
 	}
 
-	//  Otomatik Seçim
 
 	function resetAutoSelect():Void
 	{
@@ -297,7 +286,6 @@ class UpdatePromptState extends MusicBeatState
 		{
 			autoSelectRemaining = 0;
 			updateCountdownText();
-			// Otomatik olarak "Hayır" seç (rahatsız etmesin)
 			selectedIndex = 1;
 			updateSelection();
 			skipUpdates();
@@ -317,7 +305,6 @@ class UpdatePromptState extends MusicBeatState
 		countdownText.x = (FlxG.width - countdownText.width) * 0.5;
 	}
 
-	//  Onay / Atlama
 
 	function confirmSelection():Void
 	{
@@ -340,12 +327,10 @@ class UpdatePromptState extends MusicBeatState
 			{
 				if (selectedIndex == 0)
 				{
-					// Evet → UpdateState'e git
 					goToUpdateState();
 				}
 				else
 				{
-					// Hayır → Ana menüye git
 					goToMainMenu();
 				}
 			});
@@ -367,7 +352,6 @@ class UpdatePromptState extends MusicBeatState
 		fadeOutAndGo(false);
 	}
 
-	//  Geçişler
 
 	function goToUpdateState():Void
 	{
@@ -413,7 +397,6 @@ class UpdatePromptState extends MusicBeatState
 		];
 	}
 
-	//  Bilgi Yardımcıları
 
 	function calculateTotalSize():String
 	{
@@ -459,7 +442,6 @@ class UpdatePromptState extends MusicBeatState
 			names.push(entry);
 		}
 
-		// Çok fazlaysa kısalt
 		if (names.length > 5)
 		{
 			var shown = names.slice(0, 4);

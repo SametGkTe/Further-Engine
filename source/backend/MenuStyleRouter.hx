@@ -5,7 +5,6 @@ import flixel.FlxState;
 
 class MenuStyleRouter
 {
-	// ===== STATE GETTERs =====
 
 	public static function getMainMenu():FlxState
 	{
@@ -66,7 +65,6 @@ class MenuStyleRouter
 		return new states.ModsMenuState();
 	}
 
-	// ===== KISAYOL FONKSİYONLARI =====
 
 	inline public static function goToMainMenu():Void
 		MusicBeatState.switchState(getMainMenu());
@@ -86,7 +84,6 @@ class MenuStyleRouter
 	inline public static function goToMods():Void
 		MusicBeatState.switchState(getMods());
 
-	// ===== DURUM KONTROLLERİ =====
 
 	inline public static function isNewStyle():Bool
 		return ClientPrefs.data.menuStyle == 'Yeni';
@@ -95,11 +92,3 @@ class MenuStyleRouter
 		return ClientPrefs.data.menuStyle != 'Yeni';
 }
 
-/*
-* MenuStyleRouter.goToMainMenu();
-* MenuStyleRouter.goToFreeplay();
-* MenuStyleRouter.goToStoryMode();
-* MenuStyleRouter.goToOptions();
-* MenuStyleRouter.goToCredits();
-* MenuStyleRouter.goToMods();
-*/

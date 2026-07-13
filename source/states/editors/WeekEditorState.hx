@@ -227,7 +227,6 @@ class WeekEditorState extends MusicBeatState implements PsychUIEventHandler.Psyc
 		tab_group.add(lockedCheckbox);
 	}
 
-	//Used on onCreate and when you load a week
 	function reloadAllShit() {
 		var weekString:String = weekFile.songs[0][0];
 		for (i in 1...weekFile.songs.length) {
@@ -327,7 +326,6 @@ class WeekEditorState extends MusicBeatState implements PsychUIEventHandler.Psyc
 		recalculateStuffPosition();
 
 		#if DISCORD_ALLOWED
-		// Updating Discord Rich Presence
 		DiscordClient.changePresence("Week Editor", "Editting: " + weekFileName);
 		#end
 	}
@@ -369,9 +367,9 @@ class WeekEditorState extends MusicBeatState implements PsychUIEventHandler.Psyc
 				}
 
 				for (i in 0...splittedText.length) {
-					if(i >= weekFile.songs.length) { //Add new song
+					if(i >= weekFile.songs.length) { 
 						weekFile.songs.push([splittedText[i], 'face', [146, 113, 253]]);
-					} else { //Edit song
+					} else { 
 						weekFile.songs[i][0] = splittedText[i];
 						if(weekFile.songs[i][1] == null || weekFile.songs[i][1]) {
 							weekFile.songs[i][1] = 'face';
@@ -453,7 +451,7 @@ class WeekEditorState extends MusicBeatState implements PsychUIEventHandler.Psyc
 			var rawJson:String = File.getContent(fullPath);
 			if(rawJson != null) {
 				loadedWeek = cast Json.parse(rawJson);
-				if(loadedWeek.weekCharacters != null && loadedWeek.weekName != null) //Make sure it's really a week
+				if(loadedWeek.weekCharacters != null && loadedWeek.weekName != null) 
 				{
 					var cutName:String = _file.name.substr(0, _file.name.length - 5);
 					trace("Successfully loaded file: " + cutName);
@@ -474,9 +472,6 @@ class WeekEditorState extends MusicBeatState implements PsychUIEventHandler.Psyc
 		#end
 	}
 
-	/**
-		* Called when the save file dialog is cancelled.
-		*/
 		private static function onLoadCancel(_):Void
 	{
 		_file.removeEventListener(#if desktop Event.SELECT #else Event.COMPLETE #end, onLoadComplete);
@@ -486,9 +481,6 @@ class WeekEditorState extends MusicBeatState implements PsychUIEventHandler.Psyc
 		trace("Cancelled file loading.");
 	}
 
-	/**
-		* Called if there is an error while saving the gameplay recording.
-		*/
 	private static function onLoadError(_):Void
 	{
 		_file.removeEventListener(#if desktop Event.SELECT #else Event.COMPLETE #end, onLoadComplete);
@@ -525,9 +517,6 @@ class WeekEditorState extends MusicBeatState implements PsychUIEventHandler.Psyc
 		unsavedProgress = false;
 	}
 
-	/**
-		* Called when the save file dialog is cancelled.
-		*/
 		private static function onSaveCancel(_):Void
 	{
 		_file.removeEventListener(#if desktop Event.SELECT #else Event.COMPLETE #end, onSaveComplete);
@@ -537,9 +526,6 @@ class WeekEditorState extends MusicBeatState implements PsychUIEventHandler.Psyc
 		trace("Cancelled file saving.");
 	}
 
-	/**
-		* Called if there is an error while saving the gameplay recording.
-		*/
 	private static function onSaveError(_):Void
 	{
 		_file.removeEventListener(#if desktop Event.SELECT #else Event.COMPLETE #end, onSaveComplete);
@@ -587,13 +573,9 @@ class WeekEditorFreeplayState extends MusicBeatState implements PsychUIEventHand
 			var icon:HealthIcon = new HealthIcon(weekFile.songs[i][1]);
 			icon.sprTracker = songText;
 
-			// using a FlxGroup is too much fuss!
 			iconArray.push(icon);
 			add(icon);
 
-			// songText.x += 40;
-			// DONT PUT X IN THE FIRST PARAMETER OF new ALPHABET() !!
-			// songText.screenCenter(X);
 		}
 
 		addEditorBox();
@@ -744,7 +726,6 @@ class WeekEditorFreeplayState extends MusicBeatState implements PsychUIEventHand
 				icon.alpha = 1;
 			}
 		}
-		//trace(weekFile.songs[curSelected]);
 		iconInputText.text = weekFile.songs[curSelected][1];
 
 		var colors = weekFile.songs[curSelected][2];

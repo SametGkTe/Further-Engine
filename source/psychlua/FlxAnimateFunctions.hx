@@ -38,7 +38,7 @@ class FlxAnimateFunctions
 			if(obj.anim.curSymbol == null)
 			{
 				var obj2:ModchartAnimateSprite = cast (obj, ModchartAnimateSprite);
-				if(obj2 != null) obj2.playAnim(name, true); //is ModchartAnimateSprite
+				if(obj2 != null) obj2.playAnim(name, true); 
 				else obj.anim.play(name, true);
 			}
 			return true;
@@ -65,7 +65,7 @@ class FlxAnimateFunctions
 			if(obj.anim.curSymbol == null)
 			{
 				var obj2:ModchartAnimateSprite = cast (obj, ModchartAnimateSprite);
-				if(obj2 != null) obj2.playAnim(name, true); //is ModchartAnimateSprite
+				if(obj2 != null) obj2.playAnim(name, true); 
 				else obj.anim.play(name, true);
 			}
 			return true;

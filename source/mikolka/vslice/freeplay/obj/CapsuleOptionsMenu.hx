@@ -118,7 +118,6 @@ class CapsuleOptionsMenu extends FlxSpriteGroup
       queueDestroy = true;
     });
     #else
-    // Play in reverse.
     capsuleMenuBG.animation.play('open', true, true);
     capsuleMenuBG.animation.finishCallback = function(_) {
       parent.cleanupCapsuleOptionsMenu();
@@ -127,18 +126,12 @@ class CapsuleOptionsMenu extends FlxSpriteGroup
     #end
   }
 
-  /**
-   * Override this with `capsuleOptionsMenu.onConfirm = myFunction;`
-   */
   public dynamic function onConfirm(targetInstId:String):Void
   {
     throw 'onConfirm not implemented!';
   }
 }
 
-/**
- * The difficulty selector arrows to the left and right of the difficulty.
- */
 class InstrumentalSelector extends FunkinSprite
 {
   var controls:Controls;

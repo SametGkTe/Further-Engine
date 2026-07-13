@@ -5,7 +5,6 @@ import mikolka.vslice.StickerSubState;
 import openfl.filters.BlurFilter;
 import mikolka.compatibility.VsliceOptions;
 import shaders.AdjustColorShader;
-//import openfl.display.ShaderParameter_Float;
 import flixel.addons.display.FlxBackdrop;
 import openfl.filters.ShaderFilter;
 import flixel.addons.display.FlxTiledSprite;
@@ -121,7 +120,6 @@ class PhillyStreetsErect extends BaseStage
             }
     
             add(mist4);
-            //? gradient
             var gray1:BGSprite = new BGSprite('phillyStreets/erect/greyGradient', 88, 317, 1, 1);
             gray1.alpha = 0.3;
             gray1.blend = ADD;
@@ -168,31 +166,30 @@ class PhillyStreetsErect extends BaseStage
         var mist = new FlxBackdrop(Paths.image('phillyStreets/erect/$image'), X);
 		mist.setPosition(-650, -100);
 		mist.scrollFactor.set(scrollFac, scrollFac);
-		//mist.zIndex = 1000;
         mist.blend = ADD;
 		mist.color = 0xFF5c5c5c;
 		mist.alpha = alpha;
 		mist.velocity.x = velX;
         return mist;
     }
-	function buildMist() // Probable will be really broken 😞
+	function buildMist() 
 	{
 
 		
 
-		mist0 = makeMist('mistMid',1.2,0.6,172); //1000
+		mist0 = makeMist('mistMid',1.2,0.6,172); 
 
-		mist1 = makeMist('mistMid',1.1,0.6,150); //1000
+		mist1 = makeMist('mistMid',1.1,0.6,150); 
 
-		mist2 = makeMist('mistBack',1.2,0.8,-80); //1001
+		mist2 = makeMist('mistBack',1.2,0.8,-80); 
 
-		mist3 = makeMist('mistMid',0.95,0.5,-50); //99
+		mist3 = makeMist('mistMid',0.95,0.5,-50); 
 		mist3.scale.set(0.8, 0.8);
 
-		mist4 = makeMist('mistBack',0.8,1,40); //88
+		mist4 = makeMist('mistBack',0.8,1,40); 
 		mist4.scale.set(0.7, 0.7);
 
-		mist5 = makeMist('mistMid',0.5,1,20); //39
+		mist5 = makeMist('mistMid',0.5,1,20); 
 		mist5.scale.set(1.1, 1.1);
 
 	}
@@ -206,10 +203,6 @@ class PhillyStreetsErect extends BaseStage
 		mist3.y = 230 + (Math.sin(_timer*0.3)*70);
 		mist4.y = 170 + (Math.sin(_timer*0.35)*50);
 		mist5.y = -80 + (Math.sin(_timer*0.08)*100);
-		// mist3.y = -20 + (Math.sin(_timer*0.5)*200);
-		// mist4.y = -180 + (Math.sin(_timer*0.4)*300);
-		// mist5.y = -450 + (Math.sin(_timer*0.2)*1xxx50);
-		//trace(mist1.y);
     }
     
         override function createPost()
@@ -231,7 +224,6 @@ class PhillyStreetsErect extends BaseStage
     
             if (VsliceOptions.SHADERS)
             {
-                // ? ambience
                 rainSndAmbience = new FlxSound().loadEmbedded(Paths.sound("ambience/rain"), true);
                 FlxG.sound.list.add(rainSndAmbience);
                 rainSndAmbience.volume = 0.01;
@@ -263,7 +255,6 @@ class PhillyStreetsErect extends BaseStage
         override function openSubState(SubState:FlxSubState) {
             super.openSubState(SubState);
             if(!Std.isOfType(SubState,PauseSubState)) return;
-            // Temporarily stop ambiance.
             if (rainSndAmbience != null) {
                 rainSndAmbience.pause();
             }
@@ -341,7 +332,6 @@ class PhillyStreetsErect extends BaseStage
     
         override function beatHit()
         {
-            // if(curBeat % 2 == 0) abot.beatHit();
             super.beatHit();
     
             if (VsliceOptions.LOW_QUALITY)
@@ -543,10 +533,8 @@ class PhillyStreetsErect extends BaseStage
     
         function darkenStageProps()
         {
-            // Darken the background, then fade it back.
             for (sprite in darkenable)
             {
-                // If not excluded, darken.
                 sprite.color = 0xFF111111;
                 new FlxTimer().start(1 / 24, (tmr) ->
                 {
@@ -559,7 +547,6 @@ class PhillyStreetsErect extends BaseStage
         override function destroy()
         {
             super.destroy();
-            // Fully stop ambiance.
             if (rainSndAmbience != null)
                 rainSndAmbience.stop();
             if (carSndAmbience != null)

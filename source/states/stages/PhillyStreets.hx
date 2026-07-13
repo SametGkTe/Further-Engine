@@ -174,7 +174,6 @@ class PhillyStreets extends BaseStage
 		{
 			if(note == null) continue;
 
-			//override animations for note types
 			switch(note.noteType)
 			{
 				case 'weekend-1-firegun':
@@ -201,7 +200,6 @@ class PhillyStreets extends BaseStage
 							transitionState();
 						}
 					default:
-						// Ignore.
 				}
 			}
 		}
@@ -222,7 +220,7 @@ class PhillyStreets extends BaseStage
 				videoCutscene();
 			};
 
-			#else //Make a timer to prevent it from crashing due to sprites not being ready yet.
+			#else 
 			new FlxTimer().start(0.0, function(tmr:FlxTimer)
 			{
 				videoEnded = true;
@@ -289,41 +287,41 @@ class PhillyStreets extends BaseStage
 
 		final cutsceneDelay = 2.0;
 		boyfriend.playAnim('intro1', true);
-		cutsceneHandler.timer(0.7, function() //play music
+		cutsceneHandler.timer(0.7, function() 
 		{
 			cutsceneMusic.play();
 		});
-		cutsceneHandler.timer(cutsceneDelay, function() //zoom out to show off everything
+		cutsceneHandler.timer(cutsceneDelay, function() 
 		{
 			moveCamera(true);
 			camFollow.x += 100;
 			FlxTween.tween(FlxG.camera.scroll, {x: camFollow.x + 100 - FlxG.width/2, y: camFollow.y - FlxG.height/2}, 2.5, {ease: FlxEase.quadInOut});
 			FlxTween.tween(FlxG.camera, {zoom: 0.66}, 2.5, {ease: FlxEase.quadInOut});
 		});
-		cutsceneHandler.timer(cutsceneDelay + 3, function() //darnell lights can
+		cutsceneHandler.timer(cutsceneDelay + 3, function() 
 		{
 			dad.playAnim('lightCan', true);
 			lightCanSnd.play(true);
 		});
-		cutsceneHandler.timer(cutsceneDelay + 4, function() //pico reloads
+		cutsceneHandler.timer(cutsceneDelay + 4, function() 
 		{
 			boyfriend.playAnim('cock', true);
 			FlxTween.tween(FlxG.camera.scroll, {x: camFollow.x + 180 - FlxG.width/2}, 0.4, {ease: FlxEase.backOut});
 			gunPrepSnd.play(true);
 		});
 		cutsceneHandler.timer(cutsceneDelay + 4.166, function() createCasing());
-		cutsceneHandler.timer(cutsceneDelay + 4.4, function() //darnell kicks can
+		cutsceneHandler.timer(cutsceneDelay + 4.4, function() 
 		{
 			dad.playAnim('kickCan', true);
 			spraycan.playCanStart();
 			kickCanSnd.play(true);
 		});
-		cutsceneHandler.timer(cutsceneDelay + 4.8, function() //darnell knees can
+		cutsceneHandler.timer(cutsceneDelay + 4.8, function() 
 		{
 			dad.playAnim('kneeCan', true);
 			kneeCanSnd.play(true);
 		});
-		cutsceneHandler.timer(cutsceneDelay + 5.1, function() //pico fires at can
+		cutsceneHandler.timer(cutsceneDelay + 5.1, function() 
 		{
 			boyfriend.playAnim('intro2', true);
 			boyfriend.specialAnim = true;
@@ -338,7 +336,6 @@ class PhillyStreets extends BaseStage
 				darkenStageProps();
 			});
 		});
-		// darnell laughs
 		cutsceneHandler.timer(cutsceneDelay + 5.9, function()
 		{
 			dad.animation.finishCallback = null;
@@ -346,7 +343,6 @@ class PhillyStreets extends BaseStage
 			darnellLaugh.play(true);
 		});
 
-		// nene spits and laughs
 		cutsceneHandler.timer(cutsceneDelay + 6.2, function()
 		{
 			gf.animation.finishCallback = null;
@@ -354,10 +350,9 @@ class PhillyStreets extends BaseStage
 			neneLaugh.play(true);
 		});
 
-		// cutscene ended, camera returns to normal, cutscene flags set and countdown starts.
 		cutsceneHandler.finishCallback = function()
 		{
-			cutsceneMusic.stop(); // stop the music!!!!!!
+			cutsceneMusic.stop(); 
 
 			game.cameraSpeed = 0;
 			FlxTween.tween(FlxG.camera, {zoom: 0.77}, 2, {ease: FlxEase.sineInOut});
@@ -418,7 +413,6 @@ class PhillyStreets extends BaseStage
 				}
 
 			default:
-				// Ignore.
 		}
 	}
 	
@@ -458,7 +452,7 @@ class PhillyStreets extends BaseStage
 			if(didCreateCasing) return;
 			if(!ClientPrefs.data.lowQuality)
 			{
-				casingFrames = Paths.getSparrowAtlas('PicoBullet'); //precache
+				casingFrames = Paths.getSparrowAtlas('PicoBullet'); 
 				casingGroup = new FlxSpriteGroup();
 				add(casingGroup);
 			}
@@ -603,7 +597,6 @@ class PhillyStreets extends BaseStage
 
 	override function beatHit()
 	{
-		//if(curBeat % 2 == 0) abot.beatHit();
 		switch(currentNeneState) {
 			case STATE_READY:
 				if (blinkCountdown == 0)
@@ -614,7 +607,6 @@ class PhillyStreets extends BaseStage
 				else blinkCountdown--;
 
 			default:
-				// In other states, don't interrupt the existing animation.
 		}
 
 		if(ClientPrefs.data.lowQuality) return;
@@ -789,7 +781,6 @@ class PhillyStreets extends BaseStage
 
 	override function goodNoteHit(note:Note)
 	{
-		// 10% chance of playing combo50/combo100 animations for Nene
 		if(FlxG.random.bool(10))
 		{
 			switch(game.combo)
@@ -806,7 +797,7 @@ class PhillyStreets extends BaseStage
 
 		switch(note.noteType)
 		{
-			case 'weekend-1-cockgun': // HE'S PULLING HIS COCK OUT
+			case 'weekend-1-cockgun': 
 				boyfriend.holdTimer = 0;
 				boyfriend.playAnim('cock', true);
 				boyfriend.specialAnim = true;
@@ -861,13 +852,11 @@ class PhillyStreets extends BaseStage
 		{
 			if (name == 'pop' && frameNumber == 40)
 			{
-				// Get the end position of the bullet dynamically.
 				casing.x = casing.x + casing.frame.offset.x - 1;
 				casing.y = casing.y + casing.frame.offset.y + 1;
 		
-				casing.angle = 125.1; // Copied from FLA
+				casing.angle = 125.1; 
 		
-				// Okay this is the neat part, we can set the velocity and angular acceleration to make it roll without editing update().
 				var randomFactorA:Float = FlxG.random.float(3, 10);
 				var randomFactorB:Float = FlxG.random.float(1.0, 2.0);
 				casing.velocity.x = 20 * randomFactorB;
@@ -875,11 +864,10 @@ class PhillyStreets extends BaseStage
 		
 		
 				casing.angularVelocity = 100;
-				// Calculated to ensure angular acceleration is maintained through the whole roll.
 				casing.angularDrag = (casing.drag.x / casing.velocity.x) * 100;
 		
 				casing.animation.play('idle');
-				casing.animation.callback = null; // Save performance.
+				casing.animation.callback = null; 
 			}
 		};
 		casingGroup.add(casing);
@@ -945,7 +933,6 @@ class PhillyStreets extends BaseStage
 				{
 					if (name == 'shootMISS' && game.health > 0.0 && !game.practiceMode && game.gameOverTimer == null)
 					{
-						//FlxFlicker was crashing so fuck it, FlxTimer all the way
 						picoFlicker = new FlxTimer().start(1 / 30, function(tmr:FlxTimer)
 						{
 							boyfriend.visible = !boyfriend.visible;
@@ -958,12 +945,10 @@ class PhillyStreets extends BaseStage
 									if(tmr2.loopsLeft == 0)
 									{
 										boyfriend.visible = true;
-										//trace('test 2');
 									}
 								}, 30);
 							}
 						}, 30);
-						//trace('test');
 					}
 					boyfriend.animation.finishCallback = null;
 				}
@@ -998,10 +983,8 @@ class PhillyStreets extends BaseStage
 	
 	function darkenStageProps()
 	{
-		// Darken the background, then fade it back.
 		for (sprite in darkenable)
 		{
-			// If not excluded, darken.
 			sprite.color = 0xFF111111;
 			new FlxTimer().start(1/24, (tmr) ->
 			{

@@ -3,9 +3,6 @@ package mikolka.vslice.freeplay.obj;
 import mikolka.funkin.Scoring.ScoringRank;
 
 abstract class SngCapsuleData{
-    	/**
-	 * Whether or not the song has been favorited.
-	 */
 	public var isFav:Bool = false;
 
 	public var allowErect:Bool = false;
@@ -70,10 +67,6 @@ abstract class SngCapsuleData{
 		
 	}
 
-	/**
-	 * Toggle whether or not the song is favorited, then flush to save data.
-	 * @return Whether or not the song is now favorited.
-	 */
 	public abstract function toggleFavorite():Bool;
 
 	function updateMeta()
@@ -102,7 +95,6 @@ abstract class SngCapsuleData{
 
 	public abstract function loadAndGetDiffId():Int;
 
-	// Gets real song id (potenctally to erect variant)
 	public function getNativeSongId():String
 	{
 		if (!allowErect)

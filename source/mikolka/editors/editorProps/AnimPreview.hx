@@ -123,11 +123,8 @@ class AnimPreview extends FlxTypedSpriteGroup<FlxSprite>
 		var symbol = mainSymbol.getFrameLabel(anim);
         if(selectedAnimLength == 0) {
             selectedAnimIndices = symbol.getFrameIndices();
-            selectedAnimLength = symbol.getFrameIndices().length; // timeline.totalFrames;
+            selectedAnimLength = symbol.getFrameIndices().length; 
         }
-		// var labelFrame = indices.indexOf(frame);
-		// if (labelFrame == -1)
-		// 	labelFrame = indices.length;
         selectedFrame +=1;
 		frameTxt.text = 'Frame (${selectedFrame}/${selectedAnimLength})';
 	}

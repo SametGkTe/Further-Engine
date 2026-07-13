@@ -75,7 +75,6 @@ class HelpSubstate extends MusicBeatSubstate {
 		
 		var fullTipText = new FlxText(0, 0, FlxG.width - 200);
 		fullTipText.setFormat(Paths.font('vcr.ttf'), 24, FlxColor.WHITE, CENTER);
-		//fullTipText.cameras = [camUI];
 		fullTipText.scrollFactor.set();
 		fullTipText.text = text.join('\n');
 		fullTipText.screenCenter();
@@ -95,7 +94,6 @@ class HelpSubstate extends MusicBeatSubstate {
 			if (MusicBeatState?.getState() != null)
 				MusicBeatState.getState().touchPad.visible = true;
 			
-			// had to add instance cuz this is also a substate :sob:
 			if (FreeplayEditSubstate?.instance != null)
 				Controls.instance.isInSubstate = true;
 

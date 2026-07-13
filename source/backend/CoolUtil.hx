@@ -35,9 +35,7 @@ class CoolUtil
 		return version;
 	}
 	inline public static function quantize(f:Float, snap:Float){
-		// changed so this actually works lol
 		var m:Float = Math.fround(f * snap);
-		//trace(snap);
 		return (m / snap);
 	}
 
@@ -117,7 +115,7 @@ class CoolUtil
 		}
 
 		var maxCount = 0;
-		var maxKey:Int = 0; //after the loop this will store the max color
+		var maxKey:Int = 0; 
 		countByColor[FlxColor.BLACK] = 0;
 		for(key => count in countByColor)
 		{
@@ -166,21 +164,10 @@ class CoolUtil
 		#end
 	}
 
-	/**
-		Helper Function to Fix Save Files for Flixel 5
-
-		-- EDIT: [November 29, 2023] --
-
-		this function is used to get the save path, period.
-		since newer flixel versions are being enforced anyways.
-		@crowplexus
-	**/
 	@:access(flixel.util.FlxSave.validate)
 	inline public static function getSavePath():String {
 		final company:String = FlxG.stage.application.meta.get('company');
-		// #if (flixel < "5.0.0") return company; #else
 		return '${company}/${flixel.util.FlxSave.validate(FlxG.stage.application.meta.get('file'))}';
-		// #end
 	}
 
 	public static function setTextBorderFromString(text:FlxText, border:String)

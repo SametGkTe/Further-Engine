@@ -22,18 +22,12 @@ import flixel.util.FlxColor;
 
 using mikolka.funkin.utils.SpriteTools;
 
-// ? Documented
-// changed FunkinSprite to FlxSprite
 class SongMenuItem extends FlxSpriteGroup
 {
 	public var capsule:FlxSprite;
 	
 	var pixelIcon:PixelatedIcon;
 
-	/**
-	 * Modify this by calling `init()`
-	 * If `null`, assume this SongMenuItem is for the "Random Song" option.
-	 */
 	public var songData(default, null):Null<FreeplaySongData> = null;
 
 	public var selected(default, set):Bool;
@@ -65,19 +59,16 @@ class SongMenuItem extends FlxSpriteGroup
 
 	public var hsvShader(default, set):HSVShader;
 
-	// var diffRatingSprite:FlxSprite;
 	public var bpmText:FlxSprite;
 	public var difficultyText:FlxSprite;
 	public var weekType:FlxSprite;
 
 	public var newText:FlxSprite;
 
-	// public var weekType:FlxSprite;
 	public var bigNumbers:Array<CapsuleNumber> = [];
 
 	public var smallNumbers:Array<CapsuleNumber> = [];
 
-	// public var weekNumbers:Array<CapsuleNumber> = [];
 	var impactThing:FunkinSprite;
 	var grpHide:FlxGroup;
 	public var sparkle:FlxSprite;
@@ -113,7 +104,6 @@ class SongMenuItem extends FlxSpriteGroup
 
 		capsule = new FlxSprite();
 		initFreeplayStyle(styleData);
-		// capsule.animation
 		add(capsule);
 
 		bpmText = new FlxSprite(144, 87).loadGraphic(Paths.image('freeplay/freeplayCapsule/bpmtext'));
@@ -148,7 +138,6 @@ class SongMenuItem extends FlxSpriteGroup
 			smallNumbers.push(smallNumber);
 		}
 
-		// doesn't get added, simply is here to help with visibility of things for the pop in!
 		grpHide = new FlxGroup();
 
 		ranking = new FreeplayRank(420, 41);
@@ -177,9 +166,7 @@ class SongMenuItem extends FlxSpriteGroup
 		add(songText);
 		grpHide.add(songText);
 
-		// TODO: Use value from metadata instead of random.
 		updateDifficultyRating(0);
-		// ? changed offsets
 		pixelIcon = new PixelatedIcon(60, 14);
 		add(pixelIcon);
 		grpHide.add(pixelIcon);
@@ -226,16 +213,12 @@ class SongMenuItem extends FlxSpriteGroup
 	{
 		sparkle.setPosition(FlxG.random.float(ranking.x - 20, ranking.x + 3), FlxG.random.float(ranking.y - 29, ranking.y + 4));
 		if (sparkle?.animation != null)
-		{ // ? don't play sparkle anim if it's destroyed
+		{ 
 			sparkle.animation.play('sparkle', true);
 			sparkleTimer = new FlxTimer().start(FlxG.random.float(1.2, 4.5), sparkleEffect);
 		}
 	}
 
-	/**
-	 * Checks whether the song is favorited, and/or has a rank, and adjusts the clipping
-	 * for the scenario when the text could be too long
-	 */
 	public function checkClip():Void
 	{
 		var clipSize:Int = 290;
@@ -337,7 +320,6 @@ class SongMenuItem extends FlxSpriteGroup
 		impactThing.alpha = 0;
 		add(impactThing);
 		FlxTween.tween(impactThing.scale, {x: 2.5, y: 2.5}, 0.5);
-		// FlxTween.tween(impactThing, {alpha: 0}, 0.5);
 
 		evilTrail = new FlxTrail(impactThing, null, 15, 2, 0.01, 0.069);
 		evilTrail.blend = BlendMode.ADD;
@@ -372,10 +354,6 @@ class SongMenuItem extends FlxSpriteGroup
 		return evilTrail.color;
 	}
 
-	/**
-	 * Refreshes all displayed items by this card.
-	 * Use only for changing the song data on this card.
-	 */
 	function refreshDisplayFull():Void
 	{
 		if (songData == null)
@@ -394,11 +372,6 @@ class SongMenuItem extends FlxSpriteGroup
 		refreshDisplayDifficulty();
 	}
 
-	/**
-	 * Updates difficulty on this song.
-	 * 
-	 * Call this if you've changed the current difficulty for this song. 
-	 */
 	public function refreshDisplayDifficulty()
 	{
 		if (songData == null)
@@ -427,15 +400,10 @@ class SongMenuItem extends FlxSpriteGroup
 		}
 		updateSelected();
 
-		// I think this ends the "favorite" anim early
 		favIcon.animation.curAnim.curFrame = favIcon.animation.curAnim.numFrames - 1;
 		favIconBlurred.animation.curAnim.curFrame = favIconBlurred.animation.curAnim.numFrames - 1;
 	}
 
-	/**
-	 * Updated the week text at the bottom of the capsule
-	 * @param newText A new value for the text
-	 */
 	public function updateWeekText(newText:String = "")
 	{
 		if (txtWeek != null)
@@ -495,8 +463,6 @@ class SongMenuItem extends FlxSpriteGroup
 					trace('why the fuck is this being called');
 			}
 		}
-		// diffRatingSprite.loadGraphic(Paths.image('freeplay/diffRatings/diff${ratingPadded}'));
-		// diffRatingSprite.visible = false;
 	}
 
 	function updateScoringRank(newRank:Null<ScoringRank>):Void
@@ -540,7 +506,6 @@ class SongMenuItem extends FlxSpriteGroup
 		{
 			songText.scale.x = songText.scale.y = 1;
 		});
-		// ? Attempting fallback in case the previous one fails!
 		new FlxTimer().start(4 / 24, function(_)
 		{
 			songText.scale.x = songText.scale.y = 1;
@@ -560,11 +525,6 @@ class SongMenuItem extends FlxSpriteGroup
 		updateSelected();
 	}
 
-	/**
-	 * Reconstructs all the data in this card based on the parameters frovided. Use only when fully recycling! 
-	 * @param x 
-	 * @param y 
-	 */
 	public function initPosition(?x:Float, ?y:Float):Void
 	{
 		if (x != null)
@@ -579,11 +539,6 @@ class SongMenuItem extends FlxSpriteGroup
 		refreshDisplayFull();
 	}
 
-	/**
-	 * Initialises new freeplay style on this card.
-	 * 
-	 * To be honest we don't even seed this!
-	 */
 	public function initFreeplayStyle(styleData:FreeplayStyle)
 	{
 		if (styleData == currentFpStyle)
@@ -592,12 +547,10 @@ class SongMenuItem extends FlxSpriteGroup
 		currentFpStyle = styleData;
 
 		capsule.frames = Paths.getSparrowAtlas(styleData.getCapsuleAssetKey());
-		// This applies new style in case we change it
 		capsule.animation.addByPrefix('selected', 'mp3 capsule w backing0', 24);
 		capsule.animation.addByPrefix('unselected', 'mp3 capsule w backing NOT SELECTED', 24);
 
 		songText?.applyStyle(styleData);
-		//
 	}
 
 	var capsuleAnimation:SongCapsuleAnim = JUMPIN;
@@ -627,11 +580,11 @@ class SongMenuItem extends FlxSpriteGroup
 		switch (capsuleAnimation)
 		{
 			case SLIDE_LEFT:
-				x = -800; // This is starting position on X
-				y = targetPos.y; // This is starting position on X
+				x = -800; 
+				y = targetPos.y; 
 			case SLIDE_RIGHT:
-				x = FlxG.width; // This is starting position on X
-				y = targetPos.y; // This is starting position on X
+				x = FlxG.width; 
+				y = targetPos.y; 
 			default:
 		}
 	}
@@ -648,9 +601,6 @@ class SongMenuItem extends FlxSpriteGroup
 		super.destroy();
 	}
 
-	/**
-	 * Play any animations associated with selecting this song.
-	 */
 	public function confirm():Void
 	{
 		if (songText != null)
@@ -673,7 +623,6 @@ class SongMenuItem extends FlxSpriteGroup
 
 	function set_selected(value:Bool):Bool
 	{
-		// cute one liners, lol!
 		selected = value;
 		updateSelected();
 		return selected;

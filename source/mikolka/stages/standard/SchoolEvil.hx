@@ -79,7 +79,6 @@ class SchoolEvil extends BaseStage
 		super.update(elapsed);
 		wiggle?.update(elapsed);
 	}
-	// Ghouls event
 	var bgGhouls:BGSprite;
 	override function eventCalled(eventName:String, value1:String, value2:String, flValue1:Null<Float>, flValue2:Null<Float>, strumTime:Float)
 	{
@@ -100,7 +99,6 @@ class SchoolEvil extends BaseStage
 	override function eventPushed(event:objects.Note.EventNote)
 	#end
 	{
-		// used for preloading assets used on events
 		switch(event.event)
 		{
 			case "Trigger BG Ghouls":

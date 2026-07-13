@@ -6,13 +6,6 @@ import openfl.display.Bitmap;
 import openfl.utils.Assets;
 import mikolka.compatibility.funkin.FunkinPath as Paths;
 
-/**
- *  Extends the default flixel soundtray, but with some art
- *  and lil polish!
- *
- *  Gets added to the game in Main.hx, right after FlxGame is new'd
- *  since it's a Sprite rather than Flixel related object
- */
 class FunkinSoundTray extends FlxSoundTray
 {
   var graphicScale:Float = 0.30;
@@ -23,8 +16,6 @@ class FunkinSoundTray extends FlxSoundTray
 
   public function new()
   {
-    // calls super, then removes all children to add our own
-    // graphics
     super();
     removeChildren();
 
@@ -37,7 +28,6 @@ class FunkinSoundTray extends FlxSoundTray
     y = -height;
     visible = false;
 
-    // makes an alpha'd version of all the bars (bar_10.png)
     var backingBar:Bitmap = new Bitmap(Assets.getBitmapData(Paths.getPath("images/soundtray/bars_10.png", true)));
     backingBar.x = 9;
     backingBar.y = 5;
@@ -47,12 +37,8 @@ class FunkinSoundTray extends FlxSoundTray
     addChild(backingBar);
     backingBar.alpha = 0.4;
 
-    // clear the bars array entirely, it was initialized
-    // in the super class
     _bars = [];
 
-    // 1...11 due to how block named the assets,
-    // we are trying to get assets bars_1-10
     for (i in 1...11)
     {
       var bar:Bitmap = new Bitmap(Assets.getBitmapData(Paths.getPath("images/soundtray/bars_" + i+".png", true)));
@@ -80,7 +66,6 @@ class FunkinSoundTray extends FlxSoundTray
     y = MathUtil.coolLerp(y, lerpYPos, 0.1);
     alpha = MathUtil.coolLerp(alpha, alphaTarget, 0.25);
 
-    // Animate sound tray thing
     if (_timer > 0)
     {
       _timer -= (MS / 1000);
@@ -98,7 +83,6 @@ class FunkinSoundTray extends FlxSoundTray
       active = false;
 
       #if FLX_SAVE
-      // Save sound preferences
       if (FlxG.save.isBound)
       {
         FlxG.save.data.mute = FlxG.sound.muted;
@@ -109,11 +93,6 @@ class FunkinSoundTray extends FlxSoundTray
     }
   }
 
-  /**
-   * Makes the little volume tray slide out.
-   *
-   * @param	up Whether the volume is increasing.
-   */
   override public function show(up:Bool = false):Void
   {
     _timer = 1;

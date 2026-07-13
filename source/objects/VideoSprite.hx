@@ -39,31 +39,20 @@ class VideoSprite extends FlxSpriteGroup {
 			add(cover);
 		}
 
-		// initialize sprites
 		videoSprite = new FlxVideoSprite();
 		videoSprite.antialiasing = ClientPrefs.data.antialiasing;
 		add(videoSprite);
 		if(canSkip) this.canSkip = true;
 
-		// callbacks
 		if(!shouldLoop) videoSprite.bitmap.onEndReached.add(finishVideo);
 
 		videoSprite.bitmap.onFormatSetup.add(function()
 		{
-			/*
-			#if hxvlc
-			var wd:Int = videoSprite.bitmap.formatWidth;
-			var hg:Int = videoSprite.bitmap.formatHeight;
-			trace('Video Resolution: ${wd}x${hg}');
-			videoSprite.scale.set(FlxG.width / wd, FlxG.height / hg);
-			#end
-			*/
 			videoSprite.setGraphicSize(FlxG.width);
 			videoSprite.updateHitbox();
 			videoSprite.screenCenter();
 		});
 
-		// start video and adjust resolution to screen size
 		videoSprite.load(videoName, shouldLoop ? ['input-repeat=65545'] : null);
 	}
 

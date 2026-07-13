@@ -70,7 +70,6 @@ class Tank extends BaseStage
 		foregroundSprites.add(new BGSprite('tank5', 1620, 700, 1.5, 1.5, ['fg']));
 		if(!ClientPrefs.data.lowQuality) foregroundSprites.add(new BGSprite('tank3', 1300, 1200, 3.5, 2.5, ['fg']));
 
-		// Default GFs
 		if(songName == 'stress') setDefaultGF('pico-speaker');
 		else setDefaultGF('gf-tankmen');
 		
@@ -130,7 +129,6 @@ class Tank extends BaseStage
 		});
 	}
 
-	// Cutscenes
 	var cutsceneHandler:CutsceneHandler;
 	var tankman:FlxAnimate;
 	var pico:FlxAnimate;
@@ -142,7 +140,6 @@ class Tank extends BaseStage
 
 		dadGroup.alpha = 0.00001;
 		camHUD.visible = false;
-		//inCutscene = true; //this would stop the camera movement, oops
 
 		tankman = new FlxAnimate(dad.x + 419, dad.y + 225);
 		tankman.showPivot = false;
@@ -210,21 +207,18 @@ class Tank extends BaseStage
 		tankman.anim.play('wellWell', true);
 		FlxG.camera.zoom *= 1.2;
 
-		// Well well well, what do we got here?
 		cutsceneHandler.timer(0.1, function()
 		{
 			wellWellWell.play(true);
 			audioPlaying = wellWellWell;
 		});
 
-		// Move camera to BF
 		cutsceneHandler.timer(3, function()
 		{
 			camFollow.x += 750;
 			camFollow.y += 100;
 		});
 
-		// Beep!
 		cutsceneHandler.timer(4.5, function()
 		{
 			boyfriend.playAnim('singUP', true);
@@ -232,13 +226,11 @@ class Tank extends BaseStage
 			FlxG.sound.play(Paths.sound('bfBeep'));
 		});
 
-		// Move camera to Tankman
 		cutsceneHandler.timer(6, function()
 		{
 			camFollow.x -= 750;
 			camFollow.y -= 100;
 
-			// We should just kill you but... what the hell, it's been a boring day... let's see what you've got!
 			tankman.anim.play('killYou', true);
 			killYou.play(true);
 			audioPlaying = killYou;
@@ -304,7 +296,6 @@ class Tank extends BaseStage
 		addBehindGF(pico);
 		cutsceneHandler.push(pico);
 
-		// prepare pico animation cycle
 		function picoStressCycle() {
 			switch (pico.anim.curInstance.symbol.name) {
 				case "dieBitch", "GF Time to Die sequence":
@@ -317,7 +308,7 @@ class Tank extends BaseStage
 						if(name != 'idle')
 						{
 							boyfriend.playAnim('idle', true);
-							boyfriend.animation.curAnim.finish(); //Instantly goes to last frame
+							boyfriend.animation.curAnim.finish(); 
 						}
 					};
 				case "picoAppears", "Pico Saves them sequence":
@@ -325,7 +316,7 @@ class Tank extends BaseStage
 				case "picoEnd", "Pico Dual Wield on Speaker idle":
 					gfGroup.alpha = 1;
 					pico.visible = false;
-					if (pico.anim.onComplete.has(picoStressCycle)) // for safety
+					if (pico.anim.onComplete.has(picoStressCycle)) 
 						pico.anim.onComplete.remove(picoStressCycle);
 			}
 		}
@@ -383,7 +374,7 @@ class Tank extends BaseStage
 				if (name == 'singUPmiss')
 				{
 					boyfriend.playAnim('idle', true);
-					boyfriend.animation.curAnim.finish(); //Instantly goes to last frame
+					boyfriend.animation.curAnim.finish(); 
 				}
 			};
 

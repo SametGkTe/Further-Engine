@@ -22,7 +22,6 @@ class BaseStage extends FlxBasic
 	private var game(get, never):Dynamic;
 	public var onPlayState(get, never):Bool;
 
-	// some variables for convenience
 	public var paused(get, never):Bool;
 	public var songName(get, never):String;
 	public var isStoryMode(get, never):Bool;
@@ -62,14 +61,11 @@ class BaseStage extends FlxBasic
 		}
 	}
 
-	//main callbacks
 	public function create() {}
 	public function createPost() {}
-	//public function update(elapsed:Float) {}
 	public function countdownTick(count:Countdown, num:Int) {}
 	public function startSong() {}
 
-	// FNF steps, beats and sections
 	public var curBeat:Int = 0;
 	public var curDecBeat:Float = 0;
 	public var curStep:Int = 0;
@@ -79,22 +75,18 @@ class BaseStage extends FlxBasic
 	public function stepHit() {}
 	public function sectionHit() {}
 
-	// Substate close/open, for pausing Tweens/Timers
 	public function closeSubState() {}
 	public function openSubState(SubState:FlxSubState) {}
 
-	// Events
 	public function eventCalled(eventName:String, value1:String, value2:String, flValue1:Null<Float>, flValue2:Null<Float>, strumTime:Float) {}
 	public function eventPushed(event:EventNote) {}
 	public function eventPushedUnique(event:EventNote) {}
 
-	// Note Hit/Miss
 	public function goodNoteHit(note:Note) {}
 	public function opponentNoteHit(note:Note) {}
 	public function noteMiss(note:Note) {}
 	public function noteMissPress(direction:Int) {}
 
-	// Things to replace FlxGroup stuff and inject sprites directly into the state
 	function add(object:FlxBasic) return FlxG.state.add(object);
 	function remove(object:FlxBasic, splice:Bool = false) return FlxG.state.remove(object, splice);
 	function insert(position:Int, object:FlxBasic) return FlxG.state.insert(position, object);
@@ -102,7 +94,7 @@ class BaseStage extends FlxBasic
 	public function addBehindGF(obj:FlxBasic) return insert(members.indexOf(game.gfGroup), obj);
 	public function addBehindBF(obj:FlxBasic) return insert(members.indexOf(game.boyfriendGroup), obj);
 	public function addBehindDad(obj:FlxBasic) return insert(members.indexOf(game.dadGroup), obj);
-	public function setDefaultGF(name:String) //Fix for the Chart Editor on Base Game stages
+	public function setDefaultGF(name:String) 
 	{
 		var gfVersion:String = PlayState.SONG.gfVersion;
 		if(gfVersion == null || gfVersion.length < 1)
@@ -112,10 +104,9 @@ class BaseStage extends FlxBasic
 		}
 	}
 
-	public function getStageObject(name:String) //Objects can only be accessed *after* create(), use createPost() if you want to mess with them on init
+	public function getStageObject(name:String) 
 		return game.variables.get(name);
 
-	//start/end callback functions
 	public function setStartCallback(myfn:Void->Void)
 	{
 		if(!onPlayState) return;
@@ -127,7 +118,6 @@ class BaseStage extends FlxBasic
 		PlayState.instance.endCallback = myfn;
 	}
 
-	// overrides
 	function startCountdown() if(onPlayState) return PlayState.instance.startCountdown(); else return false;
 	function endSong() if(onPlayState)return PlayState.instance.endSong(); else return false;
 	function moveCameraSection() if(onPlayState) PlayState.instance.moveCameraSection();

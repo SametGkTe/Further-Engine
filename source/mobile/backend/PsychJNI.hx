@@ -22,10 +22,6 @@
 
 package mobile.backend;
 
-/**
- * ...
- * @author Homura Akemi (HomuHomu833)
- */
 #if android
 import lime.system.JNI;
 

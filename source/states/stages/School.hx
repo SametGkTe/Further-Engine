@@ -94,7 +94,6 @@ class School extends BaseStage
 		if(bgGirls != null) bgGirls.dance();
 	}
 
-	// For events
 	override function eventCalled(eventName:String, value1:String, value2:String, flValue1:Null<Float>, flValue2:Null<Float>, strumTime:Float)
 	{
 		switch(eventName)
@@ -107,7 +106,7 @@ class School extends BaseStage
 	var doof:DialogueBox = null;
 	function initDoof()
 	{
-		var file:String = Paths.txt('$songName/${songName}Dialogue_${ClientPrefs.data.language}'); //Checks for vanilla/Senpai dialogue
+		var file:String = Paths.txt('$songName/${songName}Dialogue_${ClientPrefs.data.language}'); 
 		#if MODS_ALLOWED
 		if (!FileSystem.exists(file))
 		#else

@@ -23,7 +23,7 @@ typedef EventNote = {
 typedef NoteSplashData = {
 	disabled:Bool,
 	texture:String,
-	useGlobalShader:Bool, //breaks r/g/b but makes it copy default colors for your custom note
+	useGlobalShader:Bool, 
 	useRGBShader:Bool,
 	antialiasing:Bool,
 	r:FlxColor,
@@ -32,17 +32,10 @@ typedef NoteSplashData = {
 	a:Float
 }
 
-/**
- * The note object used as a data structure to spawn and manage notes during gameplay.
- * 
- * If you want to make a custom note type, you should search for: "function set_noteType"
-**/
 class Note extends FlxSprite
 {
-	//This is needed for the hardcoded note types to appear on the Chart Editor,
-	//It's also used for backwards compatibility with 0.1 - 0.3.2 charts.
 	public static final defaultNoteTypes:Array<String> = [
-		'', //Always leave this one empty pls
+		'', 
 		'Alt Animation',
 		'Hey!',
 		'Hurt Note',
@@ -70,10 +63,10 @@ class Note extends FlxSprite
 
 	public var spawned:Bool = false;
 
-	public var tail:Array<Note> = []; // for sustains
+	public var tail:Array<Note> = []; 
 	public var parent:Note;
 	
-	public var blockHit:Bool = false; // only works for player
+	public var blockHit:Bool = false; 
 
 	public var sustainLength:Float = 0;
 	public var isSustainNote:Bool = false;
@@ -125,7 +118,7 @@ class Note extends FlxSprite
 	public var hitHealth:Float = 0.02;
 	public var missHealth:Float = 0.1;
 	public var rating:String = 'unknown';
-	public var ratingMod:Float = 0; //9 = unknown, 0.25 = shit, 0.5 = bad, 0.75 = good, 1 = sick
+	public var ratingMod:Float = 0; 
 	public var ratingDisabled:Bool = false;
 
 	public var texture(default, set):String = null;
@@ -133,13 +126,10 @@ class Note extends FlxSprite
 	public var noAnimation:Bool = false;
 	public var noMissAnimation:Bool = false;
 	public var hitCausesMiss:Bool = false;
-	public var distance:Float = 2000; //plan on doing scroll directions soon -bb
+	public var distance:Float = 2000; 
 
 	public var hitsoundDisabled:Bool = false;
 	public var hitsoundChartEditor:Bool = true;
-	/**
-	 * Forces the hitsound to be played even if the user's hitsound volume is set to 0
-	**/
 	public var hitsoundForce:Bool = false;
 	public var hitsoundVolume(get, default):Float = 1.0;
 	function get_hitsoundVolume():Float {
@@ -152,11 +142,10 @@ class Note extends FlxSprite
 	private function set_multSpeed(value:Float):Float {
 		resizeByRatio(value / multSpeed);
 		multSpeed = value;
-		//trace('fuck cock');
 		return value;
 	}
 
-	public function resizeByRatio(ratio:Float) //haha funny twitter shit
+	public function resizeByRatio(ratio:Float) 
 	{
 		if(isSustainNote && animation.curAnim != null && !animation.curAnim.name.endsWith('end'))
 		{
@@ -199,21 +188,15 @@ class Note extends FlxSprite
 			switch(value) {
 				case 'Hurt Note':
 					ignoreNote = mustPress;
-					//reloadNote('HURTNOTE_assets');
-					//this used to change the note texture to HURTNOTE_assets.png,
-					//but i've changed it to something more optimized with the implementation of RGBPalette:
 
-					// note colors
 					rgbShader.r = 0xFF101010;
 					rgbShader.g = 0xFFFF0000;
 					rgbShader.b = 0xFF990022;
 
-					// splash data and colors
 					noteSplashData.r = 0xFFFF0000;
 					noteSplashData.g = 0xFF101010;
 					noteSplashData.texture = 'noteSplashes/noteSplashes-electric';
 
-					// gameplay data
 					lowPriority = true;
 					missHealth = isSustainNote ? 0.25 : 0.1;
 					hitCausesMiss = true;
@@ -228,7 +211,7 @@ class Note extends FlxSprite
 					gfNote = true;
 			}
 			if (value != null && value.length > 1) NoteTypesConfig.applyNoteTypeData(this, value);
-			if (hitsound != 'hitsound' && hitsoundVolume > 0) Paths.sound(hitsound); //precache new sound for being idiot-proof
+			if (hitsound != 'hitsound' && hitsoundVolume > 0) Paths.sound(hitsound); 
 			noteType = value;
 		}
 		return value;
@@ -252,7 +235,6 @@ class Note extends FlxSprite
 		this.moves = false;
 
 		x += (ClientPrefs.data.middleScroll ? PlayState.STRUM_X_MIDDLESCROLL : PlayState.STRUM_X) + 50;
-		// MAKE SURE ITS DEFINITELY OFF SCREEN?
 		y -= 2000;
 		this.strumTime = strumTime;
 		if(!inEditor) this.strumTime += ClientPrefs.data.noteOffset;
@@ -266,14 +248,13 @@ class Note extends FlxSprite
 			texture = '';
 
 			x += swagWidth * (noteData);
-			if(!isSustainNote && noteData < colArray.length) { //Doing this 'if' check to fix the warnings on Senpai songs
+			if(!isSustainNote && noteData < colArray.length) { 
 				var animToPlay:String = '';
 				animToPlay = colArray[noteData % colArray.length];
 				animation.play(animToPlay + 'Scroll');
 			}
 		}
 
-		// trace(prevNote);
 
 		if(prevNote != null)
 			prevNote.nextNote = this;
@@ -306,10 +287,9 @@ class Note extends FlxSprite
 
 				if(PlayState.isPixelStage) {
 					prevNote.scale.y *= 1.19;
-					prevNote.scale.y *= (6 / height); //Auto adjust note size
+					prevNote.scale.y *= (6 / height); 
 				}
 				prevNote.updateHitbox();
-				// prevNote.setGraphicSize();
 			}
 
 			if(PlayState.isPixelStage)
@@ -353,9 +333,9 @@ class Note extends FlxSprite
 	}
 
 	var _lastNoteOffX:Float = 0;
-	static var _lastValidChecked:String; //optimization
+	static var _lastValidChecked:String; 
 	public var originalHeight:Float = 6;
-	public var correctionOffset:Float = 0; //dont mess with this
+	public var correctionOffset:Float = 0; 
 	public function reloadNote(texture:String = '', postfix:String = '') {
 		if(texture == null) texture = '';
 		if(postfix == null) postfix = '';
@@ -437,7 +417,7 @@ class Note extends FlxSprite
 
 		if (isSustainNote)
 		{
-			attemptToAddAnimationByPrefix('purpleholdend', 'pruple end hold', 24, true); // this fixes some retarded typo from the original note .FLA
+			attemptToAddAnimationByPrefix('purpleholdend', 'pruple end hold', 24, true); 
 			animation.addByPrefix(colArray[noteData] + 'holdend', colArray[noteData] + ' hold end', 24, true);
 			animation.addByPrefix(colArray[noteData] + 'hold', colArray[noteData] + ' hold piece', 24, true);
 		}
@@ -462,7 +442,7 @@ class Note extends FlxSprite
 	{
 		var animFrames = [];
 		@:privateAccess
-		animation.findByPrefix(animFrames, prefix); // adds valid frames to animFrames
+		animation.findByPrefix(animFrames, prefix); 
 		if(animFrames.length < 1) return;
 
 		animation.addByPrefix(name, prefix, framerate, doLoop);

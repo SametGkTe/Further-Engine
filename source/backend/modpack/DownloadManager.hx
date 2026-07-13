@@ -260,7 +260,7 @@ class DownloadManager {
 			var body = new StringBuf();
 			var buffer = Bytes.alloc(8192);
 			var totalRead:Int = 0;
-			var maxRead:Int = 2 * 1024 * 1024; // Max 2MB HTML
+			var maxRead:Int = 2 * 1024 * 1024; 
 
 			while (true) {
 				var bytesRead:Int = 0;

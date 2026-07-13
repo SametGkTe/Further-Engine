@@ -6,9 +6,6 @@ import flixel.util.FlxStringUtil;
 
 import states.FreeplayState;
 
-/**
- * Music player used for Freeplay
- */
 @:access(states.FreeplayState)
 class MusicPlayer extends FlxGroup 
 {
@@ -96,7 +93,6 @@ class MusicPlayer extends FlxGroup
 		else
 			songTxt.text = Language.getPhrase('musicplayer_paused', 'PLAYING: {1} (PAUSED)', [songName]);
 
-		//if(FlxG.keys.justPressed.K) trace('Time: ${FreeplayState.vocals.time}, Playing: ${FreeplayState.vocals.playing}');
 
 		if (controls.UI_LEFT_P)
 		{
@@ -246,8 +242,8 @@ class MusicPlayer extends FlxGroup
 		FlxG.autoPause = (!playingMusic && ClientPrefs.data.autoPause);
 		active = visible = playingMusic;
 
-		instance.scoreBG.visible = instance.diffText.visible = instance.scoreText.visible = !playingMusic; //Hide Freeplay texts and boxes if playingMusic is true
-		songTxt.visible = timeTxt.visible = songBG.visible = playbackTxt.visible = playbackBG.visible = progressBar.visible = playingMusic; //Show Music Player texts and boxes if playingMusic is true
+		instance.scoreBG.visible = instance.diffText.visible = instance.scoreText.visible = !playingMusic; 
+		songTxt.visible = timeTxt.visible = songBG.visible = playbackTxt.visible = playbackBG.visible = progressBar.visible = playingMusic; 
 
 		for (i in playbackSymbols)
 			i.visible = playingMusic;
@@ -292,7 +288,7 @@ class MusicPlayer extends FlxGroup
 		else
 		{
 			var playbackRate = Std.string(playbackRate);
-			if (playbackRate.split('.')[1].length < 2) // Playback rates for like 1.1, 1.2 etc
+			if (playbackRate.split('.')[1].length < 2) 
 				playbackRate += '0';
 
 			text = playbackRate;
@@ -303,7 +299,7 @@ class MusicPlayer extends FlxGroup
 	function positionSong() 
 	{
 		var length:Int = instance.songs[FreeplayState.curSelected].songName.length;
-		var shortName:Bool = length < 5; // Fix for song names like Ugh, Guns
+		var shortName:Bool = length < 5; 
 		songTxt.x = FlxG.width - songTxt.width - 6;
 		if (shortName)
 			songTxt.x -= 10 * length - length;

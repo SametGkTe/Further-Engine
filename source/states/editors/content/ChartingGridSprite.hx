@@ -2,7 +2,6 @@ package states.editors.content;
 
 import flixel.addons.display.FlxGridOverlay;
 
-// Laggier than a single sprite for the grid, but this is to avoid having to re-create the sprite constantly
 class ChartingGridSprite extends FlxSprite
 {
 	public var rows(default, set):Float = 16;

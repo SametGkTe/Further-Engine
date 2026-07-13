@@ -54,7 +54,6 @@ class CacheSystem
 			}
 		}
 
-		// Partial preview dosyalarini temizle
 		var cacheObj = cast(openfl.Assets.cache, AssetCache);
 		@:privateAccess
 		for (sndKey in cacheObj.sound.keys())
@@ -148,7 +147,6 @@ class CacheSystem
 		#end
 
 		#if mobile
-		// Mobile'da sadece ses cache'ini temizle, grafiklere dokunma
 		for (key => asset in currentTrackedSounds)
 		{
 			if (!dumpExclusions.contains(key) && asset != null)

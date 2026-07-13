@@ -6,32 +6,30 @@ import backend.Difficulty;
 import flixel.math.FlxMath;
 import flixel.util.FlxSort;
 
-// Chart
 typedef VSliceChart =
 {
-	var scrollSpeed:Dynamic;	// Map<String, Float>
+	var scrollSpeed:Dynamic;	
 	var events:Array<VSliceEvent>;
-	var notes:Dynamic;			// Map<String, Array<VSliceNote>>
+	var notes:Dynamic;			
 	var generatedBy:String;
 	var version:String;
 }
 
 typedef VSliceNote =
 {
-	var t:Float;					// Strum time
-	var d:Int;						// Note data
-	@:optional var l:Null<Float>;	// Sustain Length
-	@:optional var k:String;		// Note type
+	var t:Float;					
+	var d:Int;						
+	@:optional var l:Null<Float>;	
+	@:optional var k:String;		
 }
 
 typedef VSliceEvent =
 {
-	var t:Float;	//Strum time
-	var e:String;	//Event name
-	var v:Dynamic;	//Values
+	var t:Float;	
+	var e:String;	
+	var v:Dynamic;	
 }
 
-// Metadata
 typedef VSliceMetadata = 
 {
 	var songName:String;
@@ -71,7 +69,6 @@ typedef PsychEventChart = {
 	var format:String;
 }
 
-// Package
 typedef VSlicePackage =
 {
 	var chart:VSliceChart;
@@ -98,7 +95,7 @@ class VSlice
 		timeChanges.shift();
 
 		var stage:String = metadata.playData.stage;
-		switch(stage) //Psych and VSlice use different names for some stages
+		switch(stage) 
 		{
 			case 'mainStage':
 				stage = 'stage';
@@ -211,16 +208,14 @@ class VSlice
 			}
 			baseSections.push(sec);
 		}
-		//trace('sections: ${baseSections.length}, max time: $time, note: $lastNoteTime');
 
-		// create sections based on how much time there is until the last note
 		for (diff in metadata.playData.difficulties)
 		{
 			var scrollSpeed:Float = Reflect.hasField(chart.scrollSpeed, diff) ? Reflect.field(chart.scrollSpeed, diff) : Reflect.field(chart.scrollSpeed, 'default');
 			var notes:Array<VSliceNote> = notesMap.get(diff);
 
 			var sectionData:Array<SwagSection> = [];
-			for (section in baseSections) //clone sections
+			for (section in baseSections) 
 			{
 				var sec:SwagSection = emptySection();
 				sec.mustHitSection = section.mustHitSection;
@@ -251,7 +246,7 @@ class VSlice
 				notes: sectionData,
 				events: [],
 				bpm: songBpm,
-				needsVoices: true, //There's no value on V-Slice to identify if there are vocals as it checks automatically
+				needsVoices: true, 
 				speed: scrollSpeed,
 				offset: 0,
 			
@@ -317,7 +312,7 @@ class VSlice
 	public static function export(songData:SwagSong, ?difficultyName:String = null):VSlicePackage
 	{
 		var events:Array<VSliceEvent> = [];
-		if(songData.events != null && songData.events.length > 0) //Add events
+		if(songData.events != null && songData.events.length > 0) 
 		{
 			for (event in songData.events)
 			{
@@ -334,13 +329,12 @@ class VSlice
 		
 		var time:Float = 0;
 		var bpm:Float = songData.bpm;
-		timeChanges.push({t: 0, bpm: bpm}); //so there was first bpm issue (if the song has multiplier bpm) 
+		timeChanges.push({t: 0, bpm: bpm}); 
 		var lastMustHit:Bool = false;
 		if(songData.notes != null)
 		{
 			for (section in songData.notes)
 			{
-				// Add notes
 				if(section.sectionNotes != null && section.sectionNotes.length > 0)
 				{
 					for (note in section.sectionNotes)
@@ -355,7 +349,6 @@ class VSlice
 					}
 				}
 
-				// Add camera events to act like the "Must hit section" camera focus
 				var beat:Float = Conductor.calculateCrochet(bpm);
 				if(section.changeBPM)
 				{
@@ -377,7 +370,6 @@ class VSlice
 		events.sort(sortByTime);
 		notes.sort(sortByTime);
 		
-		//try to find composer despite it not being a value on psych charts
 		var composer:String = 'Unknown';
 		if(Reflect.hasField(songData, 'artist')) composer = Reflect.field(songData, 'artist');
 		else if(Reflect.hasField(songData, 'composer')) composer = Reflect.field(songData, 'composer');
@@ -385,12 +377,11 @@ class VSlice
 		var charter:String = 'Unknown';
 		if(Reflect.hasField(songData, 'charter')) composer = Reflect.field(songData, 'charter');
 
-		// Has to add all difficulties or it might crash on V-Slice's Freeplay
 		var diffs:Array<String> = null;
 		
 		var scrollSpeed:Map<String, Float> = [];
 		var notesMap:Map<String, Array<VSliceNote>> = [];
-		if(difficultyName == null) //Fill all difficulties to attempt to prevent the song from not showing up on Base Game
+		if(difficultyName == null) 
 		{
 			var diffs:Array<String> = Difficulty.list.copy();
 			for (num => diff in diffs)
@@ -410,17 +401,16 @@ class VSlice
 			notesMap.set(diff, notes);
 		}
 
-		// Build package
 		var chart:VSliceChart = {
 			scrollSpeed: scrollSpeed,
 			events: events,
 			notes: notesMap,
 			generatedBy: generatedBy,
-			version: chartVersion //idk what "version" does on V-Slice, but it seems to break without it
+			version: chartVersion 
 		};
 
 		var stage:String = songData.stage;
-		switch(stage) //Psych and VSlice use different names for some stages
+		switch(stage) 
 		{
 			case 'stage':
 				stage = 'mainStage';
@@ -443,7 +433,7 @@ class VSlice
 				difficulties: diffs,
 				characters: {
 					player: songData.player1,
-					girlfriend: songData.gfVersion != null ? songData.gfVersion : '', //there is no problem if gf don't exist with it 
+					girlfriend: songData.gfVersion != null ? songData.gfVersion : '', 
 					opponent: songData.player2
 				},
 				noteStyle: !PlayState.isPixelStage ? 'funkin' : 'pixel',
@@ -452,7 +442,7 @@ class VSlice
 			timeFormat: 'ms',
 			timeChanges: timeChanges,
 			generatedBy: generatedBy,
-			version: metadataVersion //idk what "version" does on V-Slice, but it seems to break without it
+			version: metadataVersion 
 		};
 		return {chart: chart, metadata: metadata};
 	}

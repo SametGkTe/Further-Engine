@@ -24,10 +24,6 @@ package mobile.objects;
 
 import flixel.util.FlxSignal.FlxTypedSignal;
 
-/**
- * ...
- * @author: Karim Akra and Homura Akemi (HomuHomu833)
- */
 @:access(mobile.objects.TouchButton)
 class TouchPad extends MobileInputManager implements IMobileControls
 {
@@ -72,12 +68,6 @@ class TouchPad extends MobileInputManager implements IMobileControls
 	public var onButtonDown:FlxTypedSignal<TouchButton->Void> = new FlxTypedSignal<TouchButton->Void>();
 	public var onButtonUp:FlxTypedSignal<TouchButton->Void> = new FlxTypedSignal<TouchButton->Void>();
 
-	/**
-	 * Create a gamepad.
-	 *
-	 * @param   DPadMode     The D-Pad mode. `LEFT_FULL` for example.
-	 * @param   ActionMode   The action buttons mode. `A_B_C` for example.
-	 */
 	public function new(DPad:String, Action:String, ?Extra:ExtraActions = NONE)
 	{
 		super();
@@ -119,7 +109,7 @@ class TouchPad extends MobileInputManager implements IMobileControls
 				add(buttonExtra = createButton(0, FlxG.height - 137, 's', 0xFF0066FF));
 				add(buttonExtra2 = createButton(FlxG.width - 132, FlxG.height - 137, 'g', 0xA6FF00));
 				setExtrasPos();
-			case NONE: // nothing
+			case NONE: 
 		}
 
 		alpha = ClientPrefs.data.controlsAlpha;

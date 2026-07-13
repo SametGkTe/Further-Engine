@@ -19,7 +19,6 @@ typedef DialogueLine = {
 	@:optional var sound:Null<String>;
 }
 
-// TO DO: Clean code? Maybe? idk
 class DialogueBoxPsych extends FlxSpriteGroup
 {
 	public static var DEFAULT_TEXT_X = 175;
@@ -46,13 +45,11 @@ class DialogueBoxPsych extends FlxSpriteGroup
 	var textBoxTypes:Array<String> = ['normal', 'angry'];
 	
 	var curCharacter:String = "";
-	//var charPositionList:Array<String> = ['left', 'center', 'right'];
 
 	public function new(dialogueList:DialogueFile, ?song:String = null)
 	{
 		super();
 
-		//precache sounds
 		Paths.sound('dialogue');
 		Paths.sound('dialogueClose');
 
@@ -150,7 +147,7 @@ class DialogueBoxPsych extends FlxSpriteGroup
 	}
 
 	var daText:TypedAlphabet = null;
-	var ignoreThisFrame:Bool = true; //First frame is reserved for loading dialogue images
+	var ignoreThisFrame:Bool = true; 
 
 	public var closeSound:String = 'dialogueClose';
 	public var closeVolume:Float = 1;
@@ -264,7 +261,7 @@ class DialogueBoxPsych extends FlxSpriteGroup
 					}
 				}
 			}
-		} else { //Dialogue ending
+		} else { 
 			if(box != null && box.animation.curAnim.curFrame <= 0) {
 				box.kill();
 				remove(box);
@@ -404,7 +401,7 @@ class DialogueBoxPsych extends FlxSpriteGroup
 		]};
 	}
 
-	public static function updateBoxOffsets(box:FlxSprite) { //Had to make it static because of the editors
+	public static function updateBoxOffsets(box:FlxSprite) { 
 		box.centerOffsets();
 		box.updateHitbox();
 		if(box.animation.curAnim.name.startsWith('angry')) {

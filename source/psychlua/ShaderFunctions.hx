@@ -9,7 +9,6 @@ class ShaderFunctions
 	public static function implement(funk:FunkinLua)
 	{
 		var lua = funk.lua;
-		// shader shit
 		funk.addLocalCallback("initLuaShader", function(name:String) {
 			if(!ClientPrefs.data.shaders) return false;
 
@@ -249,11 +248,9 @@ class ShaderFunctions
 				return false;
 			}
 
-			// trace('bitmapdatapath: $bitmapdataPath');
 			var value = Paths.image(bitmapdataPath);
 			if(value != null && value.bitmap != null)
 			{
-				// trace('Found bitmapdata. Width: ${value.bitmap.width} Height: ${value.bitmap.height}');
 				shader.setSampler2D(prop, value.bitmap);
 				return true;
 			}

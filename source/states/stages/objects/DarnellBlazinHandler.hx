@@ -10,9 +10,6 @@ class DarnellBlazinHandler
 	var cantUppercut:Bool = false;
 	public function noteHit(note:Note)
 	{
-		// SPECIAL CASE: If Pico hits a poor note at low health (at 30% chance),
-		// Darnell may duck below Pico's punch to attempt an uppercut.
-		// TODO: Maybe add a cooldown to this?
 		if (wasNoteHitPoorly(note.rating) && isPlayerLowHealth() && FlxG.random.bool(30))
 		{
 			playUppercutPrepAnim();
@@ -25,7 +22,6 @@ class DarnellBlazinHandler
 			return;
 		}
 
-		// Override the hit note animation.
 		switch (note.noteType)
 		{
 			case "weekend-1-punchlow":
@@ -46,7 +42,6 @@ class DarnellBlazinHandler
 			case "weekend-1-punchhighspin":
 				playSpinAnim();
 
-			// Attempt to punch, Pico dodges or gets hit.
 			case "weekend-1-blockhigh":
 				playPunchHighAnim();
 			case "weekend-1-blocklow":
@@ -54,7 +49,6 @@ class DarnellBlazinHandler
 			case "weekend-1-blockspin":
 				playPunchHighAnim();
 
-			// Attempt to punch, Pico dodges or gets hit.
 			case "weekend-1-dodgehigh":
 				playPunchHighAnim();
 			case "weekend-1-dodgelow":
@@ -62,7 +56,6 @@ class DarnellBlazinHandler
 			case "weekend-1-dodgespin":
 				playPunchHighAnim();
 
-			// Attempt to punch, Pico ALWAYS gets hit.
 			case "weekend-1-hithigh":
 				playPunchHighAnim();
 			case "weekend-1-hitlow":
@@ -70,14 +63,10 @@ class DarnellBlazinHandler
 			case "weekend-1-hitspin":
 				playPunchHighAnim();
 
-			// Fail to dodge the uppercut.
 			case "weekend-1-picouppercutprep":
-				// Continue whatever animation was playing before
-				// playIdleAnim();
 			case "weekend-1-picouppercut":
 				playUppercutHitAnim();
 
-			// Attempt to punch, Pico dodges or gets hit.
 			case "weekend-1-darnelluppercutprep":
 				playUppercutPrepAnim();
 			case "weekend-1-darnelluppercut":
@@ -100,7 +89,6 @@ class DarnellBlazinHandler
 	
 	public function noteMiss(note:Note)
 	{
-		// SPECIAL CASE: Darnell prepared to uppercut last time and Pico missed! FINISH HIM!
 		if (dad.getAnimationName() == 'uppercutPrep')
 		{
 			playUppercutAnim();
@@ -119,10 +107,8 @@ class DarnellBlazinHandler
 			return;
 		}
 
-		// Override the hit note animation.
 		switch (note.noteType)
 		{
-			// Pico tried and failed to punch, punch back!
 			case "weekend-1-punchlow":
 				playPunchLowAnim();
 			case "weekend-1-punchlowblocked":
@@ -132,7 +118,6 @@ class DarnellBlazinHandler
 			case "weekend-1-punchlowspin":
 				playPunchLowAnim();
 
-			// Pico tried and failed to punch, punch back!
 			case "weekend-1-punchhigh":
 				playPunchHighAnim();
 			case "weekend-1-punchhighblocked":
@@ -142,7 +127,6 @@ class DarnellBlazinHandler
 			case "weekend-1-punchhighspin":
 				playPunchHighAnim();
 
-			// Attempt to punch, Pico dodges or gets hit.
 			case "weekend-1-blockhigh":
 				playPunchHighAnim();
 			case "weekend-1-blocklow":
@@ -150,7 +134,6 @@ class DarnellBlazinHandler
 			case "weekend-1-blockspin":
 				playPunchHighAnim();
 
-			// Attempt to punch, Pico dodges or gets hit.
 			case "weekend-1-dodgehigh":
 				playPunchHighAnim();
 			case "weekend-1-dodgelow":
@@ -158,7 +141,6 @@ class DarnellBlazinHandler
 			case "weekend-1-dodgespin":
 				playPunchHighAnim();
 
-			// Attempt to punch, Pico ALWAYS gets hit.
 			case "weekend-1-hithigh":
 				playPunchHighAnim();
 			case "weekend-1-hitlow":
@@ -166,14 +148,12 @@ class DarnellBlazinHandler
 			case "weekend-1-hitspin":
 				playPunchHighAnim();
 
-			// Successfully dodge the uppercut.
 			case "weekend-1-picouppercutprep":
 				playHitHighAnim();
 				cantUppercut = true;
 			case "weekend-1-picouppercut":
 				playDodgeAnim();
 
-			// Attempt to punch, Pico dodges or gets hit.
 			case "weekend-1-darnelluppercutprep":
 				playUppercutPrepAnim();
 			case "weekend-1-darnelluppercut":
@@ -182,13 +162,13 @@ class DarnellBlazinHandler
 			case "weekend-1-idle":
 				playIdleAnim();
 			case "weekend-1-fakeout":
-				playCringeAnim(); // TODO: Which anim?
+				playCringeAnim(); 
 			case "weekend-1-taunt":
 				playPissedConditionalAnim();
 			case "weekend-1-tauntforce":
 				playPissedAnim();
 			case "weekend-1-reversefakeout":
-				playFakeoutAnim(); // TODO: Which anim?
+				playFakeoutAnim(); 
 		}
 		cantUppercut = false;
 	}
@@ -196,11 +176,10 @@ class DarnellBlazinHandler
 	public function noteMissPress(direction:Int)
 	{
 		if (willMissBeLethal())
-			playPunchLowAnim(); // Darnell alternates a punch so that Pico dies.
+			playPunchLowAnim(); 
 		else
 		{
-			// Pico wildly throws punches but Darnell alternates between dodges and blocks.
-			var shouldDodge = FlxG.random.bool(50); // 50/50.
+			var shouldDodge = FlxG.random.bool(50); 
 			if (shouldDodge)
 				playDodgeAnim();
 			else

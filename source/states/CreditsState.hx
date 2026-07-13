@@ -21,7 +21,6 @@ class CreditsState extends MusicBeatState
 	override function create()
 	{
 		#if DISCORD_ALLOWED
-		// Updating Discord Rich Presence
 		DiscordClient.changePresence("In the Menus", null);
 		#end
 
@@ -38,7 +37,7 @@ class CreditsState extends MusicBeatState
 		for (mod in Mods.parseList().enabled) pushModCreditsToList(mod);
 		#end
 
-		var defaultList:Array<Array<String>> = [ //Name - Icon name - Description - Link - BG Color
+		var defaultList:Array<Array<String>> = [ 
 			['Psych Engine Türkiye'],
 			['SametGkTe',			'gkte',             'Psych Engine Türkiye nin ana yapımcısı',                       'https://tiktok.com/@gktegameplay',		'FFE7C0'],
 			['Mobile Porting Team'],
@@ -107,7 +106,6 @@ class CreditsState extends MusicBeatState
 				icon.xAdd = optionText.width + 10;
 				icon.sprTracker = optionText;
 	
-				// using a FlxGroup is too much fuss!
 				iconArray.push(icon);
 				add(icon);
 				Mods.currentModDirectory = '';
@@ -126,9 +124,8 @@ class CreditsState extends MusicBeatState
 		add(descBox);
 
 		descText = new FlxText(50, FlxG.height + offsetThing - 25, 1180, "", 32);
-		descText.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER/*, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK*/);
+		descText.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER );
 		descText.scrollFactor.set();
-		//descText.borderSize = 2.4;
 		descBox.sprTracker = descText;
 		add(descText);
 
@@ -240,7 +237,6 @@ class CreditsState extends MusicBeatState
 		while(unselectableCheck(curSelected));
 
 		var newColor:FlxColor = CoolUtil.colorFromString(creditsStuff[curSelected][4]);
-		//trace('The BG color is: $newColor');
 		if(newColor != intendedColor)
 		{
 			intendedColor = newColor;
@@ -280,7 +276,6 @@ class CreditsState extends MusicBeatState
 		var creditsFile:String = Paths.mods(folder + '/data/credits.txt');
 		
 		#if TRANSLATIONS_ALLOWED
-		//trace('/data/credits-${ClientPrefs.data.language}.txt');
 		var translatedCredits:String = Paths.mods(folder + '/data/credits-${ClientPrefs.data.language}.txt');
 		#end
 

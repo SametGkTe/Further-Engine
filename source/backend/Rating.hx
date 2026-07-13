@@ -6,7 +6,7 @@ class Rating
 {
 	public var name:String = '';
 	public var image:String = '';
-	public var hitWindow:Null<Float> = 0.0; //ms
+	public var hitWindow:Null<Float> = 0.0; 
 	public var ratingMod:Float = 1;
 	public var score:Int = 350;
 	public var noteSplash:Bool = true;
@@ -28,7 +28,7 @@ class Rating
 
 	public static function loadDefault():Array<Rating>
 	{
-		var ratingsData:Array<Rating> = [new Rating('sick')]; //highest rating goes first
+		var ratingsData:Array<Rating> = [new Rating('sick')]; 
 
 		var rating:Rating = new Rating('good');
 		rating.ratingMod = 0.67;

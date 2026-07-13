@@ -34,27 +34,22 @@ class ResultsScreenEdit extends VsliceSubState
 
 	override function create()
 	{
-		// Reset the camera zoom on the results screen.
 		FlxG.camera.zoom = 1.0;
 
 		var bg:FlxSprite = FlxGradient.createGradientFlxSprite(FlxG.width, FlxG.height, [0xFFFECC5C, 0xFFFDC05C], 90);
 		bg.scrollFactor.set();
 		bg.visible = false;
 		bg.zIndex = 10;
-		// bg.cameras = [cameraBG];
 		add(bg);
 
 		bgFlash.scrollFactor.set();
 		bgFlash.visible = false;
 		bgFlash.zIndex = 20;
-		// bgFlash.cameras = [cameraBG];
 		add(bgFlash);
 
-		// ? All props after this point can be shadowed by user
 		propSystem = new ResultsPropsGrp();
 		propSystem.zIndex = 50;
 		add(propSystem);
-		// The sound system which falls into place behind the score text. Plays every time!
 		var soundSystem:FlxSprite = FunkinSprite.createSparrow(-15+ MobileScaleMode.gameNotchSize.x, -180, 'resultScreen/soundSystem');
 		soundSystem.animation.addByPrefix("idle", "sound system", 24, false);
 		soundSystem.visible = false;
@@ -230,7 +225,6 @@ class ResultsScreenEdit extends VsliceSubState
 	}
 
 	private function flushResultsData() {
-		//TODO
 		for (prop in propSystem.sprites) if(prop.data != null) {
 			prop.data.zIndex = prop.zIndex;
 			prop.data.looped =  prop.data.looped ?? true;

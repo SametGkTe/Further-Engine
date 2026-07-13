@@ -74,7 +74,7 @@ class CharSelectEditor extends MusicBeatState
 		});
 		add(stageSpr);
 
-		nametag = new Nametag(0, 0, initPlayerId); // ? Set to current char
+		nametag = new Nametag(0, 0, initPlayerId); 
 		nametag.midpointX += cutoutSize;
 		add(nametag);
 
@@ -84,8 +84,8 @@ class CharSelectEditor extends MusicBeatState
 		add(gfChill);
 
 		playerChill = new CharSelectPlayer(cutoutSize*2.5, 0);
-		playerChill.switchChar(initPlayerId); // ? Set to current character
-		playerChill.onAnimationComplete.removeAll(); // ? clear imposed triggers
+		playerChill.switchChar(initPlayerId); 
+		playerChill.onAnimationComplete.removeAll(); 
 		add(playerChill);
 
 		var curtains:FlxSprite = new FlxSprite(cutoutSize + (-47 - 165), -49 - 50);
@@ -179,7 +179,6 @@ class CharSelectEditor extends MusicBeatState
 		var gfData = activePlayer?.getCharSelectData()?.gf;
 		currentGFPath = gfData?.assetPath != null ? gfData?.assetPath : null;
 
-		// We don't need to update any anims if we didn't change GF
 		trace('currentGFPath(${currentGFPath})');
 		if (currentGFPath == null || !FunkinPath.exists('images/${gfData?.assetPath}/Animation.json'))
 		{

@@ -59,7 +59,6 @@ class PopupThing extends Sprite
 	var _restX:Float = 0;
 	var _restY:Float = 0;
 
-	// shake
 	var _shakeIntensity:Float = 0;
 	var _shakeDuration:Float = 0;
 	var _shakeElapsed:Float = 0;

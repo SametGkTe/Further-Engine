@@ -28,7 +28,6 @@ class ResultsSparrowSprite extends FlxSprite implements IResultsSprite
 				animation.play('idle', true, false, animData.loopFrame ?? 0);
 			}
 		}
-		// Hide until ready to play.
 		visible = false;
 	}
 

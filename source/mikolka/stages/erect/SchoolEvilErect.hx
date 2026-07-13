@@ -106,7 +106,6 @@ class SchoolEvilErect extends BaseStage
 		wiggleStreet?.update(elapsed);
 	}
 
-	// Ghouls event
 	var bgGhouls:BGSprite;
 
 	override function eventCalled(eventName:String, value1:String, value2:String, flValue1:Null<Float>, flValue2:Null<Float>, strumTime:Float)
@@ -128,7 +127,6 @@ class SchoolEvilErect extends BaseStage
 	override function eventPushed(event:objects.Note.EventNote)
 	#end
 	{
-		// used for preloading assets used on events
 		switch (event.event)
 		{
 			case "Trigger BG Ghouls":
@@ -163,7 +161,6 @@ class SchoolEvilErect extends BaseStage
 						rim.angle = 90;
 						sprite.shader = rim;
 	
-						// rim.loadAltMask('assets/week6/images/weeb/erect/masks/bfPixel_mask.png');
 						rim.altMaskImage = Paths.image("weeb/erect/masks/bfPixel_mask").bitmap;
 						rim.maskThreshold = 1;
 						rim.useAltMask = true;
@@ -178,7 +175,6 @@ class SchoolEvilErect extends BaseStage
 						rim.angle = 90;
 						sprite.shader = rim;
 	
-						// rim.loadAltMask('assets/week6/images/weeb/erect/masks/bfPixel_mask.png');
 						rim.altMaskImage = Paths.image("weeb/erect/masks/picoPixel_mask").bitmap;
 						rim.maskThreshold = 1;
 						rim.useAltMask = true;

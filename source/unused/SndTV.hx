@@ -1,6 +1,5 @@
 import h2d.Tweenie.TType;
 
-//praise delahee, i'll figure out what this shit means later!
 
 enum TVVar{
 	TVVVolume;
@@ -20,7 +19,7 @@ class TweenV {
 	var from		: Float;
 	var to			: Float;
 	var type		: TType;
-	var plays		: Int; // -1 = infini, 1 et plus = nombre d'exécutions (1 par défaut)
+	var plays		: Int; 
 	var varType		: TVVar; 
 	var onUpdate	: Null<TweenV->Void>;
 	var onEnd		: Null<TweenV->Void>;
@@ -120,9 +119,6 @@ class TweenV {
 	
 }
 
-/**
- * tween order is not respected
- */
 class SndTV {
 	static var DEFAULT_DURATION = DateTools.seconds(1);
 	public var fps 				= 60.0;
@@ -167,7 +163,6 @@ class SndTV {
 		if ( tp==null ) tp = TEase;
 
 		{
-			// on supprime les tweens précédents appliqués à la même variable
 			for(t in tlist.backWardIterator())
 				if(t.parent==p && t.varType == vartype) {
 					forceTerminateTween(t);
@@ -185,7 +180,7 @@ class SndTV {
 				0.0,
 				0.0,
 				vartype,
-				1 / ( duration_ms*fps/1000 ), // une seconde
+				1 / ( duration_ms*fps/1000 ), 
 				from,
 				to,
 				tp,
@@ -201,7 +196,7 @@ class SndTV {
 				0.0,
 				0.0,
 				vartype,
-				1 / ( duration_ms*fps/1000 ), // une seconde
+				1 / ( duration_ms*fps/1000 ), 
 				from,
 				to,
 				tp,
@@ -213,7 +208,7 @@ class SndTV {
 		}
 
 		if( t.from==t.to )
-			t.ln = 1; // tweening inutile : mais on s'assure ainsi qu'un update() et un end() seront bien appelés
+			t.ln = 1; 
 
 		t.man = this;
 		tlist.push(t);
@@ -239,7 +234,6 @@ class SndTV {
 			fastPow3(t)*p3;
 	}
 	
-	// suppression du tween sans aucun appel aux callbacks onUpdate, onUpdateT et onEnd (!)
 	public function killWithoutCallbacks(parent:Snd) {
 		for (t in tlist.backWardIterator())
 			if (t.parent==parent ){
@@ -315,14 +309,13 @@ class SndTV {
 				t.n = h2d.Tweenie.interp(t.type, t.ln);
 				
 				if ( t.ln<1 ) {
-					// en cours...
 					var val = t.from + t.n*dist;
 					
 					t.apply(val);
 					
 					onUpdate(t, t.ln);
 				}
-				else // fini !
+				else 
 				{
 					terminateTween(t, true);
 				}

@@ -12,7 +12,6 @@ class FunkinSprite extends FlxSprite
 
 	public function makeSolidColor(width:Int, height:Int, color:FlxColor = FlxColor.WHITE):FunkinSprite
 	{
-		// Create a tiny solid color graphic and scale it up to the desired size.
 		FunkinTools.makeSolidColor(this, width, height, FlxColor.WHITE);
 		this.color = color;
 		return this;

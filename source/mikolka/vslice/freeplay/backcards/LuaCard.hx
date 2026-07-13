@@ -28,7 +28,7 @@ class LuaCard extends BackingCard
 
 		if (Mods.currentModDirectory != null && Mods.currentModDirectory.trim().length > 0)
 		{
-			var scriptPath:String = Paths.getPath('registry/cards/$charId.hx',TEXT);//'mods/${Mods.currentModDirectory}/registry/cards/$charId.hx'; // mods/My-Mod/data/LoadingScreen.hx
+			var scriptPath:String = Paths.getPath('registry/cards/$charId.hx',TEXT);
 			if (NativeFileSystem.exists(scriptPath))
 			{
 				try

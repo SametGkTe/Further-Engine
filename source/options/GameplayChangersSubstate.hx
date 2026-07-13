@@ -352,8 +352,6 @@ class GameplayOption
 	public var decimals:Int = 1;
 	public var displayFormat:String = '%v';
 	public var name:String = 'Unknown';
-	// STRING değerlerinin GÖRÜNTÜ etiketleri (örn. Türkçe).
-	// İç (kaydedilen) değer İngilizce kalır, sadece ekranda görünen metin değişir.
 	public var displayOptions:Array<String> = null;
 
 	public function new(name:String, variable:String, type:OptionType, defaultValue:Dynamic = 'null variable value', ?options:Array<String> = null)
@@ -427,8 +425,6 @@ class GameplayOption
 		{
 			_text = newValue;
 			var fallback:String = _text;
-			// STRING için: kaydedilen değer İngilizce kalır,
-			// ama ekranda displayOptions'taki Türkçe etiket gösterilir.
 			if(type == STRING && displayOptions != null && options != null)
 			{
 				var idx:Int = options.indexOf(getValue());

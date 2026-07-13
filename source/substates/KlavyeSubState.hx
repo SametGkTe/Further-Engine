@@ -11,7 +11,7 @@ import flixel.math.FlxRect;
 import backend.Paths;
 
 class KlavyeSubState extends MusicBeatSubstate {
-	static inline var PANEL_WIDTH:Int = 600; // Metin uzun olduğu için biraz daha geniş
+	static inline var PANEL_WIDTH:Int = 600; 
 	static inline var PANEL_MARGIN_TOP:Int = 60;
 	static inline var PANEL_MARGIN_BOTTOM:Int = 60;
 	static inline var CONTENT_PADDING:Int = 35;
@@ -63,28 +63,23 @@ class KlavyeSubState extends MusicBeatSubstate {
 		clipTop = contentAreaY;
 		clipBottom = contentAreaY + contentAreaHeight;
 
-		// Karartma - biraz daha koyu, gizemli bir hava için
 		var dimBg = new FlxSprite();
 		dimBg.makeGraphic(FlxG.width, FlxG.height, FlxColor.fromRGB(0, 0, 0, 220));
 		dimBg.scrollFactor.set();
 		add(dimBg);
 
-		// Panel Arkaplan
 		var panelBg = new FlxSprite(panelX, panelY);
 		panelBg.makeGraphic(PANEL_WIDTH, Std.int(panelHeight), FlxColor.fromRGB(25, 25, 28));
 		panelBg.scrollFactor.set();
 		add(panelBg);
 
-		// İçerik oluştur
 		buildContent();
 
-		// Üst maske
 		var topMask = new FlxSprite(panelX, panelY);
 		topMask.makeGraphic(PANEL_WIDTH, TITLE_AREA_HEIGHT, FlxColor.fromRGB(25, 25, 28));
 		topMask.scrollFactor.set();
 		add(topMask);
 
-		// Alt maske
 		var bottomMaskH = Std.int(FlxG.height - clipBottom);
 		if (bottomMaskH > 0) {
 			var bottomMask = new FlxSprite(panelX, Std.int(clipBottom));
@@ -93,33 +88,28 @@ class KlavyeSubState extends MusicBeatSubstate {
 			add(bottomMask);
 		}
 
-		// Panel alt kenar
 		var panelBot = new FlxSprite(panelX, panelY + panelHeight - 5);
 		panelBot.makeGraphic(PANEL_WIDTH, 5, FlxColor.fromRGB(25, 25, 28));
 		panelBot.scrollFactor.set();
 		add(panelBot);
 
-		// Başlık
 		var titleText = new FlxText(panelX, panelY + 15, PANEL_WIDTH, "Bir insan");
 		titleText.setFormat(Paths.font('vcr.ttf'), 24, FlxColor.fromRGB(150, 150, 160), CENTER);
 		titleText.scrollFactor.set();
 		titleText.antialiasing = true;
 		add(titleText);
 
-		// Başlık altı çizgi
 		var titleSep = new FlxSprite(panelX + 30, panelY + TITLE_AREA_HEIGHT - 2);
 		titleSep.makeGraphic(PANEL_WIDTH - 60, 1, FlxColor.fromRGB(60, 60, 70));
 		titleSep.scrollFactor.set();
 		add(titleSep);
 
-		// Scrollbar arka planı
 		scrollBarBg = new FlxSprite(panelX + PANEL_WIDTH - SCROLLBAR_WIDTH - 6, contentAreaY + 4);
 		scrollBarBg.makeGraphic(SCROLLBAR_WIDTH, Std.int(contentAreaHeight - 8), FlxColor.fromRGB(40, 40, 45));
 		scrollBarBg.scrollFactor.set();
 		scrollBarBg.alpha = 0;
 		add(scrollBarBg);
 
-		// Scrollbar
 		scrollBar = new FlxSprite(panelX + PANEL_WIDTH - SCROLLBAR_WIDTH - 6, contentAreaY + 4);
 		var barH = getScrollBarHeight();
 		scrollBar.makeGraphic(SCROLLBAR_WIDTH, Std.int(Math.max(barH, 20)), FlxColor.fromRGB(120, 120, 130));
@@ -127,7 +117,6 @@ class KlavyeSubState extends MusicBeatSubstate {
 		scrollBar.alpha = 0;
 		add(scrollBar);
 
-		// ESC ipucu (Panelin altında)
 		var escHint = new FlxText(panelX, panelY + panelHeight + 10, PANEL_WIDTH, "Geri dönmek için ESC");
 		escHint.setFormat(Paths.font('vcr.ttf'), 14, FlxColor.fromRGB(100, 100, 110), CENTER);
 		escHint.scrollFactor.set();
@@ -151,13 +140,12 @@ class KlavyeSubState extends MusicBeatSubstate {
 		var message = "Kendi hayatını diğer insanların hayatı ve mutluluğu için kısan bir insansın\nhayatının zorluklarını görmezden geliyorsun\nhiçbirşeyin karşılığını istemiyorsun\nsonra hayatına biri giriyor\nsana doğruları gösteriyor ve seni değiştiriyor\nSeni mutlu ediyor, destek çıkıyor\n\no insanı ne kadar seversin?\nbelkide o insan diğer insanı bu yüzden kafaya takıyodur, önemli birisidir,\n\nvermesi gereken bir karşılık vardır ama diğer insan izin vermeden gitmeyi seçmiştir\nBelkide bunların olmasını hiç istemedin\nAma ben her yaptığın ve gördüğüm şeye rağmen seni düşünmeye devam ettim\n\nO insanı iyi yönde değiştiren biri bile terk ediyorsa\nO insan nası biridir?\n\nBazı insanlar iz bırakmadan gitmeyi seçer\nartık cevap gelmez, Sessizlik oluşur,\ndiğer insan ise sessizliğin içine binlerce neden yerleştirir.\nbu sessizlik insanı yormuş ve bitirmiştir.\n\nve kendini kendi zihninin içinde boğar\ninsan bazen sessiz olduğu için mutludur\nama artık eskisi gibi bişey hissedemez\nduygularını kullanamaz, eskisi gibi değildir\n\nÇünkü bu insanın zihni boşluk bırakmayı sevmez.\nBelki de en ağır yük, terk edilmek değildir.\nSebebini öğrenememektir.\nama bu insan diğer insan gibi\nsanki o hiç yokmuş gibi davranmaz\n\nBir insan öyle bir düşünürki\nHayatına giren her insanı kendi dertleri ile boğduğunu düşünür\nve kimseye ses çıkarmaz\nsadece düşüncelerini böyle metinlerle aktarır\nSonsuz bir oyuna ve düşünce tarzına.\n\n-SametGkTe-";
 
 		var bodyText = new FlxText(contentStartX, 0, contentWidth, message);
-		// Metin özelliklerini ayarla: satır arası boşluğu hafifçe artırılmış, açık gri
 		bodyText.setFormat(Paths.font('vcr.ttf'), 18, FlxColor.fromRGB(180, 180, 190), LEFT);
 		bodyText.scrollFactor.set();
 		bodyText.antialiasing = true;
 		add(bodyText);
 		allContentElements.push({sprite: bodyText, offsetY: curY, baseX: contentStartX});
-		curY += bodyText.height + 25; // Alt boşluk
+		curY += bodyText.height + 25; 
 
 		totalContentHeight = curY;
 		maxScrollY = Math.max(0, totalContentHeight - contentAreaHeight + 15);

@@ -9,7 +9,6 @@ class SwipeUtil {
     public static var swipeUp(get, never):Bool;
     public static var swipeAny(get, never):Bool;
 
-    // Input kilidi (login, popup vs. için)
     public static var locked:Bool = false;
 
     static function isActive():Bool {

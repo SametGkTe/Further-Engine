@@ -37,7 +37,6 @@ class AuthManager {
         return Std.string(v);
     }
 
-    // REGISTER (her zaman çalışır)
 
     public static function register(
         email:String, password:String,
@@ -93,7 +92,6 @@ class AuthManager {
         });
     }
 
-    // LOGIN WITH USERNAME (her zaman çalışır)
 
     public static function loginWithUsername(
         username:String, password:String,
@@ -117,7 +115,6 @@ class AuthManager {
         );
     }
 
-    // LOGIN WITH EMAIL (her zaman çalışır)
 
     public static function login(
         email:String, password:String,
@@ -149,7 +146,6 @@ class AuthManager {
         });
     }
 
-    // AUTO LOGIN (her zaman çalışır)
 
     public static function autoLogin(callback:Bool->Void):Void {
         if (!SupabaseClient.hasToken()) {
@@ -208,7 +204,6 @@ class AuthManager {
         });
     }
 
-    // TOKEN REFRESH (her zaman çalışır)
 
     public static function refreshAccessToken(callback:Bool->Void):Void {
         var refreshTk = SupabaseClient.getRefreshToken();
@@ -269,7 +264,6 @@ class AuthManager {
         }
     }
 
-    // FORGOT PASSWORD (her zaman çalışır)
 
     public static function forgotPassword(email:String, callback:Bool->String->Void):Void {
         SupabaseClient.postAsync("/auth/v1/recover", { email: email }, "", function(_, data) {
@@ -277,7 +271,6 @@ class AuthManager {
         });
     }
 
-    // DELETE ACCOUNT (her zaman çalışır)
 
     public static function deleteAccount(callback:Bool->String->Void):Void {
         var token = SupabaseClient.getToken();
@@ -294,7 +287,6 @@ class AuthManager {
         http.customRequest(false, new haxe.io.BytesOutput(), null, "DELETE");
     }
 
-    // LOGOUT (her zaman çalışır)
 
     public static function logout():Void {
         SupabaseClient.clearToken();

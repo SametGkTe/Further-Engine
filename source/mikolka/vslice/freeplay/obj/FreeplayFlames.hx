@@ -29,7 +29,6 @@ class FreeplayFlames extends FlxSpriteGroup
       flame.visible = false;
       flameCount = 0;
 
-      // sets the loop... maybe better way to do this lol!
       flame.animation.finishCallback = function(_) {
         flame.animation.play("flame", true, false, 2);
       };
@@ -42,8 +41,6 @@ class FreeplayFlames extends FlxSpriteGroup
   override public function update(elapsed:Float):Void
   {
     super.update(elapsed);
-    // doesn't work in create()/new() for some reason
-    // so putting it here bwah!
     if (!properPositions)
     {
       setFlamePositions();
@@ -55,8 +52,6 @@ class FreeplayFlames extends FlxSpriteGroup
 
   function set_flameCount(value:Int):Int
   {
-    // Stop all existing timers.
-    // This fixes a bug where quickly switching difficulties would show flames.
     for (timer in timers)
     {
       timer.active = false;

@@ -32,10 +32,6 @@ import flixel.ui.FlxBar;
 import flixel.ui.FlxBar.FlxBarFillDirection;
 import lime.system.ThreadPool;
 
-/**
- * ...
- * @author: Karim Akra
- */
 class CopyState extends MusicBeatState
 {
 	private static final textFilesExtensions:Array<String> = ['ini', 'txt', 'xml', 'hxs', 'hx', 'lua', 'json', 'frag', 'vert'];
@@ -229,7 +225,6 @@ class CopyState extends MusicBeatState
 	{
 		locatedFiles = OpenFLAssets.list();
 
-		// removes unwanted assets
 		var assets = locatedFiles.filter(folder -> folder.startsWith('assets/'));
 		var mods = locatedFiles.filter(folder -> folder.startsWith('mods/'));
 		locatedFiles = assets.concat(mods);

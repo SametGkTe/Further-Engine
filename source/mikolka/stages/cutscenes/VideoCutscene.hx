@@ -28,7 +28,7 @@ class VideoCutscene
 				});
 			}
 			#end
-			#else // Make a timer to prevent it from crashing due to sprites not being ready yet.
+			#else 
 			new FlxTimer().start(0.0, function(tmr:FlxTimer)
 			{
 				onEnd();

@@ -1,6 +1,5 @@
 package mikolka.vslice.freeplay.pslice;
 
-//? uses sys.FileSystem instead of NativeFileSystem for reliable path resolution
 class BPMCache {
     private static final DEFAULT_BPM_MAP:Map<String,Int> = [
         "tutorial" => 100,
@@ -34,19 +33,15 @@ class BPMCache {
     public static var instance = new BPMCache();
     public function new() {}
 
-    // ✅ Güvenli path normalize fonksiyonu
     private function normalizePath(path:String):String
     {
         if (path == null) return "";
-        // Backslash → forward slash
         path = path.split("\\").join("/");
-        // Çift slash temizle
         while (path.indexOf("//") >= 0)
             path = path.split("//").join("/");
         return path;
     }
 
-    // ✅ sys.FileSystem ile güvenli exists kontrolü
     private function pathExists(path:String):Bool
     {
         if (path == null || path.length == 0) return false;
@@ -57,7 +52,6 @@ class BPMCache {
         }
     }
 
-    // ✅ sys.FileSystem ile güvenli directory kontrolü
     private function isDir(path:String):Bool
     {
         if (!pathExists(path)) return false;
@@ -68,7 +62,6 @@ class BPMCache {
         }
     }
 
-    // ✅ sys.FileSystem ile güvenli dosya okuma
     private function readFile(path:String):String
     {
         try {
@@ -88,7 +81,6 @@ class BPMCache {
 
         bpmMap[normalPath] = 0;
 
-        // ✅ DEFAULT_BPM_MAP'te varsa direkt dön
         if (DEFAULT_BPM_MAP.exists(fileSngName))
         {
             bpmMap[normalPath] = DEFAULT_BPM_MAP[fileSngName];

@@ -4,12 +4,10 @@ import mikolka.vslice.results.Tallies.SaveScoreData;
 import mikolka.funkin.Scoring.ScoringRank;
 import flixel.graphics.FlxGraphic;
 
-//? P-Slice utility class (I think)
 class FunkinTools
 {
 	public static function makeSolidColor(sprite:FlxSprite, width:Int, height:Int, color:FlxColor = FlxColor.WHITE):FlxSprite
 	{
-		// Create a tiny solid color graphic and scale it up to the desired size.
 		var graphic:FlxGraphic = FlxG.bitmap.create(2, 2, color, false, 'solid#${color.toHexString(true, false)}');
 		sprite.frames = graphic.imageFrame;
 		sprite.scale.set(width / 2.0, height / 2.0);
@@ -18,12 +16,6 @@ class FunkinTools
 		return sprite;
 	}
 
-	/**
-	 * Produces a new Tallies object which represents the sum of two existing Tallies
-	 * @param newTally The first tally
-	 * @param baseTally The second tally
-	 * @return The combined tally
-	 */
 	public static function combineTallies(newTally:SaveScoreData, baseTally:SaveScoreData):SaveScoreData
 	{
 		var combinedTally:SaveScoreData = newTali();
@@ -36,10 +28,8 @@ class FunkinTools
 		combinedTally.totalNotesHit = newTally.totalNotesHit + baseTally.totalNotesHit;
 		combinedTally.accPoints = newTally.accPoints + baseTally.accPoints;
 		combinedTally.score = newTally.score + baseTally.score;
-		// Current combo = use most recent.
 		combinedTally.combo = newTally.combo;
 
-		// Max combo = use maximum value.
 		combinedTally.maxCombo = Std.int(Math.max(newTally.maxCombo, baseTally.maxCombo));
 
 		return combinedTally;

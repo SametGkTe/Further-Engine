@@ -24,7 +24,7 @@ class WarningState extends MusicBeatState
 	}
 	override function create()
 	{
-		controls.isInSubstate = false; // qhar I hate it
+		controls.isInSubstate = false; 
 		super.create();
 
 		var bg:FlxSprite = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK);

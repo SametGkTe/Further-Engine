@@ -27,8 +27,7 @@ class FunkinPath {
     }
 
     public static function sound(key:String):String {
-        return key;//Paths.getPath("sounds/"+Language.getFileTranslation(key) + '.ogg', SOUND, null, true);
-        //We'll handle this later in FunkinSound
+        return key;
     }
     public static function music(key:String):Sound {
         
@@ -48,7 +47,6 @@ class FunkinPath {
     }
 
     public static function exists(s:String):Bool {
-        // Check if a file exists somethere
         return Paths.fileExists(s,TEXT);
     }
     public static function stripLibrary(path:String):String

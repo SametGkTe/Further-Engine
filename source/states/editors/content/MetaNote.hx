@@ -23,7 +23,7 @@ class MetaNote extends Note
 
 	public function changeNoteData(v:Int)
 	{
-		this.chartNoteData = v; //despite being so arbitrary its sadly needed to fix a bug on moving notes
+		this.chartNoteData = v; 
 		this.songData[1] = v;
 		this.noteData = v % ChartingState.GRID_COLUMNS_PER_PLAYER;
 		this.mustPress = (v < ChartingState.GRID_COLUMNS_PER_PLAYER);
@@ -33,7 +33,7 @@ class MetaNote extends Note
 		else
 			loadPixelNoteAnims();
 
-		if(Note.globalRgbShaders.contains(rgbShader.parent)) //Is using a default shader
+		if(Note.globalRgbShaders.contains(rgbShader.parent)) 
 			rgbShader = new RGBShaderReference(this, Note.initializeGlobalRGBShader(noteData));
 
 		animation.play(Note.colArray[this.noteData % Note.colArray.length] + 'Scroll');
@@ -143,7 +143,6 @@ class EventMetaNote extends MetaNote
 		super(time, -1, eventData);
 		this.isEvent = true;
 		events = eventData[1];
-		//trace('events: $events');
 		
 		loadGraphic(Paths.image('editors/eventIcon'));
 		setGraphicSize(ChartingState.GRID_SIZE);

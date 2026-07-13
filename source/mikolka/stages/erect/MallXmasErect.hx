@@ -138,9 +138,6 @@ class MallXmasErect extends BaseStage
 	
 	
 			new FlxTimer().start(11.3, function(tmr){
-				//PlayState.instance.tweenCameraZoom(0.73, 0.8, true, FlxEase.backOut);
-				//PlayState.instance.tweenCameraToPosition(santaDead.x + 220, santaDead.y, 0.8, FlxEase.expoOut);
-				//PlayState.instance.camGame.shake(0.007, 0.4);
 			});
 			new FlxTimer().start(11.375, function(tmr)
 			{

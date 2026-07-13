@@ -16,7 +16,6 @@ class PsychDialogueStyle extends DialogueStyle
 		super();
 	}
 
-	// {"","left-","center-"}+{"angry","normal"}+{"","Open","Wait"}
 	public function makeDialogueBox():FlxSprite
 	{
 		box = new FlxSprite(70+((FlxG.width-FlxG.initialWidth)/2), 370);
@@ -50,7 +49,7 @@ class PsychDialogueStyle extends DialogueStyle
 				{
 					if (pos == CENTER)
 					{
-						box.offset.set(50, 30); // center-angry
+						box.offset.set(50, 30); 
 						box.animation.play("center-angryOpen");
 						#if LEGACY_PSYCH
 						box.animation.finishCallback = (anim) ->
@@ -67,7 +66,7 @@ class PsychDialogueStyle extends DialogueStyle
 					}
 					else
 					{
-						box.offset.set(50, 65); // angry
+						box.offset.set(50, 65); 
 						box.animation.play("angryOpen");
 						#if LEGACY_PSYCH
 						box.animation.finishCallback = (anim) ->
@@ -119,12 +118,12 @@ class PsychDialogueStyle extends DialogueStyle
 				{
 					if (pos == CENTER)
 					{
-						box.offset.set(50, 30); // center-angry
+						box.offset.set(50, 30); 
 						box.animation.play("center-angry");
 					}
 					else
 					{
-						box.offset.set(50, 65); // angry
+						box.offset.set(50, 65); 
 						box.animation.play("angry");
 					}
 				}
@@ -151,7 +150,6 @@ class PsychDialogueStyle extends DialogueStyle
 		return alphabethText;
 	}
 
-	// Dialogue BOX
 	public function set_text(value:String)
 		alphabethText.text = value;
 
@@ -168,7 +166,6 @@ class PsychDialogueStyle extends DialogueStyle
 	{
 	}
 
-	//
 
 	public function isLineFinished():Bool
 		return alphabethText.finishedText;

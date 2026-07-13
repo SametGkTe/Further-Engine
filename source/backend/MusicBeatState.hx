@@ -51,13 +51,13 @@ class MusicBeatState extends FlxState
 
 		switch (MobileData.mode)
 		{
-			case 0: // RIGHT_FULL
+			case 0: 
 				mobileControls = new TouchPad('RIGHT_FULL', 'NONE', extraMode);
-			case 1: // LEFT_FULL
+			case 1: 
 				mobileControls = new TouchPad('LEFT_FULL', 'NONE', extraMode);
-			case 2: // CUSTOM
+			case 2: 
 				mobileControls = MobileData.getTouchPadCustom(new TouchPad('RIGHT_FULL', 'NONE', extraMode));
-			case 3: // HITBOX
+			case 3: 
 				mobileControls = new Hitbox(extraMode);
 		}
 
@@ -133,14 +133,12 @@ class MusicBeatState extends FlxState
 		FlxG.cameras.reset(camera);
 		FlxG.cameras.setDefaultDrawTarget(camera, true);
 		_psychCameraInitialized = true;
-		//trace('initialized psych camera ' + Sys.cpuTime());
 		return camera;
 	}
 
 	public static var timePassedOnState:Float = 0;
 	override function update(elapsed:Float)
 	{
-		//everyStep();
 		var oldStep:Int = curStep;
 		timePassedOnState += elapsed;
 
@@ -237,7 +235,6 @@ class MusicBeatState extends FlxState
 		FlxTransitionableState.skipNextTransIn = false;
 	}
 
-	// Custom made Trans in
 	public static function startTransition(nextState:FlxState = null)
 	{
 		if(nextState == null)
@@ -269,7 +266,6 @@ class MusicBeatState extends FlxState
 	public var stages:Array<BaseStage> = [];
 	public function beatHit():Void
 	{
-		//trace('Beat: ' + curBeat);
 		stagesFunc(function(stage:BaseStage) {
 			stage.curBeat = curBeat;
 			stage.curDecBeat = curDecBeat;
@@ -279,7 +275,6 @@ class MusicBeatState extends FlxState
 
 	public function sectionHit():Void
 	{
-		//trace('Section: ' + curSection + ', Beat: ' + curBeat + ', Step: ' + curStep);
 		stagesFunc(function(stage:BaseStage) {
 			stage.curSection = curSection;
 			stage.sectionHit();

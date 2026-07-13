@@ -10,7 +10,6 @@ import mikolka.stages.erect.PhillyTrainErect;
 
 class TwoPicos
 {
-	// Cutscenes
 	var cutsceneHandler:CutsceneHandler;
 	public var imposterPico:PicoDopplegangerSprite;
 	var pico:PicoDopplegangerSprite;
@@ -37,7 +36,6 @@ class TwoPicos
 
 		host.boyfriend.visible = host.dad.visible = false;
 		host.camHUD.visible = false;
-		// inCutscene = true; //this would stop the camera movement, oops
 
 		imposterPico = new PicoDopplegangerSprite(host.dad.x + 82, host.dad.y + 400);
 		imposterPico.showPivot = false;
@@ -64,12 +62,10 @@ class TwoPicos
 		cutsceneHandler.finishCallback = function()
 		{
 			host.seenCutscene = true;
-			// Restore camera
 			var timeForStuff:Float = Conductor.crochet / 1000 * 4.5;
 			FlxG.sound.music.fadeOut(timeForStuff);
 			FlxTween.tween(FlxG.camera, {zoom: host.defaultCamZoom}, timeForStuff, {ease: FlxEase.quadInOut});
 
-			// Show still alive chars
 			if (explode)
 			{
 				if (playerShoots)
@@ -82,7 +78,6 @@ class TwoPicos
 
 			host.camHUD.visible = true;
 
-			// Crear callbacks
 			host.boyfriend.animation.finishCallback = null;
 			host.gf.animation.finishCallback = null;
 
@@ -147,7 +142,6 @@ class TwoPicos
 					}
 				}
 			}
-			// Dance!
 			host.dad.dance();
 			host.boyfriend.dance();
 			host.gf.dance();
@@ -180,7 +174,6 @@ class TwoPicos
 		var game = PlayState.instance;
 
 		seenOutcome = false;
-		// 50/50 chance for who shoots
 		if (FlxG.random.bool(50))
 		{
 			playerShoots = true;
@@ -241,7 +234,6 @@ class TwoPicos
 		}
 		var midPoint:Array<Float> = [(shooterPos[0] + cigarettePos[0]) / 2, (shooterPos[1] + cigarettePos[1]) / 2];
 
-		// Allw picos to set their cutscene timers
 		imposterPico.doAnim("Opponent", !playerShoots, explode, cutsceneHandler);
 		pico.doAnim("Player", playerShoots, explode, cutsceneHandler);
 
@@ -275,7 +267,6 @@ class TwoPicos
 		cutsceneHandler.timer(8.75, () ->
 		{
 			seenOutcome = true;
-			// cutting off skipping here. really dont think its needed after this point and it saves problems from happening
 			host.camFollow_set(cigarettePos[0], cigarettePos[1]);
 		});
 

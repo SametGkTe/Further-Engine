@@ -9,14 +9,6 @@ class Language
     #if TRANSLATIONS_ALLOWED
     private static var phrases:Map<String, String> = [];
 
-    // Desteklenen dil dosyası varyantları (öncelik sırasına göre)
-    // Örn: language = "EN-US" ise şu sırayla arar:
-    //   1) EN-US.lang
-    //   2) en-us.lang  
-    //   3) EN_US.lang
-    //   4) en_us.lang
-    //   5) en.lang     (fallback — tire/alt çizgiden önceki kısım)
-    //   6) EN.lang
     private static function buildSearchVariants(langFile:String):Array<String>
     {
         var variants:Array<String> = [];
@@ -25,32 +17,28 @@ class Language
         if (raw.length == 0)
             return variants;
 
-        // Uzantıyı temizle (kullanıcı yanlışlıkla .lang yazmışsa)
         if (raw.toLowerCase().endsWith('.lang'))
             raw = raw.substr(0, raw.length - 5);
 
-        // Temel varyantlar
-        variants.push(raw);                                    // EN-US
-        variants.push(raw.toLowerCase());                      // en-us
-        variants.push(raw.toUpperCase());                      // EN-US (zaten aynı olabilir ama garanti)
+        variants.push(raw);                                    
+        variants.push(raw.toLowerCase());                      
+        variants.push(raw.toUpperCase());                      
 
-        // Tire <-> alt çizgi varyantları
         if (raw.contains('-'))
         {
             var underscored = raw.split('-').join('_');
-            variants.push(underscored);                        // EN_US
-            variants.push(underscored.toLowerCase());          // en_us
-            variants.push(underscored.toUpperCase());          // EN_US
+            variants.push(underscored);                        
+            variants.push(underscored.toLowerCase());          
+            variants.push(underscored.toUpperCase());          
         }
         else if (raw.contains('_'))
         {
             var dashed = raw.split('_').join('-');
-            variants.push(dashed);                             // EN-US
-            variants.push(dashed.toLowerCase());               // en-us
-            variants.push(dashed.toUpperCase());               // EN-US
+            variants.push(dashed);                             
+            variants.push(dashed.toLowerCase());               
+            variants.push(dashed.toUpperCase());               
         }
 
-        // Kısa fallback: EN-US → EN, tr-TR → tr
         var shortLang = '';
         if (raw.contains('-'))
             shortLang = raw.split('-')[0];
@@ -59,12 +47,11 @@ class Language
 
         if (shortLang.length > 0)
         {
-            variants.push(shortLang);                          // EN
-            variants.push(shortLang.toLowerCase());            // en
-            variants.push(shortLang.toUpperCase());            // EN
+            variants.push(shortLang);                          
+            variants.push(shortLang.toLowerCase());            
+            variants.push(shortLang.toUpperCase());            
         }
 
-        // Duplikatları temizle (sırayı koru)
         var seen:Map<String, Bool> = [];
         var unique:Array<String> = [];
         for (v in variants)
@@ -96,7 +83,6 @@ class Language
             }
         }
 
-        // Hiçbiri bulunamadı — hepsini logla
         trace('[Language] WARNING: No lang file found! Tried variants:');
         for (variant in variants)
             trace('  - data/$variant.lang');
@@ -112,7 +98,6 @@ class Language
 
 		var langFile:String = ClientPrefs.data.language;
 
-		// Hardcoded dil ise dosya aramaya gerek yok
 		if (langFile == null || langFile.length == 0 || langFile == ClientPrefs.defaultData.language)
 		{
 			trace('[Language] Using default hardcoded language. No file needed.');
@@ -120,7 +105,6 @@ class Language
 			return;
 		}
 
-		// Dosyayı yükle
 		var loadedText:Array<String> = Mods.mergeAllTextsNamed('data/$langFile.lang');
 
 		var hasPhrases:Bool = false;
@@ -128,18 +112,15 @@ class Language
 		{
 			phrase = phrase.trim();
 
-			// BOM temizle
 			if (phrase.length > 0 && phrase.charCodeAt(0) == 0xFEFF)
 				phrase = phrase.substr(1);
 
-			// İlk satır: dil adı
 			if (num < 1 && !phrase.contains(':'))
 			{
 				phrases.set('language_name', phrase.trim());
 				continue;
 			}
 
-			// Kısa satır veya yorum
 			if (phrase.length < 4 || phrase.startsWith('//'))
 				continue;
 
@@ -177,17 +158,14 @@ class Language
 		#end
 	}
 
-    // Line cleaning
 
     private static function cleanLine(line:String):String
     {
         var cleaned = line.trim();
 
-        // UTF-8 BOM karakterini temizle
         if (cleaned.length > 0 && cleaned.charCodeAt(0) == 0xFEFF)
             cleaned = cleaned.substr(1);
 
-        // Satır sonu karakterlerini temizle
         cleaned = cleaned.split('\r').join('');
 
         return cleaned;
@@ -202,7 +180,6 @@ class Language
         return str;
     }
 
-    // Getters (bunlar aynı kaldı, küçük iyileştirmeler)
 
     inline public static function getPhrase(key:String, ?defaultPhrase:String, values:Array<Dynamic> = null):String
     {
@@ -234,7 +211,6 @@ class Language
         return key;
     }
 
-    // Yeni: Debug / bilgi fonksiyonları
 
     #if TRANSLATIONS_ALLOWED
     public static function hasPhrase(key:String):Bool
@@ -279,7 +255,6 @@ class Language
     }
     #end
 
-    // Lua callbacks
 
     #if LUA_ALLOWED
     public static function addLuaCallbacks(lua:State)
@@ -292,7 +267,6 @@ class Language
             return getFileTranslation(key);
         });
 
-        // Yeni lua callbacks
         Lua_helper.add_callback(lua, "hasTranslationPhrase", function(key:String) {
             #if TRANSLATIONS_ALLOWED
             return hasPhrase(key);

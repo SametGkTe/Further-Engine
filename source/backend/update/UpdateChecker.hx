@@ -54,10 +54,6 @@ class UpdateChecker {
 
     public function new() {}
 
-    /**
-     * GitHub'dan modpack listesini çek.
-     * Hem mağaza hem güncelleme için kullanılır.
-     */
     public function fetchModpackList(?callback:CheckResult->Void):Void {
         if (isChecking) return;
         isChecking = true;
@@ -119,9 +115,6 @@ class UpdateChecker {
         http.request(false);
     }
 
-    /**
-     * Kurulu modpackleri kontrol et, güncelleme var mı bak.
-     */
 	function findUpdates(remoteList:Array<RemoteModpackInfo>):Array<ModpackUpdateInfo> {
 		var updates:Array<ModpackUpdateInfo> = [];
 
@@ -129,7 +122,6 @@ class UpdateChecker {
 			var installedVersion = getInstalledVersion(remote.id);
 
 			if (UpdateConfig.DEBUG_FORCE_UPDATES) {
-				// Debug: tüm modpackleri güncelleme olarak göster
 				updates.push({
 					remote: remote,
 					installedVersion: installedVersion != null ? installedVersion : "0.0.0",
@@ -154,10 +146,6 @@ class UpdateChecker {
 		return updates;
 	}
 
-    /**
-     * Kurulu modpack'in versiyonunu oku.
-     * Kurulu değilse null döner.
-     */
     function getInstalledVersion(packId:String):Null<String> {
         #if sys
         var manifestPath = backend.modpack.ModpackPaths.getInstalledManifestPath(packId);
@@ -185,7 +173,6 @@ class UpdateChecker {
         };
     }
 
-    // ─── Versiyon karşılaştırma ───
 
     public static function isRemoteNewer(current:String, remote:String):Bool {
         var c = parseVersion(current);

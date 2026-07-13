@@ -13,11 +13,9 @@ class Spooky extends BaseStage
 		}
 		add(halloweenBG);
 
-		//PRECACHE SOUNDS
 		Paths.sound('thunder_1');
 		Paths.sound('thunder_2');
 
-		//Monster cutscene
 		if (isStoryMode && !seenCutscene)
 		{
 			switch(songName)
@@ -67,7 +65,7 @@ class Spooky extends BaseStage
 			FlxG.camera.zoom += 0.015;
 			camHUD.zoom += 0.03;
 
-			if(!game.camZooming) { //Just a way for preventing it to be permanently zoomed until Skid & Pump hits a note
+			if(!game.camZooming) { 
 				FlxTween.tween(FlxG.camera, {zoom: defaultCamZoom}, 0.5);
 				FlxTween.tween(camHUD, {zoom: 1}, 0.5);
 			}
@@ -87,12 +85,10 @@ class Spooky extends BaseStage
 
 		FlxG.camera.focusOn(new FlxPoint(dad.getMidpoint().x + 150, dad.getMidpoint().y - 100));
 
-		// character anims
 		FlxG.sound.play(Paths.soundRandom('thunder_', 1, 2));
 		if(gf != null) gf.playAnim('scared', true);
 		boyfriend.playAnim('scared', true);
 
-		// white flash
 		var whiteScreen:FlxSprite = new FlxSprite().makeGraphic(Std.int(FlxG.width * 2), Std.int(FlxG.height * 2), FlxColor.WHITE);
 		whiteScreen.scrollFactor.set();
 		whiteScreen.blend = ADD;

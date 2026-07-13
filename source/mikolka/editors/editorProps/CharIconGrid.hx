@@ -17,7 +17,7 @@ class CharIconGrid extends FlxTypedSpriteGroup<FlxSprite>{
     
             charIcon = new PixelatedIcon(0, 0);
             charIcon.setGraphicSize(128, 128);
-            updateCharId(playerId); //.56
+            updateCharId(playerId); 
             charIcon.ID = 0;
     
             for (i in 0...9)

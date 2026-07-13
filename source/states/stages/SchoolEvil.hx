@@ -44,7 +44,6 @@ class SchoolEvil extends BaseStage
 		addBehindDad(trail);
 	}
 
-	// Ghouls event
 	var bgGhouls:BGSprite;
 	override function eventCalled(eventName:String, value1:String, value2:String, flValue1:Null<Float>, flValue2:Null<Float>, strumTime:Float)
 	{
@@ -60,7 +59,6 @@ class SchoolEvil extends BaseStage
 	}
 	override function eventPushed(event:objects.Note.EventNote)
 	{
-		// used for preloading assets used on events
 		switch(event.event)
 		{
 			case "Trigger BG Ghouls":
@@ -84,7 +82,7 @@ class SchoolEvil extends BaseStage
 	var doof:DialogueBox = null;
 	function initDoof()
 	{
-		var file:String = Paths.txt('$songName/${songName}Dialogue_${ClientPrefs.data.language}'); //Checks for vanilla/Senpai dialogue
+		var file:String = Paths.txt('$songName/${songName}Dialogue_${ClientPrefs.data.language}'); 
 		#if MODS_ALLOWED
 		if (!FileSystem.exists(file))
 		#else

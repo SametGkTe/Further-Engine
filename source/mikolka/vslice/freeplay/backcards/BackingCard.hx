@@ -11,9 +11,6 @@ import openfl.display.BlendMode;
 import flixel.group.FlxSpriteGroup;
 import mikolka.compatibility.funkin.FunkinPath as Paths;
 
-/**
- * A class for the backing cards so they dont have to be part of freeplayState......
- */
 class BackingCard extends FlxSpriteGroup
 {
   public var backingTextYeah:FlxAtlasSprite;
@@ -53,20 +50,15 @@ class BackingCard extends FlxSpriteGroup
       {
         FrameRate: 24.0,
         Reversed: false,
-        // ?OnComplete:Void -> Void,
         ShowPivot: false,
         Antialiasing: true,
         ScrollFactor: new FlxPoint(1, 1),
       });
 
-    pinkBack.color = 0xFFFFD4E9; // sets it to pink!
+    pinkBack.color = 0xFFFFD4E9; 
     pinkBack.x -= pinkBack.width;
   }
 
-  /**
-   * Apply exit movers for the pieces of the backing card.
-   * @param exitMovers The exit movers to apply.
-   */
   public function applyExitMovers(?exitMovers:FreeplayState.ExitMoverData, ?exitMoversCharSel:FreeplayState.ExitMoverData):Void
   {
     if (exitMovers == null)
@@ -114,19 +106,12 @@ class BackingCard extends FlxSpriteGroup
       });
   }
 
-  /**
-   * Helper function to snap the back of the card to its final position.
-   * Used when returning from character select, as we dont want to play the full animation of everything sliding in.
-   */
   public function skipIntroTween():Void
   {
     FlxTween.cancelTweensOf(pinkBack);
     pinkBack.x = 0;
   }
 
-  /**
-   * Called in create. Adds sprites and tweens.
-   */
   public function init():Void
   {
     FlxTween.tween(pinkBack, {x: 0}, 0.6, {ease: FlxEase.quartOut});
@@ -136,7 +121,6 @@ class BackingCard extends FlxSpriteGroup
 
     add(alsoOrangeLOL);
 
-    //FlxSpriteUtil.alphaMaskFlxSprite(orangeBackShit, pinkBack, orangeBackShit);
     orangeBackShit.visible = false;
     alsoOrangeLOL.visible = false;
 
@@ -161,9 +145,6 @@ class BackingCard extends FlxSpriteGroup
     add(cardGlow);
   }
 
-  /**
-   * Called after the dj finishes their start animation.
-   */
   public function introDone():Void
   {
     if(!VsliceOptions.ALLOW_COLORING) pinkBack.color = 0xFFFFD863;
@@ -173,9 +154,6 @@ class BackingCard extends FlxSpriteGroup
     FlxTween.tween(cardGlow, {alpha: 0, "scale.x": 1.2, "scale.y": 1.2}, 0.45, {ease: FlxEase.sineOut});
   }
 
-  /**
-   * Called when selecting a song.
-   */
   public function confirm():Void
   {
     FlxTween.color(pinkBack, 0.33, 0xFFFFD0D5, 0xFF171831, {ease: FlxEase.quadOut});
@@ -216,19 +194,10 @@ class BackingCard extends FlxSpriteGroup
       });
   }
 
-  /**
-   * Called when entering character select, does nothing by default.
-   */
   public function enterCharSel():Void {}
 
-  /**
-   * Called on each beat in freeplay state.
-   */
   public function beatHit(curBeat:Int):Void {}
 
-  /**
-   * Called when exiting the freeplay menu.
-   */
   public function disappear():Void
   {
     FlxTween.color(pinkBack, 0.25, pinkBack.color, 0xFFFFD0D5, {ease: FlxEase.quadOut});

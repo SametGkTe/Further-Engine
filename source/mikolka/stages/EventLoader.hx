@@ -36,7 +36,7 @@ class EventLoader extends BaseStage {
                 VsliceOptions.LAST_MOD = {
                     mod_dir: modded? ModsHelper.getActiveMod() : "",
                     char_name: character
-                }; //? save selected character
+                }; 
             });
         }
     #end
@@ -50,27 +50,27 @@ class EventLoader extends BaseStage {
 
         currentStage = switch (name)
 		{
-			case 'stage': new StageWeek1(); 						//Week 1
-			case 'spooky': new Spooky();							//Week 2
-			case 'philly': new Philly();							//Week 3
-			case 'limo': new Limo();								//Week 4
-			case 'mall': new Mall();								//Week 5 - Cocoa, Eggnog
-			case 'mallEvil': new MallEvil();						//Week 5 - Winter Horrorland
-			case 'school': new School();							//Week 6 - Senpai, Roses
-			case 'schoolEvil': new SchoolEvil();					//Week 6 - Thorns
-			case 'tank': new Tank();								//Week 7 - Ugh, Guns, Stress
-			case 'phillyStreets': new PhillyStreets(); 				//Weekend 1 - Darnell, Lit Up, 2Hot
-			case 'phillyBlazin': new PhillyBlazin();				//Weekend 1 - Blazin
-			case 'mainStageErect': new MainStageErect();			//Week 1 Special 
-			case 'spookyMansionErect': new SpookyMansionErect();	//Week 2 Special 
-			case 'phillyTrainErect': new PhillyTrainErect();  		//Week 3 Special 
-			case 'limoRideErect': new LimoRideErect();  			//Week 4 Special 
-			case 'mallXmasErect': new MallXmasErect(); 				//Week 5 Special 
-			case 'schoolErect': new SchoolErect();					//Week 6 Special - Erect Mode
-			case 'schoolPico': new SchoolErect();					//Week 6 Special - Pico
-			case 'schoolEvilErect': new SchoolEvilErect();			//Week 6 Special - Thorns
-			case 'tankmanBattlefieldErect': new TankErect();		//Week 7 Special
-			case 'phillyStreetsErect': new PhillyStreetsErect(); 	//Weekend 1 Special 
+			case 'stage': new StageWeek1(); 						
+			case 'spooky': new Spooky();							
+			case 'philly': new Philly();							
+			case 'limo': new Limo();								
+			case 'mall': new Mall();								
+			case 'mallEvil': new MallEvil();						
+			case 'school': new School();							
+			case 'schoolEvil': new SchoolEvil();					
+			case 'tank': new Tank();								
+			case 'phillyStreets': new PhillyStreets(); 				
+			case 'phillyBlazin': new PhillyBlazin();				
+			case 'mainStageErect': new MainStageErect();			
+			case 'spookyMansionErect': new SpookyMansionErect();	
+			case 'phillyTrainErect': new PhillyTrainErect();  		
+			case 'limoRideErect': new LimoRideErect();  			
+			case 'mallXmasErect': new MallXmasErect(); 				
+			case 'schoolErect': new SchoolErect();					
+			case 'schoolPico': new SchoolErect();					
+			case 'schoolEvilErect': new SchoolEvilErect();			
+			case 'tankmanBattlefieldErect': new TankErect();		
+			case 'phillyStreetsErect': new PhillyStreetsErect(); 	
             default: null;
 		};
         if(currentStage == null) addNene = false;

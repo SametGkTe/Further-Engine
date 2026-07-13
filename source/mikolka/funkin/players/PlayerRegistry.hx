@@ -9,7 +9,6 @@ import mikolka.compatibility.funkin.FunkinPath;
 
 
 
-//TODO softcode this soon
 class PlayerRegistry extends PsliceRegistry{
     public static var instance:PlayerRegistry = new PlayerRegistry();
     public function new() {
@@ -24,7 +23,7 @@ class PlayerRegistry extends PsliceRegistry{
     }
     public function fetchEntry(playableCharId:String):Null<PlayableCharacter> {
         try {
-            var player_blob:Dynamic = readJson(playableCharId);// new PlayerData();
+            var player_blob:Dynamic = readJson(playableCharId);
             if(player_blob == null) return null;
             var player_data = new PlayerData().mergeWithJson(player_blob,["freeplayDJ"]);
             var dj = new PlayerFreeplayDJData().mergeWithJson(player_blob.freeplayDJ);
@@ -38,7 +37,6 @@ class PlayerRegistry extends PsliceRegistry{
         
     }
     
-    // return ALL characters avaliable (from current mod)
     public function listEntryIds():Array<String> {
         if(ModsHelper.getActiveMod() == ""){
             var allJsons:Array<String> = [];
@@ -60,7 +58,6 @@ class PlayerRegistry extends PsliceRegistry{
         }
         else return listJsons();
     }
-    // This is only used to check if we should allow the player to open charSelect
     public function countUnlockedCharacters():Int {
         return 2;
     }

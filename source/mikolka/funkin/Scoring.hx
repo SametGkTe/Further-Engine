@@ -4,35 +4,17 @@ import mikolka.vslice.results.Tallies.SaveScoreData;
 #if LEGACY_PSYCH
 import Highscore;
 #else
-import backend.Highscore; // making exception for this one: identical in both versions
+import backend.Highscore; 
 #end
-/**
- * Which system to use when scoring and judging notes.
- */
 enum abstract ScoringSystem(String)
 {
-	/**
-	 * The scoring system used in versions of the game Week 6 and older.
-	 * Scores the player based on judgement, represented by a step function.
-	 */
 	var LEGACY;
 
-	/**
-	 * The scoring system used in Week 7. It has tighter scoring windows than Legacy.
-	 * Scores the player based on judgement, represented by a step function.
-	 */
 	var WEEK7;
 
-	/**
-	 * Points Based On Timing scoring system, version 1
-	 * Scores the player based on the offset based on timing, represented by a sigmoid function.
-	 */
 	var PBOT1;
 }
 
-/**
- * A static class which holds any functions related to scoring.
- */
 class Scoring
 {
 	public static function calculateRankForSong(formattedSngName:String):Null<ScoringRank>
@@ -46,20 +28,16 @@ class Scoring
 		}
 
 	public static function calculateRankFromData(sngScore:Int, sngAccuracy:Float, sngFC:Bool):Null<ScoringRank>{
-		// Reminder that it MUSt be formatted first
 
-		// we can return null here, meaning that the player hasn't actually played and finished the song (thus has no data)
 		if (sngScore == 0)
 			return null;
 
-		// Perfect (Platinum) is a Sick Full Clear
 		var isPerfectGold = sngAccuracy >= 1;
 		if (isPerfectGold)
 		{
 			return ScoringRank.PERFECT_GOLD;
 		}
 
-		// Else, use the standard grades
 
 		if (sngFC)
 		{
@@ -102,10 +80,6 @@ enum abstract ScoringRank(String)
 	var GOOD;
 	var SHIT;
 
-	/**
-	 * Converts ScoringRank to an integer value for comparison.
-	 * Better ranks should be tied to a higher value.
-	 */
 	static function getValue(rank:Null<ScoringRank>):Int
 	{
 		if (rank == null)
@@ -129,7 +103,6 @@ enum abstract ScoringRank(String)
 		}
 	}
 
-	// Yes, we really need a different function for each comparison operator.
 	@:op(A > B) static function compareGT(a:Null<ScoringRank>, b:Null<ScoringRank>):Bool
 	{
 		if (a != null && b == null)
@@ -182,17 +155,12 @@ enum abstract ScoringRank(String)
 		return temp1 <= temp2;
 	}
 
-	// @:op(A == B) isn't necessary!
 
-	/**
-	 * Delay in seconds
-	 */
 	public function getMusicDelay():Float
 	{
 		switch (abstract)
 		{
 			case PERFECT_GOLD | PERFECT:
-				// return 2.5;
 				return 95 / 24;
 			case EXCELLENT:
 				return 0;
@@ -212,7 +180,6 @@ enum abstract ScoringRank(String)
 		switch (abstract)
 		{
 			case PERFECT_GOLD | PERFECT:
-				// return 2.5;
 				return 95 / 24;
 			case EXCELLENT:
 				return 97 / 24;
@@ -232,7 +199,6 @@ enum abstract ScoringRank(String)
 		switch (abstract)
 		{
 			case PERFECT_GOLD | PERFECT:
-				// return 2.5;
 				return 129 / 24;
 			case EXCELLENT:
 				return 122 / 24;
@@ -252,7 +218,6 @@ enum abstract ScoringRank(String)
 		switch (abstract)
 		{
 			case PERFECT_GOLD | PERFECT:
-				// return 2.5;
 				return 140 / 24;
 			case EXCELLENT:
 				return 140 / 24;

@@ -61,13 +61,13 @@ class MusicBeatSubstate extends FlxSubState
 
 		switch (MobileData.mode)
 		{
-			case 0: // RIGHT_FULL
+			case 0: 
 				mobileControls = new TouchPad('RIGHT_FULL', 'NONE', extraMode);
-			case 1: // LEFT_FULL
+			case 1: 
 				mobileControls = new TouchPad('LEFT_FULL', 'NONE', extraMode);
-			case 2: // CUSTOM
+			case 2: 
 				mobileControls = MobileData.getTouchPadCustom(new TouchPad('RIGHT_FULL', 'NONE', extraMode));
-			case 3: // HITBOX
+			case 3: 
 				mobileControls = new Hitbox(extraMode);
 		}
 
@@ -119,7 +119,6 @@ class MusicBeatSubstate extends FlxSubState
 
 	override function update(elapsed:Float)
 	{
-		//everyStep();
 		if(!persistentUpdate) MusicBeatState.timePassedOnState += elapsed;
 		var oldStep:Int = curStep;
 
@@ -199,12 +198,10 @@ class MusicBeatSubstate extends FlxSubState
 
 	public function beatHit():Void
 	{
-		//do literally nothing dumbass
 	}
 	
 	public function sectionHit():Void
 	{
-		//yep, you guessed it, nothing again, dumbass
 	}
 	
 	function getBeatsOnSection()

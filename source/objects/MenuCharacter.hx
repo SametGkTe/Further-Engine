@@ -55,7 +55,7 @@ class MenuCharacter extends FlxSprite
 				if (!Assets.exists(path))
 				#end
 				{
-					path = Paths.getSharedPath('characters/' + DEFAULT_CHARACTER + '.json'); //If a character couldn't be found, change him to BF just to prevent a crash
+					path = Paths.getSharedPath('characters/' + DEFAULT_CHARACTER + '.json'); 
 					color = FlxColor.BLACK;
 					alpha = 0.6;
 				}
@@ -81,7 +81,7 @@ class MenuCharacter extends FlxSprite
 				if(confirmAnim != null && confirmAnim.length > 0 && confirmAnim != charFile.idle_anim)
 				{
 					animation.addByPrefix('confirm', confirmAnim, 24, false);
-					if (animation.getByName('confirm') != null) //check for invalid animation
+					if (animation.getByName('confirm') != null) 
 						hasConfirmAnimation = true;
 				}
 				flipX = (charFile.flipX == true);

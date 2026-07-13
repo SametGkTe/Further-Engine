@@ -23,14 +23,6 @@ import sys.FileSystem;
 
 class FlxPartialSound
 {
-	/**
-	 * Loads partial sound bytes from a file, returning a Sound object.
-	 * Will play the sound after loading via FlxG.sound.play()
-	 * @param path
-	 * @param rangeStart what percent of the song should it start at
-	 * @param rangeEnd what percent of the song should it end at
-	 * @return Future<Sound>
-	 */
 	public static function partialLoadAndPlayFile(path:String, ?rangeStart:Float = 0, ?rangeEnd:Float = 1):Future<Sound>
 	{
 		return partialLoadFromFile(path, rangeStart, rangeEnd).future.onComplete(function(sound:Sound)
@@ -39,15 +31,6 @@ class FlxPartialSound
 		});
 	}
 
-	/**
-	 * Loads partial sound bytes from a file, returning a Sound object.
-	 * Will load via HTTP Range header on HTML5, and load the bytes from the file on native.
-	 * On subsequent calls, will return a cached Sound object from Assets.cache
-	 * @param path
-	 * @param rangeStart what percent of the song should it start at
-	 * @param rangeEnd what percent of the song should it end at
-	 * @return Future<Sound>
-	 */
 	public static function partialLoadFromFile(path:String, ?rangeStart:Float = 0, ?rangeEnd:Float = 1, ?paddedIntro:Bool = false):Promise<Sound>
 	{
 		var promise:Promise<Sound> = new Promise<Sound>();
@@ -65,9 +48,6 @@ class FlxPartialSound
 			var endByte:Int = Std.int(contentLength * rangeEnd);
 			var byteRange:String = startByte + '-' + endByte;
 
-			// for ogg files, we want to get a certain amount of header info stored at the beginning of the file
-			// which I believe helps initiate the audio stream properly for any section of audio
-			// 0-6400 is a random guess, could be fuckie with other audio
 			if (Path.extension(path) == "ogg")
 				byteRange = '0-' + Std.string(16 * 400);
 
@@ -115,7 +95,6 @@ class FlxPartialSound
 
 		var byteNum:Int = 0;
 
-		// on native, it will always be an ogg file, although eventually we might want to add WAV?
 		loadBytes(path).onComplete(function(data:Bytes)
 		{
 			var input = new BytesInput(data);

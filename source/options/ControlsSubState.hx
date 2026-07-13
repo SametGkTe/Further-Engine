@@ -15,7 +15,6 @@ class ControlsSubState extends MusicBeatSubstate
 	var curSelected:Int = 0;
 	var curAlt:Bool = false;
 
-	//Show on gamepad - Display name - Save file key - Rebind display name
 	var options:Array<Dynamic> = [
 		[true, 'NOTALAR'],
 		[true, 'Sol', 'note_left', 'Nota Sol'],
@@ -212,9 +211,7 @@ class ControlsSubState extends MusicBeatSubstate
 
 			playstationCheck(attach);
 			attach.scaleX = Math.min(1, 230 / attach.width);
-			//attach.text = key;
 
-			// spawn black bars at the right of the key name
 			var black:AttachedSprite = new AttachedSprite();
 			black.makeGraphic(250, 78, FlxColor.BLACK);
 			black.alphaMult = 0.4;
@@ -236,7 +233,7 @@ class ControlsSubState extends MusicBeatSubstate
 		{
 			switch(alpha.text)
 			{
-				case '[', ']': //Square and Triangle respectively
+				case '[', ']': 
 					letter.image = 'alphabet_playstation';
 					letter.updateHitbox();
 					
@@ -260,7 +257,6 @@ class ControlsSubState extends MusicBeatSubstate
 		
 		playstationCheck(attach);
 		attach.scaleX = Math.min(1, 230 / attach.width);
-		//attach.text = text;
 
 		bind.kill();
 		grpBinds.remove(bind);
@@ -277,7 +273,7 @@ class ControlsSubState extends MusicBeatSubstate
 	var timeForMoving:Float = 0.1;
 	override function update(elapsed:Float)
 	{
-		if(timeForMoving > 0) //Fix controller bug
+		if(timeForMoving > 0) 
 		{
 			timeForMoving = Math.max(0, timeForMoving - elapsed);
 			super.update(elapsed);
@@ -304,7 +300,7 @@ class ControlsSubState extends MusicBeatSubstate
 			{
 				if(options[curOptions[curSelected]][1] != defaultKey)
 				{
-					bindingBlack = new FlxSprite().makeGraphic(1, 1, /*FlxColor.BLACK*/ FlxColor.WHITE);
+					bindingBlack = new FlxSprite().makeGraphic(1, 1,   FlxColor.WHITE);
 					bindingBlack.scale.set(FlxG.width, FlxG.height);
 					bindingBlack.updateHitbox();
 					bindingBlack.alpha = 0;
@@ -329,7 +325,6 @@ class ControlsSubState extends MusicBeatSubstate
 				}
 				else
 				{
-					// Varsayılana Sıfırla
 					ClientPrefs.resetKeys(!onKeyboardMode);
 					ClientPrefs.reloadVolumeKeys();
 					var lastSel:Int = curSelected;
@@ -397,8 +392,8 @@ class ControlsSubState extends MusicBeatSubstate
 				{
 					var keyPressed:Null<FlxGamepadInputID> = NONE;
 					var keyReleased:Null<FlxGamepadInputID> = NONE;
-					if(FlxG.gamepads.anyJustPressed(LEFT_TRIGGER)) keyPressed = LEFT_TRIGGER; //it wasnt working for some reason
-					else if(FlxG.gamepads.anyJustPressed(RIGHT_TRIGGER)) keyPressed = RIGHT_TRIGGER; //it wasnt working for some reason
+					if(FlxG.gamepads.anyJustPressed(LEFT_TRIGGER)) keyPressed = LEFT_TRIGGER; 
+					else if(FlxG.gamepads.anyJustPressed(RIGHT_TRIGGER)) keyPressed = RIGHT_TRIGGER; 
 					else
 					{
 						for (i in 0...FlxG.gamepads.numActiveGamepads)

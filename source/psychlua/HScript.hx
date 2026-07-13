@@ -93,7 +93,7 @@ class HScript extends Iris
 			this.origin = filePath;
 			#if MODS_ALLOWED
 			var myFolder:Array<String> = filePath.split('/');
-			if(myFolder[0] + '/' == Paths.mods() && (Mods.currentModDirectory == myFolder[1] || Mods.getGlobalMods().contains(myFolder[1]))) //is inside mods folder
+			if(myFolder[0] + '/' == Paths.mods() && (Mods.currentModDirectory == myFolder[1] || Mods.getGlobalMods().contains(myFolder[1]))) 
 				this.modFolder = myFolder[1];
 			#end
 		}
@@ -142,7 +142,6 @@ class HScript extends Iris
 	override function preset() {
 		super.preset();
 
-		// Some very commonly used classes
 		set('Type', Type);
 		#if sys
 		set('File', File);
@@ -181,7 +180,6 @@ class HScript extends Iris
 		set('FlxAnimate', FlxAnimate);
 		#end
 
-		// Functions & Variables
 		set('setVar', function(name:String, value:Dynamic) {
 			MusicBeatState.getVariables().set(name, value);
 			return value;
@@ -217,7 +215,6 @@ class HScript extends Iris
 			return LuaUtils.getModSetting(saveTag, modName);
 		});
 
-		// Keyboard & Gamepads
 		set('keyboardJustPressed', function(name:String) return Reflect.getProperty(FlxG.keys.justPressed, name));
 		set('keyboardPressed', function(name:String) return Reflect.getProperty(FlxG.keys.pressed, name));
 		set('keyboardReleased', function(name:String) return Reflect.getProperty(FlxG.keys.justReleased, name));
@@ -296,8 +293,6 @@ class HScript extends Iris
 			return false;
 		});
 
-		// For adding your own callbacks
-		// not very tested but should work
 		#if LUA_ALLOWED
 		set('createGlobalCallback', function(name:String, func:Dynamic)
 		{
@@ -308,7 +303,6 @@ class HScript extends Iris
 			FunkinLua.customFunctions.set(name, func);
 		});
 
-		// this one was tested
 		set('createCallback', function(name:String, func:Dynamic, ?funk:FunkinLua = null)
 		{
 			if(funk == null) funk = parentLua;
@@ -352,7 +346,6 @@ class HScript extends Iris
   
 		set("touchPadJustPressed", function(button:Dynamic):Bool {
 			if(PlayState.instance.luaTouchPad == null){
-			  //FunkinLua.luaTrace('touchPadJustPressed: TPAD does not exist.');
 			  return false;
 			}
 		  return PlayState.instance.luaTouchPadJustPressed(button);
@@ -360,7 +353,6 @@ class HScript extends Iris
   
 		set("touchPadPressed", function(button:Dynamic):Bool {
 			if(PlayState.instance.luaTouchPad == null){
-				//FunkinLua.luaTrace('touchPadPressed: TPAD does not exist.');
 				return false;
 			}
 			return PlayState.instance.luaTouchPadPressed(button);
@@ -368,7 +360,6 @@ class HScript extends Iris
   
 		set("touchPadJustReleased", function(button:Dynamic):Bool {
 			if(PlayState.instance.luaTouchPad == null){
-				//FunkinLua.luaTrace('touchPadJustReleased: TPAD does not exist.');
 				return false;
 			}
 			return PlayState.instance.luaTouchPadJustReleased(button);
@@ -386,7 +377,7 @@ class HScript extends Iris
 
 		set('Function_Stop', LuaUtils.Function_Stop);
 		set('Function_Continue', LuaUtils.Function_Continue);
-		set('Function_StopLua', LuaUtils.Function_StopLua); //doesnt do much cuz HScript has a lower priority than Lua
+		set('Function_StopLua', LuaUtils.Function_StopLua); 
 		set('Function_StopHScript', LuaUtils.Function_StopHScript);
 		set('Function_StopAll', LuaUtils.Function_StopAll);
 	}
@@ -427,7 +418,6 @@ class HScript extends Iris
 			}
 			return null;
 		});
-		// This function is unnecessary because import already exists in HScript as a native feature
 		funk.addLocalCallback("addHaxeLibrary", function(libName:String, ?libPackage:String = '') {
 			var str:String = '';
 			if (libPackage.length > 0)
@@ -470,7 +460,7 @@ class HScript extends Iris
 		}
 
 		try {
-			var func:Dynamic = interp.variables.get(funcToRun); // function signature
+			var func:Dynamic = interp.variables.get(funcToRun); 
 			final ret = Reflect.callMethod(null, func, args ?? []);
 			return {funName: funcToRun, signature: func, returnValue: ret};
 		}

@@ -99,7 +99,6 @@ class TitleState extends MusicBeatState
 			if(FlxG.save.data != null && FlxG.save.data.fullscreen)
 			{
 				FlxG.fullscreen = FlxG.save.data.fullscreen;
-				//trace('LOADED FULLSCREEN SETTING!!');
 			}
 			persistentUpdate = true;
 			persistentDraw = true;
@@ -127,7 +126,7 @@ class TitleState extends MusicBeatState
 		#else
 		if(FlxG.save.data.flashing == null && !FlashingState.leftState)
 		{
-			controls.isInSubstate = false; //idfk what's wrong
+			controls.isInSubstate = false; 
 			FlxTransitionableState.skipNextTransIn = true;
 			FlxTransitionableState.skipNextTransOut = true;
 			MusicBeatState.switchState(new FlashingState());
@@ -224,8 +223,8 @@ class TitleState extends MusicBeatState
 		ngSpr.antialiasing = ClientPrefs.data.antialiasing;
 
 		add(gfDance);
-		add(logoBl); //FNF Logo
-		add(titleText); //"Press Enter to Begin" text
+		add(logoBl); 
+		add(titleText); 
 		add(credGroup);
 		add(ngSpr);
 
@@ -234,10 +233,8 @@ class TitleState extends MusicBeatState
 		else
 			initialized = true;
 
-		// credGroup.add(credTextShit);
 	}
 
-	// JSON data
 	var characterImage:String = 'gfDanceTitle';
 	var animationName:String = 'gfDance';
 
@@ -284,12 +281,11 @@ class TitleState extends MusicBeatState
 			}
 			else trace('[WARN] No Title JSON detected, using default values.');
 		}
-		//else trace('[WARN] No Title JSON detected, using default values.');
 	}
 
 	function easterEggData()
 	{
-		if (FlxG.save.data.psychDevsEasterEgg == null) FlxG.save.data.psychDevsEasterEgg = ''; //Crash prevention
+		if (FlxG.save.data.psychDevsEasterEgg == null) FlxG.save.data.psychDevsEasterEgg = ''; 
 		var easterEgg:String = FlxG.save.data.psychDevsEasterEgg;
 		switch(easterEgg.toUpperCase())
 		{
@@ -350,7 +346,6 @@ class TitleState extends MusicBeatState
 	{
 		if (FlxG.sound.music != null)
 			Conductor.songPosition = FlxG.sound.music.time;
-		// FlxG.watch.addQuick('amp', FlxG.sound.music.amplitude);
 
 		var pressedEnter:Bool = FlxG.keys.justPressed.ENTER || controls.ACCEPT || TouchUtil.justPressed;
 
@@ -372,7 +367,6 @@ class TitleState extends MusicBeatState
 			if (titleTimer > 2) titleTimer -= 2;
 		}
 
-		// EASTER EGG
 
 		if (initialized && !transitioning && skippedIntro)
 		{
@@ -404,15 +398,12 @@ class TitleState extends MusicBeatState
 				{
 					if (updateCheckDone)
 					{
-						// Güncelleme kontrolü bitti, sonuca göre geç
 						goToNextState();
 					}
 					else
 					{
-						// Güncelleme kontrolü hala devam ediyor, bekle
 						waitingForUpdateCheck = true;
 						trace('[TitleState] Güncelleme kontrolü bekleniyor...');
-						// Timeout koruması (1.5 saniye) — Yavaş internetli oyuncuların takılı kalmasını önler!
 						new FlxTimer().start(1.5, function(timeoutTmr:FlxTimer)
 						{
 							if (waitingForUpdateCheck)
@@ -433,14 +424,12 @@ class TitleState extends MusicBeatState
 				if(allowedKeys.contains(keyName)) {
 					easterEggKeysBuffer += keyName;
 					if(easterEggKeysBuffer.length >= 32) easterEggKeysBuffer = easterEggKeysBuffer.substring(1);
-					//trace('Test! Allowed Key pressed!!! Buffer: ' + easterEggKeysBuffer);
 
 					for (wordRaw in easterEggKeys)
 					{
-						var word:String = wordRaw.toUpperCase(); //just for being sure you're doing it right
+						var word:String = wordRaw.toUpperCase(); 
 						if (easterEggKeysBuffer.contains(word))
 						{
-							//trace('YOOO! ' + word);
 							if (FlxG.save.data.psychDevsEasterEgg == word)
 								FlxG.save.data.psychDevsEasterEgg = '';
 							else
@@ -513,7 +502,6 @@ class TitleState extends MusicBeatState
 			updateCheckDone = true;
 			trace('[TitleState] Güncelleme kontrolü başarısız: $error');
 
-			// Eğer kullanıcı enter'a basıp bekliyorsa, artık geçebilir
 			if (waitingForUpdateCheck)
 			{
 				waitingForUpdateCheck = false;
@@ -539,7 +527,6 @@ class TitleState extends MusicBeatState
 				trace('[TitleState] Güncelleme yok.');
 			}
 
-			// Eğer kullanıcı enter'a basıp bekliyorsa
 			if (waitingForUpdateCheck)
 			{
 				waitingForUpdateCheck = false;
@@ -550,7 +537,6 @@ class TitleState extends MusicBeatState
 	
 	function goToNextState():Void
 	{
-		// External modpackleri filtrele (sadece direct olanları say)
 		var directUpdates:Array<Dynamic> = [];
 		for (mp in pendingUpdates)
 		{
@@ -683,7 +669,7 @@ class TitleState extends MusicBeatState
 		if (!skippedIntro)
 		{
 			#if TITLE_SCREEN_EASTER_EGG
-			if (playJingle) //Ignore deez
+			if (playJingle) 
 			{
 				playJingle = false;
 				var easteregg:String = FlxG.save.data.psychDevsEasterEgg;
@@ -702,7 +688,7 @@ class TitleState extends MusicBeatState
 					case 'PESSY':
 						sound = FlxG.sound.play(Paths.sound('JinglePessy'));
 
-					default: //Go back to normal ugly ass boring GF
+					default: 
 						remove(ngSpr);
 						remove(credGroup);
 						FlxG.camera.flash(FlxColor.WHITE, 2);
@@ -739,7 +725,7 @@ class TitleState extends MusicBeatState
 					};
 				}
 			}
-			else #end //Default! Edit this one!!
+			else #end 
 			{
 				remove(ngSpr);
 				remove(credGroup);

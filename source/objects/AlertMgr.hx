@@ -321,7 +321,6 @@ class AlertMessage extends Sprite
     function _onOver(_:MouseEvent) { if (_state == COUNTING) alpha = 0.92; }
     function _onOut(_:MouseEvent)  { alpha = 1.0; }
 
-    // ── Action Buttons ──
 
     function _buildActionButtons(fontName:String, rowX:Float, rowY:Float, rowW:Float, s:Float):Void
     {
@@ -488,7 +487,6 @@ class AlertMessage extends Sprite
         return _primaryLabelBase;
     }
 
-    // ── Timer / Counter ──
 
     function _updateTimerBar(ratio:Float)
     {
@@ -508,7 +506,6 @@ class AlertMessage extends Sprite
         _counterField.textColor = _blendColor(_dimColor(_accentColor, 0.4), _accentColor, ratio);
     }
 
-    // ── Helpers ──
 
     function _makeField(font:String, size:Int, color:Int, bold:Bool):TextField
     {

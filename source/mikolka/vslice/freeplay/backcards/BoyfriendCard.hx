@@ -86,7 +86,6 @@ class BoyfriendCard extends BackingCard
 		txtNuts = new BGScrollingText(0, 285, currentCharacter.getFreeplayDJText(3), FlxG.width / 2, true, 43);
 		funnyScroll3 = new BGScrollingText(0, orangeBackShit.y + 10, currentCharacter.getFreeplayDJText(1), FlxG.width / 2, 60);
 
-		// Mobile performans: scroll text sayısını azalt
 		#if mobile
 		scrollTextsEnabled = !VsliceOptions.LOW_QUALITY;
 		#end
@@ -152,7 +151,6 @@ class BoyfriendCard extends BackingCard
 		funnyScroll3.speed = -3.8;
 		add(funnyScroll3);
 
-		// Mobile'da gereksiz scroll text'leri devre dışı bırak
 		if (!scrollTextsEnabled)
 		{
 			moreWays.active = false;
@@ -184,7 +182,6 @@ class BoyfriendCard extends BackingCard
 	{
 		beatFreq = beatFreqList[Math.floor(FreeplayHelpers.BPM / 140)];
 
-		// Mobile'da glow frekansını azalt
 		#if mobile
 		if (beatFreq < 4)
 			beatFreq = 4;

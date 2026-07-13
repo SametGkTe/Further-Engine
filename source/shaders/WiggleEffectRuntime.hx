@@ -5,19 +5,13 @@ import openfl.Assets;
 
 enum WiggleEffectType
 {
-  DREAMY; // 0
-  WAVY; // 1
-  HEAT_WAVE_HORIZONTAL; // 2
-  HEAT_WAVE_VERTICAL; // 3
-  FLAG; // 4
+  DREAMY; 
+  WAVY; 
+  HEAT_WAVE_HORIZONTAL; 
+  HEAT_WAVE_VERTICAL; 
+  FLAG; 
 }
 
-/**
- * To use:
- * 1. Create an instance of the class, specifying speed, frequency, and amplitude.
- * 2. Call `sprite.shader = wiggleEffect` on the target sprite.
- * 3. Call the update() method on the instance every frame.
- */
 class WiggleEffectRuntime extends FlxRuntimeShader
 {
   public static function getEffectTypeId(v:WiggleEffectType):Int
@@ -69,7 +63,6 @@ class WiggleEffectRuntime extends FlxRuntimeShader
   {
     super(Assets.getText(Paths.shaderFragment('wiggle')));
 
-    // These values may not propagate to the shader until later.
     this.waveSpeed = speed;
     this.waveFrequency = freq;
     this.waveAmplitude = amplitude;
@@ -78,7 +71,6 @@ class WiggleEffectRuntime extends FlxRuntimeShader
 
   public function update(elapsed:Float)
   {
-    // The setter tied to this value automatically propagates the value to the shader.
     this.time += elapsed;
   }
 }

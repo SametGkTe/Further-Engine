@@ -84,7 +84,7 @@ class PicoCapableStage extends BaseStage
 		var game = PlayState.instance;
 		if (!(NENE_LIST.contains(PlayState.SONG.gfVersion) || forceABot))
 			return;
-		if (!forceABot) StickerSubState.STICKER_SET = "stickers-set-2"; //? yep, it's pico time!
+		if (!forceABot) StickerSubState.STICKER_SET = "stickers-set-2"; 
 
 		game.gfGroup.y -= 200;
 		if(PIXEL_LIST.contains(PlayState.SONG.gfVersion) || PlayState.isPixelStage) {
@@ -113,7 +113,6 @@ class PicoCapableStage extends BaseStage
 							transitionState();
 						}
 					default:
-						// Ignore.
 				}
 			}
 		}
@@ -132,7 +131,7 @@ class PicoCapableStage extends BaseStage
 	{
 		if (abot == null && abotPixel == null)
 			return;
-		updateABotEye(); // If this fails we probably need to dispose our ABot
+		updateABotEye(); 
 	}
 
 	function onNeneAnimationFinished(name:String)
@@ -151,7 +150,6 @@ class PicoCapableStage extends BaseStage
 				}
 
 			default:
-				// Ignore.
 		}
 	}
 
@@ -173,7 +171,6 @@ class PicoCapableStage extends BaseStage
 					blinkCountdown--;
 
 			default:
-				// In other states, don't interrupt the existing animation.
 		}
 	}
 
@@ -198,7 +195,6 @@ class PicoCapableStage extends BaseStage
 		super.goodNoteHit(note);
 		if (!NENE_LIST.contains(PlayState.SONG.gfVersion))
 			return;
-		// 10% chance of playing combo50/combo100 animations for Nene
 		switch (game.combo)
 		{
 			case 50, 100:
@@ -262,7 +258,7 @@ class PicoCapableStage extends BaseStage
 	}
 
 	public function ABot_plink()
-	{ // silly daniel
+	{ 
 		if (abot == null || abot.speakerAlt == null)
 			return;
 		abot.speakerAlt.alpha = 1;
@@ -277,7 +273,7 @@ class PicoCapableStage extends BaseStage
 
 	function updateABotEye(finishInstantly:Bool = false)
 	{
-		@:privateAccess // lol
+		@:privateAccess 
 		if (PlayState.SONG.notes[
 			Std.int(FlxMath.bound(PlayState.instance.curSection, 0, PlayState.SONG.notes.length - 1))
 		].mustHitSection == true){
@@ -343,7 +339,6 @@ class PicoCapableStage extends BaseStage
 				neneKnife.animation.finishCallback = function(_)
 				{
 					state.remove(neneKnife);
-					//neneKnife.destroy();
 				}
 				state.insert(0, neneKnife);
 				neneKnife.animation.play('anim', true);

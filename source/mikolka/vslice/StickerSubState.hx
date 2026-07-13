@@ -8,7 +8,6 @@ import states.MainMenuState;
 import flixel.FlxSprite;
 import haxe.Json;
 import lime.utils.Assets;
-// import flxtyped group
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.util.FlxTimer;
 import flixel.FlxG;
@@ -32,32 +31,20 @@ class StickerSubState extends MusicBeatSubstate
   public static var STICKER_PACK = "all";
   public var grpStickers:FlxTypedGroup<StickerSprite>;
 
-  // yes... a damn OpenFL sprite!!!
   public var dipshit:Sprite;
 
-  /**
-   * The state to switch to after the stickers are done.
-   * This is a FUNCTION so we can pass it directly to `FlxG.switchState()`,
-   * and we can add constructor parameters in the caller.
-   */
   var targetState:StickerSubState->FlxState;
 
-  // what "folders" to potentially load from (as of writing only "keys" exist)
   var soundSelections:Array<String> = [];
-  // what "folder" was randomly selected
   var soundSelection:String = "";
   var sounds:Array<String> = [];
 
   public function new(?oldStickers:Array<StickerSprite>, ?targetState:StickerSubState->FlxState):Void
   {
-    //controls.isInSubstate = true;
     super();
 
     this.targetState = (targetState == null) ? ((sticker) -> new MainMenuState()) : targetState;
 
-    // todo still
-    // make sure that ONLY plays mp3/ogg files
-    // if there's no mp3/ogg file, then it regenerates/reloads the random folder
 
     var assetsInList = openfl.utils.Assets.list();
 
@@ -70,7 +57,6 @@ class StickerSubState extends MusicBeatSubstate
       return a.replace('assets/shared/sounds/stickersounds/', '').split('/')[0];
     });
 
-    // cracked cleanup... yuchh...
     for (i in soundSelections)
     {
       while (soundSelections.contains(i))
@@ -100,8 +86,6 @@ class StickerSubState extends MusicBeatSubstate
     grpStickers = new FlxTypedGroup<StickerSprite>();
     add(grpStickers);
 
-    // makes the stickers on the most recent camera, which is more often than not... a UI camera!!
-    // grpStickers.cameras = [FlxG.cameras.list[FlxG.cameras.list.length - 1]];
     grpStickers.cameras = FlxG.cameras.list;
 
     if (oldStickers != null)
@@ -121,13 +105,6 @@ class StickerSubState extends MusicBeatSubstate
   {
     grpStickers.cameras = FlxG.cameras.list;
 
-    /*
-      if (dipshit != null)
-      {
-        FlxG.removeChild(dipshit);
-        dipshit = null;
-      }
-     */
 
     if (grpStickers.members == null || grpStickers.members.length == 0)
     {
@@ -185,15 +162,12 @@ class StickerSubState extends MusicBeatSubstate
       UserErrorSubstate.makeMessage('Sticker load error', 'Could not load sticker set "$STICKER_SET"\n\n$x');
       stickers = null;
     }
-    // sticker group -> array of sticker names
 
     var xPos:Float = -100;
     var yPos:Float = -100;
     while (xPos <= FlxG.width)
     {
-      // A little complicateb block, so let me explain:
       var sticky:StickerSprite = null;
-      // Determinate if we actually have a valid set.
       if (stickers != null)
       {
         var stickerPack:Array<String> = stickers.getPack(STICKER_PACK);
@@ -248,34 +222,10 @@ class StickerSubState extends MusicBeatSubstate
 
     FlxG.random.shuffle(grpStickers.members);
 
-    // var stickerCount:Int = 0;
 
-    // for (w in 0...6)
-    // {
-    //   var xPos:Float = FlxG.width * (w / 6);
-    //   for (h in 0...6)
-    //   {
-    //     var yPos:Float = FlxG.height * (h / 6);
-    //     var sticker = grpStickers.members[stickerCount];
-    //     xPos -= sticker.width / 2;
-    //     yPos -= sticker.height * 0.9;
-    //     sticker.x = xPos;
-    //     sticker.y = yPos;
 
-    //     stickerCount++;
-    //   }
-    // }
 
-    // for (ind => sticker in grpStickers.members)
-    // {
-    //   sticker.x = (ind % 8) * sticker.width;
-    //   var yShit:Int = Math.floor(ind / 8);
-    //   sticker.y += yShit * sticker.height;
-    //   // scales it juuuust a smidge
-    //   sticker.y += 20 * yShit;
-    // }
 
-    // another damn for loop... apologies!!!
     for (ind => sticker in grpStickers.members)
     {
       sticker.timing = FlxMath.remapToRange(ind, 0, grpStickers.members.length, 0, 0.9);
@@ -293,7 +243,6 @@ class StickerSubState extends MusicBeatSubstate
 
         var frameTimer:Int = FlxG.random.int(0, 2);
 
-        // always make the last one POP
         if (ind == grpStickers.members.length - 1) frameTimer = 2;
 
         new FlxTimer().start((1 / 24) * frameTimer, _ -> {
@@ -308,19 +257,6 @@ class StickerSubState extends MusicBeatSubstate
             FlxTransitionableState.skipNextTransIn = true;
             FlxTransitionableState.skipNextTransOut = true;
 
-            // I think this grabs the screen and puts it under the stickers?
-            // Leaving this commented out rather than stripping it out because it's cool...
-            /*
-              dipshit = new Sprite();
-              var scrn:BitmapData = new BitmapData(FlxG.width, FlxG.height, true, 0x00000000);
-              var mat:Matrix = new Matrix();
-              scrn.draw(grpStickers.cameras[0].canvas, mat);
-
-              var bitmap:Bitmap = new Bitmap(scrn);
-
-              dipshit.addChild(bitmap);
-              // FlxG.addChildBelowMouse(dipshit);
-             */
              if(subState != null){
               subStateClosed.addOnce(s -> {
                 FlxG.switchState(targetState(this));
@@ -336,7 +272,6 @@ class StickerSubState extends MusicBeatSubstate
       return FlxSort.byValues(ord, a.timing, b.timing);
     });
 
-    // centers the very last sticker
     var lastOne:StickerSprite = grpStickers.members[grpStickers.members.length - 1];
     lastOne.updateHitbox();
     lastOne.angle = 0;
@@ -345,7 +280,7 @@ class StickerSubState extends MusicBeatSubstate
     STICKER_SET = "stickers-set-1";
     STICKER_PACK = "all";
     #if !LEGACY_PSYCH
-    Mods.loadTopMod(); // We won't be messing with mods from here on
+    Mods.loadTopMod(); 
     #else
     WeekData.loadTheFirstEnabledMod();
     #end
@@ -355,10 +290,6 @@ class StickerSubState extends MusicBeatSubstate
   {
     super.update(elapsed);
 
-    // if (FlxG.keys.justPressed.ANY)
-    // {
-    //   regenStickers();
-    // }
   }
 
   var switchingState:Bool = false;
@@ -371,7 +302,6 @@ class StickerSubState extends MusicBeatSubstate
 
   override public function destroy():Void
   {
-    //controls.isInSubstate = false;
     if (switchingState) return;
     super.destroy();
   }
@@ -454,7 +384,6 @@ class StickerInfo
   }
 }
 
-// somethin damn cute just for the json to cast to!
 typedef StickerShit =
 {
   name:String,

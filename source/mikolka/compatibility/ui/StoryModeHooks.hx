@@ -54,16 +54,13 @@ class StoryModeHooks {
 			DiscordClient.loadModRPC();
 			#end
     } 
-    // returns "true" is succsessful
     public static function prepareWeek(host:StoryMenuState):Bool{
-        // We can't use Dynamic Array .copy() because that crashes HTML5, here's a workaround.
 			var songArray:Array<String> = [];
 			var leWeek:Array<Dynamic> = host.loadedWeeks[StoryMenuState.curWeek].songs;
 			for (i in 0...leWeek.length) {
 				songArray.push(leWeek[i][0]);
 			}
 
-			// Nevermind that's stupid lmao
 			try
 			{
                 var diffic = Difficulty.getFilePath(host.curDifficulty);
@@ -71,7 +68,6 @@ class StoryModeHooks {
     
                 PlayState.storyDifficulty = host.curDifficulty;
                 
-                //? We load erect songs (because yes)
                 if(diffic == "-erect" || diffic == "-nightmare") PlayState.storyPlaylist = songArray.convertToErectVariants();
 				else PlayState.storyPlaylist = songArray;
 

@@ -3,9 +3,9 @@ package states.stages.objects;
 enum SpraycanState
 {
 	WAITING;
-	ARCING;		// In the air.
-	SHOT;		// Hit by the player.
-	IMPACTED;	// Impacted the player.
+	ARCING;		
+	SHOT;		
+	IMPACTED;	
 }
 
 class SpraycanAtlasSprite extends FlxSpriteGroup

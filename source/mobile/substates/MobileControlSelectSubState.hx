@@ -145,13 +145,13 @@ class MobileControlSelectSubState extends MusicBeatSubstate
 		exit.label.setFormat(Paths.font('vcr.ttf'), 28, FlxColor.WHITE, FlxTextAlign.CENTER);
 		exit.label.fieldWidth = exit.width;
 		exit.label.x = ((exit.width - exit.label.width) / 2) + exit.x;
-		exit.label.offset.y = -10; // WHY THE FUCK I CAN'T CHANGE THE LABEL Y
+		exit.label.offset.y = -10; 
 		exit.cameras = [ui];
 		add(exit);
 
 		reset = new UIButton(exit.x, exit.height + exit.y + 20, Language.getPhrase('mobileC_reset', "Reset"), () ->
 		{
-			changeOption(0); // realods the current control mode ig?
+			changeOption(0); 
 			FlxG.sound.play(Paths.sound('cancelMenu'));
 		});
 		reset.color = FlxColor.RED;
@@ -208,12 +208,11 @@ class MobileControlSelectSubState extends MusicBeatSubstate
 					bindButton.bounds.immovable = false;
 					button.centerBounds();
 					FlxG.overlap(bindButton.bounds, button.bounds, function(a:Dynamic, b:Dynamic)
-					{ // these args dosen't work fuck them :/
+					{ 
 						bindButton.centerInBounds();
 						button.centerBounds();
 						bindButton.bounds.immovable = true;
 						button.bounds.immovable = false;
-						// trace('button${bindButton.tag} & button${button.tag} collided');
 					}, function(a:Dynamic, b:Dynamic)
 					{
 						if (!bindButton.bounds.immovable)
@@ -230,13 +229,6 @@ class MobileControlSelectSubState extends MusicBeatSubstate
 						}
 						return true;
 					});
-					/*FlxG.collide(bindButton.bounds, button.bounds, function(a:Dynamic, b:Dynamic) { // these args dosen't work fuck them :/
-						bindButton.centerInBounds();
-						button.centerBounds();
-						bindButton.bounds.immovable = true;
-						button.bounds.immovable = false;
-						trace('button${bindButton.tag} & button${button.tag} collided');
-					});*/
 				}
 			});
 		}

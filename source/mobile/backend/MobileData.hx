@@ -28,10 +28,6 @@ import haxe.io.Path;
 import openfl.utils.Assets;
 import flixel.util.FlxSave;
 
-/**
- * ...
- * @author: Karim Akra
- */
 class MobileData
 {
 	public static var actionModes:Map<String, TouchButtonsData> = new Map();
@@ -104,7 +100,6 @@ class MobileData
 
 	public static function setButtonsColors(buttonsInstance:Dynamic):Dynamic
 	{
-		// Dynamic Controls Color
 		var data:Dynamic;
 		if (ClientPrefs.data.dynamicColors)
 			data = ClientPrefs.data;
@@ -173,11 +168,11 @@ typedef TouchButtonsData =
 
 typedef ButtonsData =
 {
-	button:String, // what TouchButton should be used, must be a valid TouchButton var from TouchPad as a string.
-	graphic:String, // the graphic of the button, usually can be located in the TouchPad xml .
-	x:Float, // the button's X position on screen.
-	y:Float, // the button's Y position on screen.
-	color:String // the button color, default color is white.
+	button:String, 
+	graphic:String, 
+	x:Float, 
+	y:Float, 
+	color:String 
 }
 
 enum ExtraActions

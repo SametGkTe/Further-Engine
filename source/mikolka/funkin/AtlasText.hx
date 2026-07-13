@@ -5,10 +5,6 @@ import flixel.graphics.frames.FlxAtlasFrames;
 import flixel.group.FlxSpriteGroup;
 import flixel.util.FlxStringUtil;
 
-/**
- * AtlasText is an improved version of Alphabet and FlxBitmapText.
- * It supports animations on the letters, and is less buggy than Alphabet.
- */
 class AtlasText extends FlxTypedSpriteGroup<AtlasChar>
 {
   static var fonts = new Map<AtlasFont, AtlasFontData>();
@@ -51,11 +47,10 @@ class AtlasText extends FlxTypedSpriteGroup<AtlasChar>
     var caseText = restrictCase(this.text);
 
     this.text = value;
-    if (caseText == caseValue) return value; // cancel redraw
+    if (caseText == caseValue) return value; 
 
     if (caseValue.indexOf(caseText) == 0)
     {
-      // new text is just old text with additions at the end, append the difference
       appendTextCased(caseValue.substr(caseText.length));
       return this.text;
     }
@@ -70,11 +65,6 @@ class AtlasText extends FlxTypedSpriteGroup<AtlasChar>
     return this.text;
   }
 
-  /**
-   * Adds new characters, without needing to redraw the previous characters
-   * @param text The text to add.
-   * @throws String if `text` is null.
-   */
   public function appendText(text:String)
   {
     if (text == null) throw "cannot append null";
@@ -84,10 +74,6 @@ class AtlasText extends FlxTypedSpriteGroup<AtlasChar>
     this.text = this.text + text;
   }
 
-  /**
-   * Converts all characters to fit the font's `allowedCase`.
-   * @param text
-   */
   function restrictCase(text:String)
   {
     return switch (caseAllowed)
@@ -98,16 +84,11 @@ class AtlasText extends FlxTypedSpriteGroup<AtlasChar>
     }
   }
 
-  /**
-   * Adds new text on top of the existing text. Helper for other methods; DOESN'T CHANGE `this.text`.
-   * @param text The text to add, assumed to match the font's `caseAllowed`.
-   */
   function appendTextCased(text:String)
   {
     var charCount = group.countLiving();
     var xPos:Float = 0;
     var yPos:Float = 0;
-    // `countLiving` returns -1 if group is empty
     if (charCount == -1) charCount = 0;
     else if (charCount > 0)
     {
@@ -139,7 +120,7 @@ class AtlasText extends FlxTypedSpriteGroup<AtlasChar>
               charSprite = group.members[charCount];
               charSprite.revive();
               charSprite.char = char;
-              charSprite.alpha = 1; // gets multiplied when added
+              charSprite.alpha = 1; 
             }
             charSprite.x = xPos;
             charSprite.y = yPos + maxHeight - charSprite.height;
@@ -198,31 +179,30 @@ class AtlasChar extends FlxSprite
     return switch (char)
     {
       case '&': return '-andpersand-';
-      case "😠": '-angry faic-'; // TODO: Do multi-flag characters work?
+      case "😠": '-angry faic-'; 
       case "'": '-apostraphie-';
       case "\\": '-back slash-';
       case ",": '-comma-';
       case '-': '-dash-';
-      case '↓': '-down arrow-'; // U+2193
-      case "”": '-end quote-'; // U+0022
-      case "!": '-exclamation point-'; // U+0021
-      case "¡": '-inverted exclamation point-'; // U+00A1
-      case "¿": '-inverted question mark-'; // U+00BF
-      case "/": '-forward slash-'; // U+002F
-      case '>': '-greater than-'; // U+003E
-      case '♥': '-heart-'; // U+2665
+      case '↓': '-down arrow-'; 
+      case "”": '-end quote-'; 
+      case "!": '-exclamation point-'; 
+      case "¡": '-inverted exclamation point-'; 
+      case "¿": '-inverted question mark-'; 
+      case "/": '-forward slash-'; 
+      case '>': '-greater than-'; 
+      case '♥': '-heart-'; 
       case '♡': '-heart-';
-      case '←': '-left arrow-'; // U+2190
-      case '<': '-less than-'; // U+003C
+      case '←': '-left arrow-'; 
+      case '<': '-less than-'; 
       case "*": '-multiply x-';
-      case '.': '-period-'; // U+002E
+      case '.': '-period-'; 
       case "?": '-question mark-';
       case "\"": '-quote-';
-      case '→': '-right arrow-'; // U+2192
+      case '→': '-right arrow-'; 
       case "“": '-start quote-';
-      case '↑': '-up arrow-'; // U+2191
+      case '↑': '-up arrow-'; 
 
-      // Default to getting the character itself.
       default: char;
     }
   }

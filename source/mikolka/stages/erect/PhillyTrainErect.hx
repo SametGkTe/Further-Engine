@@ -102,9 +102,9 @@ class PhillyTrainErect extends BaseStage
         	if(flValue1 == null || flValue1 <= 0) flValue1 = 0;
             var lightId:Int = Math.round(flValue1);
             switch(lightId){
-				case 0: //off
+				case 0: 
 					cutsceneObj.imposterPico.color = 0xFFFFFFFF;
-				case 1: //on
+				case 1: 
 					cutsceneObj.imposterPico.color = dad.color;
 			}
 		}

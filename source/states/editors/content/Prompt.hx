@@ -2,7 +2,6 @@ package states.editors.content;
 
 import flixel.util.FlxDestroyUtil;
 
-// Exit confirmation prompt used on all editors, for convenience
 class ExitConfirmationPrompt extends Prompt
 {
 	public function new(?finishCallback:Void->Void)
@@ -17,7 +16,6 @@ class ExitConfirmationPrompt extends Prompt
 	}
 }
 
-// A Simple Prompt with "OK" and "Cancel" that covers most case usages
 class Prompt extends BasePrompt
 {
 	var yesFunction:Void->Void;

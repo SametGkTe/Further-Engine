@@ -4,14 +4,8 @@ import mikolka.compatibility.VsliceOptions;
 import flixel.graphics.FlxGraphic;
 import mikolka.compatibility.funkin.FunkinPath as Paths;
 
-/**
- * The sprite for the difficulty
- */
 class DifficultySprite extends FlxSprite
 {
-	/**
-	 * The difficulty id which this sprite represents.
-	 */
 	public var difficultyId:String;
 
 	public var hasValidTexture = true;
@@ -28,19 +22,19 @@ class DifficultySprite extends FlxSprite
 		{
 			frames = Paths.getSparrowAtlas('freeplay/freeplayDifficulties/freeplay' + diffId,false);
 			animation.addByPrefix('idle', 'idle0', 24, true);
-			widthOffset = (frames.frames[0].frame.width / 2) - 20; // Animated offset
+			widthOffset = (frames.frames[0].frame.width / 2) - 20; 
 			if (VsliceOptions.FLASHBANG)
 				this.animation.play('idle');
 		}
 		else
 		{
 			tex = Paths.noGpuImage('freeplay/freeplayDifficulties/freeplay' + diffId);
-			if (tex != null) widthOffset = (tex.width / 2) - 20; // standard offset
+			if (tex != null) widthOffset = (tex.width / 2) - 20; 
 			if (tex == null)
 			{
 				tex = Paths.noGpuImage('menudifficulties/' + diffId);
 				if (tex != null)
-					widthOffset = (tex.width / 2) - 80; // story texture offset
+					widthOffset = (tex.width / 2) - 80; 
 			}
 
 			if (tex == null)
@@ -52,7 +46,7 @@ class DifficultySprite extends FlxSprite
 				grpFallbackDifficulty.regenGraphic();
 				@:privateAccess
 				tex = grpFallbackDifficulty.graphic;
-				widthOffset = (tex.width / 2) - 55; // text offset
+				widthOffset = (tex.width / 2) - 55; 
 			}
 
 			this.loadGraphic(tex);

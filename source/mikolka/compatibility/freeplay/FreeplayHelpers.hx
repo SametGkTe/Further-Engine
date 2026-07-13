@@ -34,27 +34,24 @@ class FreeplayHelpers
 	{
 		var songs = [];
 		WeekData.reloadWeekFiles(false);
-		// programmatically adds the songs via LevelRegistry and SongRegistry
 		for (i in 0...WeekData.weeksList.length)
 		{
 			if (weekIsLocked(WeekData.weeksList[i]))
 				continue;
 
-			var leWeek:WeekData = WeekData.weeksLoaded.get(WeekData.weeksList[i]); // TODO tweak this
+			var leWeek:WeekData = WeekData.weeksLoaded.get(WeekData.weeksList[i]); 
 			if (leWeek == null)
 				continue;
 
 			WeekData.setDirectoryFromWeek(leWeek);
 			for (song in leWeek.songs)
 			{
-				// trace("pushing "+song);
 				var colors:Array<Int> = song[2];
 				if (colors == null || colors.length < 3)
 				{
 					colors = [146, 113, 253];
 				}
 				var sngCard = new FreeplaySongData(i, song[0], song[1], FlxColor.fromRGB(colors[0], colors[1], colors[2]));
-				// songName, weekNum, songCharacter, color
 				if (sngCard.songDifficulties.length == 0)
 					continue;
 
@@ -83,7 +80,7 @@ class FreeplayHelpers
 	{
 		BPMCache.instance.clearCache();
 		Mods.loadTopMod();
-		FlxG.signals.postStateSwitch.dispatch(); // ? for the screenshot plugin to clean itself
+		FlxG.signals.postStateSwitch.dispatch(); 
 	}
 
 	public inline static function openResetScoreState(state:FreeplayState, sng:FreeplaySongData, onScoreReset:() -> Void = null)
@@ -99,7 +96,7 @@ class FreeplayHelpers
 	public static function loadDiffsFromWeek(songData:FreeplaySongData)
 	{
 		Mods.currentModDirectory = songData.folder;
-		PlayState.storyWeek = songData.levelId; // TODO
+		PlayState.storyWeek = songData.levelId; 
 		Difficulty.loadFromWeek();
 	}
 

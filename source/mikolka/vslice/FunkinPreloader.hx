@@ -23,8 +23,6 @@ import backend.Paths;
 
 using StringTools;
 
-// Annotation embeds the asset in the executable for faster loading.
-// Polymod can't override this, so we can't use this technique elsewhere.
 
 @:bitmap("art/banner.png")
 class LogoImage extends BitmapData
@@ -38,35 +36,20 @@ class TouchHereToPlayImage extends BitmapData
 }
 #end
 
-/**
- * This preloader displays a logo while the game downloads assets.
- */
 class FunkinPreloader extends FlxBasePreloader
 {
-	/**
-	 * The logo image width at the base resolution.
-	 * Scaled up/down appropriately as needed.
-	 */
 	static final BASE_WIDTH:Float = 1280;
 
-	/**
-	 * Margin at the sides and bottom, around the loading bar.
-	 */
 	static final BAR_PADDING:Float = 20;
 
 	static final BAR_HEIGHT:Int = 12;
 
-	/**
-	 * Logo takes this long (in seconds) to fade in.
-	 */
 	static final LOGO_FADE_TIME:Float = 2.5;
 
-	// Ratio between window size and BASE_WIDTH
 	var ratio:Float = 0;
 
 	var currentState:FunkinPreloaderState = FunkinPreloaderState.NotStarted;
 
-	// private var downloadingAssetsStartTime:Float = -1;
 	private var downloadingAssetsPercent:Float = -1;
 	private var downloadingAssetsComplete:Bool = false;
 
@@ -106,12 +89,8 @@ class FunkinPreloader extends FlxBasePreloader
 
 	private var cachingCoreAssetsPercent:Float = -1;
 
-	/**
-	 * The timestamp when the other steps completed and the `Finishing up` step started.
-	 */
 	private var completeTime:Float = -1;
 
-	// Graphics
 	var logo:Bitmap;
 	#if TOUCH_HERE_TO_PLAY
 	var touchHereToPlay:Bitmap;
@@ -136,42 +115,31 @@ class FunkinPreloader extends FlxBasePreloader
 	{
 		super(0.0, ["psych-slice.github.io", FlxBasePreloader.LOCAL]);
 
-		// We can't even call trace() yet, until Flixel loads.
 		trace('Initializing custom preloader...');
 
 		this.siteLockTitleText = "You Loser!";
-		// this.siteLockBodyText = "This isn't Newgrounds!\nGo play Friday Night Funkin' on Newgrounds:";
 	}
 
 	override function create():Void
 	{
-		// Nothing happens in the base preloader.
 		super.create();
 
-		// Background color.
 		Lib.current.stage.color = 0xFF000000;
 		Lib.current.stage.frameRate = 30;
 
-		// Width and height of the preloader.
 		this._width = Lib.current.stage.stageWidth;
 		this._height = Lib.current.stage.stageHeight;
 
-		// Tux icon!!!
 		Main.loadGameEarly();
 
-		// Scale assets to the screen size.
 		ratio = this._width / BASE_WIDTH / 2.0;
 
-		// Create the logo.
 		logo = createBitmap(LogoImage, function(bmp:Bitmap)
 		{
-			// Scale and center the logo.
-			// We have to do this inside the async call, after the image size is known.
 			bmp.scaleX = bmp.scaleY = ratio;
 			bmp.x = (this._width - bmp.width) / 2;
 			bmp.y = (this._height - bmp.height) / 2;
 		});
-		// addChild(logo);
 
 		var amountOfPieces:Int = 16;
 		progressBarPieces = [];
@@ -216,10 +184,8 @@ class FunkinPreloader extends FlxBasePreloader
 		progressLeftText.text = 'Downloading assets...';
 		progressLeftText.x = BAR_PADDING;
 		progressLeftText.y = this._height - BAR_PADDING - BAR_HEIGHT - 290;
-		// progressLeftText.shader = new VFDOverlay();
 		addChild(progressLeftText);
 
-		// Create the progress %.
 		progressRightText = new TextField();
 
 		var progressRightTextFormat = new TextFormat("DS-Digital", 16, 0xFFA4FF11, true);
@@ -281,14 +247,7 @@ class FunkinPreloader extends FlxBasePreloader
 		stereoText.y = -40;
 		box.addChild(stereoText);
 
-		// var dummyMatrix:openfl.geom.Matrix = new Matrix();
-		// dummyMatrix.createGradientBox(this._width, this._height * 0.1, 90 * Math.PI / 180);
 
-		// var gradient:Sprite = new Sprite();
-		// gradient.graphics.beginGradientFill(GradientType.LINEAR, [0xFFFFFF, 0x000000], [1, 1], [0, 255], dummyMatrix, SpreadMethod.REFLECT);
-		// gradient.graphics.drawRect(0, 0, this._width, this._height);
-		// gradient.graphics.endFill();
-		// addChild(gradient);
 
 		vfdBitmap = new Bitmap(new BitmapData(this._width, this._height, true, 0xFFFFFFFF));
 		addChild(vfdBitmap);
@@ -299,8 +258,6 @@ class FunkinPreloader extends FlxBasePreloader
 		#if TOUCH_HERE_TO_PLAY
 		touchHereToPlay = createBitmap(TouchHereToPlayImage, function(bmp:Bitmap)
 		{
-			// Scale and center the touch to start image.
-			// We have to do this inside the async call, after the image size is known.
 			bmp.scaleX = bmp.scaleY = ratio;
 			bmp.x = (this._width - bmp.width) / 2;
 			bmp.y = (this._height - bmp.height) / 2;
@@ -321,7 +278,6 @@ class FunkinPreloader extends FlxBasePreloader
 		var elapsed:Float = (Date.now().getTime() - this._startTime) / 1000.0;
 
 		vfdShader.update(elapsed * 100);
-		// trace('Time since last frame: ' + (lastElapsed - elapsed));
 
 		downloadingAssetsPercent = percent;
 		var loadPercent:Float = updateState(percent, elapsed);
@@ -341,7 +297,6 @@ class FunkinPreloader extends FlxBasePreloader
 				return percent;
 
 			case FunkinPreloaderState.DownloadingAssets:
-				// Sometimes percent doesn't go to 100%, it's a floating point error.
 				if (downloadingAssetsPercent >= 1.0 || (elapsed > 0.0 && downloadingAssetsComplete))
 					currentState = FunkinPreloaderState.PreloadingPlayAssets;
 
@@ -353,9 +308,6 @@ class FunkinPreloader extends FlxBasePreloader
 					preloadingPlayAssetsStartTime = elapsed;
 					preloadingPlayAssetsPercent = 0.0;
 
-					// This is quick enough to do synchronously.
-					// ? Some misc caching
-					// Cache assets list for future use
 					NativeFileSystem.openFlAssets = Assets.list();
 					openfl.utils.Assets.cache.enabled = false;
 					
@@ -365,18 +317,7 @@ class FunkinPreloader extends FlxBasePreloader
 					});
 					#end
 
-					/*
-						// Make a future to retrieve the manifest
-						var future:Future<lime.utils.AssetLibrary> = Assets.preloadLibrary('gameplay');
 
-						future.onProgress((loaded:Int, total:Int) -> {
-						  preloadingPlayAssetsPercent = loaded / total;
-						});
-						future.onComplete((library:lime.utils.AssetLibrary) -> {
-						});
-					 */
-
-					// TODO: Reimplement this.
 					preloadingPlayAssetsPercent = 1.0;
 					preloadingPlayAssetsComplete = true;
 					return 0.0;
@@ -391,7 +332,6 @@ class FunkinPreloader extends FlxBasePreloader
 					}
 					else
 					{
-						// We need to return SIMULATED progress here.
 						if (preloadingPlayAssetsPercent < (elapsedPreloadingPlayAssets / 0.0))
 							return preloadingPlayAssetsPercent;
 						else
@@ -411,18 +351,6 @@ class FunkinPreloader extends FlxBasePreloader
 				{
 					initializingScriptsPercent = 0.0;
 
-					// ? THis loads mods
-					/*
-						var future:Future<Array<String>> = []; // PolymodHandler.loadNoModsAsync();
-
-						future.onProgress((loaded:Int, total:Int) -> {
-						  trace('PolymodHandler.loadNoModsAsync() progress: ' + loaded + '/' + total);
-						  initializingScriptsPercent = loaded / total;
-						});
-						future.onComplete((result:Array<String>) -> {
-						  trace('Completed initializing scripts: ' + result);
-						});
-					 */
 
 					initializingScriptsPercent = 1.0;
 					currentState = FunkinPreloaderState.CachingGraphics;
@@ -437,20 +365,8 @@ class FunkinPreloader extends FlxBasePreloader
 					cachingGraphicsPercent = 0.0;
 					cachingGraphicsStartTime = elapsed;
 					#if !LEGACY_PSYCH
-					// ? P-Slice precache commonly used graphics
-					//* FIles here won't be editable by mods
 					var assetsToCache:Array<String> = [
-						// "images/cursor-default.png",
-						// #if TOUCH_CONTROLS_ALLOWED
-						// 'mobile/images/touchpad/bg.png', 'mobile/images/touchpad/A.png', 'mobile/images/touchpad/B.png', 'mobile/images/touchpad/BACK.png',
-						// 'mobile/images/touchpad/PAUSE.png', 'mobile/images/touchpad/X.png', 'mobile/images/touchpad/Y.png', 'mobile/images/touchpad/UP.png',
-						// 'mobile/images/touchpad/DOWN.png', 'mobile/images/touchpad/LEFT.png', 'mobile/images/touchpad/RIGHT.png',
-						// #end
-						// "images/fonts/capsule-text.png",
-						// "images/fonts/freeplay-clear.png",
-						// "images/charSelect/lockedChill/spritemap1.png",
-						// "images/freeplay/albumRoll/volume4.png" // "images/ui/cursor.png"
-					]; // Assets.listGraphics('core');
+					]; 
 
 					var promise = new Promise<Any>();
 					new Future(() ->
@@ -461,22 +377,13 @@ class FunkinPreloader extends FlxBasePreloader
 							{
 								
 								CacheSystem.excludeAsset(item);
-								// if (CacheSystem.loadBitmap(item) != null)
-								// {
-								// 	#if debug trace("Cached: " + item); #end
-								// 	CacheSystem.excludeAsset(item);
-								// }
-								// else
-								// {
-								// 	trace("Failed to cache: " + item);
-								// }
 							}
 							catch (x:Exception)
 								trace("Exception when caching: " + x.message);
 							promise.progress(index + 1, assetsToCache.length);
 						}
 						promise.complete(null);
-					}, #if mac false #else true #end); // Assets.cacheAssets(assetsToCache);
+					}, #if mac false #else true #end); 
 
 					promise.future.onProgress((loaded:Int, total:Int) ->
 					{
@@ -507,12 +414,10 @@ class FunkinPreloader extends FlxBasePreloader
 					{
 						if (cachingGraphicsPercent < (elapsedCachingGraphics / 0.0))
 						{
-							// Return real progress if it's lower.
 							return cachingGraphicsPercent;
 						}
 						else
 						{
-							// Return simulated progress if it's higher.
 							return elapsedCachingGraphics / 0.0;
 						}
 					}
@@ -536,20 +441,9 @@ class FunkinPreloader extends FlxBasePreloader
 					cachingAudioPercent = 0.0;
 					cachingAudioStartTime = elapsed;
 
-					var assetsToCache:Array<String> = []; // Assets.listSound('core');
+					var assetsToCache:Array<String> = []; 
 
-					/*
-						var future:Future<Array<String>> = []; // Assets.cacheAssets(assetsToCache);
 
-						future.onProgress((loaded:Int, total:Int) -> {
-						  cachingAudioPercent = loaded / total;
-						});
-						future.onComplete((_result) -> {
-						  trace('Completed caching audio.');
-						});
-					 */
-
-					// TODO: Reimplement this.
 					cachingAudioPercent = 1.0;
 					cachingAudioComplete = true;
 					return 0.0;
@@ -564,7 +458,6 @@ class FunkinPreloader extends FlxBasePreloader
 					}
 					else
 					{
-						// We need to return SIMULATED progress here.
 						if (cachingAudioPercent < (elapsedCachingAudio / 0.0))
 						{
 							return cachingAudioPercent;
@@ -603,9 +496,6 @@ class FunkinPreloader extends FlxBasePreloader
 					];
 
 					trace("Load misc");
-					// ? Some misc caching
-					// Cache assets list for future use
-					// load 6.4MB json file
 
 						var promise = new Promise<Any>();
 					new Future(() ->
@@ -629,7 +519,7 @@ class FunkinPreloader extends FlxBasePreloader
 							promise.progress(index + 1, assetsToCache.length);
 						}
 						promise.complete(null);
-					}, true); // Assets.cacheAssets(assetsToCache);
+					}, true); 
 
 					promise.future.onProgress((loaded:Int, total:Int) ->
 					{
@@ -657,7 +547,6 @@ class FunkinPreloader extends FlxBasePreloader
 					}
 					else
 					{
-						// We need to return SIMULATED progress here.
 						if (cachingDataPercent < (elapsedCachingData / 0.0))
 							return cachingDataPercent;
 						else
@@ -681,19 +570,8 @@ class FunkinPreloader extends FlxBasePreloader
 					parsingSpritesheetsPercent = 0.0;
 					parsingSpritesheetsStartTime = elapsed;
 
-					// Core spritesheets
-					var sparrowFramesToCache = []; // Assets.listXML('core').map((xml:String) -> xml.replace('.xml', '').replace('core:assets/core/', ''));
-					// We're not caching gameplay spritesheets here because they're fetched on demand.
+					var sparrowFramesToCache = []; 
 
-					/*
-						var future:Future<Array<String>> = []; // Assets.cacheSparrowFrames(sparrowFramesToCache, true);
-						future.onProgress((loaded:Int, total:Int) -> {
-						  parsingSpritesheetsPercent = loaded / total;
-						});
-						future.onComplete((_result) -> {
-						  trace('Completed parsing spritesheets.');
-						});
-					 */
 					parsingSpritesheetsPercent = 1.0;
 					parsingSpritesheetsComplete = true;
 					return 0.0;
@@ -708,7 +586,6 @@ class FunkinPreloader extends FlxBasePreloader
 					}
 					else
 					{
-						// We need to return SIMULATED progress here.
 						if (parsingSpritesheetsPercent < (elapsedParsingSpritesheets / 0.0))
 							return parsingSpritesheetsPercent;
 						else
@@ -732,18 +609,6 @@ class FunkinPreloader extends FlxBasePreloader
 					parsingStagesPercent = 0.0;
 					parsingStagesStartTime = elapsed;
 
-					/*
-						// TODO: Reimplement this.
-						var future:Future<Array<String>> = []; // StageDataParser.loadStageCacheAsync();
-
-						future.onProgress((loaded:Int, total:Int) -> {
-						  parsingStagesPercent = loaded / total;
-						});
-
-						future.onComplete((_result) -> {
-						  trace('Completed parsing stages.');
-						});
-					 */
 
 					parsingStagesPercent = 1.0;
 					parsingStagesComplete = true;
@@ -759,7 +624,6 @@ class FunkinPreloader extends FlxBasePreloader
 					}
 					else
 					{
-						// We need to return SIMULATED progress here.
 						if (parsingStagesPercent < (elapsedParsingStages / 0.0))
 							return parsingStagesPercent;
 						else
@@ -783,18 +647,6 @@ class FunkinPreloader extends FlxBasePreloader
 					parsingCharactersPercent = 0.0;
 					parsingCharactersStartTime = elapsed;
 
-					/*
-						// TODO: Reimplement this.
-						var future:Future<Array<String>> = []; // CharacterDataParser.loadCharacterCacheAsync();
-
-						future.onProgress((loaded:Int, total:Int) -> {
-						  parsingCharactersPercent = loaded / total;
-						});
-
-						future.onComplete((_result) -> {
-						  trace('Completed parsing characters.');
-						});
-					 */
 
 					parsingCharactersPercent = 1.0;
 					parsingCharactersComplete = true;
@@ -810,7 +662,6 @@ class FunkinPreloader extends FlxBasePreloader
 					}
 					else
 					{
-						// We need to return SIMULATED progress here.
 						if (parsingCharactersPercent < (elapsedParsingCharacters / 0.0))
 							return parsingCharactersPercent;
 						else
@@ -834,19 +685,6 @@ class FunkinPreloader extends FlxBasePreloader
 					parsingSongsPercent = 0.0;
 					parsingSongsStartTime = elapsed;
 
-					/*
-						// TODO: Reimplement this.
-						var future:Future<Array<String>> = ;
-						// SongDataParser.loadSongCacheAsync();
-
-						future.onProgress((loaded:Int, total:Int) -> {
-						  parsingSongsPercent = loaded / total;
-						});
-
-						future.onComplete((_result) -> {
-						  trace('Completed parsing songs.');
-						});
-					 */
 
 					parsingSongsPercent = 1.0;
 					parsingSongsComplete = true;
@@ -863,7 +701,6 @@ class FunkinPreloader extends FlxBasePreloader
 					}
 					else
 					{
-						// We need to return SIMULATED progress here.
 						if (parsingSongsPercent < (elapsedParsingSongs / 0.0))
 						{
 							return parsingSongsPercent;
@@ -916,7 +753,6 @@ class FunkinPreloader extends FlxBasePreloader
 			#end
 
 			default:
-				// Do nothing.
 		}
 
 		return 0.0;
@@ -952,7 +788,6 @@ class FunkinPreloader extends FlxBasePreloader
 		touchHereSprite.removeEventListener(MouseEvent.MOUSE_OUT, outTouchHereToPlay);
 		touchHereSprite.removeEventListener(MouseEvent.MOUSE_DOWN, mouseDownTouchHereToPlay);
 
-		// This is the actual thing that makes the game load.
 		immediatelyStartGame();
 	}
 	#end
@@ -962,16 +797,12 @@ class FunkinPreloader extends FlxBasePreloader
 
 	function updateGraphics(percent:Float, elapsed:Float):Void
 	{
-		// Render logo (including transitions)
 		if (completeTime > 0.0)
 		{
 			var elapsedFinished:Float = renderLogoFadeOut(elapsed);
-			// trace('Fading out logo... (' + elapsedFinished + 's)');
 			if (elapsedFinished > LOGO_FADE_TIME)
 			{
 				#if TOUCH_HERE_TO_PLAY
-				// The logo has faded out, but we're not quite done yet.
-				// In order to prevent autoplay issues, we need the user to click after the loading finishes.
 				currentState = FunkinPreloaderState.TouchHereToPlay;
 				#else
 				immediatelyStartGame();
@@ -982,7 +813,6 @@ class FunkinPreloader extends FlxBasePreloader
 		{
 			renderLogoFadeIn(elapsed);
 
-			// Render progress bar
 			var maxWidth = this._width - BAR_PADDING * 2;
 			var barWidth = maxWidth * percent;
 			var piecesToRender:Int = Std.int(percent * progressBarPieces.length);
@@ -993,63 +823,45 @@ class FunkinPreloader extends FlxBasePreloader
 			}
 		}
 
-		// progressBar.width = barWidth;
 
-		// Cycle ellipsis count to show loading
 		var ellipsisCount:Int = Std.int(elapsed / ELLIPSIS_TIME) % 3 + 1;
 		var ellipsis:String = '';
 		for (i in 0...ellipsisCount)
 			ellipsis += '.';
 
 		var percentage:Int = Math.floor(percent * 100);
-		// Render status text
 		switch (currentState)
 		{
-			// case FunkinPreloaderState.NotStarted:
 			default:
 				updateProgressLeftText('Loading \n0/$TOTAL_STEPS $ellipsis');
-			// trace('Preloader state: ' + currentState + ' (' + percentage + '%, ' + elapsed + 's)');
 			case FunkinPreloaderState.DownloadingAssets:
 				updateProgressLeftText('Downloading assets \n1/$TOTAL_STEPS $ellipsis');
-			// trace('Preloader state: ' + currentState + ' (' + percentage + '%, ' + elapsed + 's)');
 			case FunkinPreloaderState.PreloadingPlayAssets:
 				updateProgressLeftText('Preloading assets \n2/$TOTAL_STEPS $ellipsis');
-			// trace('Preloader state: ' + currentState + ' (' + percentage + '%, ' + elapsed + 's)');
 			case FunkinPreloaderState.InitializingScripts:
 				updateProgressLeftText('Initializing scripts \n3/$TOTAL_STEPS $ellipsis');
-			// trace('Preloader state: ' + currentState + ' (' + percentage + '%, ' + elapsed + 's)');
 			case FunkinPreloaderState.CachingGraphics:
 				updateProgressLeftText('Caching graphics \n4/$TOTAL_STEPS $ellipsis');
-			// trace('Preloader state: ' + currentState + ' (' + percentage + '%, ' + elapsed + 's)');
 			case FunkinPreloaderState.CachingAudio:
 				updateProgressLeftText('Caching audio \n5/$TOTAL_STEPS $ellipsis');
-			// trace('Preloader state: ' + currentState + ' (' + percentage + '%, ' + elapsed + 's)');
 			case FunkinPreloaderState.CachingData:
 				updateProgressLeftText('Caching data \n6/$TOTAL_STEPS $ellipsis');
-			// trace('Preloader state: ' + currentState + ' (' + percentage + '%, ' + elapsed + 's)');
 			case FunkinPreloaderState.ParsingSpritesheets:
 				updateProgressLeftText('Parsing spritesheets \n7/$TOTAL_STEPS $ellipsis');
-			// trace('Preloader state: ' + currentState + ' (' + percentage + '%, ' + elapsed + 's)');
 			case FunkinPreloaderState.ParsingStages:
 				updateProgressLeftText('Parsing stages \n8/$TOTAL_STEPS $ellipsis');
-			// trace('Preloader state: ' + currentState + ' (' + percentage + '%, ' + elapsed + 's)');
 			case FunkinPreloaderState.ParsingCharacters:
 				updateProgressLeftText('Parsing characters \n9/$TOTAL_STEPS $ellipsis');
-			// trace('Preloader state: ' + currentState + ' (' + percentage + '%, ' + elapsed + 's)');
 			case FunkinPreloaderState.ParsingSongs:
 				updateProgressLeftText('Parsing songs \n10/$TOTAL_STEPS $ellipsis');
-			// trace('Preloader state: ' + currentState + ' (' + percentage + '%, ' + elapsed + 's)');
 			case FunkinPreloaderState.Complete:
 				updateProgressLeftText('Finishing up \n$TOTAL_STEPS/$TOTAL_STEPS $ellipsis');
-				// // trace('Preloader state: ' + currentState + ' (' + percentage + '%, ' + elapsed + 's)');
 			#if TOUCH_HERE_TO_PLAY
 			case FunkinPreloaderState.TouchHereToPlay:
 				updateProgressLeftText(null);
-				// // trace('Preloader state: ' + currentState + ' (' + percentage + '%, ' + elapsed + 's)');
 			#end
 		}
 
-		// Render percent text
 		progressRightText.text = '$percentage%';
 
 		super.update(percent);
@@ -1065,14 +877,13 @@ class FunkinPreloader extends FlxBasePreloader
 			}
 			else if (progressLeftText.text != text)
 			{
-				// We have to keep updating the text format, because the font can take a frame or two to load.
 				var progressLeftTextFormat = new TextFormat("DS-Digital", 32, 0xFFA4FF11, true);
 				progressLeftTextFormat.align = TextFormatAlign.LEFT;
 				progressLeftText.defaultTextFormat = progressLeftTextFormat;
 				progressLeftText.text = text;
 
 				dspText.defaultTextFormat = new TextFormat("Quantico", 20, 0x000000, false);
-				dspText.text = 'DSP'; // fukin dum....
+				dspText.text = 'DSP'; 
 				dspText.textColor = 0x000000;
 
 				fnfText.defaultTextFormat = new TextFormat("Quantico", 20, 0x000000, false);
@@ -1094,14 +905,8 @@ class FunkinPreloader extends FlxBasePreloader
 		_loaded = true;
 	}
 
-	/**
-	 * Fade out the logo.
-	 * @param	elapsed Elapsed time since the preloader started.
-	 * @return	Elapsed time since the logo started fading out.
-	 */
 	function renderLogoFadeOut(elapsed:Float):Float
 	{
-		// Fade-out takes LOGO_FADE_TIME seconds.
 		var elapsedFinished = elapsed - completeTime;
 
 		logo.alpha = 1.0 - MathUtil.easeInOutCirc(elapsedFinished / LOGO_FADE_TIME);
@@ -1110,8 +915,6 @@ class FunkinPreloader extends FlxBasePreloader
 		logo.x = (this._width - logo.width) / 2;
 		logo.y = (this._height - logo.height) / 2;
 
-		// Fade out progress bar too.
-		// progressBar.alpha = logo.alpha;
 		progressLeftText.alpha = logo.alpha;
 		progressRightText.alpha = logo.alpha;
 		box.alpha = logo.alpha;
@@ -1129,7 +932,6 @@ class FunkinPreloader extends FlxBasePreloader
 
 	function renderLogoFadeIn(elapsed:Float):Void
 	{
-		// Fade-in takes LOGO_FADE_TIME seconds.
 		logo.alpha = MathUtil.easeInOutCirc(elapsed / LOGO_FADE_TIME);
 		logo.scaleX = MathUtil.easeOutBack(elapsed / LOGO_FADE_TIME) * ratio;
 		logo.scaleY = MathUtil.easeOutBack(elapsed / LOGO_FADE_TIME) * ratio;
@@ -1138,21 +940,11 @@ class FunkinPreloader extends FlxBasePreloader
 	}
 
 	#if html5
-	// These fields only exist on Web builds.
 
-	/**
-	 * Format the layout of the site lock screen.
-	 */
 	override function createSiteLockFailureScreen():Void
 	{
-		// addChild(createSiteLockFailureBackground(Constants.COLOR_PRELOADER_LOCK_BG, Constants.COLOR_PRELOADER_LOCK_BG));
-		// addChild(createSiteLockFailureIcon(Constants.COLOR_PRELOADER_LOCK_FG, 0.9));
-		// addChild(createSiteLockFailureText(30));
 	}
 
-	/**
-	 * Format the text of the site lock screen.
-	 */
 	override function adjustSiteLockTextFields(titleText:TextField, bodyText:TextField, hyperlinkText:TextField):Void
 	{
 		var titleFormat = titleText.defaultTextFormat;
@@ -1174,9 +966,7 @@ class FunkinPreloader extends FlxBasePreloader
 
 	override function destroy():Void
 	{
-		// Ensure the graphics are properly destroyed and GC'd.
 		removeChild(logo);
-		// removeChild(progressBar);
 		logo = null;
 		super.destroy();
 	}
@@ -1184,9 +974,6 @@ class FunkinPreloader extends FlxBasePreloader
 	override function onLoaded():Void
 	{
 		super.onLoaded();
-		// We're not ACTUALLY finished.
-		// This function gets called when the DownloadingAssets step is done.
-		// We need to wait for the other steps, then the logo to fade out.
 		_loaded = false;
 		downloadingAssetsComplete = true;
 	}
@@ -1194,76 +981,31 @@ class FunkinPreloader extends FlxBasePreloader
 
 enum FunkinPreloaderState
 {
-	/**
-	 * The state before downloading has begun.
-	 * Moves to either `DownloadingAssets` or `CachingGraphics` based on platform.
-	 */
 	NotStarted;
 
-	/**
-	 * Downloading assets.
-	 * On HTML5, Lime will do this for us, before calling `onLoaded`.
-	 * On Desktop, this step will be completed immediately, and we'll go straight to `CachingGraphics`.
-	 */
 	DownloadingAssets;
 
-	/**
-	 * Preloading play assets.
-	 * Loads the `manifest.json` for the `gameplay` library.
-	 * If we make the base preloader do this, it will download all the assets as well,
-	 * so we have to do it ourselves.
-	 */
 	PreloadingPlayAssets;
 
-	/**
-	 * Loading FireTongue, loading Polymod, parsing and instantiating module scripts.
-	 */
 	InitializingScripts;
 
-	/**
-	 * Loading all graphics from the `core` library to the cache.
-	 */
 	CachingGraphics;
 
-	/**
-	 * Loading all audio from the `core` library to the cache.
-	 */
 	CachingAudio;
 
-	/**
-	 * Loading all data files from the `core` library to the cache.
-	 */
 	CachingData;
 
-	/**
-	 * Parsing all XML files from the `core` library into FlxFramesCollections and caching them.
-	 */
 	ParsingSpritesheets;
 
-	/**
-	 * Parsing stage data and scripts.
-	 */
 	ParsingStages;
 
-	/**
-	 * Parsing character data and scripts.
-	 */
 	ParsingCharacters;
 
-	/**
-	 * Parsing song data and scripts.
-	 */
 	ParsingSongs;
 
-	/**
-	 * Finishing up.
-	 */
 	Complete;
 
 	#if TOUCH_HERE_TO_PLAY
-	/**
-	 * Touch Here to Play is displayed.
-	 */
 	TouchHereToPlay;
 	#end
 }

@@ -98,7 +98,7 @@ class CharSelectSubState extends MusicBeatSubState
 	public function new()
 	{
 		super();
-		var charData = VsliceOptions.LAST_MOD; // ? Added character save store
+		var charData = VsliceOptions.LAST_MOD; 
 		if (ModsHelper.isModDirEnabled(charData.mod_dir) || charData.mod_dir == '')
 		{
 			ModsHelper.loadModDir(charData.mod_dir);
@@ -280,7 +280,6 @@ class CharSelectSubState extends MusicBeatSubState
 		chooseDipshit.loadGraphic(Paths.image('charSelect/chooseDipshit'));
 		add(chooseDipshit);
 
-		// ? P-SLice code
 		#if MODS_ALLOWED
 		var UICam = new FunkinCamera("special", 0, 0, FlxG.width, FlxG.height);
 		UICam.bgColor = 0x00FFFFFF;
@@ -298,7 +297,6 @@ class CharSelectSubState extends MusicBeatSubState
 		modSelector.y += 80;
 		FlxTween.tween(modSelector, {y: modSelector.y - 80}, 1.3, {ease: FlxEase.expoOut});
 		#end
-		// ?
 
 		chooseDipshit.y += 200;
 		FlxTween.tween(chooseDipshit, {y: chooseDipshit.y - 200}, 1, {ease: FlxEase.expoOut});
@@ -339,7 +337,6 @@ class CharSelectSubState extends MusicBeatSubState
 		chrSelectCursor.loadGraphic(Paths.image('charSelect/charSelector'));
 		chrSelectCursor.color = 0xFFFFFF00;
 
-		// FFCC00
 
 		cursorBlue = new FlxSprite(0, 0);
 		cursorBlue.loadGraphic(Paths.image('charSelect/charSelector'));
@@ -370,13 +367,13 @@ class CharSelectSubState extends MusicBeatSubState
 		grpCursors.add(cursorBlue);
 		grpCursors.add(chrSelectCursor);
 
-		selectSound = FunkinSound.load(Paths.sound('CS_select'), 0.7); // ? fix loaders
+		selectSound = FunkinSound.load(Paths.sound('CS_select'), 0.7); 
 		selectSound.pitch = 1;
 
 		FlxG.sound.defaultSoundGroup.add(selectSound);
 		FlxG.sound.list.add(selectSound);
 
-		unlockSound = FunkinSound.load(Paths.sound('CS_unlock'), 0); // ? fix loaders
+		unlockSound = FunkinSound.load(Paths.sound('CS_unlock'), 0); 
 		unlockSound.pitch = 1;
 
 		unlockSound.play(true);
@@ -384,30 +381,26 @@ class CharSelectSubState extends MusicBeatSubState
 		FlxG.sound.defaultSoundGroup.add(unlockSound);
 		FlxG.sound.list.add(unlockSound);
 
-		lockedSound = FunkinSound.load(Paths.sound('CS_locked'), 1); // ? fix loaders
+		lockedSound = FunkinSound.load(Paths.sound('CS_locked'), 1); 
 		lockedSound.pitch = 1;
 
 		FlxG.sound.defaultSoundGroup.add(lockedSound);
 		FlxG.sound.list.add(lockedSound);
 
-		staticSound = FunkinSound.load(Paths.sound('static loop'), 0.6, true); // ? fix loaders
+		staticSound = FunkinSound.load(Paths.sound('static loop'), 0.6, true); 
 		staticSound.pitch = 1;
 
 		FlxG.sound.defaultSoundGroup.add(staticSound);
 		FlxG.sound.list.add(staticSound);
 
-		// playing it here to preload it. not doing this makes a super awkward pause at the end of the intro
-		// TODO: probably make an intro thing for funkinSound itself that preloads the next audio?
 		FunkinSound.playMusic('stayFunky', {
 			startingVolume: 0,
 			overrideExisting: true,
 			restartTrack: true,
 		});
-		// ? I did some tweaks here
 		FreeplayHelpers.BPM = 90;
 		initLocks();
 		ensureValidCursor();
-		// ?
 
 		for (index => member in grpIcons.members)
 		{
@@ -421,7 +414,6 @@ class CharSelectSubState extends MusicBeatSubState
 
 		FlxTween.color(chrSelectCursor, 0.2, 0xFFFFFF00, 0xFFFFCC00, {type: PINGPONG});
 
-		// FlxG.debugger.track(chrSelectCursor);
 
 		FlxG.debugger.addTrackerProfile(new TrackerProfile(CharSelectSubState, ["curChar", "grpXSpread", "grpYSpread"]));
 		FlxG.debugger.track(this);
@@ -430,18 +422,12 @@ class CharSelectSubState extends MusicBeatSubState
 		add(camFollow);
 		camFollow.screenCenter();
 
-		// FlxG.camera.follow(camFollow, LOCKON, 0.01);
 		FlxG.camera.follow(camFollow, LOCKON);
 
 		var fadeShaderFilter:ShaderFilter = new ShaderFilter(fadeShader);
 		ModsHelper.setFiltersOnCam(FlxG.camera, [fadeShaderFilter]);
 
-		// var temp:FlxSprite = new FlxSprite(); //? why was this a thing?
-		// temp.loadGraphic(Paths.image('charSelect/placement'));
-		// add(temp);
-		// temp.alpha = 0.0;
 
-		// FlxG.debugger.track(temp, "tempBG");
 
 		transitionGradient = new FlxSprite(0, 0).loadGraphic(Paths.image('freeplay/transitionGradient'));
 		transitionGradient.scale.set(1280, 1);
@@ -469,7 +455,7 @@ class CharSelectSubState extends MusicBeatSubState
 		blackScreen.y = -(FlxG.height * 0.5);
 		add(blackScreen);
 
-		introSound = FunkinSound.load(Paths.sound('CS_Lights'), 0); // ? fix call
+		introSound = FunkinSound.load(Paths.sound('CS_Lights'), 0); 
 		introSound.pitch = 1;
 
 		FlxG.sound.defaultSoundGroup.add(introSound);
@@ -492,8 +478,8 @@ class CharSelectSubState extends MusicBeatSubState
 		}
 		#end
 
-		remove(blackScreen); // ? There was supposed to be a video, but we don't lock characters
-		checkNewChar(); // ? so no reason for unlock video lol
+		remove(blackScreen); 
+		checkNewChar(); 
 
 		subStateClosed.addOnce((_) ->
 		{
@@ -651,7 +637,6 @@ class CharSelectSubState extends MusicBeatSubState
 		}
 
 		var xThing = (copy - index - 2) * -1;
-		// Look, I'd write better code but I had better aneurysms, my bad - Cheems
 		cursorY = yThing;
 		cursorX = xThing;
 
@@ -703,7 +688,6 @@ class CharSelectSubState extends MusicBeatSubState
 				updateIconPositions();
 				playerChillOut.onAnimationComplete.addOnce((_) -> if (_ == "death")
 				{
-					// sync = false;
 					playerChillOut.visible = false;
 					playerChillOut.switchChar(char);
 				});
@@ -729,8 +713,6 @@ class CharSelectSubState extends MusicBeatSubState
 							@:privateAccess
 							gfChill.analyzer = new SpectralAnalyzer(ModsHelper.getSoundChannel(FlxG.sound.music), 7, 0.1);
 							#if (desktop || mobile)
-							// On native it uses FFT stuff that isn't as optimized as the direct browser stuff we use on HTML5
-							// So we want to manually change it!
 							@:privateAccess
 							gfChill.analyzer.fftN = 512;
 							#end
@@ -774,11 +756,6 @@ class CharSelectSubState extends MusicBeatSubState
 		@:privateAccess
 		if (sync && unlockSound.time > 0)
 		{
-			// if (playerChillOut.anim.framerate > 0)
-			// {
-			//   if (syncLock != null) syncLock.anim.framerate = 0;
-			//   playerChillOut.anim.framerate = 0;
-			// }
 
 			playerChillOut.anim._tick = 0;
 			if (syncLock != null)
@@ -799,14 +776,12 @@ class CharSelectSubState extends MusicBeatSubState
 	{
 		staticSound.stop();
 		allowInput = false;
-		autoFollow = false; // ! Add mod support
-		// ? P-Slice mods
-		if(!wentBackToFreeplay) VsliceOptions.LAST_MOD = {mod_dir: modSelector?.curMod ?? "", char_name: curChar}; // ? save selected character
+		autoFollow = false; 
+		if(!wentBackToFreeplay) VsliceOptions.LAST_MOD = {mod_dir: modSelector?.curMod ?? "", char_name: curChar}; 
 		#if MODS_ALLOWED
 		modSelector.allowInput = false;
 		FlxTween.tween(modSelector, {y: modSelector.y + 80}, 0.8, {ease: FlxEase.backIn});
 		#end
-		// ?
 		FlxTween.tween(chrSelectCursor, {alpha: 0}, 0.8, {ease: FlxEase.expoOut});
 		FlxTween.tween(cursorBlue, {alpha: 0}, 0.8, {ease: FlxEase.expoOut});
 		FlxTween.tween(cursorDarkBlue, {alpha: 0}, 0.8, {ease: FlxEase.expoOut});
@@ -823,12 +798,10 @@ class CharSelectSubState extends MusicBeatSubState
 
 		for (index => member in grpIcons.members)
 		{
-			// member.y += 300;
 			FlxTween.tween(member, {y: member.y + 300}, 0.8, {ease: FlxEase.backIn});
 		}
 		FlxG.camera.follow(camFollow, LOCKON);
 
-		// going to freeplay so fast makes the fade effects and the camera to bug, that's why we cancel the tweens
 		FlxTween.cancelTweensOf(transitionGradient);
 		FlxTween.cancelTweensOf(fadeShader);
 		FlxTween.cancelTweensOf(camFollow);
@@ -840,7 +813,7 @@ class CharSelectSubState extends MusicBeatSubState
 			onComplete: function(_)
 			{
 				if (!FlxG.random.bool(0.01))
-					FlxTransitionableState.skipNextTransOut = true; // ? a fix
+					FlxTransitionableState.skipNextTransOut = true; 
 				FlxG.switchState(FreeplayState.build({
 					fromCharSelect: true
 				}));
@@ -958,7 +931,6 @@ class CharSelectSubState extends MusicBeatSubState
 				goToFreeplay();
 			}
 		}
-		// Overflow handlers
 		if (cursorX < -1)
 		{
 			cursorX = 1;
@@ -1050,12 +1022,11 @@ class CharSelectSubState extends MusicBeatSubState
 		cursorLocIntended.x += cursorOffsetX;
 		cursorLocIntended.y += cursorOffsetY;
 
-		chrSelectCursor.x = MathUtil.coolLerp(chrSelectCursor.x, cursorLocIntended.x, lerpAmnt, false); // ? disable wobbling here
+		chrSelectCursor.x = MathUtil.coolLerp(chrSelectCursor.x, cursorLocIntended.x, lerpAmnt, false); 
 		chrSelectCursor.y = MathUtil.coolLerp(chrSelectCursor.y, cursorLocIntended.y, lerpAmnt, false);
 
 		cursorBlue.x = MathUtil.coolLerp(cursorBlue.x, chrSelectCursor.x, lerpAmnt * 0.4, false);
 		cursorBlue.y = MathUtil.coolLerp(cursorBlue.y, chrSelectCursor.y, lerpAmnt * 0.4, false);
-		// ! buggy code
 		cursorDarkBlue.x = MathUtil.coolLerp(cursorDarkBlue.x, cursorLocIntended.x, lerpAmnt * 0.2, false);
 		cursorDarkBlue.y = MathUtil.coolLerp(cursorDarkBlue.y, cursorLocIntended.y, lerpAmnt * 0.2, false);
 	}
@@ -1176,13 +1147,13 @@ class CharSelectSubState extends MusicBeatSubState
 
 	override function beatHit()
 	{
-		super.beatHit(); // ? We have no enevt system here.
-		playerChill.onBeatHit(); // ? emulate beats here
+		super.beatHit(); 
+		playerChill.onBeatHit(); 
 		gfChill.onBeatHit(this.curBeat);
 	}
 
 	override function stepHit()
-	{ // ? emulate Conductor, which would call this every step
+	{ 
 		spamOnStep();
 		super.stepHit();
 	}
@@ -1191,7 +1162,6 @@ class CharSelectSubState extends MusicBeatSubState
 	{
 		if (spamUp || spamDown || spamLeft || spamRight)
 		{
-			// selectSound.changePitchBySemitone(1);
 			if (selectSound.pitch > 5)
 				selectSound.pitch = 5;
 			selectSound.play(true);
@@ -1248,7 +1218,6 @@ class CharSelectSubState extends MusicBeatSubState
 
 					if (index == getCurrentSelected())
 					{
-						// memb.pixels = memb.withDropShadow.clone();
 
 						if (bopPlay)
 						{
@@ -1278,7 +1247,6 @@ class CharSelectSubState extends MusicBeatSubState
 					}
 					else
 					{
-						// memb.pixels = memb.noDropShadow.clone();
 						memb.filters = null;
 						memb.scale.set(2, 2);
 					}
@@ -1294,7 +1262,6 @@ class CharSelectSubState extends MusicBeatSubState
 		return gridPosition;
 	}
 
-	// Moved this code into a function because is now used twice
 	function setCursorPosition(index:Int)
 	{
 		
@@ -1309,7 +1276,6 @@ class CharSelectSubState extends MusicBeatSubState
 
 		var xThing = (copy - index - 2) * -1;
 
-		// Look, I'd write better code but I had better aneurysms, my bad - Cheems
 		cursorY = yThing;
 		cursorX = xThing;
 		trace('[CS] setCursorPosition index=' + index + ' -> cursorX=' + cursorX + ' cursorY=' + cursorY);

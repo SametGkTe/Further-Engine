@@ -34,10 +34,6 @@ import openfl.display.CairoRenderer;
 import openfl.display._internal.CairoGraphics as GfxRenderer;
 #end
 
-/**
- * A modified `FlxSprite` that supports filters.
- * The name's pretty much self-explanatory.
- */
 @:access(openfl.geom.Rectangle)
 @:access(openfl.filters.BitmapFilter)
 @:access(flixel.graphics.frames.FlxFrame)
@@ -47,15 +43,8 @@ class FlxFilteredSprite extends FlxSprite
 
   @:noCompletion var _filterMatrix:FlxMatrix;
 
-  /**
-   * An `Array` of shader filters (aka `BitmapFilter`).
-   */
   public var filters(default, set):Array<BitmapFilter>;
 
-  /**
-   * a flag to update the image with the filters.
-   * Useful when trying to render a shader at all times.
-   */
   public var filterDirty:Bool = false;
 
   @:noCompletion var filtered:Bool;
@@ -96,7 +85,7 @@ class FlxFilteredSprite extends FlxSprite
 
     if (alpha == 0 || _frame.type == FlxFrameType.EMPTY) return;
 
-    if (dirty) // rarely
+    if (dirty) 
       calcFrame(useFramePixels);
 
     if (filterDirty) filterFrame();
@@ -241,7 +230,6 @@ class FlxAnimateFilterRenderer
 
   public function new()
   {
-    // context = new openfl.display3D.Context3D(null);
     renderer = new OpenGLRenderer(FlxG.game.stage.context3D);
     renderer.__worldTransform = new Matrix();
     renderer.__worldColorTransform = new ColorTransform();
@@ -342,14 +330,7 @@ class FlxAnimateFilterRenderer
     if (target1 == null) bitmap2.dispose();
     if (target2 == null) bitmap3.dispose();
 
-    // var gl = renderer.__gl;
 
-    // var renderBuffer = bitmap.getTexture(renderer.__context3D);
-    // @:privateAccess
-    // gl.readPixels(0, 0, bitmap.width, bitmap.height, renderBuffer.__format, gl.UNSIGNED_BYTE, bitmap.image.data);
-    // bitmap.image.version = 0;
-    // @:privateAccess
-    // bitmap.__textureVersion = -1;
 
     return bitmap;
   }
@@ -367,7 +348,6 @@ class FlxAnimateFilterRenderer
     var renderer = new CairoRenderer(new Cairo(bmp.getSurface()));
     #end
 
-    // setRenderer(renderer, bmp.rect);
 
     var m = new Matrix();
     var c = new ColorTransform();
@@ -390,29 +370,12 @@ class FlxAnimateFilterRenderer
   public function graphicstoBitmapData(gfx:Graphics)
   {
     if (gfx.__bounds == null) return null;
-    // var cacheRTT = renderer.__context3D.__state.renderToTexture;
-    // var cacheRTTDepthStencil = renderer.__context3D.__state.renderToTextureDepthStencil;
-    // var cacheRTTAntiAlias = renderer.__context3D.__state.renderToTextureAntiAlias;
-    // var cacheRTTSurfaceSelector = renderer.__context3D.__state.renderToTextureSurfaceSelector;
 
-    // var bmp = new BitmapData(Math.ceil(gfx.__width), Math.ceil(gfx.__height), 0);
-    // renderer.__context3D.setRenderToTexture(bmp.getTexture(renderer.__context3D));
-    // gfx.__owner.__renderTransform.identity();
-    // gfx.__renderTransform.identity();
-    // Context3DGraphics.render(gfx, renderer);
     GfxRenderer.render(gfx, cast renderer.__softwareRenderer);
     var bmp = gfx.__bitmap;
 
     gfx.__bitmap = null;
 
-    // if (cacheRTT != null)
-    // {
-    // 	renderer.__context3D.setRenderToTexture(cacheRTT, cacheRTTDepthStencil, cacheRTTAntiAlias, cacheRTTSurfaceSelector);
-    // }
-    // else
-    // {
-    // 	renderer.__context3D.setRenderToBackBuffer();
-    // }
 
     return bmp;
   }

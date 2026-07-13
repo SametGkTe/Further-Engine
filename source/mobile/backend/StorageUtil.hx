@@ -22,10 +22,6 @@
 
 package mobile.backend;
 
-/**
- * A storage class for mobile.
- * @author Karim Akra and Homura Akemi (HomuHomu833)
- */
  
 import haxe.io.Path;
 #if sys
@@ -107,7 +103,6 @@ class StorageUtil
 	}
 	
 	#if android
-	// always force path due to haxe
 	public static function getExternalStorageDirectory():String
 		return '/sdcard/.PsychEngine/';
 

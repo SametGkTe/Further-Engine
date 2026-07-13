@@ -24,10 +24,6 @@ package mobile.objects;
 
 import flixel.util.FlxSignal.FlxTypedSignal;
 
-/**
- * ...
- * @author: Karim Akra
- */
 interface IMobileControls
 {
 	public var buttonLeft:TouchButton;

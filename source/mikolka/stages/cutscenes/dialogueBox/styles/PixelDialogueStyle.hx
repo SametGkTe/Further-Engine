@@ -41,7 +41,6 @@ class PixelDialogueStyle extends DialogueStyle {
 		box.animation.addByPrefix('normalWait', 'Text Box wait to click0', 24,true);
 		box.animation.addByPrefix('angryOpen', 'SENPAI ANGRY IMPACT SPEECH0', 24, false);
 		box.animation.addByPrefix('normalClick', 'Text Box CLICK', 24, false);
-		//box.animation.addByPrefix('normalClick', 'SENPAI ANGRY IMPACT SPEECH0', 24, false);
 		box.animation.play('normalOpen', true);
 
 		box.visible = false;
@@ -70,7 +69,7 @@ class PixelDialogueStyle extends DialogueStyle {
 				box.centerOffsets();
 				box.updateHitbox();
 				if(boxType == "angry"){
-					box.offset.set(50, 65); //angry
+					box.offset.set(50, 65); 
 					box.animation.play("angryOpen",true);
 					
 				}
@@ -106,7 +105,6 @@ class PixelDialogueStyle extends DialogueStyle {
 		return swagDialogue;
 	}
 
-	//TEXT 
 	 function set_text(value:String) swagDialogue.resetText(value);
 	 function set_delay(value:Float) swagDialogue.delay = value;
 	 function get_delay():Float return swagDialogue.delay;

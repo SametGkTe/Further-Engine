@@ -7,7 +7,6 @@ class CustomAnimControl {
 	public var doJumpIn:Bool = false;
 	public var doJumpOut:Bool = false;
 	public var realScaled:Float = 0.8;
-	///// Anim DATA
 	var frameInTicker:Float = 0;
 	var frameInTypeBeat:Int = 0;
 
@@ -15,8 +14,8 @@ class CustomAnimControl {
 	var frameOutTypeBeat:Int = 0;
 
 	var xFrames:Array<Float> = [1.7, 1.8, 0.85, 0.85, 0.97, 0.97, 1];
-	var xPosLerpLol:Array<Float> = [0.9, 0.4, 0.16, 0.16, 0.22, 0.22, 0.245]; // NUMBERS ARE JANK CUZ THE SCALING OR WHATEVER
-	var xPosOutLerpLol:Array<Float> = [0.245, 0.75, 0.98, 0.98, 1.2]; // NUMBERS ARE JANK CUZ THE SCALING OR WHATEVER
+	var xPosLerpLol:Array<Float> = [0.9, 0.4, 0.16, 0.16, 0.22, 0.22, 0.245]; 
+	var xPosOutLerpLol:Array<Float> = [0.245, 0.75, 0.98, 0.98, 1.2]; 
 
     var host:SongMenuItem;
     public function new(host:SongMenuItem) {
@@ -67,7 +66,6 @@ class CustomAnimControl {
 
 		host.capsule.scale.x = xFrames[frameInTypeBeat - 1];
 		host.capsule.scale.y = 1 / xFrames[frameInTypeBeat - 1];
-		// x = FlxG.width * xPosLerpLol[Std.int(Math.min(frameInTypeBeat - 1, xPosLerpLol.length - 1))];
 
 		host.x = host.targetPos.x;
 		host.y = host.targetPos.y;
@@ -100,8 +98,6 @@ class CustomAnimControl {
 				frameInTypeBeat += 1;
 				final shiftx:Float = MobileScaleMode.wideScale.x * 320;
 				final widescreenMult:Float = (MobileScaleMode.gameCutoutSize.x / 1.5) * 0.75;
-				// Move the targetPos set to the if statement below if you want them to shift to their target positions after jumping in instead
-				// I have no idea why this if instead of frameInTypeBeat == xFrames.length works even though they're the same thing
 				 if (host.targetPos.x <= shiftx)
                     @:privateAccess
 				 	host.targetPos.x = host.intendedX(host.ID+1-FreeplayState.instance.curSelectedFractal) + widescreenMult;
@@ -137,9 +133,8 @@ class CustomAnimControl {
 
 		if (doLerp)
 		{
-			host.x = MathUtil.smoothLerp(host.x, host.targetPos.x, elapsed, 0.3); // ? update lerping for lower FPS
-			host.y = MathUtil.smoothLerp(host.y, host.targetPos.y, elapsed, 0.4); // ? kinda cool tbh
-			// TODO capsule.visible = songData?.isFav;
+			host.x = MathUtil.smoothLerp(host.x, host.targetPos.x, elapsed, 0.3); 
+			host.y = MathUtil.smoothLerp(host.y, host.targetPos.y, elapsed, 0.4); 
 		}
 
 	}

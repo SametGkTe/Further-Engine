@@ -3,9 +3,6 @@ package mikolka.vslice.freeplay;
 import mikolka.funkin.freeplay.FreeplayStyle;
 import shaders.PureColor;
 
-/**
- * The difficulty selector arrows to the left and right of the difficulty.
- */
 class DifficultySelector extends FlxSprite
 {
 	var controls:Controls;

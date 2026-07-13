@@ -25,7 +25,7 @@ class NoteSplashDebugState extends MusicBeatState implements PsychUIEventHandler
 	var curAnimText:FlxText;
 	var savedText:FlxText;
 	var selecArr:Array<Float> = null;
-	var idk:Bool = (Controls.instance.mobileC) ? true : false; // im lazy to remove and add alot so idk
+	var idk:Bool = (Controls.instance.mobileC) ? true : false; 
 
 	var missingTextBG:FlxSprite;
 	var missingText:FlxText;
@@ -61,7 +61,6 @@ class NoteSplashDebugState extends MusicBeatState implements PsychUIEventHandler
 			splashes.add(splash);
 		}
 
-		//
 		var txtx = 60;
 		var txty = 640;
 
@@ -121,7 +120,6 @@ class NoteSplashDebugState extends MusicBeatState implements PsychUIEventHandler
 		stepperMaxFps.name = 'max_fps';
 		add(stepperMaxFps);
 
-		//
 		offsetsText = new FlxText(300, 150, 680, '', 16);
 		offsetsText.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		offsetsText.scrollFactor.set();
@@ -224,7 +222,6 @@ class NoteSplashDebugState extends MusicBeatState implements PsychUIEventHandler
 			}
 		}
 
-		// Copy & Paste
 		if(FlxG.keys.pressed.CONTROL || idk)
 		{
 			if(FlxG.keys.justPressed.C || touchPad.buttonC.justPressed)
@@ -244,7 +241,6 @@ class NoteSplashDebugState extends MusicBeatState implements PsychUIEventHandler
 			}
 		}
 
-		// Saving
 		pressEnterToSave -= elapsed;
 		if(visibleTime >= 0)
 		{
@@ -256,7 +252,7 @@ class NoteSplashDebugState extends MusicBeatState implements PsychUIEventHandler
 		if(FlxG.keys.justPressed.ENTER || touchPad.buttonA.justPressed)
 		{
 			savedText.text = 'Press ${(controls.mobileC) ? 'A' : 'ENTER'} again to save.';
-			if(pressEnterToSave > 0) //save
+			if(pressEnterToSave > 0) 
 			{
 				saveFile();
 				FlxG.sound.play(Paths.sound('confirmMenu'), 0.4);
@@ -271,13 +267,11 @@ class NoteSplashDebugState extends MusicBeatState implements PsychUIEventHandler
 			savedText.visible = true;
 		}
 
-		// Reset anim & change anim
 		if (FlxG.keys.justPressed.SPACE || touchPad.buttonY.justPressed)
 			changeAnim();
 		else if (FlxG.keys.justPressed.S || touchPad.buttonLeft.justPressed) changeAnim(-1);
 		else if (FlxG.keys.justPressed.W || touchPad.buttonRight.justPressed) changeAnim(1);
 
-		// Force frame
 		var updatedFrame:Bool = false;
 		if(updatedFrame = FlxG.keys.justPressed.Q || touchPad.buttonX.justPressed) forceFrame--;
 		else if(updatedFrame = FlxG.keys.justPressed.E || touchPad.buttonE.justPressed) forceFrame++;
@@ -286,7 +280,6 @@ class NoteSplashDebugState extends MusicBeatState implements PsychUIEventHandler
 		{
 			if(forceFrame < 0) forceFrame = 0;
 			else if(forceFrame >= maxFrame) forceFrame = maxFrame - 1;
-			//trace('curFrame: $forceFrame');
 			
 			curFrameText.text = 'Force Frame: ${forceFrame+1} / $maxFrame\n(Press Q/E to change)';
 			splashes.forEachAlive(function(spr:FlxSprite) {
@@ -312,14 +305,12 @@ class NoteSplashDebugState extends MusicBeatState implements PsychUIEventHandler
 			spr.frames = Paths.getSparrowAtlas(texturePath);
 		});
 	
-		// Initialize config
 		NoteSplash.configs.clear();
 		config = NoteSplash.precacheConfig(texturePath);
 		if(config == null) config = NoteSplash.precacheConfig(NoteSplash.defaultNoteSplash);
 		nameInputText.text = config.anim;
 		stepperMinFps.value = config.minFps;
 		stepperMaxFps.value = config.maxFps;
-		//
 
 		reloadAnims();
 	}
@@ -345,7 +336,6 @@ class NoteSplashDebugState extends MusicBeatState implements PsychUIEventHandler
 		savedText.text = 'Saved to: $path';
 		File.saveContent(path, strToSave);
 
-		//trace(strToSave);
 		#else
 		savedText.text = 'Can\'t save on this platform, too bad.';
 		#end

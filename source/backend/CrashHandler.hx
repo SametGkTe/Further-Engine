@@ -11,10 +11,6 @@ import sys.io.File;
 using StringTools;
 using flixel.util.FlxArrayUtil;
 
-/**
- * Crash Handler.
- * @author YoshiCrafter29, Ne_Eo, MAJigsaw77 and Homura Akemi (HomuHomu833)
- */
 class CrashHandler
 {
 	public static function init():Void

@@ -168,7 +168,6 @@ class PicoCard extends BackingCard
       });
 
     new FlxTimer().start(10 / 24, function(_) {
-      // shoot
       FlxTween.color(instance.backingImage, 3 / 24, 0xFF343036, 0xFF696366,
         {
           ease: FlxEase.expoOut,
@@ -179,7 +178,6 @@ class PicoCard extends BackingCard
     });
 
     new FlxTimer().start(14 / 24, function(_) {
-      // shoot
       FlxTween.color(instance.backingImage, 3 / 24, 0xFF27292D, 0xFF686A6F,
         {
           ease: FlxEase.expoOut,
@@ -190,7 +188,6 @@ class PicoCard extends BackingCard
     });
 
     new FlxTimer().start(18 / 24, function(_) {
-      // shoot
       FlxTween.color(instance.backingImage, 3 / 24, 0xFF2D282D, 0xFF676164,
         {
           ease: FlxEase.expoOut,
@@ -201,7 +198,6 @@ class PicoCard extends BackingCard
     });
 
     new FlxTimer().start(21 / 24, function(_) {
-      // shoot
       FlxTween.color(instance.backingImage, 3 / 24, 0xFF29292F, 0xFF62626B,
         {
           ease: FlxEase.expoOut,
@@ -212,7 +208,6 @@ class PicoCard extends BackingCard
     });
 
     new FlxTimer().start(24 / 24, function(_) {
-      // shoot
       FlxTween.color(instance.backingImage, 3 / 24, 0xFF29232C, 0xFF808080,
         {
           ease: FlxEase.expoOut,
@@ -228,7 +223,6 @@ class PicoCard extends BackingCard
 
   public override function beatHit(curBeat:Int):Void
   {
-    // increases the amount of beats that need to go by to pulse the glow because itd flash like craazy at high bpms.....
     beatFreq = beatFreqList[Math.floor(FreeplayHelpers.BPM / 140)];
 
     if (curBeat % beatFreq != 0) return;

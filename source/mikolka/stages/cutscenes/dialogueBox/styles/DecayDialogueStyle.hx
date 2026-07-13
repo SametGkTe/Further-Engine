@@ -39,7 +39,6 @@ class DecayDialogueStyle extends DialogueStyle {
 		box.animation.addByPrefix('normalOpen', 'Spirit Textbox spawn', 24, false);
 		box.animation.addByPrefix('normalWait', 'Spirit Text Box Sentence Complete0', 24,true);
 		box.animation.addByPrefix('normalClick', 'Spirit Text Box Click', 24, false);
-		//box.animation.addByPrefix('normalClick', 'SENPAI ANGRY IMPACT SPEECH0', 24, false);
 		box.animation.play('normalOpen', true);
 
 		box.visible = false;
@@ -93,12 +92,10 @@ class DecayDialogueStyle extends DialogueStyle {
 		swagDialogue.color = 0xFFFFFFFF;
 		swagDialogue.borderStyle = NONE;
 		swagDialogue.borderColor = 0xFF3D3D3D;
-		//swagDialogue.shadowOffset.set(2, 2);
 		swagDialogue.completeCallback = () -> isDone = true;
 		return swagDialogue;
 	}
 
-	//TEXT 
 	 function set_text(value:String) swagDialogue.resetText(value);
 	 function set_delay(value:Float) swagDialogue.delay = value;
 	 function get_delay():Float return swagDialogue.delay;

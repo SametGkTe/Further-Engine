@@ -3,16 +3,12 @@ package psychlua;
 import flixel.util.FlxSave;
 import openfl.utils.Assets;
 
-//
-// Things to trivialize some dumb stuff like splitting strings on older Lua
-//
 
 class ExtraFunctions
 {
 	public static function implement(funk:FunkinLua)
 	{
 		var lua:State = funk.lua;
-		// Keyboard & Gamepads
 		Lua_helper.add_callback(lua, "keyboardJustPressed", function(name:String)
 		{
 			switch (name.toUpperCase())
@@ -154,13 +150,11 @@ class ExtraFunctions
 			return false;
 		});
 
-		// Save data management
 		Lua_helper.add_callback(lua, "initSaveData", function(name:String, ?folder:String = 'psychenginemods') {
 			var variables = MusicBeatState.getVariables();
 			if(!variables.exists('save_$name'))
 			{
 				var save:FlxSave = new FlxSave();
-				// folder goes unused for flixel 5 users. @BeastlyGhost
 				save.bind(name, CoolUtil.getSavePath() + '/' + folder);
 				variables.set('save_$name', save);
 				return;
@@ -209,7 +203,6 @@ class ExtraFunctions
 			FunkinLua.luaTrace('eraseSaveData: Save file not initialized: ' + name, false, false, FlxColor.RED);
 		});
 
-		// File management
 		Lua_helper.add_callback(lua, "checkFileExists", function(filename:String, ?absolute:Bool = false) {
 			#if MODS_ALLOWED
 			if(absolute) return FileSystem.exists(filename);
@@ -270,7 +263,6 @@ class ExtraFunctions
 			return list;
 		});
 
-		// String tools
 		Lua_helper.add_callback(lua, "stringStartsWith", function(str:String, start:String) {
 			return str.startsWith(start);
 		});
@@ -284,7 +276,6 @@ class ExtraFunctions
 			return str.trim();
 		});
 
-		// Randomization
 		Lua_helper.add_callback(lua, "getRandomInt", function(min:Int, max:Int = FlxMath.MAX_VALUE_INT, exclude:String = '') {
 			var excludeArray:Array<String> = exclude.split(',');
 			var toExclude:Array<Int> = [];

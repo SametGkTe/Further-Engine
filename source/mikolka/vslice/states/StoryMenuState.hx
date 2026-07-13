@@ -65,7 +65,6 @@ class StoryMenuState extends MusicBeatState
 		WeekData.reloadWeekFiles(true);
 
 		#if DISCORD_ALLOWED
-		// Updating Discord Rich Presence
 		DiscordClient.changePresence("In the Menus", null);
 		#end
 
@@ -124,9 +123,7 @@ class StoryMenuState extends MusicBeatState
 				grpWeekText.add(weekThing);
 
 				weekThing.screenCenter(X);
-				// weekThing.updateHitbox();
 
-				// Needs an offset thingie
 				if (isLocked)
 				{
 					var lock:FlxSprite = new FlxSprite(weekThing.width + 10 + weekThing.x);
@@ -235,7 +232,6 @@ class StoryMenuState extends MusicBeatState
 			return;
 		}
 
-		// scoreText.setFormat(Paths.font("vcr.ttf"), 32);
 		if(intendedScore != lerpScore)
 		{
 			lerpScore = Math.floor(FlxMath.lerp(intendedScore, lerpScore, Math.exp(-elapsed * 30)));
@@ -244,7 +240,6 @@ class StoryMenuState extends MusicBeatState
 			scoreText.text = Language.getPhrase('week_score', 'WEEK SCORE: {1}', [lerpScore]);
 		}
 
-		// FlxG.watch.addQuick('font', scoreText.font);
 
 		if (!movedBack && !selectedWeek)
 		{
@@ -298,7 +293,6 @@ class StoryMenuState extends MusicBeatState
 				persistentUpdate = false;
 				openSubState(new ResetScoreSubState('', curDifficulty, '', curWeek));
 				removeTouchPad();
-				//FlxG.sound.play(Paths.sound('scrollMenu'));
 			}
 			else if (controls.ACCEPT)
 				selectWeek();
@@ -329,14 +323,12 @@ class StoryMenuState extends MusicBeatState
 	{
 		if (!weekIsLocked(loadedWeeks[curWeek].fileName))
 		{
-			// We can't use Dynamic Array .copy() because that crashes HTML5, here's a workaround.
 			var songArray:Array<String> = [];
 			var leWeek:Array<Dynamic> = loadedWeeks[curWeek].songs;
 			for (i in 0...leWeek.length) {
 				songArray.push(leWeek[i][0]);
 			}
 
-			// Nevermind that's stupid lmao
 			try
 			{
 				PlayState.storyPlaylist = songArray;
@@ -411,7 +403,6 @@ class StoryMenuState extends MusicBeatState
 
 		var diff:String = Difficulty.getString(curDifficulty, false);
 		var newImage:FlxGraphic = Paths.image('menudifficulties/' + Paths.formatToSongPath(diff));
-		//trace(Mods.currentModDirectory + ', menudifficulties/' + Paths.formatToSongPath(diff));
 
 		if(sprDifficulty.graphic != newImage)
 		{
@@ -476,7 +467,6 @@ class StoryMenuState extends MusicBeatState
 			curDifficulty = 0;
 
 		var newPos:Int = Difficulty.list.indexOf(lastDifficultyName);
-		//trace('Pos of ' + lastDifficultyName + ' is ' + newPos);
 		if(newPos > -1)
 		{
 			curDifficulty = newPos;

@@ -230,7 +230,7 @@ class DialogueCharacterEditorState extends MusicBeatState implements PsychUIEven
 		
 		var addUpdateButton:PsychUIButton = new PsychUIButton(10, idleInputText.y + 30, "Add/Update", function() {
 			var theAnim:String = animationInputText.text.trim();
-			if(character.dialogueAnimations.exists(theAnim)) //Update
+			if(character.dialogueAnimations.exists(theAnim)) 
 			{
 				for (i in 0...character.jsonFile.animations.length) {
 					var animArray:DialogueAnimArray = character.jsonFile.animations[i];
@@ -249,7 +249,7 @@ class DialogueCharacterEditorState extends MusicBeatState implements PsychUIEven
 					ghostIdle.playAnim(theAnim, true);
 				}
 			}
-			else //Add
+			else 
 			{
 				var newAnim:DialogueAnimArray = {
 					anim: theAnim,
@@ -415,7 +415,6 @@ class DialogueCharacterEditorState extends MusicBeatState implements PsychUIEven
 		animText.text = 'Animation: ' + character.jsonFile.animations[curAnim].anim + ' (' + (curAnim + 1) +' / ' + character.jsonFile.animations.length + ') - Press W or S to scroll';
 
 		#if DISCORD_ALLOWED
-		// Updating Discord Rich Presence
 		DiscordClient.changePresence("Dialogue Character Editor", "Editting: " + character.jsonFile.image);
 		#end
 	}
@@ -434,7 +433,6 @@ class DialogueCharacterEditorState extends MusicBeatState implements PsychUIEven
 	}
 
 	public function UIEvent(id:String, sender:Dynamic) {
-		//trace(id, sender);
 		if(id == PsychUICheckBox.CLICK_EVENT)
 			unsavedProgress = true;
 
@@ -483,7 +481,6 @@ class DialogueCharacterEditorState extends MusicBeatState implements PsychUIEven
 				updateTextBox();
 			}
 
-			//lots of Ifs lol get trolled
 			var offsetAdd:Int = 1;
 			var speed:Float = 300;
 			if(FlxG.keys.pressed.SHIFT || touchPad.buttonZ.pressed) {
@@ -663,7 +660,7 @@ class DialogueCharacterEditorState extends MusicBeatState implements PsychUIEven
 			var rawJson:String = File.getContent(fullPath);
 			if(rawJson != null) {
 				var loadedChar:DialogueCharacterFile = cast Json.parse(rawJson);
-				if(loadedChar.dialogue_pos != null) //Make sure it's really a dialogue character
+				if(loadedChar.dialogue_pos != null) 
 				{
 					var cutName:String = _file.name.substr(0, _file.name.length - 5);
 					trace("Successfully loaded file: " + cutName);
@@ -688,9 +685,6 @@ class DialogueCharacterEditorState extends MusicBeatState implements PsychUIEven
 		#end
 	}
 
-	/**
-		* Called when the save file dialog is cancelled.
-		*/
 	function onLoadCancel(_):Void
 	{
 		_file.removeEventListener(#if desktop Event.SELECT #else Event.COMPLETE #end, onLoadComplete);
@@ -700,9 +694,6 @@ class DialogueCharacterEditorState extends MusicBeatState implements PsychUIEven
 		trace("Cancelled file loading.");
 	}
 
-	/**
-		* Called if there is an error while saving the gameplay recording.
-		*/
 	function onLoadError(_):Void
 	{
 		_file.removeEventListener(#if desktop Event.SELECT #else Event.COMPLETE #end, onLoadComplete);
@@ -741,9 +732,6 @@ class DialogueCharacterEditorState extends MusicBeatState implements PsychUIEven
 		FlxG.log.notice("Successfully saved file.");
 	}
 
-	/**
-		* Called when the save file dialog is cancelled.
-		*/
 	function onSaveCancel(_):Void
 	{
 		_file.removeEventListener(#if desktop Event.SELECT #else Event.COMPLETE #end, onSaveComplete);
@@ -752,9 +740,6 @@ class DialogueCharacterEditorState extends MusicBeatState implements PsychUIEven
 		_file = null;
 	}
 
-	/**
-		* Called if there is an error while saving the gameplay recording.
-		*/
 	function onSaveError(_):Void
 	{
 		_file.removeEventListener(#if desktop Event.SELECT #else Event.COMPLETE #end, onSaveComplete);
@@ -765,7 +750,7 @@ class DialogueCharacterEditorState extends MusicBeatState implements PsychUIEven
 	}
 
 	function ClipboardAdd(prefix:String = ''):String {
-		if(prefix.toLowerCase().endsWith('v')) //probably copy paste attempt
+		if(prefix.toLowerCase().endsWith('v')) 
 		{
 			prefix = prefix.substring(0, prefix.length-1);
 		}

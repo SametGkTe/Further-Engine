@@ -55,7 +55,6 @@ class ModsHelper {
 		camera.filtersEnabled = true;
 	}
 	public static function clearStoredWithoutStickers() {
-		//! Doesn't actually clear the stickers
 		@:privateAccess
 		var cache = FlxG.bitmap._cache;
 		for (key => val in cache){

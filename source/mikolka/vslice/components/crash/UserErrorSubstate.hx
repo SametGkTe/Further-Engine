@@ -185,7 +185,6 @@ class UserErrorSubstate extends MusicBeatSubstate
 
 	function printError(error:CrashData)
 	{
-		//43
 		var star = #if (CHECK_FOR_UPDATES || debug) "" #else "*" #end;
 		printToTrace('P-SLICE ${states.MainMenuState.psychEngineVersion}$star  (${error.message})');
 		textNextY += 35;
@@ -224,7 +223,6 @@ class UserErrorSubstate extends MusicBeatSubstate
 					printToTrace(" ");
 				}
 			}
-			// printToTrace('S8:00000000H   RA:80286034H   MM:86A20290H');
 			printSpaceToTrace();
 			printToTrace('RUNTIME INFORMATION');
 			var date_split = error.date.split(" ");
@@ -272,32 +270,6 @@ class UserErrorSubstate extends MusicBeatSubstate
 		textNextY += 10;
 	}
 
-	// function styleTest() {
-	// 	printToTrace('THREAD:4  (FLOATING POINT EXCEPTION)');
-	//     printToTrace('PC:8O2B645CH   SR:2OOOFFO3H   VA:FFFFFFFFH');
-	// 	printSpaceToTrace();
-	// 	printToTrace('AT:FFFFOOFFH   VO:00000001H   V1:80000401H');
-	// 	printToTrace('AO:8015A578H   A1:80268300H   A2:412028F6H');
-	// 	printToTrace('A3:43AB25B1H   TO:0000FFOOH   T1:0000FF0OH');
-	// 	printToTrace('T2:00000AAAH   T3:003FFF01H   T4:2000FF01H');
-	// 	printToTrace('T5:00000003H   T6:802DAAAOH   T7:802DASAOH');
-	// 	printToTrace('SO:8010EFC8H   S1:800F7C8CH   S2:8010C924H');
-	// 	printToTrace('S3:80000000H   S4:8010EBBOH   S5:00000000H');
-	// 	printToTrace('S6:00000000H   S7:00000000H   T8:802DA898H');
-	// 	printToTrace('T9:802DAA9SH   GP:00000000H   SP:800AE580H');
-	// 	printToTrace('S8:00000000H   RA:80286034H   MM:86A20290H');
-	// 	printSpaceToTrace();
-	// 	printToTrace('FPCSR:0100080CH');
-	// 	printSpaceToTrace();
-	// 	printToTrace('F00:+7.280E-01 F02:---------  F04:45.458E+02');
-	// 	printToTrace('F06:---------  F08:+1.000E+00 F10:+6.856E-01');
-	// 	printToTrace('F12:+7.280E-01 F14:+5.458E+02 F16:+5.493E+02');
-	// 	printToTrace('F18:+5.458E+02 F20:+0.000E+00 F22:+0.000E+00');
-	// 	printToTrace('F24:+0.000E+00 F26:+0.000E+00 F28:+0.000E+00');
-	// 	printToTrace('F30:+0.000E+00');
-	// }
-	// function name() {
-	// }
 }
 
 typedef CrashData =

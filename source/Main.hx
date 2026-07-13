@@ -24,31 +24,28 @@ import lime.graphics.Image;
 import states.CopyState;
 #end
 import backend.Highscore;
-import objects.PopupThing.PopupMgr; // <<< BU SATIRR EKLENDİ
+import objects.PopupThing.PopupMgr; 
 
-// NATIVE API STUFF, YOU CAN IGNORE THIS AND SCROLL //
 #if (linux && !debug)
 @:cppInclude('./external/gamemode_client.h')
 @:cppFileCode('#define GAMEMODE_AUTO')
 #end
 
-// // // // // // // // //
 class Main extends Sprite
 {
 	public static final game = {
-		width: 1280, // WINDOW width
-		height: 720, // WINDOW height
-		initialState: TitleState, // initial game state
-		framerate: 60, // default framerate
-		skipSplash: true, // if the default flixel splash screen should be skipped
-		startFullscreen: false // if the game should start at fullscreen mode
+		width: 1280, 
+		height: 720, 
+		initialState: TitleState, 
+		framerate: 60, 
+		skipSplash: true, 
+		startFullscreen: false 
 	};
 
 	public static var fpsVar:FPSCounter;
 
 	public static final platform:String = #if mobile "Phones" #else "PCs" #end;
 
-	// You can pretty much ignore everything from here on - your code should go in your states.
 
 	public static function main():Void
 	{
@@ -171,10 +168,9 @@ class Main extends Sprite
 			fpsVar.visible = ClientPrefs.data.showFPS;
 		}
 
-		// <<< POPUP MANAGER - FlxGame'den SONRA eklenmeli ki en üstte olsun >>>
 		addChild(new PopupMgr());
 
-		#if (linux || mac) // fix the app icon not showing up on the Linux Panel / Mac Dock
+		#if (linux || mac) 
 		var icon = Image.fromFile("icon.png");
 		Lib.current.stage.window.setIcon(icon);
 		#end
@@ -205,7 +201,6 @@ class Main extends Sprite
 
 		Application.current.window.vsync = ClientPrefs.data.vsync;
 
-		// shader coords fix
 		FlxG.signals.gameResized.add(function (w, h) {
 			if(fpsVar != null)
 				fpsVar.positionFPS(10, 3, Math.min(w / FlxG.width, h / FlxG.height));

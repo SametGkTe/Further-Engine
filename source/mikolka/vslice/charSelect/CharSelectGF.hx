@@ -39,9 +39,6 @@ class CharSelectGF extends FlxAtlasSprite
     switch (fadingStatus)
     {
       case OFF:
-        // do nothing if it's off!
-        // or maybe force position to be 0,0?
-        // maybe reset timers?
         resetFadeAnimParams();
       case FADE_OUT:
         doFade(animOutInfo);
@@ -68,16 +65,10 @@ class CharSelectGF extends FlxAtlasSprite
 
   var danceEvery:Int = 2;
 
-  public function onBeatHit(beat:Int):Void //? gather beat instead of event
+  public function onBeatHit(beat:Int):Void 
   {
-    // TODO: There's a minor visual bug where there's a little stutter.
-    // This happens because the animation is getting restarted while it's already playing.
-    // I tried make this not interrupt an existing idle,
-    // but isAnimationFinished() and isLoopComplete() both don't work! What the hell?
-    // danceEvery isn't necessary if that gets fixed.
     if (getCurrentAnimation() == "idle" && (beat % danceEvery == 0))
     {
-      //trace('GF beat hit');
       playAnimation("idle", true, false, false);
     }
   };
@@ -103,36 +94,27 @@ class CharSelectGF extends FlxAtlasSprite
         var animFrame:Int = Math.round(levels[i].value * 12);
 
         #if desktop
-        // Web version scales with the Flixel volume level.
-        // This line brings platform parity but looks worse.
-        // animFrame = Math.round(animFrame * FlxG.sound.volume);
         #end
 
         animFrame = Math.floor(Math.min(12, animFrame));
         animFrame = Math.floor(Math.max(0, animFrame));
 
-        animFrame = Std.int(Math.abs(animFrame - 12)); // shitty dumbass flip, cuz dave got da shit backwards lol!
+        animFrame = Std.int(Math.abs(animFrame - 12)); 
 
         elements[i].symbol.firstFrame = animFrame;
       }
     }
     }
     catch(x:Exception){
-      // tracing this would waste CPU
     }
   }
 
-  /**
-   * @param animInfo Should not be confused with animInInfo!
-   *                 This is merely a local var for the function!
-   */
   function doFade(animInfo:FramesJSFLInfo):Void
   {
     fadeTimer += FlxG.elapsed;
     if (fadeTimer >= 1 / 24)
     {
       fadeTimer -= FlxG.elapsed;
-      // only inc the index for the first frame, used for reference of where to "start"
       if (fadeAnimIndex == 0)
       {
         fadeAnimIndex++;
@@ -145,7 +127,7 @@ class CharSelectGF extends FlxAtlasSprite
       var xDiff:Float = curFrame.x - prevFrame.x;
       var yDiff:Float = curFrame.y - prevFrame.y;
       var alphaDiff:Float = curFrame.alpha - prevFrame.alpha;
-      alphaDiff /= 100; // flash exports alpha as a whole number
+      alphaDiff /= 100; 
 
       alpha += alphaDiff;
       alpha = FlxMath.bound(alpha, 0, 1);
@@ -164,22 +146,17 @@ class CharSelectGF extends FlxAtlasSprite
     fadeAnimIndex = 0;
   }
 
-  /**
-   * For switching between "GFs" such as gf, nene, etc
-   * @param bf Which BF we are selecting, so that we know the accompyaning GF
-   */
   public function switchGF(bf:String):Void
   {
     var previousGFPath = currentGFPath;
     if(bf == "locked"){
-      this.visible = false; //? 'locked' is a special character
-      return;//? and ??? doesn't have gf (yet)
+      this.visible = false; 
+      return;
     }
     var bfObj = PlayerRegistry.instance.fetchEntry(bf);
     var gfData = bfObj?.getCharSelectData()?.gf;
     currentGFPath = gfData?.assetPath != null ? gfData?.assetPath : null;
 
-    // We don't need to update any anims if we didn't change GF
     trace('currentGFPath(${currentGFPath})');
     if (currentGFPath == null)
     {
@@ -193,7 +170,7 @@ class CharSelectGF extends FlxAtlasSprite
 
       enableVisualizer = gfData?.visualizer ?? false;
 
-      var animInfoPath = 'images/${gfData?.animInfoPath}'; //? JSFL uses asset system!
+      var animInfoPath = 'images/${gfData?.animInfoPath}'; 
 
       animInInfo = FramesJSFLParser.parse(animInfoPath + '/In.txt');
       animOutInfo = FramesJSFLParser.parse(animInfoPath + '/Out.txt');

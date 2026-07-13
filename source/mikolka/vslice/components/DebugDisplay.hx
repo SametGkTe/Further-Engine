@@ -7,9 +7,6 @@ import openfl.display.Sprite;
 import openfl.text.TextField;
 import openfl.text.TextFormat;
 
-/**
- * A debug overlay showing useful info.
- */
 #if cpp
 @:access(lime._internal.backend.native.NativeCFFI)
 #end
@@ -20,14 +17,8 @@ class FunkinDebugDisplay extends Sprite
 	static final OUTER_RECT_DIMENSIONS:Array<Int> = [234, 201];
 	static final OTHERS_OFFSET:Int = 8;
 
-	/**
-	 * Indicates whether the debug display is in advanced mode.
-	 */
 	public var isAdvanced(default, set):Bool = false;
 
-	/**
-	 * The opacity of the debug display's background.
-	 */
 	public var backgroundOpacity(default, set):Float = 0.5;
 
 	var currentFPS:Int;

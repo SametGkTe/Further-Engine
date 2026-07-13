@@ -41,7 +41,6 @@ class NoteOffsetState extends MusicBeatState
 		DiscordClient.changePresence(Language.getPhrase('discord_delay_combo', "Gecikme/Kombo Ofset Menüsü"), null);
 		#end
 
-		// Cameras
 		camGame = initPsychCamera();
 
 		camHUD = new FlxCamera();
@@ -57,11 +56,9 @@ class NoteOffsetState extends MusicBeatState
 		persistentUpdate = true;
 		FlxG.sound.pause();
 
-		// Stage
 		Paths.setCurrentLevel(stageDirectory);
 		new BackgroundStage();
 
-		// Characters
 		gf = new Character(400, 130, 'gf');
 		gf.x += gf.positionArray[0];
 		gf.y += gf.positionArray[1];
@@ -72,7 +69,6 @@ class NoteOffsetState extends MusicBeatState
 		add(gf);
 		add(boyfriend);
 
-		// Combo stuff
 		coolText = new FlxText(0, 0, 0, '', 32);
 		coolText.screenCenter();
 		coolText.x = FlxG.width * 0.35;
@@ -114,7 +110,6 @@ class NoteOffsetState extends MusicBeatState
 
 		repositionCombo();
 
-		// Note delay stuff
 		beatText = new Alphabet(0, 0, Language.getPhrase('delay_beat_hit', 'Ritim Vuruşu!'), true);
 		beatText.setScale(0.6, 0.6);
 		beatText.x += 260;
@@ -143,7 +138,6 @@ class NoteOffsetState extends MusicBeatState
 		add(timeBar);
 		add(timeTxt);
 
-		///////////////////////
 
 		var blackBox:FlxSprite = new FlxSprite().makeGraphic(FlxG.width, 40, FlxColor.BLACK);
 		blackBox.scrollFactor.set();

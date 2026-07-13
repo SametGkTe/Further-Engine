@@ -65,9 +65,6 @@ class Native
 	public static function registerDPIAware():Void
 	{
 		#if (cpp && windows)
-		// DPI Scaling fix for windows 
-		// this shouldn't be needed for other systems
-		// Credit to YoshiCrafter29 for finding this function
 		untyped __cpp__('
 			SetProcessDPIAware();	
 			#ifdef DPI_AWARENESS_CONTEXT

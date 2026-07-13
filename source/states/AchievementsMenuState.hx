@@ -29,7 +29,6 @@ class AchievementsMenuState extends MusicBeatState
 		DiscordClient.changePresence("Achievements Menu", null);
 		#end
 
-		// prepare achievement list
 		for (achievement => data in Achievements.achievements)
 		{
 			var unlocked:Bool = Achievements.isUnlocked(achievement);
@@ -189,17 +188,14 @@ class AchievementsMenuState extends MusicBeatState
 				{
 					var diff:Int = curSelected - (Math.floor(curSelected / MAX_PER_ROW) * MAX_PER_ROW);
 					curSelected += add * MAX_PER_ROW;
-					//trace('Before correction: $curSelected');
 					if(curSelected < 0)
 					{
 						curSelected += Math.ceil(options.length / MAX_PER_ROW) * MAX_PER_ROW;
 						if(curSelected >= options.length) curSelected -= MAX_PER_ROW;
-						//trace('Pass 1: $curSelected');
 					}
 					if(curSelected >= options.length)
 					{
 						curSelected = diff;
-						//trace('Pass 2: $curSelected');
 					}
 
 					_changeSelection();

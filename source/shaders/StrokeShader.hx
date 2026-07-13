@@ -3,8 +3,6 @@ import flixel.util.FlxColor;
 
 class StrokeShader extends FlxShader
 {
-  // MOSTLY STOLEN FROM AUSTIN EAST LOL!
-  // https://gist.github.com/AustinEast/d3892fdf6a6079366fffde071f0c2bae
   public var width(default, set):Float = 0;
   public var height(default, set):Float = 0;
 

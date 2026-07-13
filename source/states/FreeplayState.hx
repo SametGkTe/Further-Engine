@@ -101,7 +101,6 @@ class FreeplayState extends MusicBeatState
 	static inline var SEARCH_BAR_WIDTH:Int = 500;
 	static inline var DROPDOWN_ICON_SIZE:Int = 30;
 
-	//  RANK + RESULTS SİSTEMİ
 
 	var rankLabelText:FlxText;
 	var rankValueText:FlxText;
@@ -117,7 +116,6 @@ class FreeplayState extends MusicBeatState
 	static inline var SCORE_PANEL_WIDTH:Int = 430;
 	static inline var SCORE_PANEL_HEIGHT:Int = 160;
 
-	//  CONSTRUCTOR
 
 	public function new(?params:OriginalFreeplayStateParams, ?stickers:StickerSubState)
 	{
@@ -133,7 +131,6 @@ class FreeplayState extends MusicBeatState
 			searchString = '';
 	}
 
-	//  CREATE
 
 	override function create()
 	{
@@ -301,7 +298,6 @@ class FreeplayState extends MusicBeatState
 
 		FlxG.stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
 
-		// ── Sticker SubState desteği ──
 		if (stickerSubState != null)
 		{
 			persistentDraw = true;
@@ -314,7 +310,6 @@ class FreeplayState extends MusicBeatState
 			new FlxTimer().start(0.15, _ -> maybeStartResultsRankAnim());
 		}
 
-		// ── Results'ten gelince müzik başlat ──
 		if (fromResultsParams != null && (FlxG.sound.music == null || !FlxG.sound.music.playing))
 		{
 			FlxG.sound.playMusic(Paths.music('freakyMenu'), 0);
@@ -324,7 +319,6 @@ class FreeplayState extends MusicBeatState
 		super.create();
 	}
 
-	//  RANK HELPER'LAR
 
 	inline function getRankLetter(rank:Null<ScoringRank>):String
 	{
@@ -528,7 +522,6 @@ class FreeplayState extends MusicBeatState
 		});
 	}
 
-	//  SEARCH HELPERS
 
 	inline function getSearchHintText():String
 	{
@@ -556,7 +549,6 @@ class FreeplayState extends MusicBeatState
 			[space, control, reset]);
 	}
 
-	//  SEARCH BAR
 
 	function createSearchBar()
 	{
@@ -1125,7 +1117,6 @@ class FreeplayState extends MusicBeatState
 		FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
 	}
 
-	//  SUBSTATE
 
 	override function closeSubState()
 	{
@@ -1160,7 +1151,6 @@ class FreeplayState extends MusicBeatState
 
 	var stopMusicPlay:Bool = false;
 
-	//  UPDATE
 
 	override function update(elapsed:Float)
 	{
@@ -1175,7 +1165,6 @@ class FreeplayState extends MusicBeatState
 			return;
 		}
 
-		// Rank animasyonu sırasında input alma
 		if (rankAnimPlaying)
 		{
 			updateTexts(elapsed);
@@ -1527,7 +1516,6 @@ class FreeplayState extends MusicBeatState
 		super.update(elapsed);
 	}
 
-	//  NAVIGATION
 
 	function navigateDropdown(direction:Int)
 	{
@@ -1580,7 +1568,6 @@ class FreeplayState extends MusicBeatState
 		opponentVocals = FlxDestroyUtil.destroy(opponentVocals);
 	}
 
-	//  DIFFICULTY
 
 	function changeDiff(change:Int = 0)
 	{
@@ -1610,7 +1597,6 @@ class FreeplayState extends MusicBeatState
 		missingTextBG.visible = false;
 	}
 
-	//  SELECTION
 
 	function changeSelection(change:Int = 0, playSound:Bool = true)
 	{
@@ -1792,7 +1778,6 @@ class FreeplayState extends MusicBeatState
 		}
 	}
 
-	//  KEY INPUT
 
 	function onKeyDown(e:KeyboardEvent)
 	{
@@ -1852,7 +1837,6 @@ class FreeplayState extends MusicBeatState
 		}
 	}
 
-	//  TEXT UPDATE
 
 	var _drawDistance:Int = 4;
 	var _lastVisibles:Array<Int> = [];
@@ -1900,7 +1884,6 @@ class FreeplayState extends MusicBeatState
 		}
 	}
 
-	//  DESTROY
 
 	override function destroy():Void
 	{
@@ -1917,7 +1900,6 @@ class FreeplayState extends MusicBeatState
 	}
 }
 
-//  TYPEDEF'LER
 
 typedef OriginalFreeplayStateParams =
 {

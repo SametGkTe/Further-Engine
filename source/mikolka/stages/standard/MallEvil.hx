@@ -18,7 +18,6 @@ class MallEvil extends BaseStage
 		add(evilSnow);
 		setDefaultGF('gf-christmas');
 		
-		//Winter Horrorland cutscene
 		if (isStoryMode && !seenCutscene)
 		{
 			switch(songName)
@@ -38,7 +37,6 @@ class MallEvil extends BaseStage
 		FlxG.camera.zoom = 1.5;
 		FlxG.camera.focusOn(FlxPoint.weak(400, -2050));
 
-		// blackout at the start
 		var blackScreen:FlxSprite = new FlxSprite().makeGraphic(Std.int(FlxG.width * 2), Std.int(FlxG.height * 2), FlxColor.BLACK);
 		blackScreen.scrollFactor.set();
 		add(blackScreen);
@@ -50,7 +48,6 @@ class MallEvil extends BaseStage
 			}
 		});
 
-		// zoom out
 		new FlxTimer().start(0.8, function(tmr:FlxTimer)
 		{
 			camHUD.visible = true;

@@ -65,7 +65,6 @@ class CustomFadeTransition extends FlxSubState {
 		}
 	}
 
-	// Don't delete this
 	override function close():Void
 	{
 		super.close();

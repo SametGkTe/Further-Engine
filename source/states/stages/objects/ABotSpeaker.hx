@@ -6,7 +6,7 @@ import funkin.vis.dsp.SpectralAnalyzer;
 
 class ABotSpeaker extends FlxSpriteGroup
 {
-	final VIZ_MAX = 7; //ranges from viz1 to viz7
+	final VIZ_MAX = 7; 
 	final VIZ_POS_X:Array<Float> = [0, 59, 56, 66, 54, 52, 51];
 	final VIZ_POS_Y:Array<Float> = [0, -8, -3.5, -0.4, 0.5, 4.7, 7];
 
@@ -53,7 +53,7 @@ class ABotSpeaker extends FlxSpriteGroup
 			viz.frames = vizFrames;
 			viz.animation.addByPrefix('VIZ', 'viz$i', 0);
 			viz.animation.play('VIZ', true);
-			viz.animation.curAnim.finish(); //make it go to the lowest point
+			viz.animation.curAnim.finish(); 
 			viz.antialiasing = antialias;
 			vizSprites.push(viz);
 			viz.updateHitbox();
@@ -97,7 +97,7 @@ class ABotSpeaker extends FlxSpriteGroup
 		for (i in 0...Std.int(Math.min(vizSprites.length, levels.length)))
 		{
 			var animFrame:Int = Math.round(levels[i].value * 5);
-			animFrame = Std.int(Math.abs(FlxMath.bound(animFrame, 0, 5) - 5)); // shitty dumbass flip, cuz dave got da shit backwards lol!
+			animFrame = Std.int(Math.abs(FlxMath.bound(animFrame, 0, 5) - 5)); 
 		
 			vizSprites[i].animation.curAnim.curFrame = animFrame;
 			levelMax = Std.int(Math.max(levelMax, 5 - animFrame));
@@ -105,7 +105,6 @@ class ABotSpeaker extends FlxSpriteGroup
 
 		if(levelMax >= 4)
 		{
-			//trace(levelMax);
 			if(oldLevelMax <= levelMax && (levelMax >= 5 || speaker.anim.curFrame >= 3))
 				beatHit();
 		}
@@ -124,8 +123,6 @@ class ABotSpeaker extends FlxSpriteGroup
 		analyzer = new SpectralAnalyzer(snd._channel.__audioSource, 7, 0.1, 40);
 	
 		#if !web
-		// On native it uses FFT stuff that isn't as optimized as the direct browser stuff we use on HTML5
-		// So we want to manually change it!
 		analyzer.fftN = 256;
 		#end
 	}

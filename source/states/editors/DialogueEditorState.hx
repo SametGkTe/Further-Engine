@@ -198,7 +198,7 @@ class DialogueEditorState extends MusicBeatState implements PsychUIEventHandler.
 		}
 		character.x += character.jsonFile.position[0];
 		character.y += character.jsonFile.position[1];
-		character.playAnim(); //Plays random animation
+		character.playAnim(); 
 		characterAnimSpeed();
 
 		if(character.animation.curAnim != null && character.jsonFile.animations != null) {
@@ -231,10 +231,9 @@ class DialogueEditorState extends MusicBeatState implements PsychUIEventHandler.
 		if(daText.rows > 2) daText.y -= DialogueBoxPsych.LONG_TEXT_ADD;
 
 		#if DISCORD_ALLOWED
-		// Updating Discord Rich Presence
 		var rpcText:String = lineInputText.text;
 		if(rpcText == null || rpcText.length < 1) rpcText = '(Empty)';
-		if(rpcText.length < 3) rpcText += '   '; //Fixes a bug on RPC that triggers an error when the text is too short
+		if(rpcText.length < 3) rpcText += '   '; 
 		DiscordClient.changePresence("Dialogue Editor", rpcText);
 		#end
 	}
@@ -347,7 +346,7 @@ class DialogueEditorState extends MusicBeatState implements PsychUIEventHandler.
 
 			if(FlxG.keys.justPressed.O || touchPad.buttonA.justPressed ) {
 				dialogueFile.dialogue.remove(dialogueFile.dialogue[curSelected]);
-				if(dialogueFile.dialogue.length < 1) //You deleted everything, dumbo!
+				if(dialogueFile.dialogue.length < 1) 
 				{
 					dialogueFile.dialogue = [
 						copyDefaultLine()
@@ -441,7 +440,7 @@ class DialogueEditorState extends MusicBeatState implements PsychUIEventHandler.
 			var rawJson:String = File.getContent(fullPath);
 			if(rawJson != null) {
 				var loadedDialog:DialogueFile = cast Json.parse(rawJson);
-				if(loadedDialog.dialogue != null && loadedDialog.dialogue.length > 0) //Make sure it's really a dialogue file
+				if(loadedDialog.dialogue != null && loadedDialog.dialogue.length > 0) 
 				{
 					var cutName:String = _file.name.substr(0, _file.name.length - 5);
 					trace("Successfully loaded file: " + cutName);
@@ -458,9 +457,6 @@ class DialogueEditorState extends MusicBeatState implements PsychUIEventHandler.
 		#end
 	}
 
-	/**
-		* Called when the save file dialog is cancelled.
-		*/
 	function onLoadCancel(_):Void
 	{
 		_file.removeEventListener(#if desktop Event.SELECT #else Event.COMPLETE #end, onLoadComplete);
@@ -470,9 +466,6 @@ class DialogueEditorState extends MusicBeatState implements PsychUIEventHandler.
 		trace("Cancelled file loading.");
 	}
 
-	/**
-		* Called if there is an error while saving the gameplay recording.
-		*/
 	function onLoadError(_):Void
 	{
 		_file.removeEventListener(#if desktop Event.SELECT #else Event.COMPLETE #end, onLoadComplete);
@@ -508,9 +501,6 @@ class DialogueEditorState extends MusicBeatState implements PsychUIEventHandler.
 		FlxG.log.notice("Successfully saved file.");
 	}
 
-	/**
-		* Called when the save file dialog is cancelled.
-		*/
 	function onSaveCancel(_):Void
 	{
 		_file.removeEventListener(#if desktop Event.SELECT #else Event.COMPLETE #end, onSaveComplete);
@@ -519,9 +509,6 @@ class DialogueEditorState extends MusicBeatState implements PsychUIEventHandler.
 		_file = null;
 	}
 
-	/**
-		* Called if there is an error while saving the gameplay recording.
-		*/
 	function onSaveError(_):Void
 	{
 		_file.removeEventListener(#if desktop Event.SELECT #else Event.COMPLETE #end, onSaveComplete);

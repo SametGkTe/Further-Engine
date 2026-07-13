@@ -28,7 +28,7 @@ class ErrorHandledShader extends FlxShader implements IErrorHandler
 		}
 	}
 	
-	public static function crashSave(shaderName:String, error:Dynamic, onError:Dynamic) // prevent the app from dying immediately
+	public static function crashSave(shaderName:String, error:Dynamic, onError:Dynamic) 
 	{
 		if(shaderName == null) shaderName = 'unnamed';
 		var alertTitle:String = 'Error on Shader: "$shaderName"';
@@ -36,7 +36,6 @@ class ErrorHandledShader extends FlxShader implements IErrorHandler
 		trace(error);
 
 		#if ( !debug && sys )
-		// Save a crash log on Release builds
 		var errMsg:String = "";
 		var dateNow:String = Date.now().toString().replace(" ", "_").replace(":", "'");
 

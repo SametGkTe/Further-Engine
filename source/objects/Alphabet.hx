@@ -28,7 +28,7 @@ class Alphabet extends FlxSpriteGroup
 	public var rows:Int = 0;
 
 	public var distancePerItem:FlxPoint = new FlxPoint(20, 120);
-	public var startPosition:FlxPoint = new FlxPoint(0, 0); //for the calculations
+	public var startPosition:FlxPoint = new FlxPoint(0, 0); 
 
 	public function new(x:Float, y:Float, text:String = "", ?bold:Bool = true)
 	{
@@ -253,15 +253,7 @@ class Alphabet extends FlxSpriteGroup
 }
 
 
-///////////////////////////////////////////
-// ALPHABET LETTERS, SYMBOLS AND NUMBERS //
-///////////////////////////////////////////
 
-/*enum LetterType
-{
-	ALPHABET;
-	NUMBER_OR_SYMBOL;
-}*/
 
 typedef Letter = {
 	?anim:Null<String>,
@@ -271,9 +263,6 @@ typedef Letter = {
 
 class AlphaCharacter extends FlxSprite
 {
-	//public static var alphabet:String = "abcdefghijklmnopqrstuvwxyz";
-	//public static var numbers:String = "1234567890";
-	//public static var symbols:String = "|~#$%()*+-:;<=>@[]^_.,'!?";
 
 	public var image(default, set):String;
 
@@ -305,7 +294,7 @@ class AlphaCharacter extends FlxSprite
 					var char:String = data.allowed.charAt(i);
 					if(char == ' ') continue;
 					
-					allLetters.set(char.toLowerCase(), null); //Allows character to be used in Alphabet
+					allLetters.set(char.toLowerCase(), null); 
 				}
 			}
 
@@ -332,7 +321,7 @@ class AlphaCharacter extends FlxSprite
 	}
 
 	var parent:Alphabet;
-	public var alignOffset:Float = 0; //Don't change this
+	public var alignOffset:Float = 0; 
 	public var letterOffset:Array<Float> = [0, 0];
 
 	public var row:Int = 0;
@@ -398,7 +387,7 @@ class AlphaCharacter extends FlxSprite
 		updateHitbox();
 	}
 
-	public static function isTypeAlphabet(c:String) // thanks kade
+	public static function isTypeAlphabet(c:String) 
 	{
 		var ascii = StringTools.fastCodeAt(c, 0);
 		var turkishChars:Array<String> = ['ç', 'ğ', 'ı', 'i', 'ö', 'ş', 'ü'];
@@ -410,7 +399,7 @@ class AlphaCharacter extends FlxSprite
 
 	private function set_image(name:String)
 	{
-		if(frames == null) //first setup
+		if(frames == null) 
 		{
 			image = name;
 			frames = Paths.getSparrowAtlas(name);

@@ -27,7 +27,6 @@ class Limo extends BaseStage
 	var limoBgMetalPole:BGSprite;
 	var limoBglight:BGSprite;
 	var skipBgPoleOnBeats:Array<Int> = [];
-	// event
 	var limoKillingState:HenchmenKillState = WAIT;
 	var limoMetalPole:BGSprite;
 	var limoLight:BGSprite;
@@ -85,13 +84,11 @@ class Limo extends BaseStage
 			grpLimoParticles = new FlxTypedGroup<BGSprite>();
 			add(grpLimoParticles);
 
-			//PRECACHE BLOOD
 			var particle:BGSprite = new BGSprite('gore/stupidBlood', -400, -400, 0.4, 0.4, ['blood'], false);
 			particle.alpha = 0.01;
 			grpLimoParticles.add(particle);
 			resetLimoKill();
 
-			//PRECACHE SOUND
 			Paths.sound('dancerdeath');
 			setDefaultGF('gf-car');
 		}
@@ -156,7 +153,7 @@ class Limo extends BaseStage
 									limoCorpse.visible = true;
 								case 2:
 									limoCorpseTwo.visible = true;
-							} //Note: Nobody cares about the fifth dancer because he is mostly hidden offscreen :(
+							} 
 							dancers[i].x += FlxG.width * 2;
 						}
 					}
@@ -194,7 +191,7 @@ class Limo extends BaseStage
 					}
 					dancersParenting();
 
-				default: //nothing
+				default: 
 			}
 		}
 	}
@@ -228,7 +225,6 @@ class Limo extends BaseStage
 			fastCarDrive();
 	}
 	
-	// Substates for pausing/resuming tweens and timers
 	override function closeSubState()
 	{
 		if(paused)
@@ -285,7 +281,6 @@ class Limo extends BaseStage
 	var carTimer:FlxTimer;
 	function fastCarDrive()
 	{
-		//trace('Car drive');
 		FlxG.sound.play(Paths.soundRandom('carPass', 0, 1), 0.7);
 
 		fastCar.velocity.x = FlxG.random.int(30600, 39600);

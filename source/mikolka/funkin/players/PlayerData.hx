@@ -6,43 +6,18 @@ import mikolka.compatibility.funkin.FunkinPath as Paths;
 class PlayerData
 {
 	public function new() {}
-	/**
-	 * The sematic version number of the player data JSON format.
-	 * Supports fancy comparisons like NPM does it's neat.
-	 */
 	public var version:String = "1.0";
 
-	/**
-	 * A readable name for this playable character.
-	 */
 	public var name:String = 'Unknown';
 
-	/**
-	 * The character IDs this character is associated with.
-	 * Only songs that use these characters will show up in Freeplay.
-	 */
 	public var ownedChars:Array<String> = ["bf"];
 
-	/**
-	 * Whether to show songs with character IDs that aren't associated with any specific character.
-	 */
 	public var showUnownedChars:Bool = false;
 
-	/**
-	 * Which freeplay style to use for this character.
-	 */
 	public var freeplayStyle:String = 'bf';
 
-	/**
-	 * Data for displaying this character in the Freeplay menu.
-	 * If null, display no DJ.
-	 */
 	public var freeplayDJ:Null<PlayerFreeplayDJData> = null;
 
-	/**
-	 * Data for displaying this character in the Character Select menu.
-	 * If null, exclude from Character Select.
-	 */
 	public var charSelect:Null<PlayerCharSelectData> = {
 		"position": 5,
 		"gf": {
@@ -52,9 +27,6 @@ class PlayerData
 		  }
 	};
 
-	/**
-	 * Data for displaying this character in the results screen.
-	 */
 	public var results:Null<PlayerResultsData> = {
 		"music": {
 			"PERFECT_GOLD": "resultsPERFECT",
@@ -71,10 +43,6 @@ class PlayerData
 		  "loss": [],
 	};
 
-	/**
-	 * Whether this character is unlocked by default.
-	 * Use a ScriptedPlayableCharacter to add custom logic.
-	 */
 	public var unlocked:Bool = true;
 }
 
@@ -172,7 +140,6 @@ class PlayerFreeplayDJData
 		return getAnimationOffsetsByPrefix(getAnimationPrefix(name));
 	}
 
-	// TODO: These should really be frame labels, ehe.
 
 	public function getCartoonSoundClickFrame():Int
 	{
@@ -247,12 +214,6 @@ class PlayerFreeplayDJData
 
 typedef PlayerCharSelectData =
 {
-	/**
-	 * A zero-indexed number for the character's preferred position in the grid.
-	 * 0 = top left, 4 = center, 8 = bottom right
-	 * In the event of a conflict, the first character alphabetically gets it,
-	 * and others get shifted over.
-	 */
 	public var position:Null<Int>;
 	public var gf:PlayerCharSelectGFData;
 }
@@ -294,16 +255,12 @@ typedef PlayerResultsMusicData =
 
 typedef PlayerResultsAnimationData =
 {
-	/**
-	 * `sparrow` or `animate` or whatever
-	 */
 	var renderType:String;
 
 	var assetPath:String;
 
 	var filter:String;
 
-	// We can now play sounds apparently
 	var sound:String;
 
 	@:default([0, 0])

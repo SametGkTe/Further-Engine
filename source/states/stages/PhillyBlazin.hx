@@ -27,7 +27,7 @@ class PhillyBlazin extends BaseStage
 
 	override function create()
 	{
-		FlxTransitionableState.skipNextTransOut = true; //skip the original transition fade
+		FlxTransitionableState.skipNextTransOut = true; 
 		function setupScale(spr:BGSprite)
 		{
 			spr.scale.set(1.75, 1.75);
@@ -137,7 +137,6 @@ class PhillyBlazin extends BaseStage
 		{
 			if(note == null) continue;
 
-			//override animations for note types
 			note.noAnimation = true;
 			note.noMissAnimation = true;
 		}
@@ -147,7 +146,6 @@ class PhillyBlazin extends BaseStage
 
 	override function beatHit()
 	{
-		//if(curBeat % 2 == 0) abot.beatHit();
 	}
 	
 	override function startSong()
@@ -223,44 +221,36 @@ class PhillyBlazin extends BaseStage
 		else
 			lightning.x = FlxG.random.int(780, 900);
 
-		// Darken characters
 		FlxTween.color(boyfriend, LIGHTNING_FADE_DURATION, 0xFF606060, 0xFFDEDEDE);
 		FlxTween.color(dad, LIGHTNING_FADE_DURATION, 0xFF606060, 0xFFDEDEDE);
 		FlxTween.color(gf, LIGHTNING_FADE_DURATION, 0xFF606060, 0xFF888888);
 		FlxTween.color(abot, LIGHTNING_FADE_DURATION, 0xFF606060, 0xFF888888);
 
-		// Sound
 		FlxG.sound.play(Paths.soundRandom('lightning/Lightning', 1, 3));
 	}
 
-	// Note functions
 	var picoFight:PicoBlazinHandler = new PicoBlazinHandler();
 	var darnellFight:DarnellBlazinHandler = new DarnellBlazinHandler();
 	override function goodNoteHit(note:Note)
 	{
-		//trace('hit note! ${note.noteType}');
 		rainTimeScale += 0.7;
 		picoFight.noteHit(note);
 		darnellFight.noteHit(note);
 	}
 	override function noteMiss(note:Note)
 	{
-		//trace('missed note!');
 		picoFight.noteMiss(note);
 		darnellFight.noteMiss(note);
 	}
 
 	override function noteMissPress(direction:Int)
 	{
-		//trace('misinput!');
 		picoFight.noteMissPress(direction);
 		darnellFight.noteMissPress(direction);
 	}
 
-	// Darnell Note functions
 	override function opponentNoteHit(note:Note)
 	{
-		//trace('opponent hit!');
 		picoFight.noteMiss(note);
 		darnellFight.noteMiss(note);
 	}

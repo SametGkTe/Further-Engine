@@ -16,7 +16,6 @@ class PicoDopplegangerSprite extends FlxAtlasSprite
     super(x, y, 'philly/erect/cutscenes/pico_doppleganger', {
       FrameRate: 24.0,
       Reversed: false,
-      // ?OnComplete:Void -> Void,
       ShowPivot: false,
       Antialiasing: true,
       ScrollFactor: new FlxPoint(1, 1),

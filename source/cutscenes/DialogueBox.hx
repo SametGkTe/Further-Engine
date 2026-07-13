@@ -11,7 +11,6 @@ class DialogueBox extends FlxSpriteGroup
 
 	var dialogueList:Array<String> = [];
 
-	// SECOND DIALOGUE FOR THE PIXEL SHIT INSTEAD???
 	var swagDialogue:FlxTypeText;
 
 	public var finishThing:Void->Void;
@@ -125,7 +124,6 @@ class DialogueBox extends FlxSpriteGroup
 
 	override function update(elapsed:Float)
 	{
-		// HARD CODING CUZ IM STUPDI
 		super.update(elapsed);
 
 		switch(songName)
@@ -217,11 +215,7 @@ class DialogueBox extends FlxSpriteGroup
 	function startDialogue():Void
 	{
 		cleanDialog();
-		// var theDialog:Alphabet = new Alphabet(0, 70, dialogueList[0], false, true);
-		// dialogue = theDialog;
-		// add(theDialog);
 
-		// swagDialogue.text = ;
 		swagDialogue.resetText(dialogueList[0]);
 		swagDialogue.start(0.04, true);
 		swagDialogue.completeCallback = function() {

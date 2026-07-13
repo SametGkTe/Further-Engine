@@ -35,41 +35,34 @@ class Paths
 	}
 
 	public static var dumpExclusions:Array<String> = ['assets/shared/music/freakyMenu.$SOUND_EXT', 'assets/shared/mobile/touchpad/bg.png'];
-	// haya I love you for the base cache dump I took to the max
 	public static function clearUnusedMemory()
 	{
-		// clear non local assets in the tracked assets list
 		for (key in currentTrackedAssets.keys())
 		{
-			// if it is not currently contained within the used local assets
 			if (!localTrackedAssets.contains(key) && !dumpExclusions.contains(key))
 			{
-				destroyGraphic(currentTrackedAssets.get(key)); // get rid of the graphic
-				currentTrackedAssets.remove(key); // and remove the key from local cache map
+				destroyGraphic(currentTrackedAssets.get(key)); 
+				currentTrackedAssets.remove(key); 
 			}
 		}
 
-		// run the garbage collector for good measure lmfao
 		System.gc();
 		#if cpp
 		cpp.NativeGc.run(true);
 		#end
 	}
 
-	// define the locally tracked assets
 	public static var localTrackedAssets:Array<String> = [];
 
 	@:access(flixel.system.frontEnds.BitmapFrontEnd._cache)
 	public static function clearStoredMemory()
 	{
-		// clear anything not in the tracked assets list
 		for (key in FlxG.bitmap._cache.keys())
 		{
 			if (!currentTrackedAssets.exists(key))
 				destroyGraphic(FlxG.bitmap.get(key));
 		}
 
-		// clear all sounds that are cached
 		for (key => asset in currentTrackedSounds)
 		{
 			if (!localTrackedAssets.contains(key) && !dumpExclusions.contains(key) && asset != null)
@@ -78,7 +71,6 @@ class Paths
 				currentTrackedSounds.remove(key);
 			}
 		}
-		// flags everything to be cleared out next unused memory clear
 		localTrackedAssets = [];
 		#if !html5 openfl.Assets.cache.clear("songs"); #end
 	}
@@ -93,7 +85,6 @@ class Paths
 				var grp:Array<Dynamic> = Reflect.getProperty(spr, 'members');
 				if(grp != null)
 				{
-					//trace('is actually a group');
 					for (member in grp)
 					{
 						checkForGraphics(member);
@@ -102,17 +93,14 @@ class Paths
 				}
 			}
 
-			//trace('check...');
 			try
 			{
 				var gfx:FlxGraphic = Reflect.getProperty(spr, 'graphic');
 				if(gfx != null)
 				{
 					protectedGfx.push(gfx);
-					//trace('gfx added to the list successfully!');
 				}
 			}
-			//catch(haxe.Exception) {}
 		}
 
 		for (member in FlxG.state.members)
@@ -124,15 +112,13 @@ class Paths
 
 		for (key in currentTrackedAssets.keys())
 		{
-			// if it is not currently contained within the used local assets
 			if (!dumpExclusions.contains(key))
 			{
 				var graphic:FlxGraphic = currentTrackedAssets.get(key);
 				if(!protectedGfx.contains(graphic))
 				{
-					destroyGraphic(graphic); // get rid of the graphic
-					currentTrackedAssets.remove(key); // and remove the key from local cache map
-					//trace('deleted $key');
+					destroyGraphic(graphic); 
+					currentTrackedAssets.remove(key); 
 				}
 			}
 		}
@@ -140,7 +126,6 @@ class Paths
 
 	inline static function destroyGraphic(graphic:FlxGraphic)
 	{
-		// free some gpu memory
 		if (graphic != null && graphic.bitmap != null && graphic.bitmap.__texture != null)
 			graphic.bitmap.__texture.dispose();
 		FlxG.bitmap.remove(graphic);
@@ -223,7 +208,6 @@ class Paths
 	{
 		var songKey:String = '${formatToSongPath(song)}/Voices';
 		if(postfix != null) songKey += '-' + postfix;
-		//trace('songKey test: $songKey');
 		return returnSound(songKey, 'songs', modsAllowed, false);
 	}
 
@@ -438,7 +422,6 @@ class Paths
 	{
 		var file:String = getPath(Language.getFileTranslation(key) + '.$SOUND_EXT', SOUND, path, modsAllowed);
 
-		//trace('precaching sound: $file');
 		if(!currentTrackedSounds.exists(file))
 		{
 			#if sys
@@ -589,7 +572,6 @@ class Paths
 			animationJson = File.getContent(animationJson);
 		}
 
-		// is folder or image path
 		if(Std.isOfType(folderOrImg, String))
 		{
 			var originalPath:String = folderOrImg;
@@ -603,7 +585,6 @@ class Paths
 					spriteJson = getTextFromFile('images/$originalPath/spritemap$st.json');
 					if(spriteJson != null)
 					{
-						//trace('found Sprite Json');
 						changedImage = true;
 						changedAtlasJson = true;
 						folderOrImg = image('$originalPath/spritemap$st');
@@ -612,7 +593,6 @@ class Paths
 				}
 				else if(fileExists('images/$originalPath/spritemap$st.png', IMAGE))
 				{
-					//trace('found Sprite PNG');
 					changedImage = true;
 					folderOrImg = image('$originalPath/spritemap$st');
 					break;
@@ -621,22 +601,17 @@ class Paths
 
 			if(!changedImage)
 			{
-				//trace('Changing folderOrImg to FlxGraphic');
 				changedImage = true;
 				folderOrImg = image(originalPath);
 			}
 
 			if(!changedAnimJson)
 			{
-				//trace('found Animation Json');
 				changedAnimJson = true;
 				animationJson = getTextFromFile('images/$originalPath/Animation.json');
 			}
 		}
 
-		//trace(folderOrImg);
-		//trace(spriteJson);
-		//trace(animationJson);
 		spr.loadAtlasEx(folderOrImg, spriteJson, animationJson);
 	}
 	#end

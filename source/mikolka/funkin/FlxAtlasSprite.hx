@@ -11,36 +11,21 @@ import openfl.utils.Assets;
 import flixel.math.FlxPoint;
 import flxanimate.animate.FlxKeyFrame;
 
-/**
- * A sprite which provides convenience functions for rendering a texture atlas with animations.
- */
 class FlxAtlasSprite extends PsychFlxAnimate
 {
-  /**
-   * A list of precached "animation.json" files in case they're used a lot
-   */
   public static final ANIMATION_OBJECTS = new Map<String,Dynamic>();
 
   static final SETTINGS:Settings =
     {
-      // ?ButtonSettings:Map<String, flxanimate.animate.FlxAnim.ButtonSettings>,
       FrameRate: 24.0,
       Reversed: false,
-      // ?OnComplete:Void -> Void,
       ShowPivot: false,
       Antialiasing: true,
       ScrollFactor: null,
-      // Offset: new FlxPoint(0, 0), // This is just FlxSprite.offset
     };
 
-  /**
-   * Signal dispatched when an animation advances to the next frame.
-   */
   public var onAnimationFrame:FlxTypedSignal<String->Int->Void> = new FlxTypedSignal();
 
-  /**
-   * Signal dispatched when a non-looping animation finishes playing.
-   */
   public var onAnimationComplete:FlxTypedSignal<String->Void> = new FlxTypedSignal();
 
   var currentAnimation:String;
@@ -50,10 +35,9 @@ class FlxAtlasSprite extends PsychFlxAnimate
   public function new(x:Float, y:Float, ?path:String, ?settings:Settings)
   {
     if (settings == null) settings = SETTINGS;
-    SETTINGS.Antialiasing = VsliceOptions.ANTIALIASING; //? bit dirty, but should work
+    SETTINGS.Antialiasing = VsliceOptions.ANTIALIASING; 
     if (path == null)
     {
-      //throw 'Null path specified for FlxAtlasSprite!';
     }
     else if (path.startsWith("assets") || path.startsWith("mods")){
       throw '$path is an absolute path. This is discouraged!';
@@ -69,11 +53,8 @@ class FlxAtlasSprite extends PsychFlxAnimate
 
     onAnimationComplete.add(cleanupAnimation);
 
-    // This defaults the sprite to play the first animation in the atlas,
-    // then pauses it. This ensures symbols are intialized properly.
     if (path != null)
     {
-      //throw 'Null path specified for FlxAtlasSprite!';
       this.anim.play('');
       this.anim.pause();
     }
@@ -81,13 +62,9 @@ class FlxAtlasSprite extends PsychFlxAnimate
     this.anim.onComplete.add(_onAnimationComplete);
     this.anim.onFrame.add(_onAnimationFrame);
   }
-  //? P-Slice fix for mods
   override function loadAtlas(path:String) {
       Paths.loadAnimateAtlas(this,path,null,ANIMATION_OBJECTS.get(path));
   }
-  /**
-   * @return A list of all the animations this sprite has available.
-   */
   public function listAnimations():Array<String>
   {
     var mainSymbol = this.anim.symbolDictionary[this.anim.stageInstance.symbol.name];
@@ -99,18 +76,11 @@ class FlxAtlasSprite extends PsychFlxAnimate
     return mainSymbol.getFrameLabels().map(keyFrame -> keyFrame.name).filter(s -> s != null);
   }
 
-  /**
-   * @param id A string ID of the animation.
-   * @return Whether the animation was found on this sprite.
-   */
   public function hasAnimation(id:String):Bool
   {
     return getLabelIndex(id) != -1 || anim.symbolDictionary.exists(id);
   }
 
-  /**
-   * @return The current animation being played.
-   */
   public function getCurrentAnimation():String
   {
     return this.currentAnimation;
@@ -124,18 +94,8 @@ class FlxAtlasSprite extends PsychFlxAnimate
 
   public var ignoreExclusionPref:Array<String> = [];
 
-  /**
-   * Plays an animation.
-   * @param id A string ID of the animation to play.
-   * @param restart Whether to restart the animation if it is already playing.
-   * @param ignoreOther Whether to ignore all other animation inputs, until this one is done playing
-   * @param loop Whether to loop the animation
-   * @param startFrame The frame to start the animation on
-   * NOTE: `loop` and `ignoreOther` are not compatible with each other!
-   */
   public function playAnimation(id:String, restart:Bool = false, ignoreOther:Bool = false, loop:Bool = false, startFrame:Int = 0):Void
   {
-    // Skip if not allowed to play animations.
     if ((!canPlayOtherAnims))
     {
       if (this.currentAnimation == id && restart) {}
@@ -168,7 +128,6 @@ class FlxAtlasSprite extends PsychFlxAnimate
         else
           anim.curFrame = startFrame;
 
-        // Resume animation if it's paused.
         anim.resume();
       }
 
@@ -176,7 +135,6 @@ class FlxAtlasSprite extends PsychFlxAnimate
     }
     else if (!hasAnimation(id))
     {
-      // Skip if the animation doesn't exist
       trace('Animation ' + id + ' not found');
       return;
     }
@@ -189,12 +147,8 @@ class FlxAtlasSprite extends PsychFlxAnimate
 
     looping = loop;
 
-    // Prevent other animations from playing if `ignoreOther` is true.
     if (ignoreOther) canPlayOtherAnims = false;
 
-    // Move to the first frame of the animation.
-    // goToFrameLabel(id);
-    //trace('Playing animation $id');
     if ((id == null || id == "") || this.anim.symbolDictionary.exists(id) || (this.anim.getByName(id) != null))
     {
       this.anim.play(id, restart, false, startFrame);
@@ -203,7 +157,6 @@ class FlxAtlasSprite extends PsychFlxAnimate
 
       fr = null;
     }
-    // Only call goToFrameLabel if there is a frame label with that name. This prevents annoying warnings!
     if (getFrameLabelNames().indexOf(id) != -1)
     {
       goToFrameLabel(id);
@@ -217,19 +170,11 @@ class FlxAtlasSprite extends PsychFlxAnimate
     super.update(elapsed);
   }
 
-  /**
-   * Returns true if the animation has finished playing.
-   * Never true if animation is configured to loop.
-   */
   public function isAnimationFinished():Bool
   {
     return this.anim.finished;
   }
 
-  /**
-   * Returns true if the animation has reached the last frame.
-   * Can be true even if animation is configured to loop.
-   */
   public function isLoopComplete():Bool
   {
     if (this.anim == null) return false;
@@ -240,9 +185,6 @@ class FlxAtlasSprite extends PsychFlxAnimate
     return (anim.reversed && anim.curFrame == 0 || !(anim.reversed) && (anim.curFrame) >= (anim.length - 1));
   }
 
-  /**
-   * Stops the current animation.
-   */
   public function stopAnimation():Void
   {
     if (this.currentAnimation == null) return;
@@ -293,7 +235,6 @@ class FlxAtlasSprite extends PsychFlxAnimate
   public function cleanupAnimation(_:String):Void
   {
     canPlayOtherAnims = true;
-    // this.currentAnimation = null;
     this.anim.pause();
   }
 
@@ -337,7 +278,7 @@ class FlxAtlasSprite extends PsychFlxAnimate
 
   public function replaceFrameGraphic(index:Int, ?graphic:FlxGraphicAsset):Void
   {
-    if (graphic == null) //? removed this bitch: {|| !Assets.exists(graphic))}
+    if (graphic == null) 
     {
       var prevFrame:Null<FlxFrame> = prevFrames.get(index);
       if (prevFrame == null) return;
@@ -352,7 +293,6 @@ class FlxAtlasSprite extends PsychFlxAnimate
     var frame = FlxG.bitmap.add(graphic).imageFrame.frame;
     frame.copyTo(frames.getByIndex(index));
 
-    // Additional sizing fix.
     @:privateAccess
     if (true)
     {
@@ -364,7 +304,6 @@ class FlxAtlasSprite extends PsychFlxAnimate
 
   public function getBasePosition():Null<FlxPoint>
   {
-    // var stagePos = new FlxPoint(anim.stageInstance.matrix.tx, anim.stageInstance.matrix.ty);
     var instancePos = new FlxPoint(anim.curInstance.matrix.tx, anim.curInstance.matrix.ty);
     var firstElement = anim.curSymbol.timeline?.get(0)?.get(0)?.get(0);
     if (firstElement == null) return instancePos;

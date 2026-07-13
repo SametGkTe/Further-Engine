@@ -15,17 +15,16 @@ enum MainMenuColumn {
 
 class MainMenuState extends MusicBeatState
 {
-	public static var psychEngineVersion:String = '1.0.4'; // This is also used for Discord RPC
+	public static var psychEngineVersion:String = '1.0.4'; 
 	public static var furtherVersion:String = 'Beta';
 	public static var curSelected:Int = 0;
 	public static var curColumn:MainMenuColumn = CENTER;
-	var allowMouse:Bool = true; //Turn this off to block mouse movement in menus
+	var allowMouse:Bool = true; 
 
 	var menuItems:FlxTypedGroup<FlxSprite>;
 	var leftItem:FlxSprite;
 	var rightItem:FlxSprite;
 
-	//Centered/Text options
 	var optionShit:Array<String> = [
 		'story_mode',
 		'freeplay',
@@ -52,7 +51,6 @@ class MainMenuState extends MusicBeatState
 		Mods.loadTopMod();
 
 		#if DISCORD_ALLOWED
-		// Updating Discord Rich Presence
 		DiscordClient.changePresence("In the Menus", null);
 		#end
 
@@ -86,7 +84,7 @@ class MainMenuState extends MusicBeatState
 		for (num => option in optionShit)
 		{
 			var item:FlxSprite = createMenuItem(option, 0, (num * 140) + 90);
-			item.y += (4 - optionShit.length) * 70; // Offsets for when you have anything other than 4 items
+			item.y += (4 - optionShit.length) * 70; 
 			item.screenCenter(X);
 		}
 
@@ -112,7 +110,6 @@ class MainMenuState extends MusicBeatState
 		if (!Achievements.isUnlocked('pet')) {
 			Achievements.unlock('pet');
 		}
-		// Unlocks "Freaky on a Friday Night" achievement if it's a Friday and between 18:00 PM and 23:59 PM
 		var leDate = Date.now();
 		if (leDate.getDay() == 5 && leDate.getHours() >= 18)
 			Achievements.unlock('friday_night_play');
@@ -136,7 +133,6 @@ class MainMenuState extends MusicBeatState
 		profileBox.scrollFactor.set();
 		add(profileBox);
 		
-		// Rehber butonu - sağda sabit placeholder
 		var rehberButton = new flixel.ui.FlxButton(0, 0, "REHBER", function() {
 			openSubState(new RehberSubState());
 		});
@@ -180,7 +176,7 @@ class MainMenuState extends MusicBeatState
 				changeItem(1);
 
 			var allowMouse:Bool = allowMouse;
-			if (allowMouse && ((FlxG.mouse.deltaScreenX != 0 && FlxG.mouse.deltaScreenY != 0) || FlxG.mouse.justPressed)) //FlxG.mouse.deltaScreenX/Y checks is more accurate than FlxG.mouse.justMoved
+			if (allowMouse && ((FlxG.mouse.deltaScreenX != 0 && FlxG.mouse.deltaScreenY != 0) || FlxG.mouse.justPressed)) 
 			{
 				allowMouse = false;
 				FlxG.mouse.visible = true;

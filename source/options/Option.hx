@@ -35,11 +35,8 @@ class Option
 	public var name:String = 'Unknown';
 	public var defaultKeys:Keybind = null;
 	public var keys:Keybind = null;
-	// DROPDOWN specific
 	public var dropdownLabels:Array<String> = null;
 	public var dropdownIcons:Array<String> = null;
-	// STRING/DROPDOWN değerlerinin GÖRÜNTÜ etiketleri (örn. Türkçe).
-	// İç (kaydedilen) değer İngilizce kalır, sadece ekranda görünen metin değişir.
 	public var displayOptions:Array<String> = null;
 
 	public function new(name:String, description:String = '', variable:String, type:OptionType = BOOL, ?options:Array<String> = null, ?translation:String = null)
@@ -138,8 +135,6 @@ class Option
 		{
 			_text = newValue;
 			var fallback:String = _text;
-			// STRING/DROPDOWN için: kaydedilen değer İngilizce kalır,
-			// ama ekranda displayOptions'taki Türkçe etiket gösterilir.
 			if((type == STRING || type == DROPDOWN) && displayOptions != null && options != null)
 			{
 				var idx:Int = options.indexOf(getValue());

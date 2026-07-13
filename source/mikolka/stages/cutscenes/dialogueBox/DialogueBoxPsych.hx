@@ -26,10 +26,8 @@ typedef DialogueLine =
 	@:optional var sound:Null<String>;
 }
 
-// TO DO: Clean code? Maybe? idk
 class DialogueBoxPsych extends FlxSpriteGroup
 {
-	// Some editors use those lol
 	public static var DEFAULT_TEXT_X = 175;
 	public static var DEFAULT_TEXT_Y = 460;
 	public static var LONG_TEXT_ADD = 24;
@@ -62,7 +60,6 @@ class DialogueBoxPsych extends FlxSpriteGroup
 	var pauseJustClosed:Bool = false;
 	var staticDialList:Array<DialogueLine> = [];
 
-	// var charPositionList:Array<String> = ['left', 'center', 'right'];
 
 	public function new(dialogueList:DialogueFile, ?song:String = null)
 	{
@@ -82,7 +79,6 @@ class DialogueBoxPsych extends FlxSpriteGroup
 					this.style = new PsychDialogueStyle();
 				}
 		}
-		// precache sounds
 		Paths.sound('dialogue');
 		Paths.sound('dialogueClose');
 
@@ -170,7 +166,7 @@ class DialogueBoxPsych extends FlxSpriteGroup
 	}
 
 	var daText:FlxSprite = null;
-	var ignoreThisFrame:Bool = true; // First frame is reserved for loading dialogue images
+	var ignoreThisFrame:Bool = true; 
 
 	var cumulatedElapsed:Float = 0;
 
@@ -303,7 +299,7 @@ class DialogueBoxPsych extends FlxSpriteGroup
 				}
 			}
 		} else
-		{ // Dialogue ending
+		{ 
 			if (box != null && box.animation.curAnim.curFrame <= 0)
 			{
 				box.kill();

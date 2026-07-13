@@ -24,9 +24,9 @@ class SchoolDoof
 		if (!VsliceOptions.NAUGHTYNESS)
 		{
 			#if LEGACY_PSYCH
-			file = Paths.json('$songName/${songName}Dialogue_safe'); // Checks for vanilla/Senpai dialogue
+			file = Paths.json('$songName/${songName}Dialogue_safe'); 
 			#else
-			file = Paths.json('$songName/${songName}Dialogue_safe_${ClientPrefs.data.language}'); // Checks for vanilla/Senpai dialogue
+			file = Paths.json('$songName/${songName}Dialogue_safe_${ClientPrefs.data.language}'); 
 			if (!NativeFileSystem.exists(file))
 			{
 				file = Paths.json('$songName/${songName}Dialogue_safe');
@@ -37,9 +37,9 @@ class SchoolDoof
 		if (VsliceOptions.NAUGHTYNESS || !NativeFileSystem.exists(file))
 		{
 			#if LEGACY_PSYCH
-			file = Paths.json('$songName/${songName}Dialogue'); // Checks for vanilla/Senpai dialogue
+			file = Paths.json('$songName/${songName}Dialogue'); 
 			#else
-			file = Paths.json('$songName/${songName}Dialogue_${ClientPrefs.data.language}'); // Checks for vanilla/Senpai dialogue
+			file = Paths.json('$songName/${songName}Dialogue_${ClientPrefs.data.language}'); 
 			if (!NativeFileSystem.exists(file))
 			{
 				file = Paths.json('$songName/${songName}Dialogue');
@@ -122,7 +122,7 @@ class SchoolDoof
 			senpaiEvil.alpha = 0;
 		});
 		cutscene.timer(2.4, () ->
-		{ // 0.3 per step   needs 7 steps to complete // 2.1
+		{ 
 			FlxTween.tween(senpaiEvil, {alpha: 1}, 0.3 * 7, {
 				ease: f ->
 				{
@@ -139,7 +139,7 @@ class SchoolDoof
 			FlxG.sound.play(Paths.sound('Senpai_Dies'), 1, false, null, true);
 		});
 		cutscene.timer(7.7, () ->
-		{ // originally it was 3.2 timer
+		{ 
 			FlxG.camera.fade(FlxColor.WHITE, 1.6, false);
 		});
 		cutscene.finishCallback = () ->

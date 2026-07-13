@@ -37,7 +37,6 @@ class BGScrollingText extends FlxText
 
 	override public function update(elapsed:Float):Void
 	{
-		// Görünmüyorsa hiç hesaplama yapma
 		if (!visible || alpha <= 0)
 			return;
 
@@ -71,18 +70,15 @@ class BGScrollingText extends FlxText
 			}
 		}
 
-		// Sadece gerektiğinde sort yap
 		if (_needsSort)
 			sortTextShit();
 	}
 
 	override public function draw():Void
 	{
-		// Görünmüyorsa draw yapma
 		if (!visible || alpha <= 0)
 			return;
 
-		// Ekran dışındaki kopyaları çizme
 		_positionCache.set(x, y);
 		var screenLeft:Float = -frameWidth;
 		var screenRight:Float = FlxG.width + frameWidth;
@@ -94,7 +90,6 @@ class BGScrollingText extends FlxText
 
 			var drawX:Float = _positionCache.x + position.x;
 
-			// Ekran dışındaysa atla
 			if (drawX > screenRight || drawX + frameWidth < screenLeft)
 				continue;
 
@@ -104,7 +99,6 @@ class BGScrollingText extends FlxText
 		setPosition(_positionCache.x, _positionCache.y);
 	}
 
-	// Cached first/last X getters — sort'tan kaçınmak için
 	inline function getLastX():Float
 	{
 		var maxX:Float = -999999;

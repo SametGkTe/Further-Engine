@@ -13,7 +13,6 @@ import flixel.util.FlxTimer;
 import flixel.tweens.FlxTween;
 import openfl.display.BlendMode;
 
-//?Native
 class CapsuleText extends FlxSpriteGroup
 {
   public var text(default, set):String;
@@ -27,8 +26,6 @@ class CapsuleText extends FlxSpriteGroup
   var glowColor:FlxColor = 0xFF00ccff;
 
   static var blurShader = null;
-  // 255, 27 normal
-  // 220, 27 favourited
 
   public function new(x:Float, y:Float, songTitle:String, size:Float)
   {
@@ -41,7 +38,6 @@ class CapsuleText extends FlxSpriteGroup
     blurredText = new FlxSprite().loadGraphic(whiteText.graphic);
     if(VsliceOptions.SHADERS && blurShader == null) blurShader = new GaussianBlurShader(1);
     blurredText.shader = blurShader;
-    // whiteText.shader = new GaussianBlurShader(0.3);
     text = songTitle;
 
     blurredText.color = glowColor;
@@ -75,9 +71,6 @@ class CapsuleText extends FlxSpriteGroup
 		];
 	}
 
-  // ???? none
-  // 255, 27 normal
-  // 220, 27 favourited
 
   function set_clipWidth(value:Int):Int
   {
@@ -86,10 +79,6 @@ class CapsuleText extends FlxSpriteGroup
     return clipWidth = value;
   }
 
-  /**
-   * Checks if the text if it's too long, and clips if it is
-   * @param wid
-   */
   function checkClipWidth(?wid:Int):Void
   {
     if (wid == null) wid = clipWidth;
@@ -127,7 +116,6 @@ class CapsuleText extends FlxSpriteGroup
     if(VsliceOptions.SHADERS)
     whiteText.textField.filters = [
       new openfl.filters.GlowFilter(glowColor, 1, 5, 5, 210, BitmapFilterQuality.MEDIUM),
-      // new openfl.filters.BlurFilter(5, 5, BitmapFilterQuality.LOW)
     ];
 
     return text = value;
@@ -208,7 +196,6 @@ class CapsuleText extends FlxSpriteGroup
       whiteText.color = 0xFFFFFFFF;
       whiteText.textField.filters = [
         new openfl.filters.GlowFilter(0xFFFFFF, 1, 5, 5, 210, BitmapFilterQuality.MEDIUM),
-        // new openfl.filters.BlurFilter(5, 5, BitmapFilterQuality.LOW)
       ];
     }
     else
@@ -217,7 +204,6 @@ class CapsuleText extends FlxSpriteGroup
       whiteText.color = 0xFFDDDDDD;
       whiteText.textField.filters = [
         new openfl.filters.GlowFilter(0xDDDDDD, 1, 5, 5, 210, BitmapFilterQuality.MEDIUM),
-        // new openfl.filters.BlurFilter(5, 5, BitmapFilterQuality.LOW)
       ];
     }
     flickerState = !flickerState;

@@ -34,16 +34,8 @@ class CharIconCharacter extends CharIcon
     antialiasing = false;
 
     strokeShader = new StrokeShader();
-    // shader = strokeShader;
 
-    // noDropShadow = pixels.clone();
 
-    // dropShadowFilter = new DropShadowFilter(5, 45, 0, 1, 0, 0);
-    // convolutionFilter = new ConvolutionFilter(3, 3, matrixFilter, divisor, bias);
-    // pixels.applyFilter(pixels, pixels.rect, new openfl.geom.Point(0, 0), dropShadowFilter);
-    // pixels.applyFilter(pixels, pixels.rect, new openfl.geom.Point(0, 0), convolutionFilter);
-    // withDropShadow = pixels.clone();
 
-    // pixels = noDropShadow.clone();
   }
 }

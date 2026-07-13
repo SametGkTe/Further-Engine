@@ -9,16 +9,10 @@ import flixel.util.FlxTimer;
 
 class FreeplayDJ extends FlxAtlasSprite
 {
-  // Represents the sprite's current status.
-  // Without state machines I would have driven myself crazy years ago.
-  // Made this PRIVATE so we can keep track of everything that can alter the state!
-  //   Add a function to this class if you want to edit this value from outside.
   private var currentState:FreeplayDJState = Intro;
 
-  // A callback activated when the intro animation finishes.
   public var onIntroDone:FlxSignal = new FlxSignal();
 
-  // A callback activated when the idle easter egg plays.
   public var onIdleEasterEgg:FlxSignal = new FlxSignal();
 
   var seenIdleEasterEgg:Bool = false;
@@ -26,12 +20,11 @@ class FreeplayDJ extends FlxAtlasSprite
   static final IDLE_EGG_PERIOD:Float = 60.0;
   static final IDLE_CARTOON_PERIOD:Float = 120.0;
 
-  // Time since last special idle animation you.
   var timeIdling:Float = 0;
 
   final playableCharData:PlayerFreeplayDJData;
 
-  public function new(x:Float, y:Float, character:PlayableCharacter)//? don't pull 2 time here. Use result from above instead!
+  public function new(x:Float, y:Float, character:PlayableCharacter)
   {
 
     var playableChar = character;
@@ -83,19 +76,15 @@ class FreeplayDJ extends FlxAtlasSprite
     switch (currentState)
     {
       case Intro:
-        // Play the intro animation then leave this state immediately.
         var animPrefix = playableCharData.getAnimationPrefix('intro');
         if (getCurrentAnimation() != animPrefix) playFlashAnimation(animPrefix, true);
         timeIdling = 0;
       case Idle:
-        // We are in this state the majority of the time.
         var animPrefix = playableCharData.getAnimationPrefix('idle');
         if (getCurrentAnimation() != animPrefix)
         {
           playFlashAnimation(animPrefix, true, false, true);
         }
-        //trace('frame:${anim.curFrame} len: ${anim.length}');
-        //? moved to onAnimComplete hook
         timeIdling += elapsed;
       case NewUnlock:
         var animPrefix = playableCharData.getAnimationPrefix('newUnlock');
@@ -184,7 +173,6 @@ class FreeplayDJ extends FlxAtlasSprite
           timeIdling = 0;
         }
       default:
-        // I shit myself.
     }
 
     #if FEATURE_DEBUG_FUNCTIONS
@@ -218,14 +206,11 @@ class FreeplayDJ extends FlxAtlasSprite
     #end
 
 
-    // Call the superclass function AFTER updating the current state and playing the next animation.
-    // This ensures that FlxAnimate starts rendering the new animation immediately.
     super.update(elapsed);
   }
 
   function onFinishAnim(name:String):Void
   {
-    // var name = anim.curSymbol.name;
 
     if (name == playableCharData.getAnimationPrefix('intro'))
     {
@@ -241,7 +226,7 @@ class FreeplayDJ extends FlxAtlasSprite
     }
     else if (name == playableCharData.getAnimationPrefix('idle'))
     {    
-        if (timeIdling >= IDLE_EGG_PERIOD && !seenIdleEasterEgg) //? check this BEFORE we loop
+        if (timeIdling >= IDLE_EGG_PERIOD && !seenIdleEasterEgg) 
         {
           currentState = IdleEasterEgg;
         }
@@ -252,43 +237,33 @@ class FreeplayDJ extends FlxAtlasSprite
     }
     else if (name == playableCharData.getAnimationPrefix('confirm'))
     {
-      // trace('Finished confirm');
     }
     else if (name == playableCharData.getAnimationPrefix('fistPump'))
     {
-      // trace('Finished fist pump');
       currentState = Idle;
     }
     else if (name == playableCharData.getAnimationPrefix('idleEasterEgg'))
     {
-      // trace('Finished spook');
       currentState = Idle;
     }
     else if (name == playableCharData.getAnimationPrefix('loss'))
     {
-      // trace('Finished loss reaction');
       currentState = Idle;
     }
     else if (name == playableCharData.getAnimationPrefix('cartoon'))
     {
-      // trace('Finished cartoon');
 
       var frame:Int = FlxG.random.bool(33) ? playableCharData.getCartoonLoopBlinkFrame() : playableCharData.getCartoonLoopFrame();
 
-      // Character switches channels when the video ends, or at a 10% chance each time his idle loops.
       if (FlxG.random.bool(5))
       {
         frame = playableCharData.getCartoonChannelChangeFrame();
-        // boyfriend switches channel code?
-        // runTvLogic();
       }
       trace('Replay idle: ${frame}');
       playFlashAnimation(playableCharData.getAnimationPrefix('cartoon'), true, false, false, frame);
-      // trace('Finished confirm');
     }
     else if (name == playableCharData.getAnimationPrefix('newUnlock'))
     {
-      // Animation should loop.
     }
     else if (name == playableCharData.getAnimationPrefix('charSelect'))
     {
@@ -306,10 +281,6 @@ class FreeplayDJ extends FlxAtlasSprite
     seenIdleEasterEgg = false;
   }
 
-  /**
-   * Dynamic function, it's actually a variable you can reassign!
-   * `dj.onCharSelectComplete = function() {};`
-   */
   public dynamic function onCharSelectComplete():Void
   {
     trace('onCharSelectComplete()');
@@ -326,21 +297,18 @@ class FreeplayDJ extends FlxAtlasSprite
   {
     if (cartoonSnd == null)
     {
-      // tv is OFF, but getting turned on
       FunkinSound.playOnce(Paths.sound('tv_on'), 1.0, function() {
         loadCartoon();
       });
     }
     else
     {
-      // plays it smidge after the click
       FunkinSound.playOnce(Paths.sound('channel_switch'), 1.0, function() {
         cartoonSnd.destroy();
         loadCartoon();
       });
     }
 
-    // loadCartoon();
   }
 
   function loadCartoon()
@@ -349,23 +317,17 @@ class FreeplayDJ extends FlxAtlasSprite
       playFlashAnimation(playableCharData.getAnimationPrefix('cartoon'), true, false, false, 60);
     });
 
-    // Fade out music to 40% volume over 1 second.
-    // This helps make the TV a bit more audible.
     FlxG.sound.music.fadeOut(1.0, 0.1);
 
-    // Play the cartoon at a random time between the start and 5 seconds from the end.
     cartoonSnd.time = FlxG.random.float(0, Math.max(cartoonSnd.length - (5 * Constants.MS_PER_SEC), 0.0));
   }
-  //? cartoons are in "assets/shared/sounds"
   final cartoonList:Array<String> = openfl.utils.Assets.list().filter(function(path) return path.startsWith("assets/shared/sounds/cartoons/"));
 
   function getRandomFlashToon():String
   {
     var randomFile = FlxG.random.getObject(cartoonList);
 
-    // Strip folder prefix
     randomFile = randomFile.replace("assets/shared/sounds/", "");
-    // Strip file extension
     randomFile = randomFile.substring(0, randomFile.length - 4);
 
     return randomFile;
@@ -373,7 +335,6 @@ class FreeplayDJ extends FlxAtlasSprite
 
   public function confirm():Void
   {
-    // We really don't want to play anything but the new character animation here.
     if (PlayerRegistry.instance.hasNewCharacter())
     {
       currentState = NewUnlock;
@@ -395,14 +356,12 @@ class FreeplayDJ extends FlxAtlasSprite
     {
       FlxG.log.warn("Freeplay character does not have 'charSelect' animation!");
       currentState = Confirm;
-      // Call this immediately; otherwise, we get locked out of Character Select.
       onCharSelectComplete();
     }
   }
 
   public function fistPumpIntro():Void
   {
-    // We really don't want to play anything but the new character animation here.
     if (PlayerRegistry.instance.hasNewCharacter())
     {
       currentState = NewUnlock;
@@ -416,7 +375,6 @@ class FreeplayDJ extends FlxAtlasSprite
 
   public function fistPump():Void
   {
-    // We really don't want to play anything but the new character animation here.
     if (PlayerRegistry.instance.hasNewCharacter())
     {
       currentState = NewUnlock;
@@ -430,7 +388,6 @@ class FreeplayDJ extends FlxAtlasSprite
 
   public function fistPumpLossIntro():Void
   {
-    // We really don't want to play anything but the new character animation here.
     if (PlayerRegistry.instance.hasNewCharacter())
     {
       currentState = NewUnlock;
@@ -444,7 +401,6 @@ class FreeplayDJ extends FlxAtlasSprite
 
   public function fistPumpLoss():Void
   {
-    // We really don't want to play anything but the new character animation here.
     if (PlayerRegistry.instance.hasNewCharacter())
     {
       currentState = NewUnlock;
@@ -484,7 +440,6 @@ class FreeplayDJ extends FlxAtlasSprite
   public override function destroy():Void
   {
     super.destroy();
-    //abortCartoonTimers = true;
 
     if (cartoonSnd != null)
     {
@@ -496,51 +451,21 @@ class FreeplayDJ extends FlxAtlasSprite
 
 enum FreeplayDJState
 {
-  /**
-   * Character enters the frame and transitions to Idle.
-   */
   Intro;
 
-  /**
-   * Character loops in idle.
-   */
   Idle;
 
-  /**
-   * Plays an easter egg animation after a period in Idle, then reverts to Idle.
-   */
   IdleEasterEgg;
 
-  /**
-   * Plays an elaborate easter egg animation. Does not revert until another animation is triggered.
-   */
   Cartoon;
 
-  /**
-   * Player has selected a song.
-   */
   Confirm;
 
-  /**
-   * Character preps to play the fist pump animation; plays after the Results screen.
-   * The actual frame label that gets played may vary based on the player's success.
-   */
   FistPumpIntro;
 
-  /**
-   * Character plays the fist pump animation.
-   * The actual frame label that gets played may vary based on the player's success.
-   */
   FistPump;
 
-  /**
-   * Plays an animation to indicate that the player has a new unlock in Character Select.
-   * Overrides all idle animations as well as the fist pump. Only Confirm and CharSelect will override this.
-   */
   NewUnlock;
 
-  /**
-   * Plays an animation to transition to the Character Select screen.
-   */
   CharSelect;
 }

@@ -1,16 +1,11 @@
 package psychlua;
 
-//
-// This is simply where i store deprecated functions for it to be more organized.
-// I would suggest not messing with these, as it could break mods.
-//
 
 class DeprecatedFunctions
 {
 	public static function implement(funk:FunkinLua)
 	{
 		var lua:State = funk.lua;
-		// DEPRECATED, DONT MESS WITH THESE SHITS, ITS JUST THERE FOR BACKWARD COMPATIBILITY
 		Lua_helper.add_callback(lua, "addAnimationByIndicesLoop", function(obj:String, name:String, prefix:String, indices:String, framerate:Int = 24) {
 			FunkinLua.luaTrace("addAnimationByIndicesLoop is deprecated! Use addAnimationByIndices instead", false, true);
 			return LuaUtils.addAnimByIndices(obj, name, prefix, indices, framerate, true);

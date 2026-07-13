@@ -78,7 +78,6 @@ typedef FromResultsParams =
 	var difficultyId:String;
 };
 
-// ──── Arama dropdown öğesi ────
 typedef SearchDropdownItem =
 {
 	var type:SearchItemType;
@@ -95,7 +94,6 @@ enum SearchItemType
 
 class FreeplayState extends MusicBeatSubstate
 {
-	//  ORIJINAL ALANLAR (DEĞİŞTİRİLMEDİ)
 
 	final currentCharacterId:String;
 	final currentCharacter:PlayableCharacter;
@@ -161,14 +159,12 @@ class FreeplayState extends MusicBeatSubstate
 	var styleData:Null<FreeplayStyle> = null;
 	var fromCharSelect:Null<Bool> = null;
 
-	//  YENİ ALANLAR - ARAMA SİSTEMİ
 
 	var searchOpen:Bool = false;
 	var searchInputActive:Bool = false;
 	var blockInputFrames:Int = 0;
 	static var searchString:String = '';
 
-	// Arama bar UI
 	var searchBarBG:FlxSprite;
 	var searchBarOutline:FlxSprite;
 	var searchBarText:FlxText;
@@ -179,7 +175,6 @@ class FreeplayState extends MusicBeatSubstate
 	
 	var rankAnimPlaying:Bool = false;
 
-	// Dropdown UI
 	var dropdownBG:FlxSprite;
 	var dropdownHighlight:FlxSprite;
 	var dropdownTextGroup:FlxTypedGroup<FlxText>;
@@ -189,18 +184,15 @@ class FreeplayState extends MusicBeatSubstate
 	var dropdownMaxVisible:Int = 8;
 	var dropdownScrollOffset:Int = 0;
 
-	// Arama sabitleri
 	static inline var SEARCH_BAR_WIDTH:Int = 460;
 	static inline var SEARCH_BAR_HEIGHT:Int = 42;
 	static inline var SEARCH_BAR_MARGIN:Int = 10;
 	static inline var DROPDOWN_ITEM_HEIGHT:Int = 40;
 	static inline var DROPDOWN_ICON_SIZE:Int = 28;
 
-	//  YENİ ALANLAR - SON OYNANAN & FAVORİ
 
 	public static var recentlyPlayed:Array<String> = [];
 
-	//  YENİ ALANLAR - HIZLI SCROLL
 
 	var holdTime:Float = 0;
 	var _previewTimer:Null<FlxTimer> = null;
@@ -304,7 +296,6 @@ class FreeplayState extends MusicBeatSubstate
 	var fadeShader:BlueFade = new BlueFade();
 	public var angleMaskShader:AngleMask = new AngleMask();
 
-	//  CREATE
 
 	override function create():Void
 	{
@@ -800,7 +791,6 @@ class FreeplayState extends MusicBeatSubstate
 			rankCamera.fade(0xFF000000, 0, false, null, true);
 		}
 
-		// ── Arama Barını Oluştur ──
 		createSearchBar();
 
 		#if TOUCH_CONTROLS_ALLOWED
@@ -841,7 +831,6 @@ class FreeplayState extends MusicBeatSubstate
 		#end
 		#end
 
-		// ── Klavye Girdisi ──
 		FlxG.stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
 
 		if (fromCharSelect == true)
@@ -851,28 +840,24 @@ class FreeplayState extends MusicBeatSubstate
 		}
 	}
 
-	//  ARAMA SİSTEMİ FONKSİYONLARI
 
 	function createSearchBar():Void
 	{
 		var barX:Int = Std.int((FlxG.width - SEARCH_BAR_WIDTH) / 2);
 		var barY:Int = SEARCH_BAR_MARGIN;
 
-		// Outline
 		searchBarOutline = new FlxSprite(barX - 2, barY - 2).makeGraphic(SEARCH_BAR_WIDTH + 4, SEARCH_BAR_HEIGHT + 4, FlxColor.fromRGB(100, 180, 255));
 		searchBarOutline.alpha = 0;
 		searchBarOutline.scrollFactor.set();
 		searchBarOutline.cameras = [funnyCam];
 		add(searchBarOutline);
 
-		// Background
 		searchBarBG = new FlxSprite(barX, barY).makeGraphic(SEARCH_BAR_WIDTH, SEARCH_BAR_HEIGHT, FlxColor.fromRGB(30, 30, 40));
 		searchBarBG.alpha = 0.85;
 		searchBarBG.scrollFactor.set();
 		searchBarBG.cameras = [funnyCam];
 		add(searchBarBG);
 
-		// İkon
 		searchIcon = new FlxSprite(barX + 8, barY + 7);
 		if (Paths.image('freeplay/search') != null)
 		{
@@ -899,14 +884,12 @@ class FreeplayState extends MusicBeatSubstate
 		searchBarHint.cameras = [funnyCam];
 		add(searchBarHint);
 
-		// Arama metni
 		searchBarText = new FlxText(barX + 44, barY + 11, SEARCH_BAR_WIDTH - 60, "", 16);
 		searchBarText.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, LEFT);
 		searchBarText.scrollFactor.set();
 		searchBarText.cameras = [funnyCam];
 		add(searchBarText);
 
-		// İmleç
 		searchBarCursor = new FlxText(barX + 44, barY + 11, 20, "|", 16);
 		searchBarCursor.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, LEFT);
 		searchBarCursor.scrollFactor.set();
@@ -914,7 +897,6 @@ class FreeplayState extends MusicBeatSubstate
 		searchBarCursor.cameras = [funnyCam];
 		add(searchBarCursor);
 
-		// Dropdown arka plan
 		dropdownBG = new FlxSprite(barX, barY + SEARCH_BAR_HEIGHT).makeGraphic(SEARCH_BAR_WIDTH,
 			DROPDOWN_ITEM_HEIGHT * dropdownMaxVisible + 10, FlxColor.fromRGB(25, 25, 35));
 		dropdownBG.alpha = 0;
@@ -922,14 +904,12 @@ class FreeplayState extends MusicBeatSubstate
 		dropdownBG.cameras = [funnyCam];
 		add(dropdownBG);
 
-		// Dropdown vurgu
 		dropdownHighlight = new FlxSprite(barX + 4, 0).makeGraphic(SEARCH_BAR_WIDTH - 8, DROPDOWN_ITEM_HEIGHT, FlxColor.fromRGB(60, 60, 90));
 		dropdownHighlight.alpha = 0;
 		dropdownHighlight.scrollFactor.set();
 		dropdownHighlight.cameras = [funnyCam];
 		add(dropdownHighlight);
 
-		// Metin ve ikon grupları
 		dropdownTextGroup = new FlxTypedGroup<FlxText>();
 		dropdownTextGroup.cameras = [funnyCam];
 		add(dropdownTextGroup);
@@ -1016,7 +996,6 @@ class FreeplayState extends MusicBeatSubstate
 
 		if (searchString.length == 0)
 		{
-			// Son oynanan
 			if (recentlyPlayed.length > 0)
 			{
 				dropdownItems.push({
@@ -1042,7 +1021,6 @@ class FreeplayState extends MusicBeatSubstate
 				}
 			}
 
-			// Favoriler
 			var favSongs:Array<FreeplaySongData> = [];
 			for (song in songs)
 			{
@@ -1070,7 +1048,6 @@ class FreeplayState extends MusicBeatSubstate
 				}
 			}
 
-			// Eğer hiçbir şey yoksa
 			if (dropdownItems.length == 0)
 			{
 				dropdownItems.push({
@@ -1083,7 +1060,6 @@ class FreeplayState extends MusicBeatSubstate
 		}
 		else
 		{
-			// Arama sonuçları
 			var searchLower:String = searchString.toLowerCase();
 			var resultCount:Int = 0;
 
@@ -1134,7 +1110,6 @@ class FreeplayState extends MusicBeatSubstate
 			}
 		}
 
-		// İlk SONG öğesini seç
 		dropdownSelected = -1;
 		for (di in 0...dropdownItems.length)
 		{
@@ -1263,7 +1238,6 @@ class FreeplayState extends MusicBeatSubstate
 		}
 		ModsHelper.loadModDir(VsliceOptions.LAST_MOD.mod_dir);
 
-		// Seçili öğeyi vurgula
 		if (dropdownSelected >= visibleStart && dropdownSelected < visibleEnd && dropdownSelected >= 0
 			&& dropdownItems[dropdownSelected].type == SONG)
 		{
@@ -1292,7 +1266,6 @@ class FreeplayState extends MusicBeatSubstate
 		dropdownHighlight.alpha = 0;
 	}
 
-	/** Object pooling: metin geri dönüşümü */
 	function recycleText():FlxText
 	{
 		for (t in dropdownTextGroup.members)
@@ -1306,7 +1279,6 @@ class FreeplayState extends MusicBeatSubstate
 		return txt;
 	}
 
-	/** Object pooling: ikon geri dönüşümü */
 	function recycleIcon(charName:String):HealthIcon
 	{
 		for (i in dropdownIconGroup.members)
@@ -1508,7 +1480,6 @@ class FreeplayState extends MusicBeatSubstate
 			return;
 		}
 
-		// ENTER → Seç
 		if (key == 13)
 		{
 			if (dropdownSelected >= 0 && dropdownSelected < dropdownItems.length && dropdownItems[dropdownSelected].type == SONG)
@@ -1518,14 +1489,12 @@ class FreeplayState extends MusicBeatSubstate
 			return;
 		}
 
-		// Yukarı ok
 		if (key == 38)
 		{
 			navigateDropdown(-1);
 			return;
 		}
 
-		// Aşağı ok
 		if (key == 40)
 		{
 			navigateDropdown(1);
@@ -1537,7 +1506,6 @@ class FreeplayState extends MusicBeatSubstate
 		if (key == 46)
 			return;
 
-		// Backspace
 		if (key == 8)
 		{
 			searchString = searchString.substring(0, searchString.length - 1);
@@ -1551,7 +1519,6 @@ class FreeplayState extends MusicBeatSubstate
 
 		var newText:String = String.fromCharCode(e.charCode);
 
-		// Ctrl+V → Yapıştır
 		if (key == 86 && e.ctrlKey)
 		{
 			var clipText = Clipboard.text;
@@ -1570,13 +1537,10 @@ class FreeplayState extends MusicBeatSubstate
 		}
 	}
 
-	/** Arama sonucunu capsule listesine uygula */
 	function applySearchFilter():Void
 	{
 		if (searchString.length > 0)
 		{
-			// Arama sırasında zorluk filtresi uygulanmasın
-			// böylece tüm şarkılar bulunabilir
 			generateSongList({filterType: STARTSWITH, filterData: searchString.toLowerCase()}, true, false, true);
 		}
 		else
@@ -1594,7 +1558,6 @@ class FreeplayState extends MusicBeatSubstate
 			recentlyPlayed.shift();
 	}
 
-	//  VOCALS
 
 	public static var vocals:FlxSound = null;
 	public static var opponentVocals:FlxSound = null;
@@ -1610,7 +1573,6 @@ class FreeplayState extends MusicBeatSubstate
 		opponentVocals = FlxDestroyUtil.destroy(opponentVocals);
 	}
 
-	//  FİLTRELEME
 
 	var currentFilter:SongFilter = null;
 	var currentFilteredSongs:Array<FreeplaySongData> = [];
@@ -1686,7 +1648,6 @@ class FreeplayState extends MusicBeatSubstate
 				});
 
 			case ALL:
-			// filtre yok
 
 			case FAVORITE:
 				songsToFilter = songsToFilter.filter(str ->
@@ -1703,7 +1664,6 @@ class FreeplayState extends MusicBeatSubstate
 		return songsToFilter;
 	}
 
-	//  RANK ANİMASYON SİSTEMİ
 
 	var sparks:FlxSprite;
 	var sparksADD:FlxSprite;
@@ -1989,7 +1949,6 @@ class FreeplayState extends MusicBeatSubstate
 		});
 	}
 
-	//  SUBSTATE
 
 	override function closeSubState()
 	{
@@ -2011,7 +1970,6 @@ class FreeplayState extends MusicBeatSubstate
 		#end
 	}
 
-	//  KARAKTER SEÇİMİ
 
 	function tryOpenCharSelect():Void
 	{
@@ -2161,7 +2119,6 @@ class FreeplayState extends MusicBeatSubstate
 		}
 	}
 
-	//  UPDATE
 
 	var touchY:Float = 0;
 	var touchX:Float = 0;
@@ -2180,14 +2137,12 @@ class FreeplayState extends MusicBeatSubstate
 	{
 		super.update(elapsed);
 
-		// ── Block input frames ──
 		if (blockInputFrames > 0)
 		{
 			blockInputFrames--;
 			return;
 		}
 
-		// ── Karakter seçim ipucu animasyonu ──
 		if (charSelectHint != null)
 		{
 			hintTimer += elapsed * 2;
@@ -2195,7 +2150,6 @@ class FreeplayState extends MusicBeatSubstate
 			charSelectHint.alpha = FlxMath.lerp(0.3, 0.9, targetAmt);
 		}
 
-		// ── Arama imleci yanıp sönme ──
 		if (searchOpen)
 		{
 			cursorTimer += elapsed;
@@ -2206,10 +2160,8 @@ class FreeplayState extends MusicBeatSubstate
 			}
 		}
 
-		// ── Arama açıkken mouse tıklama kontrolü ──
 		checkSearchBarClick();
 
-		// ── Arama açıkken mouse wheel ile dropdown scroll ──
 		if (searchOpen && FlxG.mouse.wheel != 0)
 		{
 			dropdownScrollOffset -= FlxG.mouse.wheel;
@@ -2290,7 +2242,6 @@ class FreeplayState extends MusicBeatSubstate
 
 		if (!busy)
 		{
-			// ── Karakter Seçimi: PC → TAB, Mobil → Z ──
 			if (FunkinControls.FREEPLAY_CHAR #if TOUCH_CONTROLS_ALLOWED || touchPad?.buttonZ.justPressed #end)
 			{
 				tryOpenCharSelect();
@@ -2304,7 +2255,6 @@ class FreeplayState extends MusicBeatSubstate
 				#end
 				openSubState(new GameplayChangersSubstate());
 			}
-			// ── Skor Sıfırlama ──
 			else if ((controls.RESET #if TOUCH_CONTROLS_ALLOWED || touchPad?.buttonY.justPressed #end) && curSelected != 0)
 			{
 				persistentUpdate = false;
@@ -2333,7 +2283,6 @@ class FreeplayState extends MusicBeatSubstate
 			}
 		}
 
-		// ── Favori Ekleme/Çıkarma: F tuşu ──
 		if ((controls.FAVORITE #if TOUCH_CONTROLS_ALLOWED || touchPad?.buttonF.justPressed #end) && !busy)
 		{
 			var targetSong = curCapsule?.songData;
@@ -2392,7 +2341,6 @@ class FreeplayState extends MusicBeatSubstate
 			}
 		}
 
-		// ── HOME / END ──
 		if (FlxG.keys.justPressed.HOME && !busy)
 			changeSelection(-curSelected);
 
@@ -2406,7 +2354,6 @@ class FreeplayState extends MusicBeatSubstate
 			FlxG.watch.addQuick('dj-anim', dj.getCurrentAnimation());
 	}
 
-	//  SKOR LERP
 
 	function lerpScoreDisplays(elapsed:Float):Void
 	{
@@ -2435,7 +2382,6 @@ class FreeplayState extends MusicBeatSubstate
 		}
 	}
 
-	//  GİRDİ İŞLEME
 
 	function handleInputs(elapsed:Float):Void
 	{
@@ -2448,7 +2394,6 @@ class FreeplayState extends MusicBeatSubstate
 		var up = controls.UI_UP #if TOUCH_CONTROLS_ALLOWED || touchPad?.buttonUp.pressed #end;
 		var down = controls.UI_DOWN #if TOUCH_CONTROLS_ALLOWED || touchPad?.buttonDown.pressed #end;
 
-		// ── Shift ile hızlı scroll ──
 		var shiftMult:Int = 1;
 		if (FlxG.keys.pressed.SHIFT #if TOUCH_CONTROLS_ALLOWED || (touchPad != null && touchPad.buttonZ.pressed) #end)
 			shiftMult = 3;
@@ -2547,14 +2492,12 @@ class FreeplayState extends MusicBeatSubstate
 
 		if (controls.BACK #if TOUCH_CONTROLS_ALLOWED || touchPad?.buttonB.justPressed #end && !busy)
 		{
-			// ── Eğer arama açıksa önce onu kapat ──
 			if (searchOpen)
 			{
 				closeSearchBar();
 				return;
 			}
 
-			// ── Arama metni varsa önce onu temizle ve listeyi sıfırla ──
 			if (searchString.length > 0)
 			{
 				searchString = '';
@@ -2642,7 +2585,6 @@ class FreeplayState extends MusicBeatSubstate
 		}
 	}
 
-	//  BEAT HIT
 
 	override function beatHit()
 	{
@@ -2650,13 +2592,11 @@ class FreeplayState extends MusicBeatSubstate
 		super.beatHit();
 	}
 
-	//  DESTROY
 
 	public override function destroy():Void
 	{
 		controls.isInSubstate = false;
 
-		// Klavye listener'ı temizle
 		FlxG.stage.removeEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
 
 		super.destroy();
@@ -2668,7 +2608,6 @@ class FreeplayState extends MusicBeatSubstate
 		instance = null;
 	}
 
-	//  ZORLUK DEĞİŞTİRME
 
 	var difficultyLastChange:Int = 0;
 	
@@ -2922,7 +2861,6 @@ class FreeplayState extends MusicBeatSubstate
 		}
 	}
 
-	//  CACHE TEMİZLEME
 
 	function clearDaCache(actualSongTho:String):Void
 	{
@@ -2943,7 +2881,6 @@ class FreeplayState extends MusicBeatSubstate
 		}
 	}
 
-	//  CAPSULE ONAYLAMA
 
 	function capsuleOnConfirmRandom(randomCapsule:SongMenuItem):Void
 	{
@@ -3035,7 +2972,6 @@ class FreeplayState extends MusicBeatSubstate
 			return;
 		}
 
-		// Son oynanana ekle
 		addToRecentlyPlayed(targetSong.songName);
 
 		var targetDifficultyId:String = currentDifficulty;
@@ -3073,7 +3009,6 @@ class FreeplayState extends MusicBeatSubstate
 		});
 	}
 
-	//  SEÇİM HATIRLA
 
 	function rememberSelection():Void
 	{
@@ -3095,7 +3030,6 @@ class FreeplayState extends MusicBeatSubstate
 			currentDifficulty = rememberedDifficulty;
 	}
 
-	//  SEÇİM DEĞİŞTİRME
 
 	function changeSelectionFractal(change:Float)
 	{
@@ -3202,7 +3136,6 @@ class FreeplayState extends MusicBeatSubstate
 			tweenCurSongColor(daSongCapsule);
 	}
 
-	//  MÜZİK ÖNİZLEME
 
 	public function playCurSongPreview(?daSongCapsule:SongMenuItem):Void
 	{
@@ -3229,7 +3162,6 @@ class FreeplayState extends MusicBeatSubstate
 			if (!daSongCapsule.selected)
 				return;
 
-			// Önceki preview'i durdur
 			if (FlxG.sound.music != null)
 			{
 				FlxG.sound.music.stop();
@@ -3277,7 +3209,6 @@ class FreeplayState extends MusicBeatSubstate
 		}
 	}
 
-	//  STATİK BUILD
 
 	public static function build(?params:FreeplayStateParams, ?stickers:StickerSubState):MusicBeatState
 	{
@@ -3285,7 +3216,6 @@ class FreeplayState extends MusicBeatSubstate
 	}
 }
 
-//  YARDIMCI TİPLER
 
 typedef SongFilter =
 {

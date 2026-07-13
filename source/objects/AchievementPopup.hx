@@ -15,7 +15,6 @@ import openfl.geom.Matrix;
 class AchievementPopup extends Sprite {
 	public var onFinish:Void->Void = null;
 
-	//  DEBUG MODE
 	public static var DEBUG_MODE:Bool = true;
 	static var _debugTriggered:Bool = false;
 
@@ -43,7 +42,6 @@ class AchievementPopup extends Sprite {
 		});
 	}
 
-	// ── Layout constants ──
 	static inline var PADDING:Float = 14;
 	static inline var ICON_SIZE:Float = 64;
 	static inline var ICON_PADDING:Float = 14;
@@ -60,7 +58,6 @@ class AchievementPopup extends Sprite {
 
 	static inline var ACCENT_COLOR:Int = 0xFFFFD740;
 
-	// ── Children ──
 	var _bg:Shape;
 	var _accentBar:Shape;
 	var _timerBar:Shape;
@@ -68,7 +65,6 @@ class AchievementPopup extends Sprite {
 	var _titleField:TextField;
 	var _descField:TextField;
 
-	// ── State ──
 	var _totalTime:Float;
 	var _elapsed:Float = 0;
 	var _state:AchievementState = SLIDING_IN;
@@ -76,7 +72,6 @@ class AchievementPopup extends Sprite {
 	var _isDead:Bool = false;
 	var _lastTimerUpdate:Float = -1;
 
-	// ── Stacking support (used by Achievements.startPopup) ──
 	public var intendedY:Float = 0;
 	var _intendedYLerp:Float = 0;
 
@@ -90,10 +85,8 @@ class AchievementPopup extends Sprite {
 
 		var s:Float = _getScale();
 
-		// ── Check if debug placeholder ──
 		var isDebug:Bool = (achieve != null && StringTools.startsWith(achieve, '__debug_test'));
 
-		// ── Achievement data ──
 		var achName:String = 'Unknown';
 		var achDesc:String = '';
 		var achievement:Achievement = null;
@@ -138,10 +131,8 @@ class AchievementPopup extends Sprite {
 				graphic = Paths.image('unknownMod', false);
 		}
 
-		// ── Font ──
 		var fontName:String = Assets.getFont('assets/fonts/vcr.ttf').fontName;
 
-		// ── Text fields ──
 		_titleField = _makeField(fontName, Std.int(18 * s), 0xFFFFFFFF, true);
 		_titleField.text = achName;
 
@@ -150,7 +141,6 @@ class AchievementPopup extends Sprite {
 
 		var hasDesc:Bool = achDesc.length > 0;
 
-		// ── Scaled constants ──
 		var sPad:Float = PADDING * s;
 		var sIconSize:Float = ICON_SIZE * s;
 		var sIconPad:Float = ICON_PADDING * s;
@@ -159,7 +149,6 @@ class AchievementPopup extends Sprite {
 		var sMinW:Float = MIN_CONTENT_W * s;
 		var sMaxW:Float = MAX_CONTENT_W * s;
 
-		// ── Measure text ──
 		_titleField.width = sMaxW;
 		_descField.width = sMaxW;
 		var rawTW:Float = _titleField.textWidth + 8;
@@ -172,24 +161,20 @@ class AchievementPopup extends Sprite {
 		var titleH:Float = _titleField.textHeight + (4 * s);
 		var descH:Float = hasDesc ? (_descField.textHeight + (4 * s)) : 0;
 
-		// ── Dimensions ──
 		var iconAreaW:Float = sIconPad + sIconSize + sIconPad;
 		var textAreaW:Float = contentW + sPad;
 
 		totalW = sAccentW + iconAreaW + textAreaW;
 		totalH = sPad + Math.max(sIconSize, titleH + (hasDesc ? (4 * s + descH) : 0)) + sPad + sTimerH;
 
-		// ── Background ──
 		_bg = new Shape();
 		_drawRoundRect(_bg, totalW, totalH, CORNER * s, 0xEE111318);
 		addChild(_bg);
 
-		// ── Accent bar ──
 		_accentBar = new Shape();
 		_drawRoundRect(_accentBar, sAccentW, totalH - sTimerH, CORNER * s, ACCENT_COLOR);
 		addChild(_accentBar);
 
-		// ── Icon ──
 		_iconSprite = new Sprite();
 		if (graphic != null) {
 			var bmp:BitmapData = graphic.bitmap;
@@ -201,7 +186,6 @@ class AchievementPopup extends Sprite {
 			_iconSprite.graphics.endFill();
 		}
 
-		// Debug placeholder icon
 		if (graphic == null && isDebug) {
 			_iconSprite.graphics.beginFill(ACCENT_COLOR & 0x00FFFFFF, 0.3);
 			_iconSprite.graphics.drawRoundRect(0, 0, sIconSize, sIconSize, 8 * s, 8 * s);
@@ -222,7 +206,6 @@ class AchievementPopup extends Sprite {
 		_iconSprite.y = (totalH - sTimerH - sIconSize) / 2;
 		addChild(_iconSprite);
 
-		// ── Title ──
 		var textX:Float = sAccentW + iconAreaW;
 		var textBlockH:Float = titleH + (hasDesc ? (4 * s + descH) : 0);
 		var textStartY:Float = (totalH - sTimerH - textBlockH) / 2;
@@ -231,29 +214,24 @@ class AchievementPopup extends Sprite {
 		_titleField.y = textStartY;
 		addChild(_titleField);
 
-		// ── Description ──
 		if (hasDesc) {
 			_descField.x = textX;
 			_descField.y = textStartY + titleH + (4 * s);
 			addChild(_descField);
 		}
 
-		// ── Timer bar ──
 		_timerBar = new Shape();
 		_timerBar.y = totalH - sTimerH;
 		addChild(_timerBar);
 		_updateTimerBar(1.0);
 
-		// ── Initial position: centered, above screen ──
 		intendedY = MARGIN_TOP * s;
 		_intendedYLerp = intendedY;
 		_repositionX();
 		this.y = -(totalH + 10 * s);
 
-		// ── Add to display ──
 		FlxG.game.addChild(this);
 
-		// ── Listeners ──
 		_lastTimerUpdate = Lib.getTimer();
 		addEventListener(Event.ENTER_FRAME, _onEnterFrame);
 		FlxG.stage.addEventListener(Event.RESIZE, _onResize);
@@ -273,7 +251,6 @@ class AchievementPopup extends Sprite {
 		if (dt > 0.5)
 			return;
 
-		// Smoothly lerp to intendedY when stacking
 		var s:Float = _getScale();
 		_intendedYLerp += (intendedY - _intendedYLerp) * Math.min(1, dt * 12);
 
@@ -284,7 +261,6 @@ class AchievementPopup extends Sprite {
 					_slideProgress = 1;
 					_state = COUNTING;
 				}
-				// cubic ease out
 				var t:Float = 1 - Math.pow(1 - _slideProgress, 3);
 				var offscreenY:Float = -(totalH + 10 * s);
 				this.y = offscreenY + (_intendedYLerp - offscreenY) * t;

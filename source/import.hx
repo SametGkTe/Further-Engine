@@ -1,10 +1,8 @@
 #if !macro
-//Discord API
 #if DISCORD_ALLOWED
 import backend.Discord;
 #end
 
-//Psych
 #if LUA_ALLOWED
 import llua.*;
 import llua.Lua;
@@ -14,7 +12,6 @@ import llua.Lua;
 import backend.Achievements;
 #end
 
-//P-Slice
 import mikolka.funkin.custom.NativeFileSystem as NativeFileSystem;
 import mikolka.funkin.*;
 import mikolka.funkin.utils.*;
@@ -22,12 +19,10 @@ import mikolka.funkin.custom.*;
 import mikolka.funkin.players.*;
 import states.FreeplayState as C_;
 
-//P-Slice Dialouges
 import mikolka.stages.cutscenes.dialogueBox.*;
 import mikolka.stages.cutscenes.dialogueBox.DialogueBoxPsych.DialogueFile;
 import mikolka.stages.cutscenes.dialogueBox.styles.*;
 
-//utils
 using StringTools;
 using mikolka.funkin.utils.ArrayTools;
 using mikolka.funkin.utils.custom.FunkinTools;
@@ -36,11 +31,10 @@ using mikolka.funkin.utils.ArrayTools;
 using mikolka.funkin.utils.SpriteTools;
 using mikolka.funkin.utils.custom.PsychUITools;
 using mikolka.funkin.utils.StringTools;
-import backend.ui.*; //Psych-UI
+import backend.ui.*; 
 import flixel.ui.FlxBar;
 import backend.CacheSystem;
 
-// Mobile Controls
 import mobile.objects.MobileControls;
 import mobile.objects.IMobileControls;
 import mobile.objects.Hitbox;
@@ -50,9 +44,7 @@ import mobile.input.MobileInputID;
 import mobile.backend.MobileData;
 import mobile.input.MobileInputManager;
 import mobile.backend.TouchUtil;
-// Alert
 import objects.AlertMgr;
-// Android
 #if android
 import android.content.Context as AndroidContext;
 import android.widget.Toast as AndroidToast;
@@ -86,7 +78,7 @@ import backend.Mods;
 import backend.Language;
 import mobile.backend.StorageUtil;
 
-import backend.ui.*; //Psych-UI
+import backend.ui.*; 
 import backend.MenuStyleRouter;
 
 import objects.Alphabet;
@@ -100,7 +92,6 @@ import flxanimate.*;
 import flxanimate.PsychFlxAnimate as FlxAnimate;
 #end
 
-//Flixel
 import flixel.sound.FlxSound;
 import flixel.FlxG;
 import flixel.FlxSprite;

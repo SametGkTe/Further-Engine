@@ -28,12 +28,6 @@ import flixel.graphics.FlxGraphic;
 import flixel.util.FlxSignal.FlxTypedSignal;
 import openfl.geom.Matrix;
 
-/**
- * A zone with 4 hint's (A hitbox).
- * It's really easy to customize the layout.
- *
- * @author: Karim Akra and Homura Akemi (HomuHomu833)
- */
 class Hitbox extends MobileInputManager implements IMobileControls
 {
 	final offsetFir:Int = (ClientPrefs.data.hitboxPos ? Std.int(FlxG.height / 4) * 3 : 0);
@@ -52,9 +46,6 @@ class Hitbox extends MobileInputManager implements IMobileControls
 
 	var storedButtonsIDs:Map<String, Array<MobileInputID>> = new Map<String, Array<MobileInputID>>();
 
-	/**
-	 * Create the zone.
-	 */
 	public function new(?extraMode:ExtraActions = NONE)
 	{
 		super();
@@ -103,9 +94,6 @@ class Hitbox extends MobileInputManager implements IMobileControls
 		instance = this;
 	}
 
-	/**
-	 * Clean up memory.
-	 */
 	override function destroy()
 	{
 		super.destroy();
@@ -224,7 +212,7 @@ class Hitbox extends MobileInputManager implements IMobileControls
 			shape.graphics.drawRect(0, 0, Width, Height);
 			shape.graphics.endFill();
 		}
-		else // if (ClientPrefs.data.hitboxType == 'Gradient')
+		else 
 		{
 			shape.graphics.lineStyle(3, 0xFFFFFF, 1);
 			shape.graphics.drawRect(0, 0, Width, Height);

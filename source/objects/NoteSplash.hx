@@ -120,12 +120,11 @@ class NoteSplash extends FlxSprite
 			}
 		}
 
-		// Splashes with no json
 		var tempConfig:NoteSplashConfig = createConfig();
 		var anim:String = 'note splash';
 		var fps:Array<Null<Int>> = [22, 26];
 		var offsets:Array<Array<Float>> = [[0, 0]];
-		if (Paths.fileExists('$path.txt', TEXT)) // Backwards compatibility with 0.7 splash txts
+		if (Paths.fileExists('$path.txt', TEXT)) 
 		{
 			var configFile:Array<String> = CoolUtil.listFromString(Paths.getTextFromFile('$path.txt'));
 			if (configFile.length > 0)
@@ -207,7 +206,7 @@ class NoteSplash extends FlxSprite
 		setPosition(x, y);
 
 		if (babyArrow != null)
-			setPosition(babyArrow.x - Note.swagWidth * 0.95, babyArrow.y - Note.swagWidth); // To prevent it from being misplaced for one game tick
+			setPosition(babyArrow.x - Note.swagWidth * 0.95, babyArrow.y - Note.swagWidth); 
 
 		if (note != null)
 			noteData = note.noteData;
@@ -225,7 +224,6 @@ class NoteSplash extends FlxSprite
 			if (inEditor || (note == null || note.noteSplashData.useRGBShader) && (PlayState.SONG == null || !PlayState.SONG.disableNoteRGB))
 			{
 				tempShader = new RGBPalette();
-				// If Note RGB is enabled:
 				if ((note == null || !note.noteSplashData.useGlobalShader) || inEditor)
 				{
 					var colors = config.rgb;
@@ -329,13 +327,13 @@ class NoteSplash extends FlxSprite
 	{
 		var animFrames = [];
 		@:privateAccess
-		animation.findByPrefix(animFrames, anim); // adds valid frames to animFrames
+		animation.findByPrefix(animFrames, anim); 
 
 		return animFrames.length > 0;
 	}
 
 	var aliveTime:Float = 0;
-	static var buggedKillTime:Float = 0.5; //automatically kills note splashes if they break to prevent it from flooding your HUD
+	static var buggedKillTime:Float = 0.5; 
 	override function update(elapsed:Float)
 	{
 		if (spawned)
@@ -473,7 +471,6 @@ class PixelSplashShaderRef
 
 		if (!PlayState.isPixelStage) pixelAmount = 1;
 		else pixelAmount = PlayState.daPixelZoom;
-		//trace('Created shader ' + Conductor.songPosition);
 	}
 }
 

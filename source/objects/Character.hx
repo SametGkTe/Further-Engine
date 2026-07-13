@@ -41,9 +41,6 @@ typedef AnimArray = {
 
 class Character extends FlxSprite
 {
-	/**
-	 * In case a character is missing, it will use this on its place
-	**/
 	public static final DEFAULT_CHARACTER:String = 'bf';
 
 	public var animOffsets:Map<String, Array<Dynamic>>;
@@ -58,9 +55,9 @@ class Character extends FlxSprite
 	public var specialAnim:Bool = false;
 	public var animationNotes:Array<Dynamic> = [];
 	public var stunned:Bool = false;
-	public var singDuration:Float = 4; //Multiplier of how long a character holds the sing pose
+	public var singDuration:Float = 4; 
 	public var idleSuffix:String = '';
-	public var danceIdle:Bool = false; //Character use "danceLeft" and "danceRight" instead of "idle"
+	public var danceIdle:Bool = false; 
 	public var skipDance:Bool = false;
 
 	public var healthIcon:String = 'face';
@@ -75,7 +72,6 @@ class Character extends FlxSprite
 	public var hasMissAnimations:Bool = false;
 	public var vocalsFile:String = '';
 
-	//Used on Character Editor
 	public var imageFile:String = '';
 	public var jsonScale:Float = 1;
 	public var noAntialiasing:Bool = false;
@@ -117,7 +113,7 @@ class Character extends FlxSprite
 		if (!Assets.exists(path))
 		#end
 		{
-			path = Paths.getSharedPath('characters/' + DEFAULT_CHARACTER + '.json'); //If a character couldn't be found, change him to BF just to prevent a crash
+			path = Paths.getSharedPath('characters/' + DEFAULT_CHARACTER + '.json'); 
 			missingCharacter = true;
 			missingText = new FlxText(0, 0, 300, 'ERROR:\n$character.json', 16);
 			missingText.alignment = CENTER;
@@ -183,11 +179,9 @@ class Character extends FlxSprite
 			updateHitbox();
 		}
 
-		// positioning
 		positionArray = json.position;
 		cameraPosition = json.camera_position;
 
-		// data
 		healthIcon = json.healthicon;
 		singDuration = json.sing_duration;
 		flipX = (json.flip_x != isPlayer);
@@ -196,18 +190,16 @@ class Character extends FlxSprite
 		originalFlipX = (json.flip_x == true);
 		editorIsPlayer = json._editor_isPlayer;
 
-		// antialiasing
 		noAntialiasing = (json.no_antialiasing == true);
 		antialiasing = ClientPrefs.data.antialiasing ? !noAntialiasing : false;
 
-		// animations
 		animationsArray = json.animations;
 		if(animationsArray != null && animationsArray.length > 0) {
 			for (anim in animationsArray) {
 				var animAnim:String = '' + anim.anim;
 				var animName:String = '' + anim.name;
 				var animFps:Int = anim.fps;
-				var animLoop:Bool = !!anim.loop; //Bruh
+				var animLoop:Bool = !!anim.loop; 
 				var animIndices:Array<Int> = anim.indices;
 
 				if(!isAnimateAtlas)
@@ -234,7 +226,6 @@ class Character extends FlxSprite
 		#if flxanimate
 		if(isAnimateAtlas) copyAtlasValues();
 		#end
-		//trace('Loaded file to character ' + curCharacter);
 	}
 
 	override function update(elapsed:Float)
@@ -355,9 +346,6 @@ class Character extends FlxSprite
 
 	public var danced:Bool = false;
 
-	/**
-	 * FOR GF DANCING SHIT
-	 */
 	public function dance()
 	{
 		if (!debugMode && !skipDance && !specialAnim)
@@ -395,7 +383,6 @@ class Character extends FlxSprite
 			var daOffset = animOffsets.get(AnimName);
 			offset.set(daOffset[0], daOffset[1]);
 		}
-		//else offset.set(0, 0);
 
 		if (curCharacter.startsWith('gf-') || curCharacter == 'gf')
 		{
@@ -464,8 +451,6 @@ class Character extends FlxSprite
 		animation.addByPrefix(name, anim, 24, false);
 	}
 
-	// Atlas support
-	// special thanks ne_eo for the references, you're the goat!!
 	@:allow(states.editors.CharacterEditorState)
 	public var isAnimateAtlas(default, null):Bool = false;
 	#if flxanimate

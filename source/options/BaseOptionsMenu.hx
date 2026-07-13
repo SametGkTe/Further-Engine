@@ -30,15 +30,12 @@ class BaseOptionsMenu extends MusicBeatSubstate
 
 	var camTargetY:Float = 0;
 
-	// ========== INLINE DROPDOWN ==========
 	var dropdownOpen:Bool = false;
-	var dropdownOptionIndex:Int = -1; // which option in optionsArray is open
+	var dropdownOptionIndex:Int = -1; 
 	var dropdownSubItems:Array<Alphabet> = [];
 	var dropdownSubSelected:Int = 0;
 	var blockAfterClose:Int = 0;
 
-	// Store the visual list: optionsArray indices + dropdown sub-item indices
-	// displayList[i] = { type: 'option', index: N } or { type: 'sub', subIndex: N }
 	var displayList:Array<DisplayEntry> = [];
 
 	public function new()
@@ -105,7 +102,6 @@ class BaseOptionsMenu extends MusicBeatSubstate
 			{
 				optionText.x -= 80;
 				optionText.startPosition.x -= 80;
-				// Show arrow indicator
 				var displayVal:String = getDropdownArrowText(optionsArray[i], false);
 				var valueText:AttachedText = new AttachedText(displayVal, optionText.width + 60);
 				valueText.sprTracker = optionText;
@@ -135,7 +131,6 @@ class BaseOptionsMenu extends MusicBeatSubstate
 		addTouchPad('LEFT_FULL', 'A_B_C');
 	}
 
-	// ========== DISPLAY LIST ==========
 	function rebuildDisplayList()
 	{
 		displayList = [];
@@ -143,7 +138,6 @@ class BaseOptionsMenu extends MusicBeatSubstate
 		{
 			displayList.push({type: OPTION, optionIndex: i, subIndex: -1});
 
-			// If this dropdown is open, add sub-items after it
 			if (optionsArray[i].type == DROPDOWN && dropdownOpen && dropdownOptionIndex == i)
 			{
 				var opt = optionsArray[i];
@@ -155,7 +149,6 @@ class BaseOptionsMenu extends MusicBeatSubstate
 			}
 		}
 
-		// Rebuild targetY for all grpOptions members
 		var optIdx:Int = 0;
 		var displayIdx:Int = 0;
 		for (entry in displayList)
@@ -171,13 +164,11 @@ class BaseOptionsMenu extends MusicBeatSubstate
 			displayIdx++;
 		}
 
-		// Rebuild sub-item Alphabet visuals
 		rebuildDropdownSubItems();
 	}
 
 	function rebuildDropdownSubItems()
 	{
-		// Remove old sub-items
 		for (sub in dropdownSubItems)
 		{
 			sub.visible = false;
@@ -215,11 +206,9 @@ class BaseOptionsMenu extends MusicBeatSubstate
 		var optIdx:Int = 0;
 		var subIdx:Int = 0;
 
-		// Find where curSelected maps to in display list
 		var curDisplayIndex:Int = 0;
 		if (dropdownOpen)
 		{
-			// curSelected is display index
 			curDisplayIndex = curSelected;
 		}
 		else
@@ -248,7 +237,6 @@ class BaseOptionsMenu extends MusicBeatSubstate
 		}
 	}
 
-	// ========== DROPDOWN ARROW TEXT ==========
 	function getDropdownArrowText(option:Option, isOpen:Bool):String
 	{
 		return isOpen ? 'V' : '>';
@@ -261,7 +249,6 @@ class BaseOptionsMenu extends MusicBeatSubstate
 		return '< ' + option.getValue() + ' >';
 	}
 
-	// ========== DROPDOWN OPEN/CLOSE ==========
 	function openDropdownInline(optionIndex:Int)
 	{
 		var opt = optionsArray[optionIndex];
@@ -271,13 +258,11 @@ class BaseOptionsMenu extends MusicBeatSubstate
 		dropdownOptionIndex = optionIndex;
 		dropdownSubSelected = opt.curOption;
 
-		// Update arrow to V
 		if (opt.child != null)
 			opt.child.text = getDropdownArrowText(opt, true);
 
 		rebuildDisplayList();
 
-		// Move curSelected to first sub-item
 		for (di in 0...displayList.length)
 		{
 			if (displayList[di].type == SUB_ITEM && displayList[di].optionIndex == optionIndex)
@@ -295,16 +280,14 @@ class BaseOptionsMenu extends MusicBeatSubstate
 	{
 		if (!dropdownOpen) return;
 
-		// Update arrow back to >
 		var opt = optionsArray[dropdownOptionIndex];
 		if (opt.child != null)
 			opt.child.text = getDropdownArrowText(opt, false);
 
 		dropdownOpen = false;
 
-		// Find the option index in display list to set curSelected
 		var targetDisplay:Int = dropdownOptionIndex;
-		curSelected = dropdownOptionIndex; // This will be correct after rebuild
+		curSelected = dropdownOptionIndex; 
 
 		dropdownOptionIndex = -1;
 		dropdownSubSelected = 0;
@@ -312,7 +295,6 @@ class BaseOptionsMenu extends MusicBeatSubstate
 
 		rebuildDisplayList();
 
-		// curSelected should point to the option that was open
 		curSelected = targetDisplay;
 		updateSelectionVisuals();
 
@@ -325,7 +307,6 @@ class BaseOptionsMenu extends MusicBeatSubstate
 
 		var opt = optionsArray[dropdownOptionIndex];
 
-		// Find which sub-item is selected
 		var subIndex:Int = -1;
 		var entry = displayList[curSelected];
 		if (entry.type == SUB_ITEM)
@@ -342,30 +323,25 @@ class BaseOptionsMenu extends MusicBeatSubstate
 		FlxG.sound.play(Paths.sound('confirmMenu'));
 	}
 
-	// ========== SELECTION VISUALS ==========
 	function updateSelectionVisuals()
 	{
 		updateDisplayPositions();
 
-		// Update option alphas
 		for (oi in 0...grpOptions.members.length)
 		{
 			grpOptions.members[oi].alpha = 0.6;
 		}
 
-		// Update text alphas
 		for (text in grpTexts)
 		{
 			text.alpha = 0.6;
 		}
 
-		// Update sub-item alphas
 		for (sub in dropdownSubItems)
 		{
 			sub.alpha = 0.6;
 		}
 
-		// Highlight current selection
 		if (curSelected >= 0 && curSelected < displayList.length)
 		{
 			var entry = displayList[curSelected];
@@ -377,7 +353,6 @@ class BaseOptionsMenu extends MusicBeatSubstate
 				for (text in grpTexts)
 					if (text.ID == entry.optionIndex) text.alpha = 1;
 
-				// Update curOption and desc
 				curOption = optionsArray[entry.optionIndex];
 				descText.text = curOption.description;
 			}
@@ -387,24 +362,20 @@ class BaseOptionsMenu extends MusicBeatSubstate
 				if (subLocalIndex >= 0 && subLocalIndex < dropdownSubItems.length)
 					dropdownSubItems[subLocalIndex].alpha = 1;
 
-				// Keep parent option highlighted too
 				if (entry.optionIndex < grpOptions.members.length)
 					grpOptions.members[entry.optionIndex].alpha = 0.8;
 
-				// Show parent description
 				curOption = optionsArray[entry.optionIndex];
 				descText.text = curOption.description;
 			}
 		}
 
-		// Update desc box
 		descText.screenCenter(Y);
 		descText.y += 270;
 		descBox.setPosition(descText.x - 10, descText.y - 10);
 		descBox.setGraphicSize(Std.int(descText.width + 20), Std.int(descText.height + 25));
 		descBox.updateHitbox();
 
-		// Update camera target
 		if (curSelected >= 0 && curSelected < displayList.length)
 		{
 			var entry = displayList[curSelected];
@@ -417,7 +388,6 @@ class BaseOptionsMenu extends MusicBeatSubstate
 				var subLocalIndex:Int = entry.subIndex;
 				if (subLocalIndex >= 0 && subLocalIndex < dropdownSubItems.length)
 				{
-					// Approximate position
 					var parentItem = grpOptions.members[entry.optionIndex];
 					camTargetY = parentItem.startPosition.y + (subLocalIndex + 1) * 60 - (FlxG.height / 2);
 				}
@@ -425,7 +395,6 @@ class BaseOptionsMenu extends MusicBeatSubstate
 		}
 	}
 
-	// ========== STANDARD ==========
 	public function addOption(option:Option) {
 		if(optionsArray == null || optionsArray.length < 1) optionsArray = [];
 		optionsArray.push(option);
@@ -459,18 +428,15 @@ class BaseOptionsMenu extends MusicBeatSubstate
 			return;
 		}
 
-		// ========== DROPDOWN OPEN ==========
 		if (dropdownOpen)
 		{
 			if (controls.UI_UP_P)
 			{
 				curSelected--;
-				// Skip over OPTION entries, stay in SUB_ITEM range
 				while (curSelected >= 0 && displayList[curSelected].type != SUB_ITEM)
 					curSelected--;
 				if (curSelected < 0)
 				{
-					// Wrap to last sub-item
 					curSelected = displayList.length - 1;
 					while (curSelected >= 0 && displayList[curSelected].type != SUB_ITEM)
 						curSelected--;
@@ -486,7 +452,6 @@ class BaseOptionsMenu extends MusicBeatSubstate
 					curSelected++;
 				if (curSelected >= displayList.length)
 				{
-					// Wrap to first sub-item
 					curSelected = 0;
 					while (curSelected < displayList.length && displayList[curSelected].type != SUB_ITEM)
 						curSelected++;
@@ -509,7 +474,6 @@ class BaseOptionsMenu extends MusicBeatSubstate
 			return;
 		}
 
-		// ========== NORMAL MODE ==========
 		if (controls.UI_UP_P) changeSelection(-1);
 		if (controls.UI_DOWN_P) changeSelection(1);
 

@@ -57,9 +57,9 @@ class LuaUtils
 			for (i in 1...splitProps.length)
 			{
 				var j:Dynamic = splitProps[i].substr(0, splitProps[i].length - 1);
-				if(i >= splitProps.length-1) //Last array
+				if(i >= splitProps.length-1) 
 					target[j] = value;
-				else //Anything else
+				else 
 					target = target[j];
 			}
 			return target;
@@ -67,7 +67,6 @@ class LuaUtils
 
 		if(allowMaps && isMap(instance))
 		{
-			//trace(instance);
 			instance.set(variable, value);
 			return value;
 		}
@@ -105,7 +104,6 @@ class LuaUtils
 		
 		if(allowMaps && isMap(instance))
 		{
-			//trace(instance);
 			return instance.get(variable);
 		}
 
@@ -133,7 +131,6 @@ class LuaUtils
 				var data:String = File.getContent(path);
 				try
 				{
-					//FunkinLua.luaTrace('getModSetting: Trying to find default value for "$saveTag" in Mod: "$modName"');
 					var parsedJson:Dynamic = tjson.TJSON.parse(data);
 					for (i in 0...parsedJson.length)
 					{
@@ -144,13 +141,11 @@ class LuaUtils
 							{
 								if(sub.value != null)
 								{
-									//FunkinLua.luaTrace('getModSetting: Found unsaved value "${sub.save}" in Mod: "$modName"');
 									settings.set(sub.save, sub.value);
 								}
 							}
 							else
 							{
-								//FunkinLua.luaTrace('getModSetting: Found unsaved keybind "${sub.save}" in Mod: "$modName"');
 								settings.set(sub.save, {keyboard: (sub.keyboard != null ? sub.keyboard : 'NONE'), gamepad: (sub.gamepad != null ? sub.gamepad : 'NONE')});
 							}
 						}
@@ -188,14 +183,7 @@ class LuaUtils
 	
 	public static function isMap(variable:Dynamic)
 	{
-		/*switch(Type.typeof(variable)){
-			case ValueType.TClass(haxe.ds.StringMap) | ValueType.TClass(haxe.ds.ObjectMap) | ValueType.TClass(haxe.ds.IntMap) | ValueType.TClass(haxe.ds.EnumValueMap):
-				return true;
-			default:
-				return false;
-		}*/
 
-		//trace(variable);
 		if(variable.exists != null && variable.keyValueIterator != null) return true;
 		return false;
 	}
@@ -329,11 +317,7 @@ class LuaUtils
 	{
 		switch(spriteType.toLowerCase().replace(' ', ''))
 		{
-			//case "texture" | "textureatlas" | "tex":
-				//spr.frames = AtlasFrameMaker.construct(image);
 
-			//case "texture_noaa" | "textureatlas_noaa" | "tex_noaa":
-				//spr.frames = AtlasFrameMaker.construct(image, null, true);
 
 			case 'aseprite', 'ase', 'json', 'jsoni8':
 				spr.frames = Paths.getAsepriteAtlas(image);
@@ -434,7 +418,6 @@ class LuaUtils
 		#end
 	}
 
-	//buncho string stuffs
 	public static function getTweenTypeByString(?type:String = '') {
 		switch(type.toLowerCase().trim())
 		{

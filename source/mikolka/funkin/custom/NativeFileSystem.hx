@@ -11,12 +11,6 @@ import openfl.utils.Assets as OpenFlAssets;
 import sys.FileSystem as FileSystem;
 #end
 
-/**
-	**Works only on paths relative to game's root dorectory*
-
-	Basically NativeFileSystem, but we can emulate it on OpenFL.
-	It can either 
-**/
 class NativeFileSystem
 {
 	public static var openFlAssets:Array<String> = null;
@@ -47,7 +41,6 @@ class NativeFileSystem
 		return null;
 	}
 
-	// Loads a given bitmap. Returns null if it doesn't exist
 	public static function getBitmap(path:String):Null<BitmapData>
 	{
 		var isModded = path.startsWith("mods");
@@ -118,7 +111,6 @@ class NativeFileSystem
 		return null;
 	}
 
-	// Check if the file exists
 	public static function exists(path:String)
 	{
 		var isModded = path.startsWith("mods");
@@ -199,12 +191,6 @@ class NativeFileSystem
 		return [];
 	}
 
-	/**
-	 * Checks if the given path is a valid directory.
-	 * @param directory A path **relative** to the working directory 
-	 * @return Bool Is it a valid directory
-	 */
-	//
 	public static function isDirectory(directory:String):Bool
 	{
 		var result = false;
@@ -233,7 +219,6 @@ class NativeFileSystem
 		return result;
 	}
 
-	// Not available without sys
 	public static function createDirectory(modFolder:String)
 	{
 		#if NATIVE_LOOKUP
@@ -243,7 +228,6 @@ class NativeFileSystem
 		#end
 	}
 
-	// Not available without sys
 	public static function deleteFile(s:String)
 	{
 		#if NATIVE_LOOKUP
@@ -253,11 +237,6 @@ class NativeFileSystem
 		#end
 	}
 
-	/**
-		Adds the current root dir to the path.
-
-		Depends a lot on the target system!
-	**/
 	private static function addCwd(directory:String):String
 	{
 		#if (desktop || web)
@@ -272,19 +251,9 @@ class NativeFileSystem
 	}
 
 	#if (linux || ios)
-	/**
-	A local cache for non existent directories.
-	Make sure to clean it regularly in case user adds a missing file(s)
-	*/
 	public static final excludePaths:Array<String> = []; 
-		/**
-	 * Returns a path to the existing file similar to the given one.
-	 * (For instance "mod/firelight" and  "Mod/FireLight" are *similar* paths)
-	 * @param path The path to find
-	 * @return Null<String> Found path or null if such doesn't exist
-	 */
 	public static function getPathLike(path:String):Null<String> {
-		var path = addCwd(path);// fix ios
+		var path = addCwd(path);
 		
 		var dir = Path.directory(path);
 		for(exclude in excludePaths){
@@ -320,13 +289,6 @@ class NativeFileSystem
 
 		return nextDir;
 	}
-	/**
-	 * Searches a given directory and returns a name of the existing file/directory
-	 * *similar* to the **key**
-	 * @param dir Base directory to search
-	 * @param key The file/directory you want to find
-	 * @return Either a file name, or null if the one doesn't exist
-	 */
 	private static function findNode(dir:String, key:String):Null<String> {
 		try {
 			var allFiles:Array<String> = sys.FileSystem.readDirectory(dir);
@@ -343,12 +305,6 @@ class NativeFileSystem
 	}
 	#elseif sys
 
-	/**
-	 * Returns a path to the existing file similar to the given one.
-	 * (For instance "mod/firelight" and  "Mod/FireLight" are *similar* paths)
-	 * @param path
-	 * @return Null<String>
-	 */
 	public static function getPathLike(path:String):Null<String>
 	{
 		var cwd_path = addCwd(path);

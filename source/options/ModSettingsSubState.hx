@@ -17,8 +17,7 @@ class ModSettingsSubState extends BaseOptionsMenu
 		this.folder = folder;
 
 		title = '';
-		//title = name;
-		rpcTitle = Language.getPhrase('rpc_mod_settings', 'Mod Ayarları ($name)'); //for Discord Rich Presence
+		rpcTitle = Language.getPhrase('rpc_mod_settings', 'Mod Ayarları ($name)'); 
 
 		if(FlxG.save.data.modSettings == null) FlxG.save.data.modSettings = new Map<String, Dynamic>();
 		else
@@ -27,7 +26,6 @@ class ModSettingsSubState extends BaseOptionsMenu
 			save = saveMap[folder] != null ? saveMap[folder] : [];
 		}
 
-		//save = []; //reset for debug purposes
 		try
 		{
 			for (option in options)
@@ -44,7 +42,6 @@ class ModSettingsSubState extends BaseOptionsMenu
 				switch(newOption.type)
 				{
 					case KEYBIND:
-						//Defaulting and error checking
 						var keyboardStr:String = option.keyboard;
 						var gamepadStr:String = option.gamepad;
 						if(keyboardStr == null) keyboardStr = 'NONE';
@@ -59,10 +56,8 @@ class ModSettingsSubState extends BaseOptionsMenu
 							save.set(option.save, newOption.keys);
 						}
 
-						// getting inputs and checking
 						var keyboardKey:FlxKey = cast FlxKey.fromString(keyboardStr);
 						var gamepadKey:FlxGamepadInputID = cast FlxGamepadInputID.fromString(gamepadStr);
-						//trace('${keyboardStr}: $keyboardKey, ${gamepadStr}: $gamepadKey');
 
 						@:privateAccess
 						{
@@ -127,7 +122,6 @@ class ModSettingsSubState extends BaseOptionsMenu
 					save.set(option.save, myValue);
 				}
 				addOption(newOption);
-				//updateTextFrom(newOption);
 			}
 		}
 		catch(e:Dynamic)

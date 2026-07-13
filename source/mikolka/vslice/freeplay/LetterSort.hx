@@ -9,12 +9,10 @@ import flixel.util.FlxTimer;
 import mobile.backend.SwipeUtil;
 
 
-//? Checked
 class LetterSort extends FlxTypedSpriteGroup<FlxSprite>
 {
   public var letters:Array<FreeplayLetter> = [];
 
-  // starts at 2, cuz that's the middle letter on start (accounting for fav and #, it should begin at ALL filter)
   var curSelection:Int = 2;
 
   public var changeSelectionCallback:String->Void;
@@ -32,7 +30,6 @@ class LetterSort extends FlxTypedSpriteGroup<FlxSprite>
     super(x, y);
 
     leftArrow = new FlxSprite(-20, 15).loadGraphic(Paths.image("freeplay/miniArrow"));
-    // leftArrow.animation.play("arrow");
     leftArrow.flipX = true;
     add(leftArrow);
 
@@ -41,7 +38,6 @@ class LetterSort extends FlxTypedSpriteGroup<FlxSprite>
       var letter:FreeplayLetter = new FreeplayLetter(i * 80, 0, i);
       letter.x += 50;
       letter.y += 50;
-      // letter.visible = false;
       add(letter);
 
       letters.push(letter);
@@ -52,11 +48,9 @@ class LetterSort extends FlxTypedSpriteGroup<FlxSprite>
 
       letter.color = letter.color.getDarkened(darkness);
 
-      // don't put the last seperator
       if (i == 4) continue;
 
       var sep:FlxSprite = new FlxSprite((i * 80) + 60, 20).loadGraphic(Paths.image("freeplay/seperator"));
-      // sep.animation.play("seperator");
       sep.color = letter.color.getDarkened(darkness);
       add(sep);
 
@@ -65,7 +59,6 @@ class LetterSort extends FlxTypedSpriteGroup<FlxSprite>
 
     rightArrow = new FlxSprite(380, 15).loadGraphic(Paths.image("freeplay/miniArrow"));
 
-    // rightArrow.animation.play("arrow");
     add(rightArrow);
 
     swipeBounds = new FlxSprite(-20, -20).makeGraphic(420, 95, FlxColor.TRANSPARENT);
@@ -80,7 +73,7 @@ class LetterSort extends FlxTypedSpriteGroup<FlxSprite>
   {
     super.update(elapsed);
     if (inputEnabled)
-    { //? changed controls mapping
+    { 
       if (TouchUtil.overlaps(swipeBounds) && SwipeUtil.swipeLeft) changeSelection(-1);
       if (TouchUtil.overlaps(swipeBounds) && SwipeUtil.swipeRight) changeSelection(1);
     }
@@ -88,13 +81,12 @@ class LetterSort extends FlxTypedSpriteGroup<FlxSprite>
 
   public function changeSelection(diff:Int = 0):Void
   {
-    @:privateAccess // Changes animations to match better
+    @:privateAccess 
     FreeplayState.instance.difficultyLastChange = diff;
     doLetterChangeAnims(diff);
 
     var multiPosOrNeg:Float = diff > 0 ? 1 : -1;
 
-    // if we're moving left (diff < 0), we want control of the right arrow, and vice versa
     var arrowToMove:FlxSprite = diff < 0 ? leftArrow : rightArrow;
     arrowToMove.offset.x = 3 * multiPosOrNeg;
 
@@ -103,11 +95,6 @@ class LetterSort extends FlxTypedSpriteGroup<FlxSprite>
     });
   }
 
-  /**
-   * Buncho timers and stuff to move the letters and separators
-   * Separated out so we can call it again on letters with songs within them
-   * @param diff
-   */
   function doLetterChangeAnims(diff:Int):Void
   {
     var ezTimer:Int->FlxSprite->Float->Void = function(frameNum:Int, spr:FlxSprite, offsetNum:Float) {
@@ -118,7 +105,6 @@ class LetterSort extends FlxTypedSpriteGroup<FlxSprite>
 
     var positions:Array<Float> = [-10, -22, 2, 0];
 
-    // if we're moving left, we want to move the positions the same amount, but negative direciton
     var multiPosOrNeg:Float = diff > 0 ? 1 : -1;
 
     for (sep in grpSeperators)
@@ -146,7 +132,6 @@ class LetterSort extends FlxTypedSpriteGroup<FlxSprite>
       if (index == 2)
       {
         ezTimer(3, letter, 0);
-        // letter.offset.x = 0;
         continue;
       }
 
@@ -160,50 +145,28 @@ class LetterSort extends FlxTypedSpriteGroup<FlxSprite>
     for (letter in letters)
       letter.changeLetter(diff, curSelection);
 
-    if (changeSelectionCallback != null) changeSelectionCallback(letters[2].regexLetters[letters[2].curLetter]); // bullshit and long lol!
+    if (changeSelectionCallback != null) changeSelectionCallback(letters[2].regexLetters[letters[2].curLetter]); 
   }
 }
 
-/**
- * The actual FlxAtlasSprite for the letters, with their animation code stuff and regex stuff
- */
 class FreeplayLetter extends FlxAtlasSprite
 {
-  /**
-   * A preformatted array of letter strings, for use when doing regex
-   * ex: ['A-B', 'C-D', 'E-H', 'I-L' ...]
-   */
   public var regexLetters:Array<String> = [];
 
-  /**
-   * A preformatted array of the letters, for use when accessing symbol animation info
-   * ex: ['AB', 'CD', 'EH', 'IL' ...]
-   */
   public var animLetters:Array<String> = [];
 
-  /**
-   * The current letter in the regexLetters array this FreeplayLetter is on
-   */
   public var curLetter:Int = 0;
 
   public function new(x:Float, y:Float, ?letterInd:Int)
   {
     super(x, y, "freeplay/sortedLetters");
 
-    // this is used for the regex
-    // /^[OR].*/gi doesn't work for showing the song Pico, so now it's
-    // /^[O-R].*/gi ant it works for displaying Pico
-    // https://regex101.com/r/bWFPfS/1
-    // we split by underscores, simply for nice lil convinience
     var alphabet:String = 'A-B_C-D_E-H_I-L_M-N_O-R_S_T_U-Z';
     regexLetters = alphabet.split('_');
     regexLetters.insert(0, 'ALL');
     regexLetters.insert(0, 'fav');
     regexLetters.insert(0, '#');
 
-    // the symbols from flash don't have dashes, so we clean this up for use with animations
-    // (we don't need to re-export, rule of thumb is to accomodate files named in flash from dave
-    //    until we get him programming classes (and since i cant find the .fla file....))
     animLetters = regexLetters.map(animLetter -> animLetter.replace('-', ''));
 
     if (letterInd != null)
@@ -217,11 +180,6 @@ class FreeplayLetter extends FlxAtlasSprite
     }
   }
 
-  /**
-   * Changes the letter graphic/anim, used in the LetterSort class above
-   * @param diff -1 or 1, to go left or right in the animation array
-   * @param curSelection what the current letter selection is, to play the bouncing anim if it matches the current letter
-   */
   public function changeLetter(diff:Int = 0, ?curSelection:Int):Void
   {
     curLetter += diff;
@@ -246,6 +204,5 @@ class FreeplayLetter extends FlxAtlasSprite
     {
       this.anim.pause();
     }
-    // updateHitbox();
   }
 }

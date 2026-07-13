@@ -72,7 +72,6 @@ class TankmanStagesAddons extends BaseStage {
             };
         }
     }
-    //
     function loadMappedAnims(char:Character):Void
         {
             try

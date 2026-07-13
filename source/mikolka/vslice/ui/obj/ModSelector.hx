@@ -39,7 +39,7 @@ class ModSelector extends FlxTypedSpriteGroup<FlxSprite> {
             #end
                 directories.push(folder);
         }
-        else{ // char select
+        else{ 
             var globalMods = ModsHelper.getGlobalMods();
             for (folder in ModsHelper.getModsWithPlayersRegistry().filter(s -> !globalMods.contains(s)))
                 directories.push(folder);
@@ -56,7 +56,6 @@ class ModSelector extends FlxTypedSpriteGroup<FlxSprite> {
     
     public function changeDirectory(change:Int = 0,ignoreInputBlock:Bool = false)
         {
-            //FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
             if(!allowInput && !ignoreInputBlock) return;
             curDirectory += change;
     
@@ -83,7 +82,6 @@ class ModSelector extends FlxTypedSpriteGroup<FlxSprite> {
             @:privateAccess{
                 if(change != 0 && directories.length != 1 && parent != null) {
                     parent.remove(parent.grpIcons);
-                    //parent.grpIcons.destroy();
                     parent.availableChars.clear();
                     
                     parent.loadAvailableCharacters();

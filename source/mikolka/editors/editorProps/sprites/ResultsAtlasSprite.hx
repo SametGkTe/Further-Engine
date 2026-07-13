@@ -22,7 +22,6 @@ class ResultsAtlasSprite extends FlxAtlasSprite implements IResultsSprite
 		zIndex = animData.zIndex ?? 500;
 		scale.set(animData.scale ?? 1.0, animData.scale ?? 1.0);
 
-		// Animation is not looped.
 		onAnimationComplete.add((_name:String) ->
 		{
 			trace("Pausing atlas anim");
@@ -34,16 +33,14 @@ class ResultsAtlasSprite extends FlxAtlasSprite implements IResultsSprite
 			}
 			else if (animData.loopFrameLabel != null && animData.loopFrameLabel != "")
 			{
-				playAnimation(animData.loopFrameLabel ?? '', true, false, true); // unpauses this anim, since it's on PlayOnce!
+				playAnimation(animData.loopFrameLabel ?? '', true, false, true); 
 			}
 			else if (animData.loopFrame != null)
 			{
 				anim.curFrame = animData.loopFrame ?? 0;
-				anim.play(); // unpauses this anim, since it's on PlayOnce!
+				anim.play(); 
 			}
 		});
-		// Hide until ready to play.
-		// visible = false;
 	}
 
 	public function getSpriteType():SpriteType
@@ -81,7 +78,6 @@ class ResultsAtlasSprite extends FlxAtlasSprite implements IResultsSprite
 		if(data.sound != "" && data.sound != null) sound.loadEmbedded(Paths.sound(FunkinPath.stripLibrary(data.sound)));
 		timer?.cancel();
 		timer = null;
-		//animation.curAnim = animation.getByName("");
 		var canShow = data.filter == null || data.filter == "" || data.filter == "both";
 		if(data.filter == activeFilter) canShow = true;
 		if(canShow){
@@ -90,13 +86,12 @@ class ResultsAtlasSprite extends FlxAtlasSprite implements IResultsSprite
 			if (data.loopFrame != null && data.looped)
 				anim.curFrame = data.loopFrame;
 			else
-				anim.curFrame = anim.curSymbol.length-1;//animation.curAnim.numFrames - 1;
+				anim.curFrame = anim.curSymbol.length-1;
 		} else visible = false;
 	}
 
 	public function set_offset(x:Float,y:Float) {
 		var offsets = [x,y];
-		// ? Scaling offsets because Pico decided to be annoying
 		var l_scale = data.scale ?? 1.0;
 		var xDiff = -(offsets[0] - (offsets[0] * l_scale)) * 1.8;
 		var yDiff = -(offsets[1] - (offsets[1] * l_scale)) * 1.8;

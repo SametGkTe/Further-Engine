@@ -35,7 +35,7 @@ class VsliceOptions {
     }    
     public static var NAUGHTYNESS(get,never):Bool;    
     public static function get_NAUGHTYNESS():Bool {
-        return ClientPrefs.data.vsliceNaughtyness; //TODO
+        return ClientPrefs.data.vsliceNaughtyness; 
     }
     public static var LOGGING(get,never):String;    
     public static function get_LOGGING():String {
@@ -45,7 +45,7 @@ class VsliceOptions {
     public static function get_VIBRATION():Bool {
         return ClientPrefs.data.vibrating;
     }
-    public static var LAST_MOD(get,set):CharSave; //format: "mod_dir||char_name"
+    public static var LAST_MOD(get,set):CharSave; 
     public static function get_LAST_MOD():CharSave {
         var shards = ClientPrefs.data.lastFreeplayMod.split('||');
         if(shards.length != 2) return {mod_dir: "", char_name: "bf"};

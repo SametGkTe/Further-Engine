@@ -182,7 +182,6 @@ class PhillyStreets extends BaseStage
 			if (note == null)
 				continue;
 
-			// override animations for note types
 			switch (note.noteType)
 			{
 				case 'weekend-1-firegun':
@@ -204,7 +203,6 @@ class PhillyStreets extends BaseStage
 
 		if (VsliceOptions.SHADERS)
 		{
-			// ? ambience
 			rainSndAmbience = new FlxSound().loadEmbedded(Paths.sound("ambience/rain"), true);
 			FlxG.sound.list.add(rainSndAmbience);
 			rainSndAmbience.volume = 0.01;
@@ -242,7 +240,6 @@ class PhillyStreets extends BaseStage
 	override function openSubState(SubState:FlxSubState) {
 		super.openSubState(SubState);
 		if(!Std.isOfType(SubState,PauseSubState) || inCutscene) return;
-		// Temporarily stop ambiance.
 		if (rainSndAmbience != null) {
 			rainSndAmbience.pause();
 		}
@@ -296,7 +293,7 @@ class PhillyStreets extends BaseStage
 				return;
 			if (!VsliceOptions.LOW_QUALITY)
 			{
-				casingFrames = Paths.getSparrowAtlas('PicoBullet'); // precache
+				casingFrames = Paths.getSparrowAtlas('PicoBullet'); 
 				casingGroup = new FlxSpriteGroup();
 				add(casingGroup);
 			}
@@ -399,7 +396,6 @@ class PhillyStreets extends BaseStage
 	}
 	override function beatHit()
 	{
-		// if(curBeat % 2 == 0) abot.beatHit();
 		super.beatHit();
 
 		if (VsliceOptions.LOW_QUALITY)
@@ -585,7 +581,7 @@ class PhillyStreets extends BaseStage
 
 		switch (note.noteType)
 		{
-			case 'weekend-1-cockgun': // HE'S PULLING HIS COCK OUT
+			case 'weekend-1-cockgun': 
 				boyfriend.holdTimer = 0;
 				boyfriend.playAnim('cock', true);
 				boyfriend.specialAnim = true;
@@ -642,24 +638,21 @@ class PhillyStreets extends BaseStage
 		{
 			if (name == 'pop' && frameNumber == 40)
 			{
-				// Get the end position of the bullet dynamically.
 				casing.x = casing.x + casing.frame.offset.x - 1;
 				casing.y = casing.y + casing.frame.offset.y + 1;
 
-				casing.angle = 125.1; // Copied from FLA
+				casing.angle = 125.1; 
 
-				// Okay this is the neat part, we can set the velocity and angular acceleration to make it roll without editing update().
 				var randomFactorA:Float = FlxG.random.float(3, 10);
 				var randomFactorB:Float = FlxG.random.float(1.0, 2.0);
 				casing.velocity.x = 20 * randomFactorB;
 				casing.drag.x = randomFactorA * randomFactorB;
 
 				casing.angularVelocity = 100;
-				// Calculated to ensure angular acceleration is maintained through the whole roll.
 				casing.angularDrag = (casing.drag.x / casing.velocity.x) * 100;
 
 				casing.animation.play('idle');
-				casing.animation.callback = null; // Save performance.
+				casing.animation.callback = null; 
 			}
 		};
 		casingGroup.add(casing);
@@ -732,7 +725,6 @@ class PhillyStreets extends BaseStage
 					if (name == 'shootMISS' && game.health > 0.0 && !game.practiceMode && game.gameOverTimer == null)
 					#end
 					{
-						// FlxFlicker was crashing so fuck it, FlxTimer all the way
 						picoFlicker = new FlxTimer().start(1 / 30, function(tmr:FlxTimer)
 						{
 							boyfriend.visible = !boyfriend.visible;
@@ -745,12 +737,10 @@ class PhillyStreets extends BaseStage
 									if (tmr2.loopsLeft == 0)
 									{
 										boyfriend.visible = true;
-										// trace('test 2');
 									}
 								}, 30);
 							}
 						}, 30);
-						// trace('test');
 					}
 					boyfriend.animation.finishCallback = null;
 				}
@@ -786,10 +776,8 @@ class PhillyStreets extends BaseStage
 
 	public function darkenStageProps()
 	{
-		// Darken the background, then fade it back.
 		for (sprite in darkenable)
 		{
-			// If not excluded, darken.
 			sprite.color = 0xFF111111;
 			new FlxTimer().start(1 / 24, (tmr) ->
 			{
@@ -802,7 +790,6 @@ class PhillyStreets extends BaseStage
 	override function destroy()
 	{
 		super.destroy();
-		// Fully stop ambiance.
 		if (rainSndAmbience != null)
 			rainSndAmbience.stop();
 		if (carSndAmbience != null)

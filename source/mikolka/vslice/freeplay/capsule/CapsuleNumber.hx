@@ -20,9 +20,7 @@ class CapsuleNumber extends FlxSprite
 			case 6:
 
 			case 4:
-				// offset.y += 5;
 			case 9:
-				// offset.y += 5;
 			default:
 				centerOffsets(false);
 		}

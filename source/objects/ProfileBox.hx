@@ -668,7 +668,6 @@ class ProfileBox extends FlxSpriteGroup {
 		if (newHover != _dropHoverIdx) {
 			_dropHoverIdx = newHover;
 
-			// Ayarlar butonu
 			if (dropSettingsBg != null) {
 				FlxTween.cancelTweensOf(dropSettingsBg);
 				dropSettingsBg.color = (_dropHoverIdx == 0) ? COL_DROP_HOVER : COL_DROP_BG;
@@ -682,7 +681,6 @@ class ProfileBox extends FlxSpriteGroup {
 				dropSettingsText.color = (_dropHoverIdx == 0) ? FlxColor.WHITE : COL_TEXT;
 			}
 
-			// Çıkış butonu
 			if (dropLogoutBg != null) {
 				FlxTween.cancelTweensOf(dropLogoutBg);
 				dropLogoutBg.color = (_dropHoverIdx == 1) ? COL_DROP_HOVER : COL_DROP_BG;

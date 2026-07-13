@@ -218,7 +218,6 @@ class GalleryState extends MusicBeatState {
 	var gridPage:Int = 0;
 	var gridThumbnails:FlxTypedGroup<FlxSprite>;
 	
-	// görmeyin
 	var secretRCount:Int = 0;
 	var secretRTimer:Float = 0;
 	static inline var SECRET_R_TIMEOUT:Float = 2.0;
@@ -284,7 +283,6 @@ class GalleryState extends MusicBeatState {
 	var slideshowInterval:Float = 3.0;
 	var slideshowActive:Bool = false;
 
-	// Mobile touch controls
 	#if mobile
 	var galleryPad:TouchPad;
 
@@ -630,7 +628,6 @@ class GalleryState extends MusicBeatState {
 		add(audioTitleText);
 	}
 
-		// ==================== MOBILE CONTROLS ====================
 	#if mobile
 	function createMobileControls() {
 		galleryPad = new TouchPad('LEFT_FULL', 'NONE', NONE);
@@ -639,21 +636,18 @@ class GalleryState extends MusicBeatState {
 		var rightBaseY:Float = FlxG.height - 137;
 		var btnSpacing:Float = 132;
 
-		// Row 1 (bottom-right): A (Accept), B (Back)
 		galleryPad.buttonA = createGalleryButton(rightBaseX, rightBaseY, 'a', 0xFF00FF00, [MobileInputID.A]);
 		galleryPad.add(galleryPad.buttonA);
 
 		galleryPad.buttonB = createGalleryButton(rightBaseX - btnSpacing, rightBaseY, 'b', 0xFFFF0000, [MobileInputID.B]);
 		galleryPad.add(galleryPad.buttonB);
 
-		// Row 1 continued: C (Favorite), X (Category)
 		galleryPad.buttonC = createGalleryButton(rightBaseX, rightBaseY - btnSpacing, 'c', 0xFFFFCC00, [MobileInputID.C]);
 		galleryPad.add(galleryPad.buttonC);
 
 		galleryPad.buttonX = createGalleryButton(rightBaseX - btnSpacing, rightBaseY - btnSpacing, 'x', 0xFFA020F0, [MobileInputID.X]);
 		galleryPad.add(galleryPad.buttonX);
 
-		// Row 2: P (Info/Pause/Slideshow), E (Zoom out), Q (Zoom in), R (Rotate)
 		galleryPad.buttonP = createGalleryButton(rightBaseX, rightBaseY - btnSpacing * 2, 'p', 0xFF0088FF, [MobileInputID.P]);
 		galleryPad.add(galleryPad.buttonP);
 
@@ -687,14 +681,12 @@ class GalleryState extends MusicBeatState {
 		button.label.scale.set(0.243, 0.243);
 		button.label.updateHitbox();
 
-		// updateLabelPosition() private olduğu için manuel ortala
 		button.label.x = button.x + (button.width - button.label.width) / 2;
 		button.label.y = button.y + (button.height - button.label.height) / 2;
 
 		button.statusBrightness = [1, 0.8, 0.4];
 		button.statusIndicatorType = BRIGHTNESS;
 
-		// indicateStatus() private olduğu için status'u tekrar set edip uygulat
 		button.status = TouchButton.NORMAL;
 
 		button.bounds.makeGraphic(Std.int(button.width - 50), Std.int(button.height - 50), FlxColor.TRANSPARENT);
@@ -733,14 +725,12 @@ class GalleryState extends MusicBeatState {
 		button.scale.set(0.243, 0.243);
 		button.updateHitbox();
 
-		// updateLabelPosition() private olduğu için etiketi elle ortalıyoruz
 		button.label.x = button.x + (button.width - button.label.width) / 2;
 		button.label.y = button.y + (button.height - button.label.height) / 2;
 
 		button.statusBrightness = [1, 0.8, 0.4];
 		button.statusIndicatorType = StatusIndicators.BRIGHTNESS;
 
-		// indicateStatus() private olduğu için status set ederek uygulatıyoruz
 		button.status = TouchButton.NORMAL;
 
 		button.bounds.makeGraphic(Std.int(button.width - 50), Std.int(button.height - 50), FlxColor.TRANSPARENT);
@@ -790,7 +780,6 @@ class GalleryState extends MusicBeatState {
 	function handleMobileInput(elapsed:Float) {
 		if (galleryPad == null) return;
 
-		// ---- B = Back ----
 		if (galleryPad.buttonB.justPressed) {
 			FlxG.sound.play(Paths.sound('cancelMenu'));
 			stopAllMedia();
@@ -802,7 +791,6 @@ class GalleryState extends MusicBeatState {
 			return;
 		}
 
-		// ---- A = Accept ----
 		if (galleryPad.buttonA.justPressed) {
 			if (filteredItems.length > 0) {
 				FlxG.sound.play(Paths.sound('confirmMenu'));
@@ -825,7 +813,6 @@ class GalleryState extends MusicBeatState {
 			}
 		}
 
-		// ---- C = Favorite ----
 		if (galleryPad.buttonC.justPressed) {
 			if (filteredItems.length > 0) {
 				filteredItems[curSelected].favorited = !filteredItems[curSelected].favorited;
@@ -835,14 +822,12 @@ class GalleryState extends MusicBeatState {
 			}
 		}
 
-		// ---- X = Category ----
 		if (galleryPad.buttonX.justPressed) {
 			currentCategory = (currentCategory + 1) % categories.length;
 			filterByCategory();
 			FlxG.sound.play(Paths.sound('scrollMenu'));
 		}
 
-		// ---- P = Info / Pause / Slideshow ----
 		if (galleryPad.buttonP.justPressed) {
 			if (viewMode == GALLERY_GRID) {
 				showingInfo = !showingInfo;
@@ -860,7 +845,6 @@ class GalleryState extends MusicBeatState {
 			}
 		}
 
-		// ---- Q = Zoom In ----
 		if (galleryPad.buttonQ != null && galleryPad.buttonQ.pressed) {
 			if (viewMode == SINGLE_VIEW || viewMode == FULLSCREEN) {
 				imgZoom = Math.min(maxZoom, imgZoom + zoomStep);
@@ -868,7 +852,6 @@ class GalleryState extends MusicBeatState {
 			}
 		}
 
-		// ---- E = Zoom Out ----
 		if (galleryPad.buttonE != null && galleryPad.buttonE.pressed) {
 			if (viewMode == SINGLE_VIEW || viewMode == FULLSCREEN) {
 				imgZoom = Math.max(minZoom, imgZoom - zoomStep);
@@ -876,7 +859,6 @@ class GalleryState extends MusicBeatState {
 			}
 		}
 
-		// ---- R = Rotate ----
 		if (galleryPad.buttonR != null && galleryPad.buttonR.justPressed) {
 			if (viewMode == SINGLE_VIEW || viewMode == FULLSCREEN) {
 				imgRotation += 90;
@@ -884,7 +866,6 @@ class GalleryState extends MusicBeatState {
 			}
 		}
 
-		// ---- D-Pad navigation ----
 		switch (viewMode) {
 			case GALLERY_GRID:
 				handleMobileGridNav();
@@ -963,7 +944,6 @@ class GalleryState extends MusicBeatState {
 		}
 	}
 	#end
-	// ==================== END MOBILE CONTROLS ====================
 
 	override function update(elapsed:Float) {
 		if (daSound != null && daSound.playing)
@@ -1194,7 +1174,6 @@ class GalleryState extends MusicBeatState {
 	}
 
 	function handleSingleViewInput(elapsed:Float) {
-		// :D
 		if (secretRCount > 0) {
 			secretRTimer += elapsed;
 			if (secretRTimer >= SECRET_R_TIMEOUT) {
@@ -1248,7 +1227,7 @@ class GalleryState extends MusicBeatState {
 						if (secretRCount >= SECRET_R_NEEDED) {
 							secretRCount = 0;
 							secretRTimer = 0;
-							openKlavyeSubState(); // ;D
+							openKlavyeSubState(); 
 							return;
 						}
 					}

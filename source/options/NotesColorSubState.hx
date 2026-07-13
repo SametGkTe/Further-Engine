@@ -35,7 +35,6 @@ class NotesColorSubState extends MusicBeatSubstate
 	var alphabetHex:Alphabet;
 	var modeBG:FlxSprite;
 	var notesBG:FlxSprite;
-	// controller support
 	var controllerPointer:FlxSprite;
 	var _lastControllerMode:Bool = false;
 	var tipTxt:FlxText;
@@ -204,37 +203,24 @@ class NotesColorSubState extends MusicBeatSubstate
 
 		super.update(elapsed);
 
-		// Early controller checking
 		if(FlxG.gamepads.anyJustPressed(ANY)) controls.controllerMode = true;
 		else if(FlxG.mouse.justPressed || FlxG.mouse.deltaScreenX != 0 || FlxG.mouse.deltaScreenY != 0) controls.controllerMode = false;
-		//
 		
 		var changedToController:Bool = false;
 		if(controls.controllerMode != _lastControllerMode)
 		{
-			//trace('changed controller mode');
 			FlxG.mouse.visible = !controls.controllerMode;
 			controllerPointer.visible = controls.controllerMode;
-			// changed to controller mid state
 			if(controls.controllerMode)
 			{
 				controllerPointer.x = FlxG.mouse.x;
 				controllerPointer.y = FlxG.mouse.y;
 				changedToController = true;
 			}
-			// changed to keyboard mid state
-			/*else
-			{
-				FlxG.mouse.x = controllerPointer.x;
-				FlxG.mouse.y = controllerPointer.y;
-			}
-			// apparently theres no easy way to change mouse position that i know, oh well
-			*/
 			_lastControllerMode = controls.controllerMode;
 			updateTip();
 		}
 
-		// controller things
 		var analogX:Float = 0;
 		var analogY:Float = 0;
 		var analogMoved:Bool = false;
@@ -251,7 +237,6 @@ class NotesColorSubState extends MusicBeatSubstate
 			controllerPointer.y = Math.max(0, Math.min(FlxG.height, controllerPointer.y + analogY *1000* elapsed));
 		}
 		var controllerPressed:Bool = (controls.controllerMode && controls.ACCEPT);
-		//
 
 		if(FlxG.keys.justPressed.CONTROL)
 		{
@@ -272,7 +257,6 @@ class NotesColorSubState extends MusicBeatSubstate
 				hexTypeNum++;
 			else if(allowedTypeKeys.exists(keyPressed))
 			{
-				//trace('keyPressed: $keyPressed, lil str: ' + allowedTypeKeys.get(keyPressed));
 				var curColor:String = alphabetHex.text;
 				var newColor:String = curColor.substring(0, hexTypeNum) + allowedTypeKeys.get(keyPressed) + curColor.substring(hexTypeNum + 1);
 				var colorHex:FlxColor = FlxColor.fromString('#' + newColor);
@@ -280,7 +264,6 @@ class NotesColorSubState extends MusicBeatSubstate
 				_storedColor = getShaderColor();
 				updateColors();
 				
-				// move you to next letter
 				hexTypeNum++;
 				changed = true;
 			}
@@ -290,7 +273,7 @@ class NotesColorSubState extends MusicBeatSubstate
 			var end:Bool = false;
 			if(changed)
 			{
-				if (hexTypeNum > 5) //Typed last letter
+				if (hexTypeNum > 5) 
 				{
 					hexTypeNum = -1;
 					end = true;
@@ -330,7 +313,6 @@ class NotesColorSubState extends MusicBeatSubstate
 			hexTypeLine.visible = false;
 		}
 
-		// Copy/Paste buttons
 		var generalMoved:Bool = (FlxG.mouse.justMoved || analogMoved);
 		var generalPressed:Bool = (FlxG.mouse.justPressed || controllerPressed);
 		if(generalMoved)
@@ -356,7 +338,6 @@ class NotesColorSubState extends MusicBeatSubstate
 			{
 				var formattedText = Clipboard.text.trim().toUpperCase().replace('#', '').replace('0x', '');
 				var newColor:Null<FlxColor> = FlxColor.fromString('#' + formattedText);
-				//trace('#${Clipboard.text.trim().toUpperCase()}');
 				if(newColor != null && formattedText.length == 6)
 				{
 					setShaderColor(newColor);
@@ -364,13 +345,12 @@ class NotesColorSubState extends MusicBeatSubstate
 					_storedColor = getShaderColor();
 					updateColors();
 				}
-				else //errored
+				else 
 					FlxG.sound.play(Paths.sound('cancelMenu'), 0.6);
 			}
 			hexTypeNum = -1;
 		}
 
-		// Click
 		if(generalPressed)
 		{
 			hexTypeNum = -1;
@@ -440,7 +420,6 @@ class NotesColorSubState extends MusicBeatSubstate
 			else holdingOnObj = null;
 		}
 
-		// holding
 		if(holdingOnObj != null)
 		{
 			if (FlxG.mouse.justReleased || (controls.controllerMode && controls.justReleased('accept')))
@@ -456,7 +435,7 @@ class NotesColorSubState extends MusicBeatSubstate
 				{
 					var newBrightness = 1 - FlxMath.bound((pointerY() - colorGradient.y) / colorGradient.height, 0, 1);
 					_storedColor.alpha = 1;
-					if(_storedColor.brightness == 0) //prevent bug
+					if(_storedColor.brightness == 0) 
 						setShaderColor(FlxColor.fromRGBFloat(newBrightness, newBrightness, newBrightness));
 					else
 						setShaderColor(FlxColor.fromHSB(_storedColor.hue, _storedColor.saturation, newBrightness));
@@ -468,7 +447,6 @@ class NotesColorSubState extends MusicBeatSubstate
 					var mouse:FlxPoint = pointerFlxPoint();
 					var hue:Float = FlxMath.wrap(FlxMath.wrap(Std.int(mouse.degreesTo(center)), 0, 360) - 90, 0, 360);
 					var sat:Float = FlxMath.bound(mouse.dist(center) / colorWheel.width*2, 0, 1);
-					//trace('$hue, $sat');
 					if(sat != 0) setShaderColor(FlxColor.fromHSB(hue, sat, _storedColor.brightness));
 					else setShaderColor(FlxColor.fromRGBFloat(_storedColor.brightness, _storedColor.brightness, _storedColor.brightness));
 					updateColors();
@@ -528,7 +506,6 @@ class NotesColorSubState extends MusicBeatSubstate
 
 	function centerHexTypeLine()
 	{
-		//trace(hexTypeNum);
 		if(hexTypeNum > 0)
 		{
 			var letter = alphabetHex.letters[hexTypeNum-1];
@@ -570,7 +547,6 @@ class NotesColorSubState extends MusicBeatSubstate
 		FlxG.sound.play(Paths.sound('scrollMenu'));
 	}
 
-	// alphabets
 	function makeColorAlphabet(x:Float = 0, y:Float = 0):Alphabet
 	{
 		var text:Alphabet = new Alphabet(x, y, '', true);
@@ -580,7 +556,6 @@ class NotesColorSubState extends MusicBeatSubstate
 		return text;
 	}
 
-	// notes sprites functions
 	var skinNote:FlxSprite;
 	var modeNotes:FlxTypedGroup<FlxSprite>;
 	var myNotes:FlxTypedGroup<StrumNote>;
@@ -590,13 +565,10 @@ class NotesColorSubState extends MusicBeatSubstate
 	{
 		dataArray = !onPixel ? ClientPrefs.data.arrowRGB : ClientPrefs.data.arrowRGBPixel;
 		if (onPixel) PlayState.stageUI = "pixel";
-		// clear groups
 		modeNotes.forEachAlive(function(note:FlxSprite) {
-			//note.kill();
 			note.destroy();
 		});
 		myNotes.forEachAlive(function(note:StrumNote) {
-			//note.kill();
 			note.destroy();
 		});
 		modeNotes.clear();
@@ -613,7 +585,6 @@ class NotesColorSubState extends MusicBeatSubstate
 			bigNote.destroy();
 		}
 
-		// respawn stuff
 		var res:Int = onPixel ? 160 : 17;
 		skinNote = new FlxSprite(48, 24).loadGraphic(Paths.image('noteColorMenu/' + (onPixel ? 'note' : 'notePixel')), true, res, res);
 		skinNote.antialiasing = ClientPrefs.data.antialiasing;

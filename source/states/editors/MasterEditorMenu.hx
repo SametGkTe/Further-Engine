@@ -30,7 +30,6 @@ class MasterEditorMenu extends MusicBeatState
 	{
 		FlxG.camera.bgColor = FlxColor.BLACK;
 		#if DISCORD_ALLOWED
-		// Updating Discord Rich Presence
 		DiscordClient.changePresence("Editors Main Menu", null);
 		#end
 
@@ -108,7 +107,7 @@ class MasterEditorMenu extends MusicBeatState
 		if (controls.ACCEPT)
 		{
 			switch(options[curSelected]) {
-				case 'Chart Editor'://felt it would be cool maybe
+				case 'Chart Editor':
 					LoadingState.loadAndSwitchState(new ChartingState(), false);
 				case 'Character Editor':
 					LoadingState.loadAndSwitchState(new CharacterEditorState(Character.DEFAULT_CHARACTER, false));

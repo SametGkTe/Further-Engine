@@ -15,9 +15,8 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 	public function new()
 	{
 		title = Language.getPhrase('visuals_menu', 'Görünüş Ayarları');
-		rpcTitle = 'Görsel Ayarlar Menüsü'; //for Discord Rich Presence
+		rpcTitle = 'Görsel Ayarlar Menüsü'; 
 
-		// for note skins and splash skins
 		notes = new FlxTypedGroup<StrumNote>();
 		splashes = new FlxTypedGroup<NoteSplash>();
 		for (i in 0...Note.colArray.length)
@@ -34,13 +33,12 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 			splashes.add(splash);
 		}
 
-		// options
 		var noteSkins:Array<String> = Mods.mergeAllTextsNamed('images/noteSkins/list.txt');
 		if(noteSkins.length > 0)
 		{
 			if(!noteSkins.contains(ClientPrefs.data.noteSkin))
-				ClientPrefs.data.noteSkin = ClientPrefs.defaultData.noteSkin; //Reset to default if saved noteskin couldnt be found
-			noteSkins.insert(0, ClientPrefs.defaultData.noteSkin); //Default skin always comes first
+				ClientPrefs.data.noteSkin = ClientPrefs.defaultData.noteSkin; 
+			noteSkins.insert(0, ClientPrefs.defaultData.noteSkin); 
 			var option:Option = new Option(Language.getPhrase('setting_note_skins', 'Nota Görünümleri:'),
 				Language.getPhrase('description_note_skins', "Tercih ettiğiniz Nota görünümünü seçin."),
 				'noteSkin',
@@ -56,8 +54,8 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 		if(noteSplashes.length > 0)
 		{
 			if(!noteSplashes.contains(ClientPrefs.data.splashSkin))
-				ClientPrefs.data.splashSkin = ClientPrefs.defaultData.splashSkin; //Reset to default if saved splashskin couldnt be found
-			noteSplashes.insert(0, ClientPrefs.defaultData.splashSkin); //Default skin always comes first
+				ClientPrefs.data.splashSkin = ClientPrefs.defaultData.splashSkin; 
+			noteSplashes.insert(0, ClientPrefs.defaultData.splashSkin); 
 			var option:Option = new Option(Language.getPhrase('setting_note_splashes', 'Nota Efektleri:'),
 				Language.getPhrase('description_note_splashes', "Tercih ettiğiniz Nota Efekti varyasyonunu seçin."),
 				'splashSkin',
@@ -223,7 +221,7 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 		var skin:String = Note.defaultNoteSkin;
 		var customSkin:String = skin + Note.getNoteSkinPostfix();
 		if(Paths.fileExists('images/$customSkin.png', IMAGE)) skin = customSkin;
-		note.texture = skin; //Load texture and anims
+		note.texture = skin; 
 		note.reloadNote();
 		note.playAnim('static');
 	}
@@ -238,7 +236,7 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 	{
 		var rand:Int = 0;
 		if (splashes.members[0] != null && splashes.members[0].maxAnims > 1)
-			rand = FlxG.random.int(0, splashes.members[0].maxAnims - 1); // For playing the same random animation on all 4 splashes
+			rand = FlxG.random.int(0, splashes.members[0].maxAnims - 1); 
 		for (splash in splashes)
 		{
 			splash.revive();

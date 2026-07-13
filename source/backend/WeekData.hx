@@ -6,7 +6,6 @@ import haxe.Json;
 
 typedef WeekFile =
 {
-	// JSON variables
 	var songs:Array<Dynamic>;
 	var weekCharacters:Array<String>;
 	var weekBackground:String;
@@ -25,7 +24,6 @@ class WeekData {
 	public static var weeksList:Array<String> = [];
 	public var folder:String = '';
 
-	// JSON variables
 	public var songs:Array<Dynamic>;
 	public var weekCharacters:Array<String>;
 	public var weekBackground:String;
@@ -61,11 +59,9 @@ class WeekData {
 		return weekFile;
 	}
 
-	// HELP: Is there any way to convert a WeekFile to WeekData without having to put all variables there manually? I'm kind of a noob in haxe lmao
 	public function new(weekFile:WeekFile, fileName:String) {
-		// here ya go - MiguelItsOut
 		for (field in Reflect.fields(weekFile))
-			if(Reflect.fields(this).contains(field)) // Reflect.hasField() won't fucking work :/
+			if(Reflect.fields(this).contains(field)) 
 				Reflect.setProperty(this, field, Reflect.getProperty(weekFile, field));
 
 		this.fileName = fileName;
@@ -178,14 +174,11 @@ class WeekData {
 		return null;
 	}
 
-	//   FUNCTIONS YOU WILL PROBABLY NEVER NEED TO USE
 
-	//To use on PlayState.hx or Highscore stuff
 	public static function getWeekFileName():String {
 		return weeksList[PlayState.storyWeek];
 	}
 
-	//Used on LoadingState, nothing really too relevant
 	public static function getCurrentWeek():WeekData {
 		return weeksLoaded.get(weeksList[PlayState.storyWeek]);
 	}

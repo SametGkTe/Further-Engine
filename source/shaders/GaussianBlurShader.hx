@@ -3,9 +3,6 @@ package shaders;
 import flixel.addons.display.FlxRuntimeShader;
 import openfl.utils.Assets;
 
-/**
- * Note... not actually gaussian!
- */
 class GaussianBlurShader extends FlxRuntimeShader
 {
   public var amount:Float;

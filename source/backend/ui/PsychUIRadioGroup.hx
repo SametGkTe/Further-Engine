@@ -60,7 +60,6 @@ class PsychUIRadioGroup extends FlxSpriteGroup
 		if(maxItems > 0 && maxItems < labels.length && FlxG.mouse.wheel != 0 && FlxG.mouse.overlaps(_hitbox, camera))
 		{
 			curScroll -= FlxG.mouse.wheel;
-			//trace('just scrolled: ' + FlxG.mouse.wheel);
 		}
 
 		var baseY:Float = y + radios.length * space;
@@ -261,13 +260,11 @@ class PsychUIRadioGroup extends FlxSpriteGroup
 		{
 			while(radios.length > labels.length)
 			{
-				//kill extra radios
 				radios[radios.length-1].kill();
 				radios.pop();
 			}
 			while(radios.length < labels.length)
 			{
-				//recycle radios to fit number
 				_addNewRadio();
 			}
 		}

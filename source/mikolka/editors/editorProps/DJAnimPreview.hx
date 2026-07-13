@@ -15,14 +15,12 @@ class DJAnimPreview extends AnimPreview {
         frameTxt.font = 'VCR OSD Mono';
         frameTxt.size = 48;
     }
-    // Adds anims + offsets
     override function registerAnims(value:FlxAtlasSprite) {
         offsets = new Array<Array<Float>>();
         value.offset.set(0,0);
         @:privateAccess
         for (x in dj.getFreeplayDJData().animations)
 			{
-                // I prefer my numbers clean -Mikolka
                 x.offsets[0] = Math.round(x.offsets[0]); 
                 x.offsets[1] = Math.round(x.offsets[1]);
                 offsets.push(x.offsets);
@@ -37,7 +35,7 @@ class DJAnimPreview extends AnimPreview {
     override function onFrameAdvance(anim:String, frame:Int)
         {
             if(selectedAnimLength == 0) {
-                selectedAnimLength = activeSprite.anim.length; // timeline.totalFrames;
+                selectedAnimLength = activeSprite.anim.length; 
             }
             selectedFrame +=1;
             updateFramesText();
@@ -48,7 +46,6 @@ class DJAnimPreview extends AnimPreview {
             updateFramesText();
         }
 
-    // Changes offset based on a DIFFERENCE
     public function input_changeOffset(xDiff:Float,yDiff:Float) {
         setOffset(curOffset[0]+xDiff,curOffset[1]+yDiff);
     }
@@ -61,13 +58,11 @@ class DJAnimPreview extends AnimPreview {
         labels[selectedIndex].color = 0xFF09C729;
         super.input_playAnim();
         activeSprite.offset.set(curOffset[0],curOffset[1]);
-        //selectedFrame = 1;
     }
     function updateFramesText() {
         frameTxt.text = 'Frame (${selectedFrame}/${selectedAnimLength}) [${curOffset[0]},${curOffset[1]}]';
     }
 
-    //ANIMS EDITOR
     
     public function set_curAnimPrefix(cur:String):String {
         anims[selectedIndex].anim = cur;
@@ -88,7 +83,6 @@ class DJAnimPreview extends AnimPreview {
     public inline function get_curOffset() {
         return offsets[selectedIndex];
     }
-    // Sets NEW offset for the current animation
     public function setOffset(x:Float,y:Float) {
         offsets[selectedIndex] = [x,y];
         activeSprite.offset.set(x,y);

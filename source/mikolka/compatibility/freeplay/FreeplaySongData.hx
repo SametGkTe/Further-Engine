@@ -7,12 +7,8 @@ import backend.Highscore;
 import backend.WeekData;
 import haxe.ds.StringMap;
 import haxe.io.Path;
-// çalışsana
 
 
-/**
- * Data about a specific song in the freeplay menu. Very heaviely dependent on exact engine
- */
 class FreeplaySongData extends SngCapsuleData
 {
 	static var _resolvedSongPathCache:StringMap<String> = new StringMap<String>();
@@ -21,13 +17,9 @@ class FreeplaySongData extends SngCapsuleData
 	public function new(levelId:Int, songId:String, songCharacter:String, color:FlxColor)
 	{
 		super(levelId,songId,songCharacter,color);
-		this.isFav = ClientPrefs.data.favSongIds.contains(songId + this.levelName); // Save.instance.isSongFavorited(songId);
+		this.isFav = ClientPrefs.data.favSongIds.contains(songId + this.levelName); 
 	}
 
-	/**
-	 * Toggle whether or not the song is favorited, then flush to save data.
-	 * @return Whether or not the song is now favorited.
-	 */
 	public function toggleFavorite():Bool
 	{
 		isFav = !isFav;
@@ -93,7 +85,6 @@ class FreeplaySongData extends SngCapsuleData
 		if (_resolvedSongPathCache.exists(fileSngName))
 			return _resolvedSongPathCache.get(fileSngName);
 
-		// CWD'yi normalize et
 		var cwd:String = normalizePath(Sys.getCwd());
 		if (cwd.endsWith("/"))
 			cwd = cwd.substr(0, cwd.length - 1);
@@ -160,13 +151,11 @@ class FreeplaySongData extends SngCapsuleData
 				var lower = file.toLowerCase();
 				var lowerSong = fileSngName.toLowerCase();
 
-				// normal: tutorial.json
 				if (lower == lowerSong + ".json")
 				{
 					if (!diffNames.contains("normal"))
 						diffNames.push("normal");
 				}
-				// hard/easy/other: tutorial-hard.json
 				else if (lower.startsWith(lowerSong + "-"))
 				{
 					var diff = lower.substring(lowerSong.length + 1, lower.length - 5).trim();
@@ -175,7 +164,6 @@ class FreeplaySongData extends SngCapsuleData
 				}
 			}
 
-			// Sıralamayı düzelt
 			var ordered:Array<String> = [];
 
 			if (diffNames.contains("easy")) ordered.push("easy");

@@ -14,7 +14,6 @@ class UpdateConfig {
 		return 'https://raw.githubusercontent.com/$GITHUB_REPO_OWNER/$GITHUB_REPO_NAME/$GITHUB_BRANCH/updates/modpacks.json';
 	}
 
-	// Mağaza için aynı URL kullanılır
 	public static var STORE_JSON_URL(get, never):String;
 
 	static function get_STORE_JSON_URL():String {

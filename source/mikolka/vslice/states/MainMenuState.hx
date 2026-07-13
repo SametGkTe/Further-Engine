@@ -53,7 +53,6 @@ class MainMenuState extends MusicBeatState
     var row3Y:Float = 0;
     var row4Y:Float = 0;
 
-    // UI Bar elements
     var topBar:FlxSprite;
     var topBarLine:FlxSprite;
     var bottomBar:FlxSprite;
@@ -101,7 +100,6 @@ class MainMenuState extends MusicBeatState
         persistentUpdate = persistentDraw = true;
         calculateGridPositions();
 
-        // Background
         bg = new FlxSprite(-80).loadGraphic(Paths.image('menuBG'));
         bg.antialiasing = ClientPrefs.data.antialiasing;
         bg.scrollFactor.set(0, 0.12);
@@ -120,19 +118,16 @@ class MainMenuState extends MusicBeatState
         magenta.color = 0xFFfd719b;
         add(magenta);
 
-        // TOP BAR
         topBar = new FlxSprite(0, 0).makeGraphic(FlxG.width, topBarHeight, 0xFF000000);
         topBar.alpha = 0.72;
         topBar.scrollFactor.set();
         add(topBar);
 
-        // Top bar separator line
         topBarLine = new FlxSprite(0, topBarHeight).makeGraphic(FlxG.width, 2, 0xFFFFFFFF);
         topBarLine.alpha = 0.15;
         topBarLine.scrollFactor.set();
         add(topBarLine);
 
-        // Engine title - left side
         titleText = new FlxText(20, 0, 0, "PSYCH ENGINE", 18);
         titleText.setFormat(Paths.font("vcr.ttf"), 18, FlxColor.WHITE, LEFT);
         titleText.y = (topBarHeight - titleText.height) / 2;
@@ -140,7 +135,6 @@ class MainMenuState extends MusicBeatState
         titleText.alpha = 0.9;
         add(titleText);
 
-        // Clock - right side
         clockText = new FlxText(0, 0, 0, "", 16);
         clockText.setFormat(Paths.font("clock.ttf"), 16, FlxColor.WHITE, RIGHT);
         clockText.y = (topBarHeight - clockText.height) / 2;
@@ -203,7 +197,6 @@ class MainMenuState extends MusicBeatState
 		profileBox.scrollFactor.set();
 		add(profileBox);
 		
-        // Camera follow
         camFollow = new FlxObject(FlxG.width / 2, FlxG.height / 2, 1, 1);
         add(camFollow);
         FlxG.camera.follow(camFollow, null, 0.08);
@@ -258,7 +251,7 @@ class MainMenuState extends MusicBeatState
 
         var mainScale:Float = 0.70;
         var galleryScale:Float = 0.60;
-        var achOptScale:Float = 1.03;  // Achievement ve Options için çok daha büyük
+        var achOptScale:Float = 1.03;  
 
         gridPositions = [
             'story_mode' => {x: leftX, y: row1Y, scale: mainScale},
@@ -336,7 +329,6 @@ class MainMenuState extends MusicBeatState
 
     function playEntranceAnimations():Void
     {
-        // Top bar slide in
         var topBarTargetY = topBar.y;
         topBar.y = -topBarHeight;
         topBarLine.y = -topBarHeight;
@@ -347,7 +339,6 @@ class MainMenuState extends MusicBeatState
         FlxTween.tween(titleText, {y: (topBarHeight - titleText.height) / 2}, 0.4, {ease: FlxEase.quartOut, startDelay: 0.05});
         FlxTween.tween(clockText, {y: (topBarHeight - clockText.height) / 2}, 0.4, {ease: FlxEase.quartOut, startDelay: 0.05});
 
-        // Bottom bar slide in
         var bottomBarTargetY = bottomBar.y;
         var bottomLineTargetY = bottomBarLine.y;
         bottomBar.y = FlxG.height;
@@ -361,7 +352,6 @@ class MainMenuState extends MusicBeatState
         FlxTween.tween(fnfVerText, {y: FlxG.height - bottomBarHeight + 30}, 0.4, {ease: FlxEase.quartOut, startDelay: 0.1});
         FlxTween.tween(descriptionText, {y: FlxG.height - bottomBarHeight + 10}, 0.4, {ease: FlxEase.quartOut, startDelay: 0.1});
 
-        // Menu items
         for (item in menuItems)
         {
             if (item == null) continue;
@@ -382,7 +372,6 @@ class MainMenuState extends MusicBeatState
     {
         breathe += elapsed;
 
-        // Update clock every second
         clockTimer += elapsed;
         if (clockTimer >= 1.0)
         {
@@ -554,7 +543,6 @@ class MainMenuState extends MusicBeatState
         if (selectedItem != null)
             selectedItem.animation.play('selected');
 
-        // Update description text
         var desc = optionDescriptions.get(currentOption);
         if (desc != null)
             descriptionText.text = desc;

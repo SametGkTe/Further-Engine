@@ -20,7 +20,7 @@ typedef ResultsProp = {
 class ResultsPropsGrp extends FlxTypedSpriteGroup<FlxSprite> {
     public var sprites:Array<ResultsProp> = new Array<ResultsProp>();
 
-    public function addProp(data:PlayerResultsAnimationData,showErrors:Bool = false):Bool { // returns trye if succsessful
+    public function addProp(data:PlayerResultsAnimationData,showErrors:Bool = false):Bool { 
         var sprite = makeSprite(data,showErrors);
         var prop_data = {
             sprite: cast sprite,
@@ -77,9 +77,6 @@ class ResultsPropsGrp extends FlxTypedSpriteGroup<FlxSprite> {
     public function resumeAll() for (prop in sprites) prop.prop?.resumeAnimation();
     public function resetAll(activeFilter:String) for (prop in sprites) prop.prop?.resetAnimation(activeFilter);
     
-    /**
-        Internally removed props for the selected result 
-    **/
     public function clearProps() {
         for( x in sprites.copy()){
             if(x.data != null) {

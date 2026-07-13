@@ -31,7 +31,6 @@ class LimoRideErect extends BaseStage
 	var limoBgMetalPole:BGSprite;
 	var limoBglight:BGSprite;
 	var skipBgPoleOnBeats:Array<Int> = [];
-	// event
 	var limoKillingState:HenchmenKillState = WAIT;
 	var limoMetalPole:BGSprite;
 	var limoLight:BGSprite;
@@ -41,7 +40,6 @@ class LimoRideErect extends BaseStage
 	var grpLimoParticles:FlxTypedGroup<BGSprite>;
 	var dancersDiff:Float = 320;
 
-	// Erect
 	var colorShader:AdjustColorShader;
 	var mist1:FlxBackdrop;
 	var mist2:FlxBackdrop;
@@ -80,7 +78,6 @@ class LimoRideErect extends BaseStage
 			limoMetalPole = new BGSprite('gore/metalPole', -500, 220, 0.4, 0.4);
 			add(limoMetalPole);
 
-			//? new stuff
 			limoBgMetalPole = new BGSprite('gore/metalPole', -500, 20, 0.4, 0.4);
 			add(limoBgMetalPole);
 
@@ -112,13 +109,11 @@ class LimoRideErect extends BaseStage
 			grpLimoParticles = new FlxTypedGroup<BGSprite>();
 			add(grpLimoParticles);
 
-			// PRECACHE BLOOD
 			var particle:BGSprite = new BGSprite('gore/stupidBlood', -400, -400, 0.4, 0.4, ['blood'], false);
 			particle.alpha = 0.01;
 			grpLimoParticles.add(particle);
 			resetLimoKill();
 
-			// PRECACHE SOUND
 			Paths.sound('dancerdeath');
 			setDefaultGF('gf-car');
 		}
@@ -190,8 +185,6 @@ class LimoRideErect extends BaseStage
 		addBehindGF(mist4);
 		addBehindGF(mist3);
 
-		// add(mist2);
-		// add(mist1);
 		if (VsliceOptions.SHADERS)
 		{
 			if(!VsliceOptions.LOW_QUALITY){
@@ -286,7 +279,7 @@ class LimoRideErect extends BaseStage
 									limoCorpse.visible = true;
 								case 2:
 									limoCorpseTwo.visible = true;
-							} // Note: Nobody cares about the fifth dancer because he is mostly hidden offscreen :(
+							} 
 							dancers[i].x += FlxG.width * 2;
 						}
 					}
@@ -329,7 +322,7 @@ class LimoRideErect extends BaseStage
 					}
 					dancersParenting();
 
-				default: // nothing
+				default: 
 			}
 		}
 	}
@@ -370,7 +363,6 @@ class LimoRideErect extends BaseStage
 		}
 	}
 
-	// Substates for pausing/resuming tweens and timers
 	override function closeSubState()
 	{
 		if (paused)
@@ -452,7 +444,6 @@ class LimoRideErect extends BaseStage
 
 	function fastCarDrive()
 	{
-		// trace('Car drive');
 		FlxG.sound.play(Paths.soundRandom('carPass', 0, 1), 0.7);
 
 		fastCar.velocity.x = (FlxG.random.int(170, 220) / FlxG.elapsed) * 3;

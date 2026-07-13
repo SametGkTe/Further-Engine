@@ -25,10 +25,6 @@ package mobile.backend;
 import flixel.FlxObject;
 import flixel.input.touch.FlxTouch;
 
-/**
- * ...
- * @author: Karim Akra
- */
 class TouchUtil
 {
 	public static var pressed(get, never):Bool;

@@ -13,7 +13,6 @@ class Bar extends FlxSpriteGroup
 	public var leftToRight(default, set):Bool = true;
 	public var barCenter(default, null):Float = 0;
 
-	// you might need to change this if you want to use a custom bar
 	public var barWidth(default, set):Int = 1;
 	public var barHeight(default, set):Int = 1;
 	public var barOffset:FlxPoint = new FlxPoint(3, 3);
@@ -31,7 +30,6 @@ class Bar extends FlxSpriteGroup
 		barHeight = Std.int(bg.height - 6);
 
 		leftBar = new FlxSprite().makeGraphic(Std.int(bg.width), Std.int(bg.height), FlxColor.WHITE);
-		//leftBar.color = FlxColor.WHITE;
 		leftBar.antialiasing = antialiasing = ClientPrefs.data.antialiasing;
 
 		rightBar = new FlxSprite().makeGraphic(Std.int(bg.width), Std.int(bg.height), FlxColor.WHITE);
@@ -98,7 +96,6 @@ class Bar extends FlxSpriteGroup
 
 		barCenter = leftBar.x + leftSize + barOffset.x;
 
-		// flixel is retarded
 		leftBar.clipRect = leftBar.clipRect;
 		rightBar.clipRect = rightBar.clipRect;
 	}

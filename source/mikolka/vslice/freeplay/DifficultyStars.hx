@@ -8,15 +8,8 @@ import flixel.group.FlxSpriteGroup;
 class DifficultyStars extends FlxSpriteGroup
 {
 
-  /**
-   * Internal handler var for difficulty... ranges from 0... to 15
-   * 0 is 1 star... 15 is 0 stars!
-   */
   var curDifficulty(default, set):Int = 0;
 
-  /**
-   * Range between 0 and 15
-   */
   public var difficulty(default, set):Int = 1;
 
   public var stars:FlxAnimate;
@@ -34,7 +27,6 @@ class DifficultyStars extends FlxSpriteGroup
     flames = new FreeplayFlames(0, 0);
     add(flames);
     
-    //? Using base FlxAnimate to sideload JSON obj "freeplay/freeplayStars
     stars = new FlxAtlasSprite(0, 0, "freeplay/freeplayStars");
 
     stars.anim.play("diff stars");
@@ -53,14 +45,6 @@ class DifficultyStars extends FlxSpriteGroup
   {
     super.update(elapsed);
 
-    // "loops" the current animation
-    // for clarity, the animation file looks like
-    // frame : stars
-    // 0-99: 1 star
-    // 100-199: 2 stars
-    // ......
-    // 1300-1499: 15 stars
-    // 1500 : 0 stars
     if (curDifficulty < 15 && stars.anim.curFrame >= (curDifficulty + 1) * 100)
     {
       stars.anim.play("diff stars", true, false, curDifficulty * 100);

@@ -5,7 +5,6 @@ import flixel.util.FlxSignal.FlxTypedSignal;
 import mikolka.compatibility.freeplay.FreeplaySongData;
 import mikolka.funkin.freeplay.FreeplayStyle;
 
-// This is not a sprite group!
 class SongCapsuleGroup extends FlxTypedGroup<SongMenuItem> {
 
     @:allow(mikolka.vslice.freeplay.SongMenuItem)
@@ -53,7 +52,6 @@ class SongCapsuleGroup extends FlxTypedGroup<SongMenuItem> {
     }
 
     public function updateSongDifficulties(currentDifficulty:String) {
-        // Update the song capsules to reflect the new difficulty info.
 			for (songCapsule in members)
 			{
 				if (songCapsule == null)
@@ -62,7 +60,6 @@ class SongCapsuleGroup extends FlxTypedGroup<SongMenuItem> {
 				{
 					songCapsule.songData.currentDifficulty = currentDifficulty;
 					songCapsule.refreshDisplayDifficulty();
-					//songCapsule.checkClip();
 				}
 				else
 				{
@@ -70,9 +67,6 @@ class SongCapsuleGroup extends FlxTypedGroup<SongMenuItem> {
 				}
 			}
     }
-    	/**
-	 * Rebuilds the entire song list.
-	 */
 	public function generateFullSongList(songList:Array<Null<FreeplaySongData>>,currentDifficulty:String,fromCharSelect = false, force:Bool = false):Void
 	{
 		if (songList == null || songList.length == 0)
@@ -80,7 +74,7 @@ class SongCapsuleGroup extends FlxTypedGroup<SongMenuItem> {
 		
 		for (cap in members)
 		{
-			if(cap.songData == null) continue; // Exclude "Random" card from cleanup
+			if(cap.songData == null) continue; 
 			cap.songText.resetText();
 			cap.kill();
 		}
@@ -104,14 +98,12 @@ class SongCapsuleGroup extends FlxTypedGroup<SongMenuItem> {
 			if (tempSong == null)
 				continue;
 
-			//? Update difficulty as part of difficulty change action;
 			tempSong.currentDifficulty = currentDifficulty;
 
 			var funnyMenu:SongMenuItem = recycledSongCards.get(tempSong);
 			if(funnyMenu == null){
 				funnyMenu = recycle(SongMenuItem);
 				funnyMenu.init(FlxG.width,0,tempSong);
-				// This actually protects from adding the card twice!
 				add(funnyMenu); 
 			}
 			else{
@@ -139,11 +131,6 @@ class SongCapsuleGroup extends FlxTypedGroup<SongMenuItem> {
 		}
 	}
 
-	//TODO Make it so it first lods up a list, and then 
-	/**
-	 * Searches for the song in the graveyard located nearby.
-	 * @return 
-	 */
 	function findSongItems(songData:Array<FreeplaySongData>):Map<FreeplaySongData,Null<SongMenuItem>> {
 		var foundSongItem = new Map<FreeplaySongData,Null<SongMenuItem>>();
 		forEachDead(tomb ->{

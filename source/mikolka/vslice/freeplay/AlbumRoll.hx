@@ -10,16 +10,8 @@ import flixel.tweens.FlxTween;
 import flixel.util.FlxTimer;
 import mikolka.compatibility.funkin.FunkinPath as Paths;
 
-/**
- * The graphic for the album roll in the FreeplayState.
- * Simply set `albumID` to fetch the required data and update the textures.
- */
 class AlbumRoll extends FlxSpriteGroup
 {
-  /**
-   * The ID of the album to display.
-   * Modify this value to automatically update the album art and title.
-   */
   public var albumId(default, set):Null<String>;
 
   function set_albumId(value:Null<String>):Null<String>
@@ -64,16 +56,12 @@ class AlbumRoll extends FlxSpriteGroup
 
   function onAlbumFinish(animName:String):Void
   {
-    // Play the idle animation for the current album.
     if (animName != "idle")
     {
       newAlbumArt.playAnimation('idle', true);
     }
   }
 
-  /**
-   * Load the album data by ID and update the textures.
-   */
   function updateAlbum():Void
   {
     if (albumId == null)
@@ -89,7 +77,7 @@ class AlbumRoll extends FlxSpriteGroup
 
     albumData = AlbumRegistry.instance.fetchEntry(albumId);
 
-    if (albumData == null || !Paths.exists("images/"+albumData.getAlbumArtAssetKey()+".png")) //? changed this section
+    if (albumData == null || !Paths.exists("images/"+albumData.getAlbumArtAssetKey()+".png")) 
     {
       if(albumId != ''){
         FlxG.log.warn('Could not find album data for album ID: ${albumId}');
@@ -101,7 +89,6 @@ class AlbumRoll extends FlxSpriteGroup
       return;
     };
 
-    // Update the album art.
     var albumGraphic = Paths.noGpuImage(albumData.getAlbumArtAssetKey());
     newAlbumArt.replaceFrameGraphic(0, albumGraphic);
 
@@ -117,10 +104,6 @@ class AlbumRoll extends FlxSpriteGroup
     sort(SortUtil.byZIndex, FlxSort.ASCENDING);
   }
 
-  /**
-   * Apply exit movers for the album roll.
-   * @param exitMovers The exit movers to apply.
-   */
   public function applyExitMovers(?exitMovers:FreeplayState.ExitMoverData, ?exitMoversCharSel:FreeplayState.ExitMoverData):Void
   {
     if (exitMovers == null)
@@ -162,9 +145,6 @@ class AlbumRoll extends FlxSpriteGroup
 
   var titleTimer:Null<FlxTimer> = null;
 
-  /**
-   * Play the intro animation on the album art.
-   */
   public function playIntro():Void
   {
     albumTitle.visible = false;
@@ -181,7 +161,6 @@ class AlbumRoll extends FlxSpriteGroup
 
   public function skipIntro():Void
   {
-    // Weird workaround
     newAlbumArt.playAnimation('switch', true);
     albumTitle.animation.play('switch');
   }
@@ -231,12 +210,9 @@ class AlbumRoll extends FlxSpriteGroup
     difficultyStars.difficulty = difficulty;
   }
 
-  /**
-   * Make the album stars visible.
-   */
   public function showStars():Void
   {
-    difficultyStars.visible = true; // true;
+    difficultyStars.visible = true; 
     difficultyStars.flameCheck();
   }
 }

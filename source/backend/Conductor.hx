@@ -14,20 +14,19 @@ typedef BPMChangeEvent =
 class Conductor
 {
 	public static var bpm(default, set):Float = 100;
-	public static var crochet:Float = ((60 / bpm) * 1000); // beats in milliseconds
-	public static var stepCrochet:Float = crochet / 4; // steps in milliseconds
+	public static var crochet:Float = ((60 / bpm) * 1000); 
+	public static var stepCrochet:Float = crochet / 4; 
 	public static var songPosition:Float = 0;
 	public static var offset:Float = 0;
 
-	//public static var safeFrames:Int = 10;
-	public static var safeZoneOffset:Float = 0; // is calculated in create(), is safeFrames in milliseconds
+	public static var safeZoneOffset:Float = 0; 
 
 	public static var bpmChangeMap:Array<BPMChangeEvent> = [];
 
-	public static function judgeNote(arr:Array<Rating>, diff:Float=0):Rating // die
+	public static function judgeNote(arr:Array<Rating>, diff:Float=0):Rating 
 	{
 		var data:Array<Rating> = arr;
-		for(i in 0...data.length-1) //skips last window (Shit)
+		for(i in 0...data.length-1) 
 			if (diff <= data[i].hitWindow)
 				return data[i];
 
@@ -74,7 +73,7 @@ class Conductor
 	public static function beatToSeconds(beat:Float): Float{
 		var step = beat * 4;
 		var lastChange = getBPMFromStep(step);
-		return lastChange.songTime + ((step - lastChange.stepTime) / (lastChange.bpm / 60)/4) * 1000; // TODO: make less shit and take BPM into account PROPERLY
+		return lastChange.songTime + ((step - lastChange.stepTime) / (lastChange.bpm / 60)/4) * 1000; 
 	}
 
 	public static function getStep(time:Float){

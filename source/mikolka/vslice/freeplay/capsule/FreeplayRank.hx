@@ -27,19 +27,13 @@ class FreeplayRank extends FlxSprite
 			switch (val)
 			{
 				case SHIT:
-					// offset.x -= 1;
 				case GOOD:
-					// offset.x -= 1;
 					offset.y -= 8;
 				case GREAT:
-					// offset.x -= 1;
 					offset.y -= 8;
 				case EXCELLENT:
-					// offset.y += 5;
 				case PERFECT:
-					// offset.y += 5;
 				case PERFECT_GOLD:
-					// offset.y += 5;
 				default:
 					centerOffsets(false);
 					this.visible = false;
@@ -70,7 +64,6 @@ class FreeplayRank extends FlxSprite
 
 		this.rank = null;
 
-		// setGraphicSize(Std.int(width * 0.9));
 		scale.set(0.9, 0.9);
 		updateHitbox();
 	}

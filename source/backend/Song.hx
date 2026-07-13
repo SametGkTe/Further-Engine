@@ -64,7 +64,7 @@ class Song
 	public var gfVersion:String = 'gf';
 	public var format:String = 'psych_v1';
 
-	public static function convert(songJson:Dynamic) // Convert old charts to psych_v1 format
+	public static function convert(songJson:Dynamic) 
 	{
 		if(songJson.gfVersion == null)
 		{
@@ -114,7 +114,7 @@ class Song
 				note[1] = (note[1] % 4) + (gottaHitNote ? 0 : 4);
 
 				if(!Std.isOfType(note[3], String))
-					note[3] = Note.defaultNoteTypes[note[3]]; //compatibility with Week 7 and 0.1-0.3 psych charts
+					note[3] = Note.defaultNoteTypes[note[3]]; 
 			}
 		}
 	}
@@ -128,7 +128,6 @@ class Song
 		loadedSongName = folder;
 		chartPath = _lastPath;
 		#if windows
-		// prevent any saving errors by fixing the path on Windows (being the only OS to ever use backslashes instead of forward slashes for paths)
 		chartPath = chartPath.replace('/', '\\');
 		#end
 		StageData.loadDirectory(PlayState.SONG);
@@ -173,7 +172,7 @@ class Song
 			switch(convertTo)
 			{
 				case 'psych_v1':
-					if(!fmt.startsWith('psych_v1')) //Convert to Psych 1.0 format
+					if(!fmt.startsWith('psych_v1')) 
 					{
 						trace('converting chart $nameForError with format $fmt to psych_v1 format...');
 						songJson.format = 'psych_v1_convert';

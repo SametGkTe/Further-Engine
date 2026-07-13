@@ -42,7 +42,6 @@ class CharSelectDialogBox extends PsychUIBox
 		y -= height;
 		scrollFactor.set();
 
-		// GENERAL
 		input_playerId = new PsychUIInputText(20, 20, 100, playerId);
 		input_playerId.onChange = (prev, cur) ->
 		{
@@ -124,7 +123,6 @@ class CharSelectDialogBox extends PsychUIBox
 			parent.openSubState(new ResultsScreenEdit(activePlayer));
 		});
 
-		// GF
 		var btn_gf_prev:PsychUIButton = new PsychUIButton(20, 20, "Anims preview", () ->
 		{
 			parent.animPreview.attachSprite(parent.gfChill);
@@ -151,9 +149,7 @@ class CharSelectDialogBox extends PsychUIBox
 			activePlayer._data.charSelect.gf.visualizer = chkBox_visualiser.checked;
 		});
 		chkBox_visualiser.checked = activePlayer._data.charSelect.gf.visualizer;
-		// ?
 
-		// GENERAL
 		selectedName = 'Player';
 		var tab = getTab('Player').menu;
 
@@ -175,7 +171,6 @@ class CharSelectDialogBox extends PsychUIBox
 
 		tab.add(btn_save);
 
-		// GF
 		var tab = getTab("Girlfriend").menu;
 		tab.add(btn_gf_prev);
 		tab.add(btn_gf_reload);
@@ -184,7 +179,6 @@ class CharSelectDialogBox extends PsychUIBox
 		tab.add(input_gfAnimInfoPath.makeLabel("JSFL anim folder:"));
 		tab.add(input_gfAnimInfoPath);
 		tab.add(chkBox_visualiser);
-		//
 	}
 
     function saveCharacter(activePlayer:PlayableCharacter)

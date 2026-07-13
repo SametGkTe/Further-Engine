@@ -91,7 +91,7 @@ class NoteSplashEditorState extends MusicBeatState
         add(strums);
         add(splashes);
 
-        splash = new NoteSplash(0, 0, imageSkin); // this cannot be recycled
+        splash = new NoteSplash(0, 0, imageSkin); 
         splash.inEditor = true;
         splash.alpha = .0;
         splashes.add(splash);
@@ -251,7 +251,6 @@ class NoteSplashEditorState extends MusicBeatState
             curAnim = name_input.text;
             playStrumAnim(curAnim, cast numericStepperData.value);
             setAnimDropDown();
-            //if (animDropDown.list)
         }); 
         UI.add(addButton);
 
@@ -475,7 +474,6 @@ class NoteSplashEditorState extends MusicBeatState
             green.value = shader[1];
             blue.value = shader[2];
 
-            // changing checked doesn't initiate onCheck!!
             defaultButton.checked = switch (name) {
                 case "Red": !redEnabled;
                 case "Green": !greenEnabled;
@@ -493,9 +491,8 @@ class NoteSplashEditorState extends MusicBeatState
         changeShader.onSelect(0, "Red");
     }
 
-    dynamic function reloadImage() // Dynamic because needs to be changed later
+    dynamic function reloadImage() 
     {
-        //
     }
 
     var holdingArrowsTime:Float = 0;
@@ -619,7 +616,6 @@ class NoteSplashEditorState extends MusicBeatState
                     else
                     {
                         strum.playAnim('confirm', true);
-                        //strum.holdTimer = Math.POSITIVE_INFINITY;
 
                         var splash:NoteSplash = new NoteSplash(0, 0, imageSkin);
                         splash.inEditor = true;
@@ -761,9 +757,6 @@ class NoteSplashEditorState extends MusicBeatState
         FlxG.log.notice("Successfully saved file.");
     }
 
-    /**
-     * Called when the save file dialog is cancelled.
-     */
     function onSaveCancel(_):Void
     {
         _file.removeEventListener(Event.COMPLETE, onSaveComplete);
@@ -772,9 +765,6 @@ class NoteSplashEditorState extends MusicBeatState
         _file = null;
     }
 
-    /**
-     * Called if there is an error while saving the gameplay recording.
-     */
     function onSaveError(_):Void
     {
         _file.removeEventListener(Event.COMPLETE, onSaveComplete);
@@ -845,9 +835,6 @@ class NoteSplashEditorState extends MusicBeatState
         }
     }
 
-    /**
-     * Called when the save file dialog is cancelled.
-     */
     function onLoadCancel(_):Void
     {
         _file.removeEventListener(Event.SELECT, onLoadComplete);
@@ -857,9 +844,6 @@ class NoteSplashEditorState extends MusicBeatState
         trace("Cancelled file loading.");
     }
 
-    /**
-     * Called if there is an error while saving the gameplay recording.
-     */
     function onLoadError(_):Void
     {
         _file.removeEventListener(Event.SELECT, onLoadComplete);
@@ -887,11 +871,10 @@ class NoteSplashEditorState extends MusicBeatState
             return config;
 
         var trim:String = content.trim();
-        if (trim.length < 1) // empty txt
+        if (trim.length < 1) 
             return config;
 
         var configs = content.split('\n');
-        // checks for empty txts
         if (configs.length < 2 || configs[0].trim() == "")
             return config;
 

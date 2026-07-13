@@ -87,7 +87,7 @@ class AngleMask extends FlxShader
   {
     super();
 
-    endPosition.value = [90, 100]; // 100 AS DEFAULT WORKS NICELY FOR FREEPLAY?
+    endPosition.value = [90, 100]; 
     extraTint.value = [1, 1, 1];
   }
 }

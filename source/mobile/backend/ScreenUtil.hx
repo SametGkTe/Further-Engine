@@ -6,23 +6,13 @@ import lime.system.Orientation;
 #end
 import lime.math.Rectangle;
 
-/**
- * A Utility class to get mobile screen related informations.
- */
 class ScreenUtil
 {
-  /**
-   * Get `Rectangle` Object that contains the dimensions of the screen's Notch.
-   * Scales the dimensions to return coords in pixels, not points
-   * @return Rectangle
-   */
   public static function getNotchRect():Rectangle
   {
     final notchRect:Rectangle = new Rectangle();
 
     #if android
-    // Android: NativeScreenUtil bağımlılığı kaldırıldı
-    // Cutout bilgisi alınamadığından boş rectangle döner
     notchRect.x = 0;
     notchRect.y = 0;
     notchRect.width = 0;
@@ -37,8 +27,6 @@ class ScreenUtil
     var deviceHeight:Float = -1;
     var displayOrientation:Orientation = System.getDisplay(0).orientation;
 
-    // iOS: NativeScreenUtil bağımlılığı kaldırıldı
-    // Safe area inset bilgisi alınamadığından varsayılan değerler kullanılır
     topInset = 0;
     bottomInset = 0;
     leftInset = 0;

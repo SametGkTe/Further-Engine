@@ -19,7 +19,6 @@ class ResetScoreSubState extends MusicBeatSubstate
 	var difficulty:Int;
 	var week:Int;
 
-	// Week -1 = Freeplay
 	public function new(song:String, difficulty:Int, character:String, week:Int = -1)
 	{
 		this.song = song;
@@ -41,7 +40,7 @@ class ResetScoreSubState extends MusicBeatSubstate
 		bg.scrollFactor.set();
 		add(bg);
 
-		var tooLong:Float = (name.length > 18) ? 0.8 : 1; //Fucking Winter Horrorland
+		var tooLong:Float = (name.length > 18) ? 0.8 : 1; 
 		var text:Alphabet = new Alphabet(0, 180, Language.getPhrase('reset_score', 'Reset the score of'), true);
 		text.screenCenter(X);
 		alphabetArray.push(text);
@@ -113,7 +112,7 @@ class ResetScoreSubState extends MusicBeatSubstate
 			controls.isInSubstate = false;
 			close();
 		}
-		if (touchPad == null){ //sometimes it dosent add the tpad, hopefully this fixes it
+		if (touchPad == null){ 
 		addTouchPad('LEFT_RIGHT', 'A_B');
 		addTouchPadCamera();
 		}

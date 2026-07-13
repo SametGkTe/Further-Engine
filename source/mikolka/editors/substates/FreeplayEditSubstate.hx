@@ -17,9 +17,6 @@ import mikolka.vslice.freeplay.backcards.BoyfriendCard;
 class FreeplayEditSubstate extends MusicBeatSubstate
 {
 
-	/**
-	 * For positioning the DJ on wide displays.
-	 */
 	public static final DJ_POS_MULTI:Float = 0.44;
 
 	public static var instance:FreeplayEditSubstate;
@@ -65,13 +62,12 @@ class FreeplayEditSubstate extends MusicBeatSubstate
 
 
 		var blackOverlayBullshitLOLXD:FlxSprite = new FlxSprite(FlxG.width).makeGraphic(Std.int(bgDad.width), Std.int(bgDad.height), FlxColor.BLACK);
-    	add(blackOverlayBullshitLOLXD); // used to mask the text lol!
+    	add(blackOverlayBullshitLOLXD); 
 		blackOverlayBullshitLOLXD.shader = bgDad.shader;
 		
 		setDadBG();
 		add(bgDad);
 
-		// this makes the texture sizes consistent, for the angle shader
 		bgDad.setGraphicSize(0, FlxG.height);
 		blackOverlayBullshitLOLXD.setGraphicSize(0, FlxG.height);
 
@@ -110,8 +106,6 @@ class FreeplayEditSubstate extends MusicBeatSubstate
 
 		@:privateAccess
 		animsList = data.getFreeplayDJData().animations;
-		// anims = new AnimPreview(200,200);
-		// anims.attachSprite(dj);
 		UI_box = new FreeplayDialogBox(this);
 		#if TOUCH_CONTROLS_ALLOWED
 		addTouchPad("LEFT_FULL", "FREEPLAY_EDIT");

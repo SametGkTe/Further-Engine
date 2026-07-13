@@ -6,7 +6,6 @@ import flixel.tweens.FlxTween;
 import flixel.util.FlxTimer;
 import flixel.tweens.FlxEase;
 
-//? native
 class ResultScore extends FlxTypedSpriteGroup<ScoreNum>
 {
   public var scoreShit(default, set):Int = 0;
@@ -25,16 +24,8 @@ class ResultScore extends FlxTypedSpriteGroup<ScoreNum>
       scoreStart += 1;
       group.members[loopNum].finalDigit = dumbNumb % 10;
 
-      // var funnyNum = group.members[loopNum];
-      // prevNum = group.members[loopNum + 1];
 
-      // if (prevNum != null)
-      // {
-      // funnyNum.x = prevNum.x - (funnyNum.width * 0.7);
-      // }
 
-      // funnyNum.y = (funnyNum.baseY - (funnyNum.height / 2)) + 73;
-      // funnyNum.x = (funnyNum.baseX - (funnyNum.width / 2)) + 450; // this plus value is hand picked lol!
 
       dumbNumb = Math.floor(dumbNumb / 10);
       loopNum--;
@@ -53,7 +44,6 @@ class ResultScore extends FlxTypedSpriteGroup<ScoreNum>
   {
     for (i in group.members.length-scoreStart...group.members.length)
     {
-     // if(i.finalDigit == 10) continue;
 
       new FlxTimer().start((i-1)/24, _ -> {
         group.members[i].finalDelay = scoreStart - (i-1);
@@ -109,18 +99,11 @@ class ScoreNum extends FlxSprite
       switch (val)
       {
         case 1:
-        // offset.x -= 15;
         case 5:
-        // set offsets
-        // offset.x += 0;
-        // offset.y += 10;
 
         case 7:
-        // offset.y += 6;
         case 4:
-        // offset.y += 5;
         case 9:
-        // offset.y += 5;
         default:
           centerOffsets(false);
       }
@@ -149,7 +132,6 @@ class ScoreNum extends FlxSprite
 
     var tweenFunction = function(x) {
       var digitRounded = Math.floor(x);
-      //if(digitRounded == finalDigit) glow = true;
       digit = digitRounded;
     };
 
@@ -159,7 +141,6 @@ class ScoreNum extends FlxSprite
         new FlxTimer().start((finalDelay)/24, _ -> {
           animation.play(animation.curAnim.name, true, false, 0);
         });
-        // fuck
       }
     }, tweenFunction);
   }
@@ -175,7 +156,6 @@ class ScoreNum extends FlxSprite
 
     if (shuffleTimer.loops > 0 && shuffleTimer.loopsLeft == 0)
     {
-      //digit = finalDigit;
       finishShuffleTween();
     }
   }

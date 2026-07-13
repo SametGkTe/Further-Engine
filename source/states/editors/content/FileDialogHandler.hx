@@ -11,7 +11,6 @@ import lime.ui.*;
 
 import flixel.FlxBasic;
 
-//Currently only supports OPEN and SAVE, might change that in the future, who knows
 class FileDialogHandler extends FlxBasic
 {
 	var _fileRef:FileReferenceCustom;
@@ -25,7 +24,6 @@ class FileDialogHandler extends FlxBasic
 		super();
 	}
 
-	// callbacks
 	public var onComplete:Void->Void;
 	public var onCancel:Void->Void;
 	public var onError:Void->Void;
@@ -174,7 +172,6 @@ class FileDialogHandler extends FlxBasic
 	}
 }
 
-//Only way I could find to keep the path after saving a file
 class FileReferenceCustom extends FileReference
 {
 	@:allow(backend.FileDialogHandler)

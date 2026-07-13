@@ -8,7 +8,6 @@ import objects.Character;
 
 class PhillyLights extends BaseStage {
 
-    //For Philly Glow events
 	var blammedLightsBlack:FlxSprite;
 	var phillyGlowGradient:PhillyGlowGradient;
 	var phillyGlowParticles:FlxTypedGroup<PhillyGlowParticle>;
@@ -19,12 +18,6 @@ class PhillyLights extends BaseStage {
 	var X:Float;
 	var Y:Float;
     var phillyLightsColors:Array<FlxColor>;
-    /**
-     * Creates a new stage for handling philly lights.
-     * @param index members.indexOf(phillyStreet)
-     * @param windowX 
-     * @param windowY 
-     */
     public function new(phillyStreet:FlxSprite,windowX:Float,windowY:Float,colors:Array<FlxColor>) {
         super();
         this.phillyStreet = phillyStreet;
@@ -51,12 +44,12 @@ class PhillyLights extends BaseStage {
 				phillyWindowEvent.visible = false;
 				insert(members.indexOf(blammedLightsBlack) + 1, phillyWindowEvent);
 
-				phillyGlowGradient = new PhillyGlowGradient(-400, 225); //This shit was refusing to properly load FlxGradient so fuck it
+				phillyGlowGradient = new PhillyGlowGradient(-400, 225); 
 				phillyGlowGradient.visible = false;
 				insert(members.indexOf(blammedLightsBlack) + 1, phillyGlowGradient);
 				if(!VsliceOptions.FLASHBANG) phillyGlowGradient.intendedAlpha = 0.7;
 
-				Paths.image('philly/particle'); //precache philly glow particle image
+				Paths.image('philly/particle'); 
 				phillyGlowParticles = new FlxTypedGroup<PhillyGlowParticle>();
 				phillyGlowParticles.visible = false;
 				insert(members.indexOf(phillyGlowGradient) + 1, phillyGlowParticles);
@@ -106,7 +99,7 @@ class PhillyLights extends BaseStage {
                                 phillyStreet.color = FlxColor.WHITE;
                             }
     
-                        case 1: //turn on
+                        case 1: 
                             curLightEvent = FlxG.random.int(0, phillyLightsColors.length-1, [curLightEvent]);
                             var color:FlxColor = phillyLightsColors[curLightEvent];
     
@@ -150,7 +143,7 @@ class PhillyLights extends BaseStage {
                             color.brightness *= 0.5;
                             phillyStreet.color = color;
     
-                        case 2: // spawn particles
+                        case 2: 
                             if(!VsliceOptions.LOW_QUALITY)
                             {
                                 var particlesNum:Int = FlxG.random.int(8, 12);

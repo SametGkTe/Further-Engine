@@ -47,7 +47,6 @@ class SpookyMansionErect extends BaseStage
 		add(halloweenBG);
 		add(halloweenBGLight);
 
-		// PRECACHE SOUNDS
 		Paths.sound('thunder_1');
 		Paths.sound('thunder_2');
 	}
@@ -195,7 +194,7 @@ class SpookyMansionErect extends BaseStage
 			camHUD.zoom += 0.03;
 
 			if (!game.camZooming)
-			{ // Just a way for preventing it to be permanently zoomed until Skid & Pump hits a note
+			{ 
 				FlxTween.tween(FlxG.camera, {zoom: defaultCamZoom}, 0.5);
 				FlxTween.tween(camHUD, {zoom: 1}, 0.5);
 			}
@@ -211,8 +210,6 @@ class SpookyMansionErect extends BaseStage
 
 		var gfMode = PlayState.instance.gf.curCharacter.split("-")[0];
 		gfGhost = new Character(game.gf.x, game.gf.y, gfMode);
-		// if (gfMode == 'nene')
-		// 	gfGhost.y -= 200;
 		game.add(gfGhost);
 		gfGhost.dance();
 		

@@ -32,7 +32,6 @@ class MenuCharacterEditorState extends MusicBeatState implements PsychUIEventHan
 		};
 		
 		#if DISCORD_ALLOWED
-		// Updating Discord Rich Presence
 		DiscordClient.changePresence("Menu Character Editor", "Editting: " + characterFile.image);
 		#end
 
@@ -185,7 +184,6 @@ class MenuCharacterEditorState extends MusicBeatState implements PsychUIEventHan
 		updateOffset();
 		
 		#if DISCORD_ALLOWED
-		// Updating Discord Rich Presence
 		DiscordClient.changePresence("Menu Character Editor", "Editting: " + characterFile.image);
 		#end
 	}
@@ -292,7 +290,7 @@ class MenuCharacterEditorState extends MusicBeatState implements PsychUIEventHan
 			var rawJson:String = File.getContent(fullPath);
 			if(rawJson != null) {
 				var loadedChar:MenuCharacterFile = cast Json.parse(rawJson);
-				if(loadedChar.idle_anim != null && loadedChar.confirm_anim != null) //Make sure it's really a character
+				if(loadedChar.idle_anim != null && loadedChar.confirm_anim != null) 
 				{
 					var cutName:String = _file.name.substr(0, _file.name.length - 5);
 					trace("Successfully loaded file: " + cutName);
@@ -314,9 +312,6 @@ class MenuCharacterEditorState extends MusicBeatState implements PsychUIEventHan
 		#end
 	}
 
-	/**
-		* Called when the save file dialog is cancelled.
-		*/
 	function onLoadCancel(_):Void
 	{
 		_file.removeEventListener(#if desktop Event.SELECT #else Event.COMPLETE #end, onLoadComplete);
@@ -326,9 +321,6 @@ class MenuCharacterEditorState extends MusicBeatState implements PsychUIEventHan
 		trace("Cancelled file loading.");
 	}
 
-	/**
-		* Called if there is an error while saving the gameplay recording.
-		*/
 	function onLoadError(_):Void
 	{
 		_file.removeEventListener(#if desktop Event.SELECT #else Event.COMPLETE #end, onLoadComplete);
@@ -367,9 +359,6 @@ class MenuCharacterEditorState extends MusicBeatState implements PsychUIEventHan
 		FlxG.log.notice("Successfully saved file.");
 	}
 
-	/**
-		* Called when the save file dialog is cancelled.
-		*/
 	function onSaveCancel(_):Void
 	{
 		_file.removeEventListener(#if desktop Event.SELECT #else Event.COMPLETE #end, onSaveComplete);
@@ -378,9 +367,6 @@ class MenuCharacterEditorState extends MusicBeatState implements PsychUIEventHan
 		_file = null;
 	}
 
-	/**
-		* Called if there is an error while saving the gameplay recording.
-		*/
 	function onSaveError(_):Void
 	{
 		_file.removeEventListener(#if desktop Event.SELECT #else Event.COMPLETE #end, onSaveComplete);

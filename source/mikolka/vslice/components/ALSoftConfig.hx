@@ -10,10 +10,6 @@ import sys.io.File;
 import lime.system.JNI;
 #end
 
-/*
-A class that simply points OpenALSoft to a custom configuration file when the game starts up.
-The config overrides a few global OpenALSoft settings with the aim of improving audio quality on desktop targets.
-*/
 #if (!macro && android)
 @:build(mikolka.vslice.components.ALSoftConfig.setupConfig())
 #end

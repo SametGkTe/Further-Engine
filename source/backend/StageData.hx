@@ -72,7 +72,7 @@ class StageData {
 			stage = 'stage';
 
 		var stageFile:StageFile = getStageFile(stage);
-		forceNextDirectory = (stageFile != null) ? stageFile.directory : ''; //preventing crashes
+		forceNextDirectory = (stageFile != null) ? stageFile.directory : ''; 
 	}
 
 	public static function getStageFile(stage:String):StageFile {
@@ -114,7 +114,7 @@ class StageData {
 		return 'stage';
 	}
 
-	public static var reservedNames:Array<String> = ['gf', 'gfGroup', 'dad', 'dadGroup', 'boyfriend', 'boyfriendGroup']; //blocks these names from being used on stage editor's name input text
+	public static var reservedNames:Array<String> = ['gf', 'gfGroup', 'dad', 'dadGroup', 'boyfriend', 'boyfriendGroup']; 
 	public static function addObjectsToState(objectList:Array<Dynamic>, gf:FlxSprite, dad:FlxSprite, boyfriend:FlxSprite, ?group:Dynamic = null, ?ignoreFilters:Bool = false)
 	{
 		var addedObjects:Map<String, FlxSprite> = [];

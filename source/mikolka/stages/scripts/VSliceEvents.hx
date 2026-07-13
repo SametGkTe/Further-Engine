@@ -6,7 +6,6 @@ class VSliceEvents extends BaseStage {
 
     override function eventCalled(eventName:String, value1:String, value2:String, flValue1:Null<Float>, flValue2:Null<Float>, strumTime:Float) {
         #if js
-        // I hate you JS part 2
         value1 = Std.string(value1);
         value2 = Std.string(value1);
         #end
@@ -28,12 +27,12 @@ class VSliceEvents extends BaseStage {
 							}
 						});
 				}
-            case 'Set Camera Bopping': //P-slice event notes
+            case 'Set Camera Bopping': 
 				var val1 = Std.parseFloat(value1);
 				var val2 = Std.parseFloat(value2);
 				game.camZoomingMult = !Math.isNaN(val2) ? val2 : 1;
 				game.camZoomingFrequency = !Math.isNaN(val1) ? val1 : 4;
-            case 'Target Camera': //P-slice event notes val1: char val2: x,y,dur,ease
+            case 'Target Camera': 
                 var keyValues = value2.split(",");
                 if(keyValues.length != 4) {
                     trace("INVALID EVENT VALUE");
@@ -85,7 +84,7 @@ class VSliceEvents extends BaseStage {
                         }
                     });
                 }
-			case 'Zoom Camera': //defaultCamZoom
+			case 'Zoom Camera': 
 				var keyValues = value1.split(",");
 				if(keyValues.length != 2) {
 					trace("INVALID EVENT VALUE");
@@ -105,14 +104,12 @@ class VSliceEvents extends BaseStage {
 				var targetZoom = floaties[1]*game.defaultStageZoom;
 				zoomTween = FlxTween.tween(this,{ defaultCamZoom:targetZoom},(Conductor.stepCrochet/1000)*floaties[0],{
 					onStart: (x) ->{
-						//camZooming = false;
 						game.camZoomingDecay = 7;
 					},
 					ease: easeFunc,
 					onComplete: (x) ->{
 						defaultCamZoom = targetZoom;
 						game.camZoomingDecay = 1;
-						//camZooming = true;
 						zoomTween = null;
 					}
 				});

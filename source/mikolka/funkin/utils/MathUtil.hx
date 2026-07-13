@@ -1,25 +1,9 @@
 package mikolka.funkin.utils;
 
-/**
- * Utilities for performing mathematical operations.
- */
 class MathUtil
 {
-  /**
-   * Euler's constant and the base of the natural logarithm.
-   * Math.E is not a constant in Haxe, so we'll just define it ourselves.
-   */
   public static final E:Float = 2.71828182845904523536;
 
-  /**
-   * Perform linear interpolation between the base and the target, based on the current framerate.
-   * @param base The starting value, when `progress <= 0`.
-   * @param target The ending value, when `progress >= 1`.
-   * @param ratio Value used to interpolate between `base` and `target`.
-   * @param wobble If enabled, the value will wobble past the `target` value
-   *
-   * @return The interpolated value.
-   */
   @:deprecated('Use smoothLerp instead.')
   public static function coolLerp(base:Float, target:Float, ratio:Float,wobble:Bool = true):Float
   {
@@ -28,25 +12,12 @@ class MathUtil
     return base + lerp * (target - base);
   }
 
-  /**
-   * Perform linear interpolation based on the current framerate.
-   * It makes sure to return a value between 0 and 1
-   * @param lerp Value used to interpolate between `base` and `target`.
-   *
-   * @return The interpolated value.
-   */
   @:deprecated('Use smoothLerp instead')
   public static function cameraLerp(lerp:Float):Float
   {
     return lerp * (FlxG.elapsed / (1 / 60));
   }
 
-  /**
-   * Get the logarithm of a value with a given base.
-   * @param base The base of the logarithm.
-   * @param value The value to get the logarithm of.
-   * @return `log_base(value)`
-   */
   public static function logBase(base:Float, value:Float):Float
   {
     return Math.log(value) / Math.log(base);
@@ -82,56 +53,22 @@ class MathUtil
     return 1 + (c + 1) * Math.pow(x - 1, 3) + c * Math.pow(x - 1, 2);
   }
 
-  /**
-   * Linearly interpolate between two values.
-   *
-   * @param base The starting value, when `progress <= 0`.
-   * @param target The ending value, when `progress >= 1`.
-   * @param progress Value used to interpolate between `base` and `target`.
-   * @return The interpolated value.
-   */
   public static function lerp(base:Float, target:Float, progress:Float):Float
   {
     return base + progress * (target - base);
   }
 
-  /**
-   * Perform a framerate-independent linear interpolation between the base value and the target.
-   * @param current The current value.
-   * @param target The target value.
-   * @param elapsed The time elapsed since the last frame.
-   * @param duration The total duration of the interpolation. Nominal duration until remaining distance is less than `precision`.
-   * @param precision The target precision of the interpolation. Defaults to 1% of distance remaining.
-   * @see https://twitter.com/FreyaHolmer/status/1757918211679650262
-   *
-   * @return A value between the current value and the target value.
-   */
   public static function smoothLerp(current:Float, target:Float, elapsed:Float, duration:Float, precision:Float = 1 / 100):Float
   {
-    // An alternative algorithm which uses a separate half-life value:
-    // var halfLife:Float = -duration / logBase(2, precision);
-    // lerp(current, target, 1 - exp2(-elapsed / halfLife));
 
     if (current == target) return target;
 
     var result:Float = lerp(current, target, 1 - Math.pow(precision, elapsed / duration));
 
-    // TODO: Is there a better way to ensure a lerp which actually reaches the target?
-    // Research a framerate-independent PID lerp.
     if (Math.abs(result - target) < (precision * target)) result = target;
 
     return result;
   }
-    /**
-   * GCD stands for Greatest Common Divisor
-   * It's used in FullScreenScaleMode to prevent weird window resolutions from being counted as wide screen since those were causing issues positioning the game
-   * It returns the greatest common divisor between m and n
-   *
-   * think it's from hxp..?
-   * @param m
-   * @param n
-   * @return Int the common divisor between m and n
-   */
   public static function gcd(m:Int, n:Int):Int
   {
     m = Math.floor(Math.abs(m));

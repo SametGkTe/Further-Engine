@@ -1,6 +1,5 @@
 package shaders;
 
-// STOLEN FROM HAXEFLIXEL DEMO LOL
 enum WiggleEffectType
 {
 	DREAMY;

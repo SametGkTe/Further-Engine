@@ -26,22 +26,18 @@ enum StoreScreenState {
 }
 
 class ModpackStoreState extends MusicBeatState {
-	// ─── Veri ───
 	var allPacks:Array<Dynamic> = [];
 	var selectedIndex:Int = 0;
 	var scrollOffset:Int = 0;
 	var maxVisible:Int = 8;
 
-	// ─── Sistemler ───
 	var downloader:DownloadManager;
 	var installer:ModpackInstaller;
 
-	// ─── Durum ───
 	var screenState:StoreScreenState = Loading;
 	var currentProgress:Float = 0.0;
 	var targetProgress:Float = 0.0;
 
-	// ─── UI ───
 	var bg:FlxSprite;
 	var headerBg:FlxSprite;
 	var headerLine:FlxSprite;
@@ -50,7 +46,6 @@ class ModpackStoreState extends MusicBeatState {
 	var listTexts:Array<FlxText> = [];
 	var statusIndicators:Array<FlxText> = [];
 
-	// Detay paneli
 	var detailBg:FlxSprite;
 	var detailName:FlxText;
 	var detailAuthor:FlxText;
@@ -62,7 +57,6 @@ class ModpackStoreState extends MusicBeatState {
 	var detailStatus:FlxText;
 	var detailControls:FlxText;
 
-	// Progress
 	var barBg:FlxSprite;
 	var barFill:FlxSprite;
 	var barBorder:FlxSprite;
@@ -71,15 +65,12 @@ class ModpackStoreState extends MusicBeatState {
 	var speedText:FlxText;
 	var phaseText:FlxText;
 
-	// Yükleniyor
 	var loadingText:FlxText;
 	var loadingDots:Int = 0;
 	var loadingTimer:Float = 0;
 
-	// Kontrol bilgisi
 	var controlsText:FlxText;
 
-	// Hata
 	var errorText:FlxText;
 
 	static inline final ACCENT:Int = 0xFF14B8A6;
@@ -91,7 +82,6 @@ class ModpackStoreState extends MusicBeatState {
 	static inline final ITEM_HEIGHT:Int = 50;
 	static inline final LIST_START_Y:Int = 90;
 
-	//  Create
 
 	override function create() {
 		super.create();
@@ -99,11 +89,9 @@ class ModpackStoreState extends MusicBeatState {
 		downloader = new DownloadManager();
 		installer = new ModpackInstaller();
 
-		// ── Arkaplan ──
 		bg = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, 0xFF000000);
 		add(bg);
 
-		// ── Header ──
 		headerBg = new FlxSprite(0, 0).makeGraphic(FlxG.width, 70, 0xFF0A0A0A);
 		add(headerBg);
 
@@ -119,25 +107,21 @@ class ModpackStoreState extends MusicBeatState {
 		subtitleText.setFormat("VCR OSD Mono", 13, 0xFF666666, LEFT);
 		add(subtitleText);
 
-		// ── Yükleniyor ekranı ──
 		loadingText = new FlxText(0, 0, FlxG.width, "Modpackler yükleniyor...", 20);
 		loadingText.setFormat("VCR OSD Mono", 20, 0xFF888888, CENTER);
 		loadingText.screenCenter();
 		add(loadingText);
 
-		// ── Hata ekranı ──
 		errorText = new FlxText(60, 0, FlxG.width - 120, "", 16);
 		errorText.setFormat("VCR OSD Mono", 16, 0xFFEF4444, CENTER);
 		errorText.screenCenter();
 		errorText.visible = false;
 		add(errorText);
 
-		// ── Alt kontrol bilgisi ──
 		controlsText = new FlxText(0, FlxG.height - 40, FlxG.width, "", 13);
 		controlsText.setFormat("VCR OSD Mono", 13, 0xFF555555, CENTER);
 		add(controlsText);
 
-		// ── Progress bar (başlangıçta gizli) ──
 		var barY:Int = FlxG.height - 90;
 
 		barBorder = new FlxSprite(BAR_MARGIN - 1, barY - 1).makeGraphic(FlxG.width - (BAR_MARGIN * 2) + 2, BAR_HEIGHT + 2, 0xFF333333);
@@ -174,17 +158,13 @@ class ModpackStoreState extends MusicBeatState {
 		phaseText.visible = false;
 		add(phaseText);
 
-		// ── Detay paneli sprite'ları ──
 		createDetailPanel();
 
-		// ── Giriş ──
 		FlxG.camera.fade(FlxColor.BLACK, 0.3, true);
 
-		// ── Veri çek ──
 		fetchStore();
 	}
 
-	//  Detay Paneli Oluştur
 
 	function createDetailPanel():Void {
 		detailBg = new FlxSprite(40, 80).makeGraphic(FlxG.width - 80, FlxG.height - 180, 0xFF0D0D0D);
@@ -240,7 +220,6 @@ class ModpackStoreState extends MusicBeatState {
 		add(detailControls);
 	}
 
-	//  Veri Çekme
 
 	function fetchStore():Void {
 		screenState = Loading;
@@ -262,7 +241,6 @@ class ModpackStoreState extends MusicBeatState {
 		});
 	}
 
-	//  Liste Ekranı
 
 	function showBrowse():Void {
 		screenState = Browse;
@@ -276,7 +254,6 @@ class ModpackStoreState extends MusicBeatState {
 	}
 
 	function refreshList():Void {
-		// Eski text'leri temizle
 		for (t in listTexts) {
 			remove(t, true);
 			t.destroy();
@@ -289,7 +266,6 @@ class ModpackStoreState extends MusicBeatState {
 		}
 		statusIndicators = [];
 
-		// Scroll sınırları
 		if (selectedIndex < scrollOffset)
 			scrollOffset = selectedIndex;
 		if (selectedIndex >= scrollOffset + maxVisible)
@@ -302,7 +278,6 @@ class ModpackStoreState extends MusicBeatState {
 			var isSelected:Bool = (i == selectedIndex);
 			var slotY:Int = LIST_START_Y + (i - scrollOffset) * ITEM_HEIGHT;
 
-			// Modpack adı
 			var name:String = mp.displayName != null ? mp.displayName : mp.id;
 			var ver:String = mp.versionLabel != null ? mp.versionLabel : mp.version;
 			var prefix:String = isSelected ? "► " : "  ";
@@ -312,7 +287,6 @@ class ModpackStoreState extends MusicBeatState {
 			add(nameText);
 			listTexts.push(nameText);
 
-			// Versiyon
 			var verText = new FlxText(50, slotY + 22, FlxG.width - 250, '   $ver', 12);
 			verText.setFormat("VCR OSD Mono", 12, 0xFF555555, LEFT);
 			add(verText);
@@ -335,7 +309,6 @@ class ModpackStoreState extends MusicBeatState {
 					statusColor = NEW_COLOR;
 			}
 
-			// External modpack ek işareti
 			if (mode == "external") {
 				statusStr += " [MANUEL]";
 			}
@@ -346,7 +319,6 @@ class ModpackStoreState extends MusicBeatState {
 			statusIndicators.push(statText);
 		}
 
-		// Scroll göstergesi
 		if (allPacks.length > maxVisible) {
 			var scrollInfo = '${scrollOffset + 1}-$endIdx / ${allPacks.length}';
 			subtitleText.text = '${allPacks.length} modpack  •  $scrollInfo';
@@ -369,7 +341,6 @@ class ModpackStoreState extends MusicBeatState {
 		return "new";
 	}
 
-	//  Detay Ekranı
 
 	function showDetail():Void {
 		if (selectedIndex < 0 || selectedIndex >= allPacks.length) return;
@@ -377,11 +348,9 @@ class ModpackStoreState extends MusicBeatState {
 		screenState = Detail;
 		var mp:Dynamic = allPacks[selectedIndex];
 
-		// Liste text'lerini gizle
 		for (t in listTexts) t.visible = false;
 		for (t in statusIndicators) t.visible = false;
 
-		// Detay panelini göster
 		detailBg.visible = true;
 		detailName.visible = true;
 		detailAuthor.visible = true;
@@ -393,7 +362,6 @@ class ModpackStoreState extends MusicBeatState {
 		detailStatus.visible = true;
 		detailControls.visible = true;
 
-		// Doldur
 		detailName.text = mp.displayName != null ? mp.displayName : mp.id;
 		detailAuthor.text = mp.author != null ? 'Yapımcı: ${mp.author}' : "";
 		detailVersion.text = 'Sürüm: ${mp.versionLabel != null ? mp.versionLabel : mp.version}';
@@ -406,7 +374,6 @@ class ModpackStoreState extends MusicBeatState {
 		var status = getPackStatus(mp);
 
 		if (mode == "external") {
-			// External modpack
 			switch (status) {
 				case "installed":
 					detailStatus.text = "✓ KURULU (Manuel İndirme)";
@@ -422,7 +389,6 @@ class ModpackStoreState extends MusicBeatState {
 					detailControls.text = "[ENTER] Tarayıcıda Aç  |  [ESC] Geri";
 			}
 		} else {
-			// Direct modpack
 			switch (status) {
 				case "installed":
 					detailStatus.text = "✓ KURULU";
@@ -458,7 +424,6 @@ class ModpackStoreState extends MusicBeatState {
 		for (t in statusIndicators) t.visible = true;
 	}
 
-	//  İndirme/Kurulum
 
 	function startPackDownload():Void {
 		if (selectedIndex < 0 || selectedIndex >= allPacks.length) return;
@@ -466,14 +431,12 @@ class ModpackStoreState extends MusicBeatState {
 		var mp:Dynamic = allPacks[selectedIndex];
 		var mode:String = mp.downloadMode != null ? mp.downloadMode : "direct";
 
-		// External mode → tarayıcıda aç
 		if (mode == "external") {
 			var pageUrl:String = mp.externalPageUrl != null ? mp.externalPageUrl : "";
 			if (pageUrl.length > 0) {
 				FlxG.openURL(pageUrl);
 				FlxG.sound.play(Paths.sound('confirmMenu'));
 
-				// Bilgilendirme göster
 				hideDetail();
 				for (t in listTexts) t.visible = false;
 				for (t in statusIndicators) t.visible = false;
@@ -491,7 +454,6 @@ class ModpackStoreState extends MusicBeatState {
 			return;
 		}
 
-		// Direct mode → otomatik indir
 		var directUrl:String = mp.directDownloadUrl != null ? mp.directDownloadUrl : "";
 
 		if (directUrl.length == 0) {
@@ -509,7 +471,6 @@ class ModpackStoreState extends MusicBeatState {
 		var fileName = '$packId-v$version.zip';
 		var savePath = ModpackPaths.getDownloadDirectory() + fileName;
 
-		// UI
 		screenState = Downloading;
 		showProgress();
 		phaseText.text = "İndiriliyor...";
@@ -604,7 +565,6 @@ class ModpackStoreState extends MusicBeatState {
 		controlsText.text = "[ENTER] Listeye Dön  |  [ESC] Ana Menü";
 	}
 
-	//  Hata
 
 	function showError(msg:String):Void {
 		screenState = Error;
@@ -627,7 +587,6 @@ class ModpackStoreState extends MusicBeatState {
 		controlsText.text = "[ENTER] Tekrar Dene  |  [ESC] Geri";
 	}
 
-	//  Progress UI
 
 	function showProgress():Void {
 		barBorder.visible = true;
@@ -649,12 +608,10 @@ class ModpackStoreState extends MusicBeatState {
 		errorText.visible = false;
 	}
 
-	//  Update
 
 	override function update(elapsed:Float) {
 		super.update(elapsed);
 
-		// Loading animasyonu
 		if (screenState == Loading) {
 			loadingTimer += elapsed;
 			if (loadingTimer >= 0.4) {
@@ -666,7 +623,6 @@ class ModpackStoreState extends MusicBeatState {
 			}
 		}
 
-		// Progress bar animasyonu
 		if (barFill.visible) {
 			currentProgress += (targetProgress - currentProgress) * elapsed * 8;
 			if (Math.abs(currentProgress - targetProgress) < 0.001)
@@ -679,7 +635,6 @@ class ModpackStoreState extends MusicBeatState {
 			percentText.text = '${Math.round(currentProgress * 100)}%';
 		}
 
-		// Girdi
 		switch (screenState) {
 			case Loading:
 				if (controls.BACK) goToMainMenu();
@@ -744,7 +699,6 @@ class ModpackStoreState extends MusicBeatState {
 		}
 	}
 
-	//  Geçiş
 
 	function goToMainMenu():Void {
 		FlxG.camera.fade(FlxColor.BLACK, 0.4, false, function() {
@@ -752,7 +706,6 @@ class ModpackStoreState extends MusicBeatState {
 		});
 	}
 
-	//  Yardımcılar
 
 	function formatMB(mb:Float):String {
 		if (mb >= 100)

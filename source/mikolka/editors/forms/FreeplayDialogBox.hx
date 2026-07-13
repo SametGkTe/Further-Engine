@@ -8,14 +8,12 @@ import mikolka.editors.substates.FreeplayEditSubstate;
 
 class FreeplayDialogBox extends PsychUIBox
 {
-    	// GENERAL
 	public var input_assetPath:PsychUIInputText;
 	public var btn_reload:PsychUIButton;
 	public var steper_charSelectDelay:PsychUINumericStepper;
 	public var input_text1:PsychUIInputText;
 	public var input_text2:PsychUIInputText;
 	public var input_text3:PsychUIInputText;
-	// DJ EDITOR
 	public var steper_introStartFrame:PsychUINumericStepper;
 	public var steper_introEndFrame:PsychUINumericStepper;
 	public var steper_loopStartFrame:PsychUINumericStepper;
@@ -24,7 +22,6 @@ class FreeplayDialogBox extends PsychUIBox
 	public var steper_loopBadEndFrame:PsychUINumericStepper;
 	public var steper_loopBadStartFrame:PsychUINumericStepper;
 	public var steper_introBadEndFrame:PsychUINumericStepper;
-	// ANIMATION
 	public var list_animations:PsychUIDropDownMenu;
 	public var input_animName:PsychUIInputText;
 	public var input_animPrefix:PsychUIInputText;
@@ -43,7 +40,6 @@ class FreeplayDialogBox extends PsychUIBox
         var data = host.data;
         var dj_anim = host.dj_anim;
 
-		// GENERAL
 		@:privateAccess {
 			input_assetPath = new PsychUIInputText(10, 20, 150, data._data.freeplayDJ.assetPath);
 			input_assetPath.onChange = (prev, cur) ->
@@ -127,7 +123,6 @@ class FreeplayDialogBox extends PsychUIBox
 				backingCard.add(backingCard.txtNuts);
 			}
 		}
-		// DJ EDITOR
 		var dj_editor_desc_txt = new FlxText(10, 10, 400, "Pick frames (start,end)");
 		dj_editor_desc_txt.setFormat(Paths.font("vcr.ttf"), 20, FlxColor.WHITE, LEFT, OUTLINE_FAST, FlxColor.BLACK);
 
@@ -159,7 +154,6 @@ class FreeplayDialogBox extends PsychUIBox
 			steper_loopBadStartFrame.onValueChange = () -> fist.loopBadStartFrame = Math.floor(steper_loopBadStartFrame.value);
 			steper_loopBadEndFrame.onValueChange = () -> fist.loopBadEndFrame = Math.floor(steper_loopBadEndFrame.value);
 		}
-		// Animation
 		list_animations = new PsychUIDropDownMenu(10, 10, dj_anim.getAnimTitlesForSelector(), (index, name) ->
 		{
 			dj_anim.setAnimIndex(index);
@@ -208,7 +202,7 @@ class FreeplayDialogBox extends PsychUIBox
 
 		input_animName = new PsychUIInputText(10, 50, 150, dj_anim.curAnimName);
 		input_animPrefix = new PsychUIInputText(10, 90, 150, dj_anim.curAnimPrefix);
-		stepper_offset_x = new PsychUINumericStepper(20, 130, 1, dj_anim.curOffset[0], -9999, 9999); // dirty lol
+		stepper_offset_x = new PsychUINumericStepper(20, 130, 1, dj_anim.curOffset[0], -9999, 9999); 
 		stepper_offset_y = new PsychUINumericStepper(85, 130, 1, dj_anim.curOffset[1], -9999, 9999);
 		input_animName.onChange = (old, cur) ->
 		{
@@ -228,9 +222,7 @@ class FreeplayDialogBox extends PsychUIBox
 			dj_anim.setOffset(stepper_offset_x.value, stepper_offset_y.value);
 		};
 
-		// ?
 
-		// GENERAL
 		selectedName = 'General';
 		var tab = getTab('General').menu;
 
@@ -246,7 +238,6 @@ class FreeplayDialogBox extends PsychUIBox
 		tab.add(steper_charSelectDelay.makeLabel("Transition delay:"));
 		tab.add(steper_charSelectDelay);
 
-		// DJ EDITOR
 		var tab = getTab("DJ Editor").menu;
 		tab.add(dj_editor_desc_txt);
 		tab.add(txt_introStart);
@@ -262,9 +253,7 @@ class FreeplayDialogBox extends PsychUIBox
 		tab.add(steper_loopBadStartFrame);
 		tab.add(steper_loopBadEndFrame);
 		tab.add(steper_introEndFrame);
-		// tab.add(btn_player_prev);
 
-		// Animation
 		var tab = getTab("Animation").menu;
 		tab.add(btn_newAnim);
 		tab.add(btn_trashAnim);

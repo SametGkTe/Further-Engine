@@ -42,9 +42,6 @@ class FlashingState extends MusicBeatState
 	static inline final AUTO_SELECT_TIME:Float = 15.0;
 	static inline final CONFIRM_EXIT_DELAY:Float = 0.45;
 
-	// Localization
-	// Şimdilik compile-safe olsun diye state içinde tuttum.
-	// İstersen bunu bir sonraki mesajda JSON dosyasına taşıyabilirim.
 
 	static final LOCALIZED_TEXT:Dynamic = {
 		tr: {
@@ -57,7 +54,7 @@ class FlashingState extends MusicBeatState
 		}
 	};
 
-	var selectedIndex:Int = 0; // 0 = Yes, 1 = No
+	var selectedIndex:Int = 0; 
 	var allowInput:Bool = false;
 
 	var autoSelectRemaining:Float = AUTO_SELECT_TIME;
@@ -201,7 +198,7 @@ class FlashingState extends MusicBeatState
 			FlxG.sound.play(Paths.sound("scrollMenu"), NAV_SOUND_VOLUME);
 			selectedIndex = 1 - selectedIndex;
 			updateSelection();
-			cancelAutoSelect();   // <-- artık reset değil, iptal
+			cancelAutoSelect();   
 		}
 
 		if (controls.ACCEPT)
@@ -224,7 +221,6 @@ class FlashingState extends MusicBeatState
 		autoSelectCancelled = true;
 		autoSelectActive = false;
 
-		// countdown text'i yumuşak şekilde kaybet
 		FlxTween.cancelTweensOf(countdownText);
 		FlxTween.tween(countdownText, {alpha: 0, y: countdownText.y + 8}, 0.3, {
 			ease: FlxEase.quadIn,
@@ -314,7 +310,6 @@ class FlashingState extends MusicBeatState
 		confirmSelection(true);
 	}
 
-	// Confirm / Cancel
 
 	function confirmSelection(fromAutoSelect:Bool):Void
 	{
@@ -325,7 +320,6 @@ class FlashingState extends MusicBeatState
 		stopAutoSelect();
 		skipTransitions();
 
-		// Yes = disable flashing
 		final disableFlashing = (selectedIndex == 0);
 		ClientPrefs.data.flashing = !disableFlashing;
 		ClientPrefs.saveSettings();
@@ -367,9 +361,7 @@ class FlashingState extends MusicBeatState
 			ease: FlxEase.quadOut,
 			onComplete: function(_)
 			{
-				// === DEĞİŞİKLİK BURADA ===
 				MusicBeatState.switchState(new BetaWarningState());
-				// Eskisi: MusicBeatState.switchState(new TitleState());
 			}
 		});
 	}
@@ -392,7 +384,6 @@ class FlashingState extends MusicBeatState
 		FlxTransitionableState.skipNextTransOut = true;
 	}
 
-	// Localization helpers
 
 	function tr(key:String, ?args:Array<Dynamic>):String
 	{

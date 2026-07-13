@@ -11,13 +11,6 @@ import objects.WebVideoSprite as FlxVideo;
 using mikolka.funkin.utils.ArrayTools;
 import mikolka.vslice.ui.title.TitleState;
 
-/**
- * After about 2 minutes of inactivity on the title screen,
- * the game will enter the Attract state, as a reference to physical arcade machines.
- *
- * In the current version, this just plays the ~~Kickstarter trailer~~ Erect teaser, but this can be changed to
- * gameplay footage, a generic game trailer, or something more elaborate.
- */
 
 class AttractState extends MusicBeatSubstate
 {
@@ -37,7 +30,6 @@ class AttractState extends MusicBeatSubstate
   }
   public override function create():Void
   {
-    // Pause existing music.
     if (FlxG.sound.music != null)
     {
       FlxG.sound.music.destroy();
@@ -61,7 +53,6 @@ class AttractState extends MusicBeatSubstate
 
   function playVideoHTML5(filePath:String):Void
   {
-    // Video displays OVER the FlxState.
     vid = new FlxVideo();
     vid.netStream.play(filePath);
     if (vid != null)
@@ -84,12 +75,10 @@ class AttractState extends MusicBeatSubstate
 
   function playVideoNative(filePath:String):Void
   {
-    // Video displays OVER the FlxState.
     vid = new FlxVideoSprite(0, 0);
 
     if (vid != null)
     {
-      //vid.zIndex = 0;
       vid.bitmap.onEndReached.add(onAttractEnd);
 
       #if hxvlc
@@ -122,7 +111,6 @@ class AttractState extends MusicBeatSubstate
   {
     super.update(elapsed);
 
-    // If the user presses any button, skip the video.
     #if LEGACY_PSYCH
     if (TouchUtil.justPressed || FlxG.keys.justPressed.ANY && 
       !FlxG.keys.anyJustPressed(InitState.muteKeys) && 
@@ -136,10 +124,6 @@ class AttractState extends MusicBeatSubstate
     }
   }
 
-  /**
-   * When the attraction state ends (after the video ends or the user presses any button),
-   * switch immediately to the title screen.
-   */
   function onAttractEnd():Void
   {
     #if html5

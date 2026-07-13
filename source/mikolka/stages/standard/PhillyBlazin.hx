@@ -35,7 +35,7 @@ class PhillyBlazin extends BaseStage
 	override function create()
 	{
 		StickerSubState.STICKER_PACK = "weekend";
-		FlxTransitionableState.skipNextTransOut = true; //skip the original transition fade
+		FlxTransitionableState.skipNextTransOut = true; 
 		function setupScale(spr:BGSprite)
 		{
 			spr.scale.set(1.75, 1.75);
@@ -125,7 +125,7 @@ class PhillyBlazin extends BaseStage
 		if(_song.gameOverLoop == null || _song.gameOverLoop.trim().length < 1) GameOverSubstate.loopSoundName = 'gameOver-pico';
 		if(_song.gameOverEnd == null || _song.gameOverEnd.trim().length < 1) GameOverSubstate.endSoundName = 'gameOverEnd-pico';
 		if(_song.gameOverChar == null || _song.gameOverChar.trim().length < 1) GameOverSubstate.characterName = 'pico-blazin';
-		GameOverSubstate.deathDelay = 0.15; //? There's like 90% change this breaks something on 0.6.3
+		GameOverSubstate.deathDelay = 0.15; 
 		#end
 
 		#if LEGACY_PSYCH
@@ -157,7 +157,6 @@ class PhillyBlazin extends BaseStage
 		{
 			if(note == null) continue;
 
-			//override animations for note types
 			note.noAnimation = true;
 			note.noMissAnimation = true;
 		}
@@ -168,7 +167,6 @@ class PhillyBlazin extends BaseStage
 
 	override function beatHit()
 	{
-		//if(curBeat % 2 == 0) abot.beatHit();
 	}
 
 	function setupRainShader()
@@ -243,44 +241,36 @@ class PhillyBlazin extends BaseStage
 		else
 			lightning.x = FlxG.random.int(780, 900);
 
-		// Darken characters
 		FlxTween.color(boyfriend, LIGHTNING_FADE_DURATION, 0xFF606060, 0xFFDEDEDE);
 		FlxTween.color(dad, LIGHTNING_FADE_DURATION, 0xFF606060, 0xFFDEDEDE);
 		FlxTween.color(gf, LIGHTNING_FADE_DURATION, 0xFF606060, 0xFF888888);
 		FlxTween.color(PicoCapableStage.instance.abot, LIGHTNING_FADE_DURATION, 0xFF606060, 0xFF888888);
 
-		// Sound
 		FlxG.sound.play(Paths.soundRandom('lightning/Lightning', 1, 3));
 	}
 
-	// Note functions
 	var picoFight:PicoBlazinHandler = new PicoBlazinHandler();
 	var darnellFight:DarnellBlazinHandler = new DarnellBlazinHandler();
 	override function goodNoteHit(note:Note)
 	{
-		//trace('hit note! ${note.noteType}');
 		rainTimeScale += 0.7;
 		picoFight.noteHit(note);
 		darnellFight.noteHit(note);
 	}
 	override function noteMiss(note:Note)
 	{
-		//trace('missed note!');
 		picoFight.noteMiss(note);
 		darnellFight.noteMiss(note);
 	}
 
 	override function noteMissPress(direction:Int)
 	{
-		//trace('misinput!');
 		picoFight.noteMissPress(direction);
 		darnellFight.noteMissPress(direction);
 	}
 
-	// Darnell Note functions
 	override function opponentNoteHit(note:Note)
 	{
-		//trace('opponent hit!');
 		picoFight.noteMiss(note);
 		darnellFight.noteMiss(note);
 	}

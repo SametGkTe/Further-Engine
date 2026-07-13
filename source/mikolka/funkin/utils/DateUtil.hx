@@ -1,8 +1,5 @@
 package mikolka.funkin.utils;
 
-/**
- * Utilities for performing operations on dates.
- */
 class DateUtil
 {
   public static function generateTimestamp(?date:Date = null):String

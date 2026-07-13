@@ -302,7 +302,6 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 	{
 		var tab_group = UI_box.getTab('Ghost').menu;
 
-		//var hideGhostButton:PsychUIButton = null;
 		var makeGhostButton:PsychUIButton = new PsychUIButton(25, 15, "Make Ghost", function() {
 			var anim = anims[curAnim];
 			if(!character.isAnimationNull())
@@ -316,9 +315,9 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 					ghost.animation.play(character.animation.curAnim.name, true, false, character.animation.curAnim.curFrame);
 					ghost.animation.pause();
 				}
-				else if(myAnim != null) //This is VERY unoptimized and bad, I hope to find a better replacement that loads only a specific frame as bitmap in the future.
+				else if(myAnim != null) 
 				{
-					if(animateGhost == null) //If I created the animateGhost on create() and you didn't load an atlas, it would crash the game on destroy, so we create it here
+					if(animateGhost == null) 
 					{
 						animateGhost = new FlxAnimate(ghost.x, ghost.y);
 						animateGhost.showPivot = false;
@@ -357,19 +356,10 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 					var otherSpr:FlxSprite = (spr == animateGhost) ? ghost : animateGhost;
 					if(otherSpr != null) otherSpr.visible = false;
 				}
-				/*hideGhostButton.active = true;
-				hideGhostButton.alpha = 1;*/
 				trace('created ghost image');
 			}
 		});
 
-		/*hideGhostButton = new PsychUIButton(20 + makeGhostButton.width, makeGhostButton.y, "Hide Ghost", function() {
-			ghost.visible = false;
-			hideGhostButton.active = false;
-			hideGhostButton.alpha = 0.6;
-		});
-		hideGhostButton.active = false;
-		hideGhostButton.alpha = 0.6;*/
 
 		var highlightGhost:PsychUICheckBox = new PsychUICheckBox(20 + makeGhostButton.x + makeGhostButton.width, makeGhostButton.y, "Highlight Ghost", 100);
 		highlightGhost.onClick = function()
@@ -396,7 +386,6 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 		ghostAlphaSlider.label = 'Opacity:';
 
 		tab_group.add(makeGhostButton);
-		//tab_group.add(hideGhostButton);
 		tab_group.add(highlightGhost);
 		tab_group.add(ghostAlphaSlider);
 	}
@@ -735,7 +724,6 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 	}
 
 	public function UIEvent(id:String, sender:Dynamic) {
-		//trace(id, sender);
 		if(id == PsychUICheckBox.CLICK_EVENT)
 			unsavedProgress = true;
 
@@ -853,7 +841,7 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 			var animAnim:String = '' + anim.anim;
 			var animName:String = '' + anim.name;
 			var animFps:Int = anim.fps;
-			var animLoop:Bool = !!anim.loop; //Bruh
+			var animLoop:Bool = !!anim.loop; 
 			var animIndices:Array<Int> = anim.indices;
 			addAnimation(animAnim, animName, animFps, animLoop, animIndices);
 		}
@@ -910,7 +898,6 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 		}
 		if(FlxG.keys.pressed.CONTROL) ctrlMult = 0.25;
 
-		// CAMERA CONTROLS
 		if (FlxG.keys.pressed.J) FlxG.camera.scroll.x -= elapsed * 500 * shiftMult * ctrlMult;
 		if (FlxG.keys.pressed.K) FlxG.camera.scroll.y += elapsed * 500 * shiftMult * ctrlMult;
 		if (FlxG.keys.pressed.L) FlxG.camera.scroll.x += elapsed * 500 * shiftMult * ctrlMult;
@@ -929,7 +916,6 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 
 		if(lastZoom != FlxG.camera.zoom) cameraZoomText.text = 'Zoom: ' + FlxMath.roundDecimal(FlxG.camera.zoom, 2) + 'x';
 
-		// CHARACTER CONTROLS
 		var changedAnim:Bool = false;
 		if(anims.length > 1)
 		{
@@ -1070,14 +1056,12 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 				}
 	
 				txt = 'Frames: ( $frames / ${length-1} )';
-				//if(character.animation.curAnim.paused) txt += ' - PAUSED';
 				clr = FlxColor.WHITE;
 			}
 		}
 		if(txt != frameAdvanceText.text) frameAdvanceText.text = txt;
 		frameAdvanceText.color = clr;
 
-		// OTHER CONTROLS
 		if(FlxG.keys.justPressed.F12 || touchPad.buttonS.justPressed)
 			silhouettes.visible = !silhouettes.visible;
 
@@ -1113,15 +1097,12 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 		}
 	}
 
-	final assetFolder = 'week1';  //load from assets/week1/
+	final assetFolder = 'week1';  
 	inline function loadBG()
 	{
 		var lastLoaded = Paths.currentLevel;
 		Paths.currentLevel = assetFolder;
 
-		/////////////
-		// bg data //
-		/////////////
 		#if !BASE_GAME_FILES
 		camEditor.bgColor = 0xFF666666;
 		#else
@@ -1136,7 +1117,6 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 
 		dadPosition.set(100, 100);
 		bfPosition.set(770, 100);
-		/////////////
 
 		Paths.currentLevel = lastLoaded;
 	}
@@ -1178,7 +1158,6 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 
 	inline function updatePresence() {
 		#if DISCORD_ALLOWED
-		// Updating Discord Rich Presence
 		DiscordClient.changePresence("Character Editor", "Character: " + _char, healthIcon.getCharacter());
 		#end
 	}
@@ -1283,12 +1262,11 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 	function reloadAnimationDropDown() {
 		var animList:Array<String> = [];
 		for (anim in anims) animList.push(anim.anim);
-		if(animList.length < 1) animList.push('NO ANIMATIONS'); //Prevents crash
+		if(animList.length < 1) animList.push('NO ANIMATIONS'); 
 
 		animationDropDown.list = animList;
 	}
 
-	// save
 	var _file:FileReference;
 	function onSaveComplete(_):Void
 	{
@@ -1300,9 +1278,6 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 		FlxG.log.notice("Successfully saved file.");
 	}
 
-	/**
-		* Called when the save file dialog is cancelled.
-		*/
 	function onSaveCancel(_):Void
 	{
 		if(_file == null) return;
@@ -1312,9 +1287,6 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 		_file = null;
 	}
 
-	/**
-		* Called if there is an error while saving the gameplay recording.
-		*/
 	function onSaveError(_):Void
 	{
 		if(_file == null) return;
@@ -1368,7 +1340,7 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 			switch (e.type)
 			{
 				case MouseEvent.MOUSE_DOWN:
-					var mouse = new Point(e.stageX, e.stageY); // OpenFL mouse position
+					var mouse = new Point(e.stageX, e.stageY); 
 					cameraPosition.x = FlxG.camera.scroll.x + mouse.x;
 					cameraPosition.y = FlxG.camera.scroll.y + mouse.y;
 					isDragging = true;

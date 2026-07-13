@@ -108,8 +108,6 @@ class Difficulty
 		}
 	}
 
-	// STORY MODE İÇİN:
-	// Bir zorluk ancak week içindeki TÜM şarkılarda varsa gösterilir.
 	public static function buildListForWeek(week:WeekData = null):Array<String>
 	{
 		if(week == null) week = WeekData.getCurrentWeek();
@@ -131,8 +129,6 @@ class Difficulty
 		return result.length > 0 ? result : [defaultDifficulty];
 	}
 
-	// FREEPLAY İÇİN:
-	// Bir zorluk sadece seçili şarkıda varsa gösterilir.
 	public static function buildListForSong(songName:String, ?week:WeekData = null):Array<String>
 	{
 		var baseDiffs:Array<String> = getBaseDiffList(week);
@@ -187,13 +183,11 @@ class Difficulty
 		fixCurrentDiffIndex();
 	}
 
-	// DOSYA / PATH / JSON İÇİN ORİJİNAL AD
 	inline public static function getString(?num:Null<Int> = null, ?canTranslate:Bool = false):String
 	{
 		return getInternalName(num);
 	}
 
-	// SADECE EKRANDA GÖSTERİLECEK AD
 	inline public static function getDisplayString(?num:Null<Int> = null, ?canTranslate:Bool = true):String
 	{
 		var diffName:String = getInternalName(num);

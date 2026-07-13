@@ -32,8 +32,8 @@ class DialogueCharacter extends FlxSprite
 	public var jsonFile:DialogueCharacterFile = null;
 	public var dialogueAnimations:Map<String, DialogueAnimArray> = new Map<String, DialogueAnimArray>();
 
-	public var startingPos:Float = 0; //For center characters, it works as the starting Y, for everything else it works as starting X
-	public var isGhost:Bool = false; //For the editor
+	public var startingPos:Float = 0; 
+	public var isGhost:Bool = false; 
 	public var curCharacter:String = 'bf';
 	public var skiptimer = 0;
 	public var skipping = 0;
@@ -90,7 +90,7 @@ class DialogueCharacter extends FlxSprite
 
 	public function playAnim(animName:String = null, playIdle:Bool = false) {
 		var leAnim:String = animName;
-		if(animName == null || !dialogueAnimations.exists(animName)) { //Anim is null, get a random animation
+		if(animName == null || !dialogueAnimations.exists(animName)) { 
 			var arrayAnims:Array<String> = [];
 			for (anim in dialogueAnimations) {
 				arrayAnims.push(anim.anim);
@@ -112,10 +112,8 @@ class DialogueCharacter extends FlxSprite
 			var anim:DialogueAnimArray = dialogueAnimations.get(leAnim);
 			if(playIdle) {
 				offset.set(anim.idle_offsets[0], anim.idle_offsets[1]);
-				//trace('Setting idle offsets: ' + anim.idle_offsets);
 			} else {
 				offset.set(anim.loop_offsets[0], anim.loop_offsets[1]);
-				//trace('Setting loop offsets: ' + anim.loop_offsets);
 			}
 		} else {
 			offset.set(0, 0);

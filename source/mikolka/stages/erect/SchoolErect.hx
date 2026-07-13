@@ -183,7 +183,6 @@ class SchoolErect extends BaseStage
 					rim.angle = 90;
 					sprite.shader = rim;
 
-					// rim.loadAltMask('assets/week6/images/weeb/erect/masks/bfPixel_mask.png');
 					rim.altMaskImage = Paths.image("weeb/erect/masks/bfPixel_mask").bitmap;
 					rim.maskThreshold = 1;
 					rim.useAltMask = true;
@@ -198,7 +197,6 @@ class SchoolErect extends BaseStage
 					rim.angle = 90;
 					sprite.shader = rim;
 
-					// rim.loadAltMask('assets/week6/images/weeb/erect/masks/bfPixel_mask.png');
 					rim.altMaskImage = Paths.image("weeb/erect/masks/picoPixel_mask").bitmap;
 					rim.maskThreshold = 1;
 					rim.useAltMask = true;

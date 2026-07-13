@@ -17,7 +17,6 @@ import mikolka.stages.scripts.PicoCapableStage;
 import mikolka.compatibility.VsliceOptions;
 import shaders.DropShadowShader;
 
-// tankmanBattlefieldErect
 class TankErect extends BaseStage
 {
 	var sniper:FlxSprite;
@@ -67,7 +66,7 @@ class TankErect extends BaseStage
 			pico_stage.create();
 			game.stages.remove(pico_stage);
 			game.stages.insert(1,pico_stage);
-			StickerSubState.STICKER_SET = "stickers-set-2"; //? yep, it's pico time!
+			StickerSubState.STICKER_SET = "stickers-set-2"; 
 			this.cutscene = new PicoTankman(this);
 			if(!seenCutscene) setStartCallback(VideoCutscene.playVideo.bind('stressPicoCutscene',startCountdown));
 			setEndCallback(cutscene.playCutscene);
@@ -109,8 +108,6 @@ class TankErect extends BaseStage
 			
 		}
 		#if html5
-		//? THis mask doesn't want to load properly and I don't have pationce to fix it
-		//? Band aid should be enough for now.
 		captainBloody_mask = null;
 		var request = Assets.loadBitmapData("assets/week7/images/erect/masks/tankmanCaptainBloody_mask.png");
 		request.onComplete(item ->{
@@ -140,13 +137,11 @@ class TankErect extends BaseStage
 						if (FlxG.random.bool(16))
 						{
 							var tankBih = tankmanRun.recycle(TankmenBG);
-							if (VsliceOptions.SHADERS) applyShader(tankBih, ""); // Is this wasting resources? I don't know tbh
+							if (VsliceOptions.SHADERS) applyShader(tankBih, ""); 
 							tankBih.strumTime = TankmenBG.animationNotes[i][0];
 							tankBih.scale.set(1, 1);
 							tankBih.updateHitbox();
 							tankBih.resetShit(500, 150, TankmenBG.animationNotes[i][1] < 2,false);
-							// @:privateAccess
-							// tankBih.endingOffset = 
 							tankmanRun.add(tankBih);
 						}
 					}

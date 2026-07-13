@@ -11,19 +11,16 @@ class ResultsDialogBox extends PsychUIBox {
 	private inline static final selectedColor:FlxColor = 0x9E2929;
 	private static final FILTERS = ["none","naughty","safe","both"];
 	
-	//PAGERS
     public var resultsObjectControls_empty:FlxText;
 	public var resultsObjectControls:FlxSpriteGroup;
 	public var resultsObjectControls_labels:FlxSpriteGroup;
 
-	// GENERAL
 	public var list_objSelector:PsychUIDropDownMenu;
 	public var list_previewFilterSelector:PsychUIDropDownMenu;
 	public var input_musicPath:PsychUIInputText;
 	public var btn_moveUp:PsychUIButton;
 	public var btn_moveDown:PsychUIButton;
 	public var btn_removeObject:PsychUIButton;
-	//PROPERTIES
 	public var list_filterSelector:PsychUIDropDownMenu;
 	public var input_imagePath:PsychUIInputText;
 	public var input_soundPath:PsychUIInputText;
@@ -58,7 +55,6 @@ class ResultsDialogBox extends PsychUIBox {
 			selected_filter = item;
 			FlxG.sound.music?.pause();
 		});
-		//FilterType.
 		list_objSelector = new PsychUIDropDownMenu(140, 20, [], (index, name) -> {
 			if(selected_prop?.sprite != null) selected_prop.sprite.color = 0xFFFFFF;
 			selected_prop = host.propSystem.sprites[index];
@@ -150,7 +146,6 @@ class ResultsDialogBox extends PsychUIBox {
 		btn_moveDown.visible = btn_moveDown.active = 
 		btn_removeObject.visible = false;
 
-		///////////////////
 		selectedName = 'General';
 		var tab = getTab('General').menu;
 		tab.add(input_musicPath.makeLabel("Rank music path:"));

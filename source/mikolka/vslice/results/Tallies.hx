@@ -1,6 +1,5 @@
 package mikolka.vslice.results;
 
-//? V-slice utility classes (P-Slice exclusive)
 @:forward
 abstract Tallies(RawTallies)
 {
@@ -23,16 +22,10 @@ abstract Tallies(RawTallies)
   }
 }
 
-/**
- * A structure object containing the data for highscore tallies.
- */
 typedef RawTallies =
 {
   var combo:Int;
 
-  /**
-   * How many notes you let scroll by.
-   */
   var missed:Int;
 
   var shit:Int;
@@ -45,23 +38,14 @@ typedef RawTallies =
 
   var isNewHighscore:Bool;
 
-  /**
-   * How many notes total that you hit. (NOT how many notes total in the song!)
-   */
   var totalNotesHit:Int;
 
-  /**
-   * How many notes in the current chart
-   */
   var totalNotes:Int;
 }
 typedef SaveScoreData =
 {
-  /**
-   * The score achieved.
-   */
   var score:Int;
-  var accPoints:Float; // Hit points. Divide by all notes to get accuracy
+  var accPoints:Float; 
 
   var sick:Int;
   var good:Int;

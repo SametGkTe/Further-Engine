@@ -57,7 +57,7 @@ class IntroSubstate extends MusicBeatSubstate
 		add(ngSpr);
     }
 
-	private var sickBeats:Int = 0; // Basically curBeat but won't be skipped if you hold the tab or resize the screen
+	private var sickBeats:Int = 0; 
 	override function beatHit()
 	{
 		super.beatHit();
@@ -90,7 +90,7 @@ class IntroSubstate extends MusicBeatSubstate
 			case 15:
 				addMoreText('Night');
 			case 16:
-				addMoreText('Funkin'); // credTextShit.text += '\nFunkin';
+				addMoreText('Funkin'); 
 
 
 		}

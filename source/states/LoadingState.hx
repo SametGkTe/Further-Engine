@@ -135,12 +135,10 @@ class LoadingState extends MusicBeatState
 		}
 		#end
 
-		#if PSYCH_WATERMARKS // P.E.T / PSYCH LOADING SCREEN
+		#if PSYCH_WATERMARKS 
 
-		// Arka plan
 		if(ClientPrefs.data.petloadingscreen)
 		{
-			// P.E.T özel yükleme ekranı
 			var style:String = ClientPrefs.data.petloadingscreenimage;
 			var randomIndex:Int = FlxG.random.int(1, 5);
 			var bgPath:String = 'pet/petscreens/$style/loadingscreen$randomIndex';
@@ -152,7 +150,6 @@ class LoadingState extends MusicBeatState
 			}
 			else
 			{
-				// Yedek: düz arka plan
 				bg.loadGraphic(Paths.image('menuDesat'));
 				bg.color = 0xFFD16FFF;
 			}
@@ -162,7 +159,6 @@ class LoadingState extends MusicBeatState
 			bg.screenCenter();
 			addBehindBar(bg);
 
-			// P.E.T logosu
 			logo = new FlxSprite(0, 0);
 			if(Paths.image('pet/fe') != null)
 			{
@@ -199,7 +195,7 @@ class LoadingState extends MusicBeatState
 			addBehindBar(logo);
 		}
 
-		#else // BASE GAME LOADING SCREEN
+		#else 
 		var bg = new FlxSprite().makeGraphic(1, 1, 0xFFCAFF4D);
 		bg.scale.set(FlxG.width, FlxG.height);
 		bg.updateHitbox();
@@ -264,7 +260,7 @@ class LoadingState extends MusicBeatState
 		}
 		#end
 
-		#if PSYCH_WATERMARKS // PSYCH / P.E.T LOADING SCREEN
+		#if PSYCH_WATERMARKS 
 		timePassed += elapsed;
 		shakeFl += elapsed * 3000;
 

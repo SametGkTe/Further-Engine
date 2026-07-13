@@ -6,35 +6,15 @@ import flixel.math.FlxMath;
 #if mubile
 import extension.haptics.Haptic;
 #end
-/**
- * Utility class for extra vibration functions.
- */
 class HapticUtil
 {
-  /**
-   * Tween that is used in increasingVibrate function for tweening vibration amplitude.
-   */
   public static var amplitudeTween:FlxTween;
   public static final hapticsIntensityMultiplier:Float = 1;
 
-  /**
-   * A default vibration preset.
-   */
   public static var defaultVibrationPreset(get, never):VibrationPreset;
 
-  /**
-   * Indicates if haptics are available.
-   */
   public static var hapticsAvailable(get, never):Bool;
 
-  /**
-   * Triggers vibration.
-   *
-   * @param period The time for one complete vibration in seconds.
-   * @param duration The time taken for a complete cycle in seconds.
-   * @param amplitude The intensity of the vibration (0.0 to 1.0).
-   * @param sharpness Controls the feel of vibration.
-   */
   public static function vibrate(period:Float = Constants.DEFAULT_VIBRATION_PERIOD, duration:Float = Constants.DEFAULT_VIBRATION_DURATION,
       amplitude:Float = Constants.DEFAULT_VIBRATION_AMPLITUDE, sharpness:Float = Constants.DEFAULT_VIBRATION_SHARPNESS,
       ?targetHapticsModes:Array<HapticsMode>):Void
@@ -43,7 +23,6 @@ class HapticUtil
     if (!HapticUtil.hapticsAvailable) return;
 
     final hapticsModes:Array<HapticsMode> = targetHapticsModes ?? [HapticsMode.ALL];
-    //if (!hapticsModes.contains(Preferences.hapticsMode)) return;
 
     final amplitudeValue = FlxMath.bound(amplitude * hapticsIntensityMultiplier, 0, Constants.MAX_VIBRATION_AMPLITUDE);
 
@@ -74,11 +53,6 @@ class HapticUtil
 
   }
 
-  /**
-   * Triggers vibration using a preset.
-   *
-   * @param vibrationPreset Vibration's data.
-   */
   public static function vibrateByPreset(vibrationPreset:VibrationPreset = null):Void
   {
     if (!HapticUtil.hapticsAvailable) return;
@@ -88,13 +62,6 @@ class HapticUtil
     vibrate(preset.period, preset.duration, preset.amplitude, preset.sharpness);
   }
 
-  /**
-   * Triggers a queue of small vibrations with increasing amplitude.
-   * When the amplitudeTween is finished, triggers a single strong vibration.
-   * @param startAmplitude Start amplitude value.
-   * @param targetAmplitude Target amplitude value.
-   * @param tweenDuration Duration of the tween.
-   */
   public static function increasingVibrate(startAmplitude:Float, targetAmplitude:Float, tweenDuration:Float = 1):Void
   {
     if (!HapticUtil.hapticsAvailable) return;
@@ -126,56 +93,28 @@ class HapticUtil
   static function get_hapticsAvailable():Bool
   {
 
-    //if (Preferences.hapticsMode != HapticsMode.NONE) return true;
 
 
     return VsliceOptions.VIBRATION;
   }
 }
 
-/**
- * A typedef containing data needed for vibrate function call.
- */
 typedef VibrationPreset =
 {
-  /**
-   * The time for one complete vibration.
-   */
   var period:Float;
 
-  /**
-   * The time taken for a complete cycle.
-   */
   var duration:Float;
 
-  /**
-   * The distance of movement of the wave from its original position.
-   */
   var amplitude:Float;
 
-  /**
-   * Controls the feel of vibration.
-   */
   var sharpness:Float;
 }
 
-/**
- * An abstract for vibrations preference.
- */
 enum abstract HapticsMode(Int) from Int to Int
 {
-  /**
-   * Haptics are completely disabled.
-   */
   var NONE:Int = 0;
 
-  /**
-   * Only note haptics are enabled.
-   */
   var NOTES_ONLY:Int = 1;
 
-  /**
-   * All the haptics are enabled.
-   */
   var ALL:Int = 2;
 }

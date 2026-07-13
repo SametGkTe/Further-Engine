@@ -1,16 +1,5 @@
 package mikolka.funkin.utils;
 
-/**
- * Utilities for working with the garbage collector.
- *
- * HXCPP is built on Immix.
- * HTML5 builds use the browser's built-in mark-and-sweep and JS has no APIs to interact with it.
- * @see https://www.cs.cornell.edu/courses/cs6120/2019fa/blog/immix/
- * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Memory_management
- * @see https://betterprogramming.pub/deep-dive-into-garbage-collection-in-javascript-6881610239a
- * @see https://github.com/HaxeFoundation/hxcpp/blob/master/docs/build_xml/Defines.md
- * @see cpp.vm.Gc
- */
 class MemoryUtil
 {
   public static function buildGCInfo():String
@@ -97,14 +86,9 @@ class MemoryUtil
     return 0.0;
   }
 
-  /**
-   * Calculate the total memory usage of the program, in bytes.
-   * @return Int
-   */
   public static function getMemoryUsed():Int
   {
     #if cpp
-    // There is also Gc.MEM_INFO_RESERVED, MEM_INFO_CURRENT, and MEM_INFO_LARGE.
     return cpp.vm.Gc.memInfo(cpp.vm.Gc.MEM_INFO_USAGE);
     #else
     return openfl.system.System.totalMemory;

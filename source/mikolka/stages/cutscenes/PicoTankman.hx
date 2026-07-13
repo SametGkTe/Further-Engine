@@ -24,7 +24,7 @@ class PicoTankman {
 		cutsceneSounds = new FlxSound().loadEmbedded(Paths.sound('erect/endCutscene'));
 		bgSprite = new FunkinSprite(0, 0);
 		bgSprite.makeSolidColor(2000, 2500, 0xFF000000);
-		bgSprite.cameras = [stage.camOther]; // Show over the HUD but below the video.
+		bgSprite.cameras = [stage.camOther]; 
 		bgSprite.alpha = 0;
 		PlayState.instance.add(bgSprite);
 	}
@@ -69,7 +69,7 @@ class PicoTankman {
       		FlxTween.tween(bgSprite, {alpha: 1}, 2, null);
 		});
 		var rimlightCamera = new FlxCamera();
-    	rimlightCamera.bgColor = 0x00FFFFFF; // Show the game scene behind the camera.
+    	rimlightCamera.bgColor = 0x00FFFFFF; 
 		
 		#if LEGACY_PSYCH
 		rimlightCamera.setFilters([shaderCamera]);

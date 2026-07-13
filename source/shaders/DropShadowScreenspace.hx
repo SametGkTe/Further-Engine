@@ -7,15 +7,8 @@ import flixel.math.FlxAngle;
 import flixel.graphics.frames.FlxFrame;
 import openfl.display.BitmapData;
 
-/*
-  A screenspace version of the DropShadowShader.. currently the only way to use this effect with
-  FlxAnimate :(
- */
 class DropShadowScreenspace extends DropShadowShader
 {
-  /*
-    The current zoom of the camera. Needed to figure out how much to multiply the drop shadow size.
-   */
   public var curZoom(default, set):Float;
 
   function set_curZoom(val:Float):Float

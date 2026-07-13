@@ -758,7 +758,6 @@ class LinkSubStateSingle extends MusicBeatSubstate
 		}
 		else
 		{
-			// curSelected == -1: hiçbiri seçili değil, varsayılan görünüm
 			yesBg.color = COL_BTN;
 			yesText.alpha = 0.6;
 			yesLine.alpha = 0.6;

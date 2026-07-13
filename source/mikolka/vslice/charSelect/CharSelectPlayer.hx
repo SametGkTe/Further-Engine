@@ -8,7 +8,7 @@ class CharSelectPlayer extends FlxAtlasSprite
   {
     super(x, y, null);
 
-    onAnimationComplete.add(function(animLabel:String) { //? changed the hook here
+    onAnimationComplete.add(function(animLabel:String) { 
       switch (animLabel)
       {
         case "slidein":
@@ -33,15 +33,8 @@ class CharSelectPlayer extends FlxAtlasSprite
 
   public function onBeatHit():Void
   {
-    // TODO: There's a minor visual bug where there's a little stutter.
-    // This happens because the animation is getting restarted while it's already playing.
-    // I tried make this not interrupt an existing idle,
-    // but isAnimationFinished() and isLoopComplete() both don't work! What the hell?
-    // danceEvery isn't necessary if that gets fixed.
-    //
     if (getCurrentAnimation() == "idle")
     {
-      //trace('Player beat hit');
       playAnimation("idle", true, false, false);
     }
   };

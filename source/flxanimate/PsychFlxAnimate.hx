@@ -16,7 +16,7 @@ class PsychFlxAnimate extends OriginalFlxAnimate
 			var trimmed:String = pathOrStr.trim();
 			trimmed = trimmed.substr(trimmed.length - 5).toLowerCase();
 
-			if(trimmed == '.json') myJson = File.getContent(myJson); //is a path
+			if(trimmed == '.json') myJson = File.getContent(myJson); 
 			animJson = cast haxe.Json.parse(_removeBOM(myJson));
 		}
 		else animJson = cast myJson;
@@ -27,19 +27,18 @@ class PsychFlxAnimate extends OriginalFlxAnimate
 		var trimmed:String = pathOrStr.trim();
 		trimmed = trimmed.substr(trimmed.length - 5).toLowerCase();
 
-		if(trimmed == '.json') //Path is json
+		if(trimmed == '.json') 
 		{
 			myData = File.getContent(pathOrStr);
 			isXml = false;
 		}
-		else if (trimmed.substr(1) == '.xml') //Path is xml
+		else if (trimmed.substr(1) == '.xml') 
 		{
 			myData = File.getContent(pathOrStr);
 			isXml = true;
 		}
 		myData = _removeBOM(myData);
 
-		// Automatic if everything else fails
 		switch(isXml)
 		{
 			case true:
@@ -51,13 +50,11 @@ class PsychFlxAnimate extends OriginalFlxAnimate
 				{
 					myData = haxe.Json.parse(myData);
 					isXml = false;
-					//trace('JSON parsed successfully!');
 				}
 				catch(e)
 				{
 					myData = Xml.parse(myData);
 					isXml = true;
-					//trace('XML parsed successfully!');
 				}
 		}
 
@@ -83,15 +80,14 @@ class PsychFlxAnimate extends OriginalFlxAnimate
 		{
 			anim.curInstance = FlxDestroyUtil.destroy(anim.curInstance);
 			anim.stageInstance = FlxDestroyUtil.destroy(anim.stageInstance);
-			//anim.metadata = FlxDestroyUtil.destroy(anim.metadata);
 			anim.metadata.destroy();
 			anim.symbolDictionary = null;
 		}
 	}
 
-	function _removeBOM(str:String) //Removes BOM byte order indicator
+	function _removeBOM(str:String) 
 	{
-		if (str.charCodeAt(0) == 0xFEFF) str = str.substr(1); //myData = myData.substr(2);
+		if (str.charCodeAt(0) == 0xFEFF) str = str.substr(1); 
 		return str;
 	}
 

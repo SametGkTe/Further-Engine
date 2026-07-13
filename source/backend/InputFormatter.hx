@@ -74,14 +74,10 @@ class InputFormatter {
 				return ",";
 			case PERIOD:
 				return ".";
-			//case SLASH:
-			//	return "/";
 			case GRAVEACCENT:
 				return "`";
 			case LBRACKET:
 				return "[";
-			//case BACKSLASH:
-			//	return "\\";
 			case RBRACKET:
 				return "]";
 			case QUOTE:
@@ -107,7 +103,6 @@ class InputFormatter {
 
 		switch(key)
 		{
-			// Analogs
 			case LEFT_STICK_DIGITAL_LEFT:
 				return "Left";
 			case LEFT_STICK_DIGITAL_RIGHT:
@@ -138,7 +133,6 @@ class InputFormatter {
 					default: return "C. Click";
 				}
 
-			// Directional
 			case DPAD_LEFT:
 				return "D. Left";
 			case DPAD_RIGHT:
@@ -148,7 +142,6 @@ class InputFormatter {
 			case DPAD_DOWN:
 				return "D. Down";
 
-			// Top buttons
 			case LEFT_SHOULDER:
 				switch(model) {
 					case PS4: return "L1";
@@ -174,7 +167,6 @@ class InputFormatter {
 					default: return "R. Trigger";
 				}
 
-			// Buttons
 			case A:
 				switch (model) {
 					case PS4: return "X";
@@ -189,13 +181,13 @@ class InputFormatter {
 				}
 			case X:
 				switch (model) {
-					case PS4: return "["; //This gets its image changed through code
+					case PS4: return "["; 
 					case XINPUT: return "X";
 					default: return "Action Left";
 				}
 			case Y:
 				switch (model) { 
-					case PS4: return "]"; //This gets its image changed through code
+					case PS4: return "]"; 
 					case XINPUT: return "Y";
 					default: return "Action Up";
 				}

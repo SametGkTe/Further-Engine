@@ -6,7 +6,6 @@ import flixel.system.FlxAssets.FlxShader;
 @:keep
 class OverlayBlend extends FlxShader
 {
-  // these r copypaste
   public var funnyX(default, set):Float = 0;
   public var funnyY(default, set):Float = 0;
 
