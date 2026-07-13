@@ -20,6 +20,9 @@ import states.TitleState;
 	public var menuStyle:String = 'Orjinal';
 	public var mobileControlType:String = "Buttons";
 	
+	public var hideServerConnectionWarning:Bool = false;
+
+	
 	// FOR FREEPLAY
 	public var vsliceFreeplayColors:Bool = true;
 	public var vsliceResults:Bool = true;

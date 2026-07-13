@@ -11,223 +11,242 @@ import openfl.display.BlendMode;
 
 class BoyfriendCard extends BackingCard
 {
-  public var moreWays:BGScrollingText;
-  public var funnyScroll:BGScrollingText;
-  public var txtNuts:BGScrollingText;
-  public var funnyScroll2:BGScrollingText;
-  public var moreWays2:BGScrollingText;
-  public var funnyScroll3:BGScrollingText;
+	public var moreWays:BGScrollingText;
+	public var funnyScroll:BGScrollingText;
+	public var txtNuts:BGScrollingText;
+	public var funnyScroll2:BGScrollingText;
+	public var moreWays2:BGScrollingText;
+	public var funnyScroll3:BGScrollingText;
 	public var colorEngine:FreeplayColorTweener;
 
-  var glow:FlxSprite;
-  var glowDark:FlxSprite;
+	var glow:FlxSprite;
+	var glowDark:FlxSprite;
 
-  public override function applyExitMovers(?exitMovers:FreeplayState.ExitMoverData, ?exitMoversCharSel:FreeplayState.ExitMoverData):Void
-  {
-    super.applyExitMovers(exitMovers, exitMoversCharSel);
-    if (exitMovers == null || exitMoversCharSel == null) return;
-    exitMovers.set([moreWays],
-      {
-        x: FlxG.width * 2,
-        speed: 0.4,
-      });
-    exitMovers.set([funnyScroll],
-      {
-        x: -funnyScroll.width * 2,
-        y: funnyScroll.y,
-        speed: 0.4,
-        wait: 0
-      });
-    exitMovers.set([txtNuts],
-      {
-        x: FlxG.width * 2,
-        speed: 0.4,
-      });
-    exitMovers.set([funnyScroll2],
-      {
-        x: -funnyScroll2.width * 2,
-        speed: 0.5,
-      });
-    exitMovers.set([moreWays2],
-      {
-        x: FlxG.width * 2,
-        speed: 0.4
-      });
-    exitMovers.set([funnyScroll3],
-      {
-        x: -funnyScroll3.width * 2,
-        speed: 0.3
-      });
+	var scrollTextsEnabled:Bool = true;
 
-    exitMoversCharSel.set([moreWays, funnyScroll, txtNuts, funnyScroll2, moreWays2, funnyScroll3],
-      {
-        y: -60,
-        speed: 0.8,
-        wait: 0.1
-      });
-  }
+	public override function applyExitMovers(?exitMovers:FreeplayState.ExitMoverData, ?exitMoversCharSel:FreeplayState.ExitMoverData):Void
+	{
+		super.applyExitMovers(exitMovers, exitMoversCharSel);
+		if (exitMovers == null || exitMoversCharSel == null)
+			return;
+		exitMovers.set([moreWays], {
+			x: FlxG.width * 2,
+			speed: 0.4,
+		});
+		exitMovers.set([funnyScroll], {
+			x: -funnyScroll.width * 2,
+			y: funnyScroll.y,
+			speed: 0.4,
+			wait: 0
+		});
+		exitMovers.set([txtNuts], {
+			x: FlxG.width * 2,
+			speed: 0.4,
+		});
+		exitMovers.set([funnyScroll2], {
+			x: -funnyScroll2.width * 2,
+			speed: 0.5,
+		});
+		exitMovers.set([moreWays2], {
+			x: FlxG.width * 2,
+			speed: 0.4
+		});
+		exitMovers.set([funnyScroll3], {
+			x: -funnyScroll3.width * 2,
+			speed: 0.3
+		});
 
-  public override function enterCharSel():Void
-  {
-    FlxTween.tween(funnyScroll, {speed: 0}, 0.8, {ease: FlxEase.sineIn});
-    FlxTween.tween(funnyScroll2, {speed: 0}, 0.8, {ease: FlxEase.sineIn});
-    FlxTween.tween(moreWays, {speed: 0}, 0.8, {ease: FlxEase.sineIn});
-    FlxTween.tween(moreWays2, {speed: 0}, 0.8, {ease: FlxEase.sineIn});
-    FlxTween.tween(txtNuts, {speed: 0}, 0.8, {ease: FlxEase.sineIn});
-    FlxTween.tween(funnyScroll3, {speed: 0}, 0.8, {ease: FlxEase.sineIn});
-  }
+		exitMoversCharSel.set([moreWays, funnyScroll, txtNuts, funnyScroll2, moreWays2, funnyScroll3], {
+			y: -60,
+			speed: 0.8,
+			wait: 0.1
+		});
+	}
 
-  public override function new(currentCharacter:PlayableCharacter)
-  {
-    super(currentCharacter);
-    if(VsliceOptions.ALLOW_COLORING) colorEngine = new FreeplayColorTweener(this); 
+	public override function enterCharSel():Void
+	{
+		FlxTween.tween(funnyScroll, {speed: 0}, 0.8, {ease: FlxEase.sineIn});
+		FlxTween.tween(funnyScroll2, {speed: 0}, 0.8, {ease: FlxEase.sineIn});
+		FlxTween.tween(moreWays, {speed: 0}, 0.8, {ease: FlxEase.sineIn});
+		FlxTween.tween(moreWays2, {speed: 0}, 0.8, {ease: FlxEase.sineIn});
+		FlxTween.tween(txtNuts, {speed: 0}, 0.8, {ease: FlxEase.sineIn});
+		FlxTween.tween(funnyScroll3, {speed: 0}, 0.8, {ease: FlxEase.sineIn});
+	}
 
-    funnyScroll = new BGScrollingText(0, 220, currentCharacter.getFreeplayDJText(1), FlxG.width / 2, false, 60);
-    funnyScroll2 = new BGScrollingText(0, 335, currentCharacter.getFreeplayDJText(1), FlxG.width / 2, false, 60);
-    moreWays = new BGScrollingText(0, 160, currentCharacter.getFreeplayDJText(2), FlxG.width, true, 43);
-    moreWays2 = new BGScrollingText(0, 397, currentCharacter.getFreeplayDJText(2), FlxG.width, true, 43);
-    txtNuts = new BGScrollingText(0, 285, currentCharacter.getFreeplayDJText(3), FlxG.width / 2, true, 43);
-    funnyScroll3 = new BGScrollingText(0, orangeBackShit.y + 10, currentCharacter.getFreeplayDJText(1), FlxG.width / 2, 60);
-  }
+	public override function new(currentCharacter:PlayableCharacter)
+	{
+		super(currentCharacter);
+		if (VsliceOptions.ALLOW_COLORING)
+			colorEngine = new FreeplayColorTweener(this);
 
-  public override function init():Void
-  {
-    FlxTween.tween(pinkBack, {x: 0}, 0.6, {ease: FlxEase.quartOut});
-    add(pinkBack);
+		funnyScroll = new BGScrollingText(0, 220, currentCharacter.getFreeplayDJText(1), FlxG.width / 2, false, 60);
+		funnyScroll2 = new BGScrollingText(0, 335, currentCharacter.getFreeplayDJText(1), FlxG.width / 2, false, 60);
+		moreWays = new BGScrollingText(0, 160, currentCharacter.getFreeplayDJText(2), FlxG.width, true, 43);
+		moreWays2 = new BGScrollingText(0, 397, currentCharacter.getFreeplayDJText(2), FlxG.width, true, 43);
+		txtNuts = new BGScrollingText(0, 285, currentCharacter.getFreeplayDJText(3), FlxG.width / 2, true, 43);
+		funnyScroll3 = new BGScrollingText(0, orangeBackShit.y + 10, currentCharacter.getFreeplayDJText(1), FlxG.width / 2, 60);
 
-    add(orangeBackShit);
+		// Mobile performans: scroll text sayısını azalt
+		#if mobile
+		scrollTextsEnabled = !VsliceOptions.LOW_QUALITY;
+		#end
+	}
 
-    add(alsoOrangeLOL);
+	public override function init():Void
+	{
+		FlxTween.tween(pinkBack, {x: 0}, 0.6, {ease: FlxEase.quartOut});
+		add(pinkBack);
 
-    //FlxSpriteUtil.alphaMaskFlxSprite(orangeBackShit, pinkBack, orangeBackShit);
-    orangeBackShit.visible = false;
-    alsoOrangeLOL.visible = false;
+		add(orangeBackShit);
 
-    confirmTextGlow.blend = BlendMode.ADD;
-    confirmTextGlow.visible = false;
+		add(alsoOrangeLOL);
 
-    confirmGlow.blend = BlendMode.ADD;
+		orangeBackShit.visible = false;
+		alsoOrangeLOL.visible = false;
 
-    confirmGlow.visible = false;
-    confirmGlow2.visible = false;
+		confirmTextGlow.blend = BlendMode.ADD;
+		confirmTextGlow.visible = false;
 
-    add(confirmGlow2);
-    add(confirmGlow);
+		confirmGlow.blend = BlendMode.ADD;
 
-    add(confirmTextGlow);
+		confirmGlow.visible = false;
+		confirmGlow2.visible = false;
 
-    add(backingTextYeah);
+		add(confirmGlow2);
+		add(confirmGlow);
 
-    cardGlow.blend = BlendMode.ADD;
-    cardGlow.visible = false;
+		add(confirmTextGlow);
 
-    moreWays.visible = false;
-    funnyScroll.visible = false;
-    txtNuts.visible = false;
-    funnyScroll2.visible = false;
-    moreWays2.visible = false;
-    funnyScroll3.visible = false;
+		add(backingTextYeah);
 
-    moreWays.color = 0xFFFFF383;
-    moreWays.speed = 6.8;
-    add(moreWays);
+		cardGlow.blend = BlendMode.ADD;
+		cardGlow.visible = false;
 
-    funnyScroll.color = 0xFFFF9963;
-    funnyScroll.speed = -3.8;
-    add(funnyScroll);
+		moreWays.visible = false;
+		funnyScroll.visible = false;
+		txtNuts.visible = false;
+		funnyScroll2.visible = false;
+		moreWays2.visible = false;
+		funnyScroll3.visible = false;
 
-    txtNuts.speed = 3.5;
-    add(txtNuts);
+		moreWays.color = 0xFFFFF383;
+		moreWays.speed = 6.8;
+		add(moreWays);
 
-    funnyScroll2.color = 0xFFFF9963;
-    funnyScroll2.speed = -3.8;
-    add(funnyScroll2);
+		funnyScroll.color = 0xFFFF9963;
+		funnyScroll.speed = -3.8;
+		add(funnyScroll);
 
-    moreWays2.color = 0xFFFFF383;
-    moreWays2.speed = 6.8;
-    add(moreWays2);
+		txtNuts.speed = 3.5;
+		add(txtNuts);
 
-    funnyScroll3.color = 0xFFFEA400;
-    funnyScroll3.speed = -3.8;
-    add(funnyScroll3);
+		funnyScroll2.color = 0xFFFF9963;
+		funnyScroll2.speed = -3.8;
+		add(funnyScroll2);
 
-    glowDark = new FlxSprite(-300, 330).loadGraphic(Paths.image('freeplay/beatglow'));
-    glowDark.blend = BlendMode.MULTIPLY;
-    add(glowDark);
+		moreWays2.color = 0xFFFFF383;
+		moreWays2.speed = 6.8;
+		add(moreWays2);
 
-    glow = new FlxSprite(-300, 330).loadGraphic(Paths.image('freeplay/beatglow'));
-    glow.blend = BlendMode.ADD;
-    add(glow);
+		funnyScroll3.color = 0xFFFEA400;
+		funnyScroll3.speed = -3.8;
+		add(funnyScroll3);
 
-    glowDark.visible = false;
-    glow.visible = false;
+		// Mobile'da gereksiz scroll text'leri devre dışı bırak
+		if (!scrollTextsEnabled)
+		{
+			moreWays.active = false;
+			funnyScroll.active = false;
+			txtNuts.active = false;
+			funnyScroll2.active = false;
+			moreWays2.active = false;
+			funnyScroll3.active = false;
+		}
 
-    add(cardGlow);
-  }
+		glowDark = new FlxSprite(-300, 330).loadGraphic(Paths.image('freeplay/beatglow'));
+		glowDark.blend = BlendMode.MULTIPLY;
+		add(glowDark);
 
-  var beatFreq:Int = 1;
-  var beatFreqList:Array<Int> = [1, 2, 4, 8];
+		glow = new FlxSprite(-300, 330).loadGraphic(Paths.image('freeplay/beatglow'));
+		glow.blend = BlendMode.ADD;
+		add(glow);
 
-  public override function beatHit(curBeat:Int):Void
-  {
-    // increases the amount of beats that need to go by to pulse the glow because itd flash like craazy at high bpms.....
-    beatFreq = beatFreqList[Math.floor(FreeplayHelpers.BPM / 140)];
+		glowDark.visible = false;
+		glow.visible = false;
 
-    if (curBeat % beatFreq != 0) return;
-    FlxTween.cancelTweensOf(glow);
-    FlxTween.cancelTweensOf(glowDark);
+		add(cardGlow);
+	}
 
-    glow.alpha = 0.8;
-    FlxTween.tween(glow, {alpha: 0}, 16 / 24, {ease: FlxEase.quartOut});
-    glowDark.alpha = 0;
-    FlxTween.tween(glowDark, {alpha: 0.6}, 18 / 24, {ease: FlxEase.quartOut});
-  }
+	var beatFreq:Int = 1;
+	var beatFreqList:Array<Int> = [1, 2, 4, 8];
 
-  public override function introDone():Void
-  {
-    super.introDone();
-    //if) pinkBack.color = 0xFFFFD863;
-    moreWays.visible = true;
-    funnyScroll.visible = true;
-    txtNuts.visible = true;
-    funnyScroll2.visible = true;
-    moreWays2.visible = true;
-    funnyScroll3.visible = true;
-    // grpTxtScrolls.visible = true;
-    glowDark.visible = true;
-    glow.visible = true;
-  }
+	public override function beatHit(curBeat:Int):Void
+	{
+		beatFreq = beatFreqList[Math.floor(FreeplayHelpers.BPM / 140)];
 
-  public override function confirm():Void
-  {
-    super.confirm();
-    //? Disabling color tweener
+		// Mobile'da glow frekansını azalt
+		#if mobile
+		if (beatFreq < 4)
+			beatFreq = 4;
+		#end
+
+		if (curBeat % beatFreq != 0)
+			return;
+
+		FlxTween.cancelTweensOf(glow);
+		FlxTween.cancelTweensOf(glowDark);
+
+		glow.alpha = 0.8;
+		FlxTween.tween(glow, {alpha: 0}, 16 / 24, {ease: FlxEase.quartOut});
+		glowDark.alpha = 0;
+		FlxTween.tween(glowDark, {alpha: 0.6}, 18 / 24, {ease: FlxEase.quartOut});
+	}
+
+	public override function introDone():Void
+	{
+		super.introDone();
+
+		glowDark.visible = true;
+		glow.visible = true;
+
+		if (!scrollTextsEnabled)
+			return;
+
+		moreWays.visible = true;
+		funnyScroll.visible = true;
+		txtNuts.visible = true;
+		funnyScroll2.visible = true;
+		moreWays2.visible = true;
+		funnyScroll3.visible = true;
+	}
+
+	public override function confirm():Void
+	{
+		super.confirm();
 		colorEngine?.cancelTween();
-    // FlxTween.color(bgDad, 0.33, 0xFFFFFFFF, 0xFF555555, {ease: FlxEase.quadOut});
 
-    moreWays.visible = false;
-    funnyScroll.visible = false;
-    txtNuts.visible = false;
-    funnyScroll2.visible = false;
-    moreWays2.visible = false;
-    funnyScroll3.visible = false;
-    glowDark.visible = false;
-    glow.visible = false;
-  }
+		moreWays.visible = false;
+		funnyScroll.visible = false;
+		txtNuts.visible = false;
+		funnyScroll2.visible = false;
+		moreWays2.visible = false;
+		funnyScroll3.visible = false;
+		glowDark.visible = false;
+		glow.visible = false;
+	}
 
-  public override function disappear():Void
-  {
-    //While exiting make sure that we aren't tweeneng a color rn
-		colorEngine?.cancelTween();	
+	public override function disappear():Void
+	{
+		colorEngine?.cancelTween();
 
-    super.disappear();
-    moreWays.visible = false;
-    funnyScroll.visible = false;
-    txtNuts.visible = false;
-    funnyScroll2.visible = false;
-    moreWays2.visible = false;
-    funnyScroll3.visible = false;
-    glowDark.visible = false;
-    glow.visible = false;
-  }
+		super.disappear();
+		moreWays.visible = false;
+		funnyScroll.visible = false;
+		txtNuts.visible = false;
+		funnyScroll2.visible = false;
+		moreWays2.visible = false;
+		funnyScroll3.visible = false;
+		glowDark.visible = false;
+		glow.visible = false;
+	}
 }

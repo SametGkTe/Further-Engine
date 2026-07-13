@@ -868,66 +868,85 @@ class ResultState extends MusicBeatSubState
           });
       }
 
-      // Determining the target state(s) to go to.
-      // Default to main menu because that's better than `null`.
       var targetState = MenuStyleRouter.getMainMenu();
       var shouldTween = false;
       var shouldUseSubstate = false;
 
       if (params.storyMode)
       {
-        FlxG.sound.pause(); //? fix sound
-        //TODO re-enable this
-        // if (PlayerRegistry.instance.hasNewCharacter())
-        // {
-        //   // New character, display the notif.
-        //   targetState = new StoryMenuState(null);
+        FlxG.sound.pause();
 
-        //   var newCharacters = PlayerRegistry.instance.listNewCharacters();
-
-        //   for (charId in newCharacters)
-        //   {
-        //     shouldTween = true;
-        //     // This works recursively, ehe!
-        //     targetState = new funkin.ui.charSelect.CharacterUnlockState(charId, targetState);
-        //   }
-        // }
-        // else
-        // {
-          // No new characters.
+        if (MenuStyleRouter.isNewStyle())
+        {
           shouldTween = false;
           shouldUseSubstate = true;
-          targetState = new StickerSubState(null, (sticker) -> new states.StoryMenuState(sticker));
-        //}
-      }
-      else
-      {
-        if (rank > params.prevScoreRank) //? refactor this???
-        {
-          trace('THE RANK IS Higher.....');
-
-          shouldTween = true;
-          controls.isInSubstate = FlxTransitionableState.skipNextTransOut = true;
-          targetState = FreeplayState.build(
-            {
-              {
-                fromResults:
-                  {
-                    oldRank: params.prevScoreRank,
-                    newRank: rank,
-                    songId: params.songId,
-                    difficultyId: params.difficultyId,
-                    playRankAnim: true
-                  }
-              }
-            });
+          targetState = new StickerSubState(null, (sticker) -> new mikolka.vslice.states.StoryMenuState(sticker));
         }
         else
         {
-          FlxG.sound.pause(); //? fix sound
           shouldTween = false;
-          controls.isInSubstate = shouldUseSubstate = true;
-          targetState = new StickerSubState(null, (sticker) -> FreeplayState.build(null, sticker));
+          shouldUseSubstate = true;
+          targetState = new StickerSubState(null, (sticker) -> new states.StoryMenuState());
+        }
+      }
+      else
+      {
+        if (MenuStyleRouter.isNewStyle())
+        {
+          if (rank > params.prevScoreRank)
+          {
+            trace('THE RANK IS Higher.....');
+
+            shouldTween = true;
+            controls.isInSubstate = FlxTransitionableState.skipNextTransOut = true;
+
+            targetState = mikolka.vslice.freeplay.FreeplayState.build(
+              {
+                fromResults:
+                {
+                  oldRank: params.prevScoreRank,
+                  newRank: rank,
+                  songId: params.songId,
+                  difficultyId: params.difficultyId,
+                  playRankAnim: true
+                }
+              });
+          }
+          else
+          {
+            FlxG.sound.pause();
+            shouldTween = false;
+            controls.isInSubstate = shouldUseSubstate = true;
+
+            targetState = new StickerSubState(null, (sticker) ->
+              mikolka.vslice.freeplay.FreeplayState.build(null, sticker)
+            );
+          }
+        }
+        else
+        {
+          FlxG.sound.pause();
+          shouldTween = false;
+          shouldUseSubstate = true;
+          controls.isInSubstate = true;
+
+          var hasNewRank:Bool = rank > params.prevScoreRank;
+
+          targetState = new StickerSubState(null, (sticker) ->
+            new states.FreeplayState(
+              hasNewRank ? {
+                fromResults:
+                {
+                  oldRank: params.prevScoreRank,
+                  newRank: rank,
+                  songId: params.songId,
+                  difficultyId: params.difficultyId,
+                  playRankAnim: true
+                }
+              } : null,
+              sticker
+            )
+          );
         }
       }
 
@@ -943,7 +962,7 @@ class ResultState extends MusicBeatSubState
               }
               else
               {
-                FlxG.sound.pause(); //? fix sound
+                FlxG.sound.pause();
                 FlxG.switchState(targetState);
               }
             }

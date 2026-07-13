@@ -180,6 +180,8 @@ class FreeplayState extends MusicBeatSubstate
 	var searchBarCursor:FlxText;
 	var searchIcon:FlxSprite;
 	var cursorTimer:Float = 0;
+	
+	var rankAnimPlaying:Bool = false;
 
 	// Dropdown UI
 	var dropdownBG:FlxSprite;
@@ -209,6 +211,7 @@ class FreeplayState extends MusicBeatSubstate
 	// ═══════════════════════════════════════════
 
 	var holdTime:Float = 0;
+	var _previewTimer:Null<FlxTimer> = null;
 
 	#if TOUCH_CONTROLS_ALLOWED
 	inline function isDirectionalTouchButton(button:TouchButton):Bool
@@ -498,6 +501,13 @@ class FreeplayState extends MusicBeatSubstate
 		for (diffId in diffIdsTotal)
 		{
 			ModsHelper.loadModDir(diffIdsTotalModBinds.get(diffId));
+
+			if (!hasDifficultySprite(diffId))
+			{
+				trace('Skipping difficulty without sprite: ' + diffId);
+				continue;
+			}
+
 			var diffSprite:DifficultySprite = new DifficultySprite(diffId);
 			diffSprite.difficultyId = diffId;
 			grpDifficulties.add(diffSprite);
@@ -829,7 +839,11 @@ class FreeplayState extends MusicBeatSubstate
 		{
 			if (busy)
 				return;
+
 			var daSongCapsule:SongMenuItem = curCapsule;
+			if (daSongCapsule == null)
+				return;
+
 			daSongCapsule.onConfirm();
 		});
 		add(scroll);
@@ -1640,6 +1654,9 @@ class FreeplayState extends MusicBeatSubstate
 				return;
 		}
 
+		if (grpCapsules == null || grpCapsules.activeSongItems == null || grpCapsules.activeSongItems.length == 0)
+			rememberedSongId = rememberedSongId;
+		else
 		rememberedSongId = curCapsule?.songData?.songId ?? rememberedSongId;
 
 		currentFilter = filterStuff;
@@ -1711,6 +1728,11 @@ class FreeplayState extends MusicBeatSubstate
 
 	function rankAnimStart(fromResults:FromResultsParams):Void
 	{
+		if (curCapsule == null)
+		{
+			busy = false;
+			return;
+		}
 		busy = true;
 		curCapsule.sparkle.alpha = 0;
 
@@ -2535,7 +2557,7 @@ class FreeplayState extends MusicBeatSubstate
 			if (diffSelLeft != null)
 				diffSelLeft.setPress(true);
 		}
-		if (rightDiff || (TouchUtil.overlapsComplex(diffSelRight) && TouchUtil.justPressed))
+		else if (rightDiff || (TouchUtil.overlapsComplex(diffSelRight) && TouchUtil.justPressed))
 		{
 			if (dj != null)
 				dj.resetAFKTimer();
@@ -2624,9 +2646,21 @@ class FreeplayState extends MusicBeatSubstate
 			{
 				funnyCam.fade(FlxColor.BLACK, 0.4, false, function()
 				{
-					FlxTransitionableState.skipNextTransIn = false;
-					FlxTransitionableState.skipNextTransOut = false;
-					MenuStyleRouter.goToMainMenu();
+					FlxTransitionableState.skipNextTransIn = true;
+					FlxTransitionableState.skipNextTransOut = true;
+
+					if (MenuStyleRouter.isNewStyle())
+					{
+						controls.isInSubstate = true;
+						openSubState(new StickerSubState(null, (sticker) -> MenuStyleRouter.getMainMenu()));
+					}
+					else
+					{
+						FlxTransitionableState.skipNextTransIn = false;
+						FlxTransitionableState.skipNextTransOut = false;
+						controls.isInSubstate = false;
+						FlxG.switchState(MenuStyleRouter.getMainMenu());
+					}
 				});
 			});
 		}
@@ -2658,7 +2692,7 @@ class FreeplayState extends MusicBeatSubstate
 		FlxG.stage.removeEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
 
 		super.destroy();
-		var daSong:Null<FreeplaySongData> = currentFilteredSongs[curSelected];
+		var daSong:Null<FreeplaySongData> = (curSelected >= 0 && curSelected < currentFilteredSongs.length) ? currentFilteredSongs[curSelected] : null;
 		if (daSong != null)
 			clearDaCache(daSong.songName);
 
@@ -2671,39 +2705,139 @@ class FreeplayState extends MusicBeatSubstate
 	// ═══════════════════════════════════════════
 
 	var difficultyLastChange:Int = 0;
+	
+	var _diffAnimTimer:Null<FlxTimer> = null;
+	var _diffAnimToken:Int = 0;
+	
+	function hasDifficultySprite(diffId:String):Bool
+	{
+		if (diffId == null || diffId.length < 1)
+			return false;
+
+		var formatted:String = diffId.toLowerCase();
+		formatted = formatted.replace(" ", "-");
+		formatted = formatted.replace("_", "-");
+
+		try
+		{
+			return Paths.image('freeplay/freeplayDifficulties/freeplay' + formatted) != null;
+		}
+		catch (e:Dynamic) {}
+
+		return false;
+	}
+
+	function getDifficultySpriteById(diffId:String):Null<DifficultySprite>
+	{
+		if (grpDifficulties == null || grpDifficulties.group == null || diffId == null)
+			return null;
+
+		for (diffSprite in grpDifficulties.group.members)
+		{
+			if (diffSprite != null && diffSprite.difficultyId == diffId)
+				return diffSprite;
+		}
+
+		return null;
+	}
+
+	function getUsableDifficultyList():Array<String>
+	{
+		var result:Array<String> = [];
+
+		var source:Array<String> = null;
+
+		if (curCapsule != null && curCapsule.songData != null && curCapsule.songData.songDifficulties != null && curCapsule.songData.songDifficulties.length > 0)
+			source = curCapsule.songData.songDifficulties.copy();
+		else
+			source = diffIdsTotal.copy();
+
+		for (diff in source)
+		{
+			if (diff != null && diff.length > 0 && !result.contains(diff) && hasDifficultySprite(diff))
+				result.push(diff);
+		}
+
+		if (result.length == 0)
+		{
+			for (diff in diffIdsTotal)
+			{
+				if (diff != null && diff.length > 0 && !result.contains(diff) && hasDifficultySprite(diff))
+					result.push(diff);
+			}
+		}
+
+		if (result.length == 0)
+			result.push(Constants.DEFAULT_DIFFICULTY);
+
+		return result;
+	}
 
 	function changeDiff(change:Int = 0, forceUpdateSongList:Bool = false):Void
 	{
 		touchTimer = 0;
 		difficultyLastChange = change;
 
+		diffIdsCurrent = getUsableDifficultyList();
+
+		if (diffIdsCurrent == null || diffIdsCurrent.length == 0)
+		{
+			currentDifficulty = Constants.DEFAULT_DIFFICULTY;
+			intendedScore = 0;
+			intendedCompletion = 0;
+			busy = false;
+			return;
+		}
+
+		if (!diffIdsCurrent.contains(currentDifficulty))
+		{
+			if (rememberedDifficulty != null && diffIdsCurrent.contains(rememberedDifficulty))
+				currentDifficulty = rememberedDifficulty;
+			else
+				currentDifficulty = diffIdsCurrent[0];
+		}
+
 		var currentDifficultyIndex:Int = diffIdsCurrent.indexOf(currentDifficulty);
-
-		if (currentDifficultyIndex == -1)
-			currentDifficultyIndex = diffIdsCurrent.indexOf(Constants.DEFAULT_DIFFICULTY);
-
-		currentDifficultyIndex += change;
 		if (currentDifficultyIndex < 0)
-			currentDifficultyIndex = diffIdsCurrent.length - 1;
-		if (currentDifficultyIndex >= diffIdsCurrent.length)
 			currentDifficultyIndex = 0;
 
-		var didDifficultyChange = currentDifficulty != diffIdsCurrent[currentDifficultyIndex];
+		currentDifficultyIndex += change;
+
+		while (currentDifficultyIndex < 0)
+			currentDifficultyIndex += diffIdsCurrent.length;
+		while (currentDifficultyIndex >= diffIdsCurrent.length)
+			currentDifficultyIndex -= diffIdsCurrent.length;
+
+		var previousDifficulty:String = currentDifficulty;
+		var nextDifficulty:String = diffIdsCurrent[currentDifficultyIndex];
+
+		if (nextDifficulty == null || nextDifficulty.length < 1)
+			nextDifficulty = previousDifficulty != null ? previousDifficulty : diffIdsCurrent[0];
+
+		var didDifficultyChange:Bool = previousDifficulty != nextDifficulty;
+		var token:Int = ++_diffAnimToken;
+
+		if (_diffAnimTimer != null)
+		{
+			_diffAnimTimer.cancel();
+			_diffAnimTimer = null;
+		}
 
 		if (didDifficultyChange)
 		{
 			busy = true;
-			swipeDiffSpr(false, change);
+			swipeDiffSprById(previousDifficulty, false, change, token);
 		}
+
 		if (change != 0)
 		{
 			HapticUtil.vibrate(0, 0.01, 0.5, 0.1);
 			FunkinSound.playOnce(Paths.sound('scrollMenu'), 0.4);
 		}
 
-		currentDifficulty = diffIdsCurrent[currentDifficultyIndex];
+		currentDifficulty = nextDifficulty;
 
-		var daSong:Null<FreeplaySongData> = curCapsule.songData;
+		var daSong:Null<FreeplaySongData> = curCapsule != null ? curCapsule.songData : null;
 		if (daSong != null)
 		{
 			daSong.currentDifficulty = currentDifficulty;
@@ -2718,27 +2852,33 @@ class FreeplayState extends MusicBeatSubstate
 			intendedScore = 0;
 			intendedCompletion = 0.0;
 		}
+
 		rememberedDifficulty = currentDifficulty;
+
 		if (intendedCompletion == Math.POSITIVE_INFINITY || intendedCompletion == Math.NEGATIVE_INFINITY || Math.isNaN(intendedCompletion))
 			intendedCompletion = 0;
 
 		if (didDifficultyChange)
-			swipeDiffSpr(true, change);
+			swipeDiffSprById(currentDifficulty, true, change, token);
+		else
+			busy = false;
 
 		if (change != 0 || forceUpdateSongList)
 			updateCapsuleDifficulties();
 
 		var newAlbumId:Null<String> = daSong?.albumId;
-		if (albumRoll.albumId != newAlbumId)
+		if (albumRoll != null && albumRoll.albumId != newAlbumId)
 		{
 			albumRoll.albumId = newAlbumId;
 			albumRoll.skipIntro();
 		}
-		albumRoll.setDifficultyStars(daSong?.difficultyRating);
+		albumRoll?.setDifficultyStars(daSong?.difficultyRating);
 	}
 
 	function updateCapsuleDifficulties()
 	{
+		if (grpCapsules == null)
+			return;
 		var tempSongs:Array<Null<FreeplaySongData>> = songs;
 
 		if (currentFilter != null)
@@ -2761,26 +2901,23 @@ class FreeplayState extends MusicBeatSubstate
 			generateSongList(currentFilter, true);
 	}
 
-	function swipeDiffSpr(transIn:Bool, change:Int)
+	function swipeDiffSprById(diffId:String, transIn:Bool, change:Int, token:Int):Void
 	{
-		var getCurrentDiff = () ->
+		var diffSprite = getDifficultySpriteById(diffId);
+		if (diffSprite == null)
 		{
-			for (diffSprite in grpDifficulties.group.members)
-			{
-				if (diffSprite != null && diffSprite.difficultyId == currentDifficulty)
-					return diffSprite;
-			}
-			return null;
+			if (transIn && token == _diffAnimToken)
+				busy = false;
+			return;
 		}
 
-		var diffObj = getCurrentDiff();
-		if (diffObj == null)
-			return;
-		var diffSprite:DifficultySprite = diffObj;
+		FlxTween.cancelTweensOf(diffSprite);
 
 		if (transIn)
 		{
 			diffSprite.visible = true;
+			diffSprite.alpha = 0.5;
+			diffSprite.offset.y += 5;
 			diffSprite.x = (change > 0) ? 500 : -320;
 			diffSprite.x += (CUTOUT_WIDTH * DJ_POS_MULTI);
 
@@ -2788,15 +2925,16 @@ class FreeplayState extends MusicBeatSubstate
 				ease: FlxEase.circInOut
 			});
 
-			diffSprite.offset.y += 5;
-			diffSprite.alpha = 0.5;
-			new FlxTimer().start(1 / 24, function(swag)
+			_diffAnimTimer = new FlxTimer().start(1 / 24, function(_)
 			{
+				if (token != _diffAnimToken || diffSprite == null)
+					return;
+
+				_diffAnimTimer = null;
 				busy = false;
 				diffSprite.alpha = 1;
 				diffSprite.updateHitbox();
 				diffSprite.visible = true;
-				diffSprite.height *= 2.5;
 			});
 		}
 		else
@@ -2808,6 +2946,9 @@ class FreeplayState extends MusicBeatSubstate
 				ease: FlxEase.circInOut,
 				onComplete: function(_)
 				{
+					if (token != _diffAnimToken || diffSprite == null)
+						return;
+
 					diffSprite.x = diffSprite.widthOffset + (CUTOUT_WIDTH * DJ_POS_MULTI);
 					diffSprite.visible = false;
 				}
@@ -2954,8 +3095,11 @@ class FreeplayState extends MusicBeatSubstate
 		if (dj != null)
 			dj.confirm();
 
-		curCapsule.animBox.forcePosition();
-		curCapsule.confirm();
+		if (curCapsule != null)
+		{
+			curCapsule.animBox.forcePosition();
+			curCapsule.confirm();
+		}
 
 		backingCard?.confirm();
 
@@ -3082,8 +3226,16 @@ class FreeplayState extends MusicBeatSubstate
 			if (daSongCapsule.songData != null)
 				FreeplayHelpers.loadDiffsFromWeek(daSongCapsule.songData);
 
-			FlxG.sound.music.pause();
-			TimerUtil.wait(FADE_IN_DELAY, playCurSongPreview.bind(daSongCapsule));
+			if (FlxG.sound.music != null)
+				FlxG.sound.music.pause();
+
+			if (_previewTimer != null)
+				_previewTimer.cancel();
+
+			_previewTimer = new FlxTimer().start(0.35, _ -> {
+				_previewTimer = null;
+				playCurSongPreview(daSongCapsule);
+			});
 
 			tweenCurSongColor(daSongCapsule);
 			curCapsule.selected = true;
@@ -3101,6 +3253,12 @@ class FreeplayState extends MusicBeatSubstate
 		if (daSongCapsule == null)
 			daSongCapsule = curCapsule;
 
+		if (daSongCapsule == null)
+			return;
+
+		if (busy || rankAnimPlaying)
+			return;
+
 		if (curSelected == 0 || daSongCapsule.songData == null)
 		{
 			FunkinSound.playMusic('freeplayRandom', {
@@ -3114,6 +3272,13 @@ class FreeplayState extends MusicBeatSubstate
 		{
 			if (!daSongCapsule.selected)
 				return;
+
+			// Önceki preview'i durdur
+			if (FlxG.sound.music != null)
+			{
+				FlxG.sound.music.stop();
+				FlxG.sound.music = null;
+			}
 			var potentiallyErect:String = (currentDifficulty == "erect") || (currentDifficulty == "nightmare") ? "-erect" : "";
 			var songData = daSongCapsule.songData;
 			ModsHelper.loadModDir(songData.folder);
@@ -3139,13 +3304,20 @@ class FreeplayState extends MusicBeatSubstate
 		}
 	}
 
+	var _colorTween:FlxTween = null;
+
 	public function tweenCurSongColor(daSongCapsule:SongMenuItem)
 	{
 		if (Std.isOfType(backingCard, BoyfriendCard))
 		{
-			var newColor:FlxColor = (curSelected == 0) ? 0xFFFFD863 : daSongCapsule.songData.color;
+			var newColor:FlxColor = (curSelected == 0 || daSongCapsule.songData == null) ? 0xFFFFD863 : daSongCapsule.songData.color;
 			var bfCard = cast(backingCard, BoyfriendCard);
-			bfCard.colorEngine?.tweenColor(newColor);
+
+			if (_colorTween != null)
+				_colorTween.cancel();
+
+			if (bfCard.colorEngine != null)
+				bfCard.colorEngine.tweenColor(newColor);
 		}
 	}
 

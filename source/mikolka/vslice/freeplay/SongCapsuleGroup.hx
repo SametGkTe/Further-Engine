@@ -75,6 +75,8 @@ class SongCapsuleGroup extends FlxTypedGroup<SongMenuItem> {
 	 */
 	public function generateFullSongList(songList:Array<Null<FreeplaySongData>>,currentDifficulty:String,fromCharSelect = false, force:Bool = false):Void
 	{
+		if (songList == null || songList.length == 0)
+			return;
 		
 		for (cap in members)
 		{

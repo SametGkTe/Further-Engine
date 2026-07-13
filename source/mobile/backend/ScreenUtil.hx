@@ -3,9 +3,6 @@ package mobile.backend;
 #if ios
 import lime.system.System;
 import lime.system.Orientation;
-import external.apple.ScreenUtil as NativeScreenUtil;
-#elseif android
-import external.android.ScreenUtil as NativeScreenUtil;
 #end
 import lime.math.Rectangle;
 
@@ -24,36 +21,13 @@ class ScreenUtil
     final notchRect:Rectangle = new Rectangle();
 
     #if android
-    final rectDimensions:Array<Array<Float>> = [[], [], [], []];
+    // Android: NativeScreenUtil bağımlılığı kaldırıldı
+    // Cutout bilgisi alınamadığından boş rectangle döner
+    notchRect.x = 0;
+    notchRect.y = 0;
+    notchRect.width = 0;
+    notchRect.height = 0;
 
-    // Push all the dimensions of the cutouts into an array
-    for (rect in NativeScreenUtil.getCutoutDimensions())
-    {
-      rectDimensions[0].push(rect.x);
-      rectDimensions[1].push(rect.y);
-      rectDimensions[2].push(rect.width);
-      rectDimensions[3].push(rect.height);
-    }
-
-    // Put all the dimensions into the rectangle
-    for (i => dimensions in rectDimensions)
-    {
-      for (dimension in dimensions)
-      {
-        switch (i)
-        {
-          case 0:
-            notchRect.x += dimension;
-          case 1:
-            notchRect.y += dimension;
-          case 2:
-            notchRect.width += dimension;
-          case 3:
-            notchRect.height += dimension;
-        }
-      }
-    }
-    
     #elseif ios
     var topInset:Float = -1;
     var leftInset:Float = -1;
@@ -63,38 +37,37 @@ class ScreenUtil
     var deviceHeight:Float = -1;
     var displayOrientation:Orientation = System.getDisplay(0).orientation;
 
-    NativeScreenUtil.getSafeAreaInsets(cpp.RawPointer.addressOf(topInset), cpp.RawPointer.addressOf(bottomInset), cpp.RawPointer.addressOf(leftInset),
-      cpp.RawPointer.addressOf(rightInset));
-
-    NativeScreenUtil.getScreenSize(cpp.RawPointer.addressOf(deviceWidth), cpp.RawPointer.addressOf(deviceHeight));
+    // iOS: NativeScreenUtil bağımlılığı kaldırıldı
+    // Safe area inset bilgisi alınamadığından varsayılan değerler kullanılır
+    topInset = 0;
+    bottomInset = 0;
+    leftInset = 0;
+    rightInset = 0;
+    deviceWidth = 0;
+    deviceHeight = 0;
 
     notchRect.x = 0;
     notchRect.y = 0.0;
 
-    // Calculate the rectangle dimensions for the notch
-    // Note: iOS only spits out *insets* for "safe areas", so we can only get a broad position for the notch
-    // left + right insets are the same, so we can use either
-    // Note: *inset* is the distance from the edge of the screen where a safe area gets defined
-    // see: https://developer.apple.com/documentation/uikit/uiview/safeareainsets
     switch (displayOrientation)
     {
-      case LANDSCAPE: // landscape
+      case LANDSCAPE:
         notchRect.width = leftInset + rightInset;
         notchRect.height = bottomInset - topInset;
         notchRect.y = topInset;
-      case LANDSCAPE_FLIPPED: // landscape
+      case LANDSCAPE_FLIPPED:
         notchRect.width = leftInset + rightInset;
         notchRect.height = bottomInset - topInset;
         notchRect.y = topInset;
-        notchRect.x = deviceWidth - notchRect.width; // move notchRect if we are flipped, notch is at the right of screen
-      case PORTRAIT: // portrait
+        notchRect.x = deviceWidth - notchRect.width;
+      case PORTRAIT:
         notchRect.width = deviceWidth;
         notchRect.height = topInset;
-      case PORTRAIT_FLIPPED: // portrait
+      case PORTRAIT_FLIPPED:
         notchRect.width = deviceWidth;
         notchRect.height = bottomInset;
-        notchRect.y = deviceHeight - notchRect.height; // move notchRect if we are flipped, the notch is at the bottom of screen
-      default: // display orientation unknown? perhaps this occurs on desktop
+        notchRect.y = deviceHeight - notchRect.height;
+      default:
     }
     #end
 

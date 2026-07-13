@@ -744,6 +744,25 @@ class PlayState extends MusicBeatState
 
 		cacheCountdown();
 		cachePopUpScore();
+		
+		if (!ClientPrefs.data.serverConnection && !ClientPrefs.data.hideServerConnectionWarning)
+		{
+			AlertMsg.showChoice(
+				"Sunucu Bağlantısı kapalı!",
+				"Puanlarınız ve Skorlarınız sunucuya gönderilmeyecektir! Ayarlar > Oynanış'dan aktif edin",
+				5,
+				AlertMsg.COLOR_WARNING,
+				"TAMAM",
+				null,
+				"BİR DAHA GÖSTERME",
+				function()
+				{
+					ClientPrefs.data.hideServerConnectionWarning = true;
+					ClientPrefs.saveSettings();
+				},
+				true
+			);
+		}
 
 		if(eventNotes.length < 1) checkEventNote();
 	}

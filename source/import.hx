@@ -50,7 +50,8 @@ import mobile.input.MobileInputID;
 import mobile.backend.MobileData;
 import mobile.input.MobileInputManager;
 import mobile.backend.TouchUtil;
-
+// Alert
+import objects.AlertMgr;
 // Android
 #if android
 import android.content.Context as AndroidContext;

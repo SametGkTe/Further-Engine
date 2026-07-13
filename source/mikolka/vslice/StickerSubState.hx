@@ -168,39 +168,23 @@ class StickerSubState extends MusicBeatSubstate
     trace("Current mod: "+ModsHelper.getActiveMod());
     var stickers:StickerInfo = null;
 
-    // var globalMods = Mods.getGlobalMods().map(s -> "mods/"+s);
-    // globalMods.pushUnique("mods/"+Mods.currentModDirectory);
-    // globalMods.push("assets/shared"); // base stickers
-
-      #if sys
-      #if !LEGACY_PSYCH
-      var modStickerDir = Paths.getPath('images/transitionSwag/$STICKER_SET',TEXT,null,true);
-      #else
-      var modStickerDir = Paths.getPath('images/transitionSwag/$STICKER_SET',TEXT,null);
-      #end
-      if(!NativeFileSystem.exists(modStickerDir)){
-        UserErrorSubstate.makeMessage("Missing sticker_set",'Couldn\'t find sticker set "$STICKER_SET"\n\nin $modStickerDir');
-        
-      }
-      else if(!NativeFileSystem.exists('$modStickerDir/stickers.json')){
-        UserErrorSubstate.makeMessage("Missing manifest",'Sticker set $STICKER_SET doesn\'t contain a "stickers.json" file\n\nin $modStickerDir/stickers.json');
-      }
-      else{
-
-        try{
-          var infoObj = new StickerInfo(STICKER_SET);
-          stickers = infoObj;
-          if(infoObj.getPack(STICKER_PACK) == null) UserErrorSubstate.makeMessage('Missing pack','Sticker set ${infoObj.name} doesn\'t contain "$STICKER_PACK" pack.\n\nAll available stickers will be loaded instead.');
-        }
-        catch(x){
-          UserErrorSubstate.makeMessage('Couldn\'t make $STICKER_PACK','In "$modStickerDir":\n\n${x.message}');
-        }
-
-      }
-      #else
+    try
+    {
       var infoObj = new StickerInfo(STICKER_SET);
-          stickers = infoObj;
-      #end
+      stickers = infoObj;
+
+      if (infoObj.getPack(STICKER_PACK) == null)
+      {
+        trace('Sticker pack "$STICKER_PACK" missing, all sticker groups will be used.');
+      }
+    }
+    catch (x:Dynamic)
+    {
+      trace('FAILED TO LOAD STICKER SET: ' + STICKER_SET);
+      trace(x);
+      UserErrorSubstate.makeMessage('Sticker load error', 'Could not load sticker set "$STICKER_SET"\n\n$x');
+      stickers = null;
+    }
     // sticker group -> array of sticker names
 
     var xPos:Float = -100;
@@ -210,24 +194,37 @@ class StickerSubState extends MusicBeatSubstate
       // A little complicateb block, so let me explain:
       var sticky:StickerSprite = null;
       // Determinate if we actually have a valid set.
-      if(stickers != null){
-
-        // Select subsets defined by STICKER_PACK collection in the above "StickerSet"
+      if (stickers != null)
+      {
         var stickerPack:Array<String> = stickers.getPack(STICKER_PACK);
-        if(stickerPack == null){
-          stickerPack = stickers.stickers.keys().array();
-        }
-        // get all stickers from all subsets defined by "all" collection
-        var stickerSetCollection:Array<String> = [];
-        for(x in stickerPack){
-          stickerSetCollection = stickerSetCollection.concat(stickers.getStickers(x));
+        if (stickerPack == null || stickerPack.length == 0)
+        {
+          stickerPack = [for (k in stickers.stickers.keys()) k];
         }
 
-        // get a random sticker 
-        var sticker:String = FlxG.random.getObject(stickerSetCollection);
-        sticky = new StickerSprite(0, 0, STICKER_SET, sticker);
+        var stickerSetCollection:Array<String> = [];
+        for (x in stickerPack)
+        {
+          var arr = stickers.getStickers(x);
+          if (arr != null && arr.length > 0)
+            stickerSetCollection = stickerSetCollection.concat(arr);
+        }
+
+        if (stickerSetCollection.length > 0)
+        {
+          var sticker:String = FlxG.random.getObject(stickerSetCollection);
+          trace('Selected sticker: ' + sticker);
+          sticky = new StickerSprite(0, 0, STICKER_SET, sticker);
+        }
+        else
+        {
+          trace('Sticker collection empty, using fallback justBf');
+          sticky = new StickerSprite(0, 0, null, "justBf");
+        }
       }
-      else {
+      else
+      {
+        trace('StickerInfo is null, using fallback justBf');
         sticky = new StickerSprite(0, 0, null, "justBf");
       }
       sticky.visible = false;
@@ -410,45 +407,50 @@ class StickerInfo
 
   public function new(stickerSet:String):Void
   {
-    var json = Json.parse(Paths.getTextFromFile('images/transitionSwag/${StickerSubState.STICKER_SET}/stickers.json'));
+    var rawJson:String = Paths.getTextFromFile('images/transitionSwag/$stickerSet/stickers.json');
+    var json:Dynamic = Json.parse(rawJson);
 
-    // doin this dipshit nonsense cuz i dunno how to deal with casting a json object with
-    // a dash in its name (sticker-packs)
-    var jsonInfo:StickerShit = cast json;
+    this.name = Reflect.field(json, "name");
+    this.artist = Reflect.field(json, "artist");
+    this.modDir = Mods.currentModDirectory;
 
-    this.name = jsonInfo.name;
-    this.artist = jsonInfo.artist;
-
+    stickers = new Map<String, Array<String>>();
     stickerPacks = new Map<String, Array<String>>();
 
-    for (field in Reflect.fields(json.stickerPacks))
-    {
-      var stickerFunny = json.stickerPacks;
-      var stickerStuff = Reflect.field(stickerFunny, field);
+    var packsObj:Dynamic = Reflect.field(json, "stickerPacks");
+    if (packsObj == null)
+      packsObj = Reflect.field(json, "sticker-packs");
 
-      stickerPacks.set(field, cast stickerStuff);
+    if (packsObj != null)
+    {
+      for (field in Reflect.fields(packsObj))
+      {
+        stickerPacks.set(field, cast Reflect.field(packsObj, field));
+      }
     }
 
-    // creates a similar for loop as before but for the stickers
-    stickers = new Map<String, Array<String>>();
+    var stickersObj:Dynamic = Reflect.field(json, "stickers");
+    if (stickersObj == null)
+      throw 'Missing "stickers" object in stickers.json';
 
-    for (field in Reflect.fields(json.stickers))
+    for (field in Reflect.fields(stickersObj))
     {
-      var stickerFunny = json.stickers;
-      var stickerStuff = Reflect.field(stickerFunny, field);
-
-      stickers.set(field, cast stickerStuff);
+      stickers.set(field, cast Reflect.field(stickersObj, field));
     }
+
+    trace('Sticker set loaded: ' + stickerSet);
+    trace('Sticker groups: ' + [for (k in stickers.keys()) k]);
+    trace('Sticker packs: ' + [for (k in stickerPacks.keys()) k]);
   }
 
   public function getStickers(stickerName:String):Array<String>
   {
-    return this.stickers[stickerName];
+    return stickers.get(stickerName);
   }
 
   public function getPack(packName:String):Array<String>
   {
-    return this.stickerPacks[packName];
+    return stickerPacks.get(packName);
   }
 }
 

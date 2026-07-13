@@ -2,7 +2,7 @@ package backend.update;
 
 class UpdateConfig {
 	public static inline var CHECK_ON_STARTUP:Bool = true;
-	public static inline var DEBUG_FORCE_UPDATES:Bool = true;
+	public static inline var DEBUG_FORCE_UPDATES:Bool = false;
 	public static inline var CURRENT_ENGINE_VERSION:String = "1.0.4";
 	public static inline var GITHUB_REPO_OWNER:String = "SametGkTe";
 	public static inline var GITHUB_REPO_NAME:String = "Psych-Engine-1.0.4-Android";

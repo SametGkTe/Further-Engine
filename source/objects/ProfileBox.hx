@@ -71,7 +71,7 @@ class ProfileBox extends FlxSpriteGroup {
 	static inline final ACCENT_W = 3;
 	static inline final UNPLUG_SIZE = 20;
 
-	static inline final CACHE_FILE = "profile_cache.json";
+	static inline final CACHE_FILE = "fe_profile_cache.json";
 
 	var bg:FlxSprite;
 	var accentBar:FlxSprite;
@@ -94,7 +94,6 @@ class ProfileBox extends FlxSpriteGroup {
 	var guestSubText:FlxText;
 	var guestArrow:FlxText;
 
-	// Server connection göstergeleri
 	var unplugIcon:FlxSprite;
 	var unplugLabel:FlxText;
 	var _lastServerConn:Bool = true;
@@ -224,27 +223,21 @@ class ProfileBox extends FlxSpriteGroup {
 		statusDot = makeRect(avX + AVATAR_SIZE - 12, avY + AVATAR_SIZE - 12, 10, 10, serverOn ? COL_GREEN : COL_RED);
 		add(statusDot);
 
-		// ============================================
-		// TEXT ALANI
-		// ============================================
 		var textX:Float = avX + AVATAR_SIZE + 14;
 		var textW:Int = Std.int(BOX_W - textX - 14);
 
-		// Satır 1: username · Sv.20
 		usernameText = new FlxText(textX, 14, textW, username + '  ·  '
 			+ Language.getPhrase('profile_level_prefix', 'Sv') + '.$level');
 		usernameText.setFormat(Paths.font("Avgardd.ttf"), 18, COL_TEXT, LEFT);
 		usernameText.scrollFactor.set(0, 0);
 		add(usernameText);
 
-		// Seviye numarası ayrı renkte göstermek için ek text
 		levelText = new FlxText(textX, 14, textW, "");
 		levelText.setFormat(Paths.font("Avgardd.ttf"), 18, rankColor, LEFT);
 		levelText.scrollFactor.set(0, 0);
 		levelText.visible = false;
 		add(levelText);
 
-		// Satır 2: UP + badge
 		upText = new FlxText(textX, 40, textW, '${formatNumber(up)} UP');
 		upText.setFormat(Paths.font("vcr.ttf"), 11, COL_TEXT_DIM, LEFT);
 		upText.scrollFactor.set(0, 0);
@@ -255,7 +248,6 @@ class ProfileBox extends FlxSpriteGroup {
 			upText.text = '${formatNumber(up)} UP  ·  $badge';
 		}
 
-		// Satır 3: Başarımlar
 		#if ACHIEVEMENTS_ALLOWED
 		var achUnlocked = Achievements.achievementsUnlocked.length;
 		var achTotal = Lambda.count(Achievements.achievements);
@@ -266,16 +258,12 @@ class ProfileBox extends FlxSpriteGroup {
 		add(achievementLabel);
 		#end
 
-		// Satır 4 (sol alt): Sunucu bağlantısı kapalı
 		buildUnplugIndicator(serverOn);
 
 		animateEntry();
 		saveCache();
 	}
 
-	// ============================================
-	// UNPLUG GÖSTERGE (sol alt)
-	// ============================================
 	function buildUnplugIndicator(serverOn:Bool):Void {
 		destroyUnplugElements();
 
@@ -821,11 +809,63 @@ class ProfileBox extends FlxSpriteGroup {
 		return Std.string(Std.int(num));
 	}
 
+	static function getSaveDirectory():String {
+		#if android
+		return StorageUtil.getExternalStorageDirectory();
+		#elseif sys
+		var saveDir:String = null;
+		try {
+			saveDir = lime.system.System.applicationStorageDirectory;
+		} catch (e:Dynamic) {
+			saveDir = null;
+		}
+
+		if (saveDir == null || saveDir.length == 0) {
+			#if windows
+			var appdata = Sys.getEnv("APPDATA");
+			if (appdata != null && appdata.length > 0) {
+				saveDir = appdata + "/PsychEngine/";
+			} else {
+				saveDir = Sys.getCwd();
+			}
+			#elseif linux
+			var home = Sys.getEnv("HOME");
+			if (home != null && home.length > 0) {
+				saveDir = home + "/.psychengine/";
+			} else {
+				saveDir = Sys.getCwd();
+			}
+			#elseif mac
+			var home = Sys.getEnv("HOME");
+			if (home != null && home.length > 0) {
+				saveDir = home + "/Library/Application Support/PsychEngine/";
+			} else {
+				saveDir = Sys.getCwd();
+			}
+			#else
+			saveDir = Sys.getCwd();
+			#end
+		}
+
+		try {
+			if (!FileSystem.exists(saveDir)) {
+				FileSystem.createDirectory(saveDir);
+			}
+		} catch (e:Dynamic) {
+			trace('[ProfileBox] Could not create save directory: $e');
+		}
+
+		return saveDir;
+		#else
+		return "";
+		#end
+	}
+
 	static function cachePath():String {
 		#if android
 		return StorageUtil.getExternalStorageDirectory() + CACHE_FILE;
 		#elseif sys
-		return Sys.getCwd() + CACHE_FILE;
+		return getSaveDirectory() + CACHE_FILE;
 		#else
 		return CACHE_FILE;
 		#end
@@ -842,7 +882,9 @@ class ProfileBox extends FlxSpriteGroup {
 				country: AuthManager.currentCountry,
 				timestamp: Date.now().toString()
 			};
-			File.saveContent(cachePath(), haxe.Json.stringify(data));
+			var path = cachePath();
+			trace('[ProfileBox] Saving cache to: $path');
+			File.saveContent(path, haxe.Json.stringify(data));
 		} catch (e:Dynamic) {
 			trace('[ProfileBox] Cache save failed: $e');
 		}

@@ -16,11 +16,14 @@ import substates.ResetScoreSubState;
 
 import backend.StageData;
 
+import mikolka.vslice.StickerSubState;
+
 class StoryMenuState extends MusicBeatState
 {
 	public static var weekCompleted:Map<String, Bool> = new Map<String, Bool>();
 
 	var scoreText:FlxText;
+	var stickerSubState:Null<StickerSubState> = null;
 
 	private static var lastDifficultyName:String = '';
 	var curDifficulty:Int = 1;
@@ -43,6 +46,14 @@ class StoryMenuState extends MusicBeatState
 	var rightArrow:FlxSprite;
 
 	var loadedWeeks:Array<WeekData> = [];
+	
+	public function new(?stickers:StickerSubState)
+	{
+		super();
+
+		if (stickers != null && stickers.members != null)
+			stickerSubState = stickers;
+	}
 
 	override function create()
 	{
@@ -192,6 +203,14 @@ class StoryMenuState extends MusicBeatState
 		addTouchPad('LEFT_FULL', 'A_B_X_Y');
 
 		super.create();
+
+		if (stickerSubState != null)
+		{
+			persistentUpdate = true;
+			persistentDraw = true;
+			openSubState(stickerSubState);
+			stickerSubState.degenStickers();
+		}
 	}
 
 	override function closeSubState() {
