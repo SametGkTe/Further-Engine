@@ -74,18 +74,14 @@ class UpdateState extends MusicBeatState {
 	static inline final ERROR_COLOR:Int = 0xFFEF4444;
 	static inline final SUCCESS_COLOR:Int = 0xFF22C55E;
 
-	// ─────────────────────────────────────────────
 	//  Constructor
-	// ─────────────────────────────────────────────
 
 	public function new(updates:Array<Dynamic>) {
 		super();
 		modpackQueue = updates != null ? updates : [];
 	}
 
-	// ─────────────────────────────────────────────
 	//  Create
-	// ─────────────────────────────────────────────
 
 	override function create() {
 		super.create();
@@ -177,9 +173,7 @@ class UpdateState extends MusicBeatState {
 		}
 	}
 
-	// ─────────────────────────────────────────────
 	//  Update
-	// ─────────────────────────────────────────────
 
 	override function update(elapsed:Float) {
 		super.update(elapsed);
@@ -232,9 +226,7 @@ class UpdateState extends MusicBeatState {
 		}
 	}
 
-	// ─────────────────────────────────────────────
 	//  Bar Güncelleme
-	// ─────────────────────────────────────────────
 
 	function updateBarVisual():Void {
 		var barWidth:Int = FlxG.width - (BAR_MARGIN * 2);
@@ -243,9 +235,7 @@ class UpdateState extends MusicBeatState {
 		percentText.text = '${Math.round(currentProgress * 100)}%';
 	}
 
-	// ─────────────────────────────────────────────
 	//  Kuyruk Yönetimi
-	// ─────────────────────────────────────────────
 
 	function startNextInQueue():Void {
 		// External modpackleri atla
@@ -279,9 +269,7 @@ class UpdateState extends MusicBeatState {
 		startDownload();
 	}
 
-	// ─────────────────────────────────────────────
 	//  İndirme
-	// ─────────────────────────────────────────────
 
 	function startDownload():Void {
 		var directUrl:String = currentPack.directDownloadUrl != null ? currentPack.directDownloadUrl : "";
@@ -339,9 +327,7 @@ class UpdateState extends MusicBeatState {
 		});
 	}
 
-	// ─────────────────────────────────────────────
 	//  Kurulum
-	// ─────────────────────────────────────────────
 
 	function startInstall(zipPath:String):Void {
 		var packId:String = currentPack.id != null ? currentPack.id : "unknown";
@@ -396,9 +382,7 @@ class UpdateState extends MusicBeatState {
 		});
 	}
 
-	// ─────────────────────────────────────────────
 	//  Tamamlandı
-	// ─────────────────────────────────────────────
 
 	function allComplete():Void {
 		setPhase(Done);
@@ -432,9 +416,7 @@ class UpdateState extends MusicBeatState {
 		});
 	}
 
-	// ─────────────────────────────────────────────
 	//  Faz Yönetimi
-	// ─────────────────────────────────────────────
 
 	function setPhase(newPhase:UpdatePhase, ?errorMsg:String):Void {
 		phase = newPhase;
@@ -502,9 +484,7 @@ class UpdateState extends MusicBeatState {
 		}
 	}
 
-	// ─────────────────────────────────────────────
 	//  İptal
-	// ─────────────────────────────────────────────
 
 	function showCancelConfirm():Void {
 		cancelConfirm = true;
@@ -518,9 +498,7 @@ class UpdateState extends MusicBeatState {
 		setPhase(Cancelled);
 	}
 
-	// ─────────────────────────────────────────────
 	//  UI Reset
-	// ─────────────────────────────────────────────
 
 	function resetUI():Void {
 		targetProgress = 0;
@@ -538,9 +516,7 @@ class UpdateState extends MusicBeatState {
 		phaseText.color = FlxColor.WHITE;
 	}
 
-	// ─────────────────────────────────────────────
 	//  Geçiş
-	// ─────────────────────────────────────────────
 
 	function goToMainMenu():Void {
 		FlxG.camera.fade(FlxColor.BLACK, 0.4, false, function() {
@@ -548,9 +524,7 @@ class UpdateState extends MusicBeatState {
 		});
 	}
 
-	// ─────────────────────────────────────────────
 	//  Yardımcılar
-	// ─────────────────────────────────────────────
 
 	function formatMB(mb:Float):String {
 		if (mb >= 100)

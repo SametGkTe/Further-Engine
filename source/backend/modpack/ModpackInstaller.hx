@@ -14,9 +14,7 @@ import backend.modpack.zip.IZipExtractor;
 #end
 
 class ModpackInstaller {
-	// ─────────────────────────────────────────────
 	//  Sabitler
-	// ─────────────────────────────────────────────
 
 	static final MANIFEST_FILE:String = "_modpack.json";
 
@@ -27,27 +25,21 @@ class ModpackInstaller {
 	static final WEIGHT_INSTALLING:Float = 0.25;
 	static final WEIGHT_CLEANUP:Float = 0.05;
 
-	// ─────────────────────────────────────────────
 	//  State
-	// ─────────────────────────────────────────────
 
 	#if sys
 	var _extractor:IZipExtractor;
 	var _installing:Bool = false;
 	var _cancelled:Bool = false;
 
-	// ─────────────────────────────────────────────
 	//  Constructor
-	// ─────────────────────────────────────────────
 
 	public function new() {
 		_extractor = ZipExtractorFactory.createSafe();
 		trace('[ModpackInstaller] Oluşturuldu. Backend: ${_extractor.getBackendName()}');
 	}
 
-	// ─────────────────────────────────────────────
 	//  Public API
-	// ─────────────────────────────────────────────
 
 	/**
 	 * Modpack kurulumunu başlat.
@@ -128,9 +120,7 @@ class ModpackInstaller {
 		return getInstalledManifest(packId) != null;
 	}
 
-	// ─────────────────────────────────────────────
 	//  Adım 1 — Doğrulama
-	// ─────────────────────────────────────────────
 
 	function step_validate(zipPath:String, packId:String, callbacks:ModpackInstallCallbacks):Void {
 		reportPhase(callbacks, Validating, 0.0, "", "ZIP dosyası kontrol ediliyor...");
@@ -193,9 +183,7 @@ class ModpackInstaller {
 		}
 	}
 
-	// ─────────────────────────────────────────────
 	//  Adım 2 — Temp'e Extract
-	// ─────────────────────────────────────────────
 
 	function step_extract(
 		zipPath:String, packId:String, tempDir:String,
@@ -237,9 +225,7 @@ class ModpackInstaller {
 		});
 	}
 
-	// ─────────────────────────────────────────────
 	//  Adım 3 — Manifest Doğrulama
-	// ─────────────────────────────────────────────
 
 	function step_verify(
 		packId:String, tempDir:String,
@@ -301,9 +287,7 @@ class ModpackInstaller {
 		step_detectOldMods(packId, tempDir, manifest, callbacks, zipPath);
 	}
 
-	// ─────────────────────────────────────────────
 	//  Adım 4 — Eski Modları Tespit Et
-	// ─────────────────────────────────────────────
 
 	function step_detectOldMods(
 		packId:String, tempDir:String,
@@ -335,9 +319,7 @@ class ModpackInstaller {
 		step_install(packId, tempDir, newManifest, foldersToRemove, callbacks, zipPath);
 	}
 
-	// ─────────────────────────────────────────────
 	//  Adım 5 — Mods Klasörüne Kur
-	// ─────────────────────────────────────────────
 
 	function step_install(
 		packId:String, tempDir:String,
@@ -470,9 +452,7 @@ class ModpackInstaller {
 		step_complete(manifest, callbacks);
 	}
 
-	// ─────────────────────────────────────────────
 	//  Adım 7 — Tamamlandı
-	// ─────────────────────────────────────────────
 
 	function step_complete(manifest:ModpackManifest, callbacks:ModpackInstallCallbacks):Void {
 		_installing = false;
@@ -489,9 +469,7 @@ class ModpackInstaller {
 			callbacks.onComplete(manifest);
 	}
 
-	// ─────────────────────────────────────────────
 	//  Progress Yardımcıları
-	// ─────────────────────────────────────────────
 
 	function reportPhase(
 		callbacks:ModpackInstallCallbacks,
@@ -604,9 +582,7 @@ class ModpackInstaller {
 		}
 	}
 
-	// ─────────────────────────────────────────────
 	//  Manifest Yardımcıları
-	// ─────────────────────────────────────────────
 
 	/**
 	 * _modpack.json yoksa temp klasörünü tarayıp
@@ -733,9 +709,7 @@ class ModpackInstaller {
 		return s.charAt(0).toUpperCase() + s.substr(1);
 	}
 
-	// ─────────────────────────────────────────────
 	//  Dosya Sistemi Yardımcıları
-	// ─────────────────────────────────────────────
 
 	function deleteDirectory(path:String):Void {
 		if (path == null || !FileSystem.exists(path)) return;
@@ -774,9 +748,7 @@ class ModpackInstaller {
 	}
 
 	#else
-	// ─────────────────────────────────────────────
 	//  sys yoksa stub
-	// ─────────────────────────────────────────────
 
 	public function new() {}
 

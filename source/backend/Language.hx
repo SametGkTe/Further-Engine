@@ -9,7 +9,6 @@ class Language
     #if TRANSLATIONS_ALLOWED
     private static var phrases:Map<String, String> = [];
 
-    // -------------------------------------------------------------------------
     // Desteklenen dil dosyası varyantları (öncelik sırasına göre)
     // Örn: language = "EN-US" ise şu sırayla arar:
     //   1) EN-US.lang
@@ -18,7 +17,6 @@ class Language
     //   4) en_us.lang
     //   5) en.lang     (fallback — tire/alt çizgiden önceki kısım)
     //   6) EN.lang
-    // -------------------------------------------------------------------------
     private static function buildSearchVariants(langFile:String):Array<String>
     {
         var variants:Array<String> = [];
@@ -179,9 +177,7 @@ class Language
 		#end
 	}
 
-    // -------------------------------------------------------------------------
     // Line cleaning
-    // -------------------------------------------------------------------------
 
     private static function cleanLine(line:String):String
     {
@@ -206,9 +202,7 @@ class Language
         return str;
     }
 
-    // -------------------------------------------------------------------------
     // Getters (bunlar aynı kaldı, küçük iyileştirmeler)
-    // -------------------------------------------------------------------------
 
     inline public static function getPhrase(key:String, ?defaultPhrase:String, values:Array<Dynamic> = null):String
     {
@@ -240,9 +234,7 @@ class Language
         return key;
     }
 
-    // -------------------------------------------------------------------------
     // Yeni: Debug / bilgi fonksiyonları
-    // -------------------------------------------------------------------------
 
     #if TRANSLATIONS_ALLOWED
     public static function hasPhrase(key:String):Bool
@@ -287,9 +279,7 @@ class Language
     }
     #end
 
-    // -------------------------------------------------------------------------
     // Lua callbacks
-    // -------------------------------------------------------------------------
 
     #if LUA_ALLOWED
     public static function addLuaCallbacks(lua:State)

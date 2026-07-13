@@ -40,9 +40,7 @@ class SystemZipExtractor implements IZipExtractor {
 		}
 	}
 
-	// ─────────────────────────────────────────────
 	//  listEntries
-	// ─────────────────────────────────────────────
 
 	public function listEntries(zipPath:String):ExtractResult<Array<ZipEntryInfo>> {
 		if (!FileSystem.exists(zipPath))
@@ -73,9 +71,7 @@ class SystemZipExtractor implements IZipExtractor {
 		}
 	}
 
-	// ─────────────────────────────────────────────
 	//  extract
-	// ─────────────────────────────────────────────
 
 	public function extract(zipPath:String, destinationPath:String, callbacks:ExtractCallbacks):Void {
 		var skippedEntries:Int = 0;
@@ -269,9 +265,7 @@ class SystemZipExtractor implements IZipExtractor {
 		}
 	}
 
-	// ─────────────────────────────────────────────
 	//  Fazladan üst klasör algılama
-	// ─────────────────────────────────────────────
 
 	/**
 	 * ZIP içindeki tüm entry'ler tek bir üst klasörün
@@ -411,9 +405,7 @@ class SystemZipExtractor implements IZipExtractor {
 		return buf.sub(0, result.write);
 	}
 
-	// ─────────────────────────────────────────────
 	//  Yardımcılar
-	// ─────────────────────────────────────────────
 
 	function entryToInfo(entry:Entry):ZipEntryInfo {
 		return {

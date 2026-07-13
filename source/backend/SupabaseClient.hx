@@ -10,22 +10,16 @@ class SupabaseClient {
     public static final URL = "https://ubhglndbbzidunjgnpqi.supabase.co";
     public static final ANON_KEY = "sb_publishable_xShtsNZot0C3cIDqj3s2Ew_V3zJs_1k";
 
-    // ============================================
     // OBFUSCATION KEY (basit XOR şifreleme)
-    // ============================================
     static inline var OBF_KEY:Int = 0x5A;
 
-    // ============================================
     // TOKEN CACHE (her seferinde dosya okumamak için)
-    // ============================================
     static var _cachedToken:String = null;
     static var _cachedUserId:String = null;
     static var _cachedRefreshToken:String = null;
     static var _cacheLoaded:Bool = false;
 
-    // ============================================
     // DOSYA YOLU
-    // ============================================
     static function _getAuthFilePath():String {
         var dir:String = "";
         try {
@@ -44,9 +38,7 @@ class SupabaseClient {
         return dir + "fe_auth.json";
     }
 
-    // ============================================
     // XOR OBFUSCATION
-    // ============================================
     static function _obfuscate(input:String):String {
         if (input == null || input == "")
             return "";
@@ -80,9 +72,7 @@ class SupabaseClient {
         }
     }
 
-    // ============================================
     // DOSYAYA KAYDET
-    // ============================================
     static function _saveAuthFile():Void {
         try {
             var filePath = _getAuthFilePath();
@@ -106,9 +96,7 @@ class SupabaseClient {
         }
     }
 
-    // ============================================
     // DOSYADAN OKU
-    // ============================================
     static function _loadAuthFile():Void {
         if (_cacheLoaded)
             return;
@@ -162,9 +150,7 @@ class SupabaseClient {
         }
     }
 
-    // ============================================
     // PUBLIC API
-    // ============================================
 
     public static function saveToken(token:String, userId:String):Void {
         _loadAuthFile();
@@ -218,9 +204,7 @@ class SupabaseClient {
         }
     }
 
-    // ============================================
     // HTTP - POST ASYNC
-    // ============================================
     public static function postAsync(endpoint:String, body:Dynamic, token:String = "", callback:Int->String->Void):Void {
         #if sys
         sys.thread.Thread.create(function() {
@@ -258,9 +242,7 @@ class SupabaseClient {
         #end
     }
 
-    // ============================================
     // HTTP - GET ASYNC
-    // ============================================
     public static function getAsync(endpoint:String, token:String = "", callback:Int->String->Void):Void {
         #if sys
         sys.thread.Thread.create(function() {
@@ -296,9 +278,7 @@ class SupabaseClient {
         #end
     }
 
-    // ============================================
     // HTTP - POST SYNC
-    // ============================================
     public static function post(endpoint:String, body:Dynamic, token:String = "", callback:Int->String->Void):Void {
         var fullUrl = '${URL}${endpoint}';
         trace("POST -> " + fullUrl);
@@ -325,9 +305,7 @@ class SupabaseClient {
         #end
     }
 
-    // ============================================
     // HTTP - GET SYNC
-    // ============================================
     public static function get(endpoint:String, token:String = "", callback:Int->String->Void):Void {
         var fullUrl = '${URL}${endpoint}';
         trace("GET -> " + fullUrl);

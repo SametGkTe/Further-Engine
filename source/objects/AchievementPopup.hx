@@ -15,9 +15,7 @@ import openfl.geom.Matrix;
 class AchievementPopup extends Sprite {
 	public var onFinish:Void->Void = null;
 
-	// ══════════════════════════════════════
 	//  DEBUG MODE
-	// ══════════════════════════════════════
 	public static var DEBUG_MODE:Bool = true;
 	static var _debugTriggered:Bool = false;
 
@@ -44,7 +42,6 @@ class AchievementPopup extends Sprite {
 			}
 		});
 	}
-	// ══════════════════════════════════════
 
 	// ── Layout constants ──
 	static inline var PADDING:Float = 14;

@@ -91,9 +91,7 @@ class ModpackStoreState extends MusicBeatState {
 	static inline final ITEM_HEIGHT:Int = 50;
 	static inline final LIST_START_Y:Int = 90;
 
-	// ─────────────────────────────────────────────
 	//  Create
-	// ─────────────────────────────────────────────
 
 	override function create() {
 		super.create();
@@ -186,9 +184,7 @@ class ModpackStoreState extends MusicBeatState {
 		fetchStore();
 	}
 
-	// ─────────────────────────────────────────────
 	//  Detay Paneli Oluştur
-	// ─────────────────────────────────────────────
 
 	function createDetailPanel():Void {
 		detailBg = new FlxSprite(40, 80).makeGraphic(FlxG.width - 80, FlxG.height - 180, 0xFF0D0D0D);
@@ -244,9 +240,7 @@ class ModpackStoreState extends MusicBeatState {
 		add(detailControls);
 	}
 
-	// ─────────────────────────────────────────────
 	//  Veri Çekme
-	// ─────────────────────────────────────────────
 
 	function fetchStore():Void {
 		screenState = Loading;
@@ -268,9 +262,7 @@ class ModpackStoreState extends MusicBeatState {
 		});
 	}
 
-	// ─────────────────────────────────────────────
 	//  Liste Ekranı
-	// ─────────────────────────────────────────────
 
 	function showBrowse():Void {
 		screenState = Browse;
@@ -377,9 +369,7 @@ class ModpackStoreState extends MusicBeatState {
 		return "new";
 	}
 
-	// ─────────────────────────────────────────────
 	//  Detay Ekranı
-	// ─────────────────────────────────────────────
 
 	function showDetail():Void {
 		if (selectedIndex < 0 || selectedIndex >= allPacks.length) return;
@@ -468,9 +458,7 @@ class ModpackStoreState extends MusicBeatState {
 		for (t in statusIndicators) t.visible = true;
 	}
 
-	// ─────────────────────────────────────────────
 	//  İndirme/Kurulum
-	// ─────────────────────────────────────────────
 
 	function startPackDownload():Void {
 		if (selectedIndex < 0 || selectedIndex >= allPacks.length) return;
@@ -616,9 +604,7 @@ class ModpackStoreState extends MusicBeatState {
 		controlsText.text = "[ENTER] Listeye Dön  |  [ESC] Ana Menü";
 	}
 
-	// ─────────────────────────────────────────────
 	//  Hata
-	// ─────────────────────────────────────────────
 
 	function showError(msg:String):Void {
 		screenState = Error;
@@ -641,9 +627,7 @@ class ModpackStoreState extends MusicBeatState {
 		controlsText.text = "[ENTER] Tekrar Dene  |  [ESC] Geri";
 	}
 
-	// ─────────────────────────────────────────────
 	//  Progress UI
-	// ─────────────────────────────────────────────
 
 	function showProgress():Void {
 		barBorder.visible = true;
@@ -665,9 +649,7 @@ class ModpackStoreState extends MusicBeatState {
 		errorText.visible = false;
 	}
 
-	// ─────────────────────────────────────────────
 	//  Update
-	// ─────────────────────────────────────────────
 
 	override function update(elapsed:Float) {
 		super.update(elapsed);
@@ -762,9 +744,7 @@ class ModpackStoreState extends MusicBeatState {
 		}
 	}
 
-	// ─────────────────────────────────────────────
 	//  Geçiş
-	// ─────────────────────────────────────────────
 
 	function goToMainMenu():Void {
 		FlxG.camera.fade(FlxColor.BLACK, 0.4, false, function() {
@@ -772,9 +752,7 @@ class ModpackStoreState extends MusicBeatState {
 		});
 	}
 
-	// ─────────────────────────────────────────────
 	//  Yardımcılar
-	// ─────────────────────────────────────────────
 
 	function formatMB(mb:Float):String {
 		if (mb >= 100)

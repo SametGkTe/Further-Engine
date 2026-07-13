@@ -13,9 +13,7 @@ import shaders.WarpEffect;
 
 class BetaWarningState extends MusicBeatState
 {
-	// =========================================================================
 	// CONFIGURATION
-	// =========================================================================
 
 	static inline final FONT_PATH:String = "Avgardd.ttf";
 	static inline final FONT_SIZE_TITLE:Int = 48;
@@ -72,9 +70,7 @@ class BetaWarningState extends MusicBeatState
 	static inline final HINT_DESKTOP:String = "[ENTER] Devam Et    [ESC] Atla";
 	static inline final HINT_MOBILE:String = "[A] Devam Et    [B] Atla";
 
-	// =========================================================================
 	// STATE VARS
-	// =========================================================================
 
 	var leftState:Bool = false;
 	var allowInput:Bool = false;
@@ -102,9 +98,7 @@ class BetaWarningState extends MusicBeatState
 
 	var ambiencePlaying:Bool = false;
 
-	// =========================================================================
 	// CREATE
-	// =========================================================================
 
 	override function create()
 	{
@@ -287,9 +281,7 @@ class BetaWarningState extends MusicBeatState
 		touchPad.alpha = 0;
 	}
 
-	// =========================================================================
 	// INTRO SEQUENCE
-	// =========================================================================
 
 	function playIntroSequence():Void
 	{
@@ -396,9 +388,7 @@ class BetaWarningState extends MusicBeatState
 		});
 	}
 
-	// =========================================================================
 	// UPDATE
-	// =========================================================================
 
 	override function update(elapsed:Float)
 	{
@@ -456,9 +446,7 @@ class BetaWarningState extends MusicBeatState
 		hintText.alpha = 0.45 + Math.sin(elapsed_total * HINT_PULSE_SPEED) * 0.45;
 	}
 
-	// =========================================================================
 	// INPUT
-	// =========================================================================
 
 	function handleInput():Void
 	{
@@ -469,9 +457,7 @@ class BetaWarningState extends MusicBeatState
 		}
 	}
 
-	// =========================================================================
 	// EXIT - ZOOM IN + FADE OUT
-	// =========================================================================
 
 	function confirmAndExit():Void
 	{
@@ -586,9 +572,7 @@ class BetaWarningState extends MusicBeatState
 		}
 	}
 
-	// =========================================================================
 	// SHADER FLOAT TWEEN HELPER
-	// =========================================================================
 
 	function tweenShaderFloat(from:Float, to:Float, duration:Float, ease:flixel.tweens.FlxEase.EaseFunction,
 		onUpdate:Float->Void, ?onDone:Void->Void):Void
@@ -623,9 +607,7 @@ class BetaWarningState extends MusicBeatState
 		FlxTransitionableState.skipNextTransOut = true;
 	}
 
-	// =========================================================================
 	// DESTROY
-	// =========================================================================
 
 	override function destroy()
 	{
@@ -639,9 +621,7 @@ class BetaWarningState extends MusicBeatState
 	}
 }
 
-// =============================================================================
 // PORTAL PARTICLE
-// =============================================================================
 
 class PortalParticle extends FlxSprite
 {

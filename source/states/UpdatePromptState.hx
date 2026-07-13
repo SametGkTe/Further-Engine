@@ -87,9 +87,7 @@ class UpdatePromptState extends MusicBeatState
 		super.update(elapsed);
 	}
 
-	// ─────────────────────────────────────────────
 	//  UI Oluşturma
-	// ─────────────────────────────────────────────
 
 	function createBackground():Void
 	{
@@ -163,9 +161,7 @@ class UpdatePromptState extends MusicBeatState
 		touchPad.alpha = 0;
 	}
 
-	// ─────────────────────────────────────────────
 	//  Intro Animasyonu
-	// ─────────────────────────────────────────────
 
 	function playIntro():Void
 	{
@@ -207,9 +203,7 @@ class UpdatePromptState extends MusicBeatState
 		});
 	}
 
-	// ─────────────────────────────────────────────
 	//  Girdi
-	// ─────────────────────────────────────────────
 
 	function handleInput():Void
 	{
@@ -234,9 +228,7 @@ class UpdatePromptState extends MusicBeatState
 		}
 	}
 
-	// ─────────────────────────────────────────────
 	//  Seçim
-	// ─────────────────────────────────────────────
 
 	function updateSelection(?instant:Bool = false):Void
 	{
@@ -268,9 +260,7 @@ class UpdatePromptState extends MusicBeatState
 		});
 	}
 
-	// ─────────────────────────────────────────────
 	//  Otomatik Seçim
-	// ─────────────────────────────────────────────
 
 	function resetAutoSelect():Void
 	{
@@ -327,9 +317,7 @@ class UpdatePromptState extends MusicBeatState
 		countdownText.x = (FlxG.width - countdownText.width) * 0.5;
 	}
 
-	// ─────────────────────────────────────────────
 	//  Onay / Atlama
-	// ─────────────────────────────────────────────
 
 	function confirmSelection():Void
 	{
@@ -379,9 +367,7 @@ class UpdatePromptState extends MusicBeatState
 		fadeOutAndGo(false);
 	}
 
-	// ─────────────────────────────────────────────
 	//  Geçişler
-	// ─────────────────────────────────────────────
 
 	function goToUpdateState():Void
 	{
@@ -427,9 +413,7 @@ class UpdatePromptState extends MusicBeatState
 		];
 	}
 
-	// ─────────────────────────────────────────────
 	//  Bilgi Yardımcıları
-	// ─────────────────────────────────────────────
 
 	function calculateTotalSize():String
 	{

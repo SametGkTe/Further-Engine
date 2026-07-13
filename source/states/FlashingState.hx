@@ -42,11 +42,9 @@ class FlashingState extends MusicBeatState
 	static inline final AUTO_SELECT_TIME:Float = 15.0;
 	static inline final CONFIRM_EXIT_DELAY:Float = 0.45;
 
-	// -------------------------------------------------------------------------
 	// Localization
 	// Şimdilik compile-safe olsun diye state içinde tuttum.
 	// İstersen bunu bir sonraki mesajda JSON dosyasına taşıyabilirim.
-	// -------------------------------------------------------------------------
 
 	static final LOCALIZED_TEXT:Dynamic = {
 		tr: {
@@ -316,9 +314,7 @@ class FlashingState extends MusicBeatState
 		confirmSelection(true);
 	}
 
-	// -------------------------------------------------------------------------
 	// Confirm / Cancel
-	// -------------------------------------------------------------------------
 
 	function confirmSelection(fromAutoSelect:Bool):Void
 	{
@@ -396,9 +392,7 @@ class FlashingState extends MusicBeatState
 		FlxTransitionableState.skipNextTransOut = true;
 	}
 
-	// -------------------------------------------------------------------------
 	// Localization helpers
-	// -------------------------------------------------------------------------
 
 	function tr(key:String, ?args:Array<Dynamic>):String
 	{

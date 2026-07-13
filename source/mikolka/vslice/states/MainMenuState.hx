@@ -120,9 +120,7 @@ class MainMenuState extends MusicBeatState
         magenta.color = 0xFFfd719b;
         add(magenta);
 
-        // ═══════════════════════════════════════
         // TOP BAR
-        // ═══════════════════════════════════════
         topBar = new FlxSprite(0, 0).makeGraphic(FlxG.width, topBarHeight, 0xFF000000);
         topBar.alpha = 0.72;
         topBar.scrollFactor.set();

@@ -159,9 +159,7 @@ class RehberSubState extends MusicBeatSubstate {
 		add(scrollBar);
 	}
 
-	// ============================================================
 	// İÇERİK TANIMLAMALARI
-	// ============================================================
 
 	function getSections():Array<SectionData> {
 		return [

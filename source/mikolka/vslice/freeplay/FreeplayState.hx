@@ -95,9 +95,7 @@ enum SearchItemType
 
 class FreeplayState extends MusicBeatSubstate
 {
-	// ═══════════════════════════════════════════
 	//  ORIJINAL ALANLAR (DEĞİŞTİRİLMEDİ)
-	// ═══════════════════════════════════════════
 
 	final currentCharacterId:String;
 	final currentCharacter:PlayableCharacter;
@@ -163,9 +161,7 @@ class FreeplayState extends MusicBeatSubstate
 	var styleData:Null<FreeplayStyle> = null;
 	var fromCharSelect:Null<Bool> = null;
 
-	// ═══════════════════════════════════════════
 	//  YENİ ALANLAR - ARAMA SİSTEMİ
-	// ═══════════════════════════════════════════
 
 	var searchOpen:Bool = false;
 	var searchInputActive:Bool = false;
@@ -200,15 +196,11 @@ class FreeplayState extends MusicBeatSubstate
 	static inline var DROPDOWN_ITEM_HEIGHT:Int = 40;
 	static inline var DROPDOWN_ICON_SIZE:Int = 28;
 
-	// ═══════════════════════════════════════════
 	//  YENİ ALANLAR - SON OYNANAN & FAVORİ
-	// ═══════════════════════════════════════════
 
 	public static var recentlyPlayed:Array<String> = [];
 
-	// ═══════════════════════════════════════════
 	//  YENİ ALANLAR - HIZLI SCROLL
-	// ═══════════════════════════════════════════
 
 	var holdTime:Float = 0;
 	var _previewTimer:Null<FlxTimer> = null;
@@ -312,9 +304,7 @@ class FreeplayState extends MusicBeatSubstate
 	var fadeShader:BlueFade = new BlueFade();
 	public var angleMaskShader:AngleMask = new AngleMask();
 
-	// ═══════════════════════════════════════════
 	//  CREATE
-	// ═══════════════════════════════════════════
 
 	override function create():Void
 	{
@@ -861,9 +851,7 @@ class FreeplayState extends MusicBeatSubstate
 		}
 	}
 
-	// ═══════════════════════════════════════════
 	//  ARAMA SİSTEMİ FONKSİYONLARI
-	// ═══════════════════════════════════════════
 
 	function createSearchBar():Void
 	{
@@ -1606,9 +1594,7 @@ class FreeplayState extends MusicBeatSubstate
 			recentlyPlayed.shift();
 	}
 
-	// ═══════════════════════════════════════════
 	//  VOCALS
-	// ═══════════════════════════════════════════
 
 	public static var vocals:FlxSound = null;
 	public static var opponentVocals:FlxSound = null;
@@ -1624,9 +1610,7 @@ class FreeplayState extends MusicBeatSubstate
 		opponentVocals = FlxDestroyUtil.destroy(opponentVocals);
 	}
 
-	// ═══════════════════════════════════════════
 	//  FİLTRELEME
-	// ═══════════════════════════════════════════
 
 	var currentFilter:SongFilter = null;
 	var currentFilteredSongs:Array<FreeplaySongData> = [];
@@ -1719,9 +1703,7 @@ class FreeplayState extends MusicBeatSubstate
 		return songsToFilter;
 	}
 
-	// ═══════════════════════════════════════════
 	//  RANK ANİMASYON SİSTEMİ
-	// ═══════════════════════════════════════════
 
 	var sparks:FlxSprite;
 	var sparksADD:FlxSprite;
@@ -2007,9 +1989,7 @@ class FreeplayState extends MusicBeatSubstate
 		});
 	}
 
-	// ═══════════════════════════════════════════
 	//  SUBSTATE
-	// ═══════════════════════════════════════════
 
 	override function closeSubState()
 	{
@@ -2031,9 +2011,7 @@ class FreeplayState extends MusicBeatSubstate
 		#end
 	}
 
-	// ═══════════════════════════════════════════
 	//  KARAKTER SEÇİMİ
-	// ═══════════════════════════════════════════
 
 	function tryOpenCharSelect():Void
 	{
@@ -2183,9 +2161,7 @@ class FreeplayState extends MusicBeatSubstate
 		}
 	}
 
-	// ═══════════════════════════════════════════
 	//  UPDATE
-	// ═══════════════════════════════════════════
 
 	var touchY:Float = 0;
 	var touchX:Float = 0;
@@ -2430,9 +2406,7 @@ class FreeplayState extends MusicBeatSubstate
 			FlxG.watch.addQuick('dj-anim', dj.getCurrentAnimation());
 	}
 
-	// ═══════════════════════════════════════════
 	//  SKOR LERP
-	// ═══════════════════════════════════════════
 
 	function lerpScoreDisplays(elapsed:Float):Void
 	{
@@ -2461,9 +2435,7 @@ class FreeplayState extends MusicBeatSubstate
 		}
 	}
 
-	// ═══════════════════════════════════════════
 	//  GİRDİ İŞLEME
-	// ═══════════════════════════════════════════
 
 	function handleInputs(elapsed:Float):Void
 	{
@@ -2670,9 +2642,7 @@ class FreeplayState extends MusicBeatSubstate
 		}
 	}
 
-	// ═══════════════════════════════════════════
 	//  BEAT HIT
-	// ═══════════════════════════════════════════
 
 	override function beatHit()
 	{
@@ -2680,9 +2650,7 @@ class FreeplayState extends MusicBeatSubstate
 		super.beatHit();
 	}
 
-	// ═══════════════════════════════════════════
 	//  DESTROY
-	// ═══════════════════════════════════════════
 
 	public override function destroy():Void
 	{
@@ -2700,9 +2668,7 @@ class FreeplayState extends MusicBeatSubstate
 		instance = null;
 	}
 
-	// ═══════════════════════════════════════════
 	//  ZORLUK DEĞİŞTİRME
-	// ═══════════════════════════════════════════
 
 	var difficultyLastChange:Int = 0;
 	
@@ -2956,9 +2922,7 @@ class FreeplayState extends MusicBeatSubstate
 		}
 	}
 
-	// ═══════════════════════════════════════════
 	//  CACHE TEMİZLEME
-	// ═══════════════════════════════════════════
 
 	function clearDaCache(actualSongTho:String):Void
 	{
@@ -2979,9 +2943,7 @@ class FreeplayState extends MusicBeatSubstate
 		}
 	}
 
-	// ═══════════════════════════════════════════
 	//  CAPSULE ONAYLAMA
-	// ═══════════════════════════════════════════
 
 	function capsuleOnConfirmRandom(randomCapsule:SongMenuItem):Void
 	{
@@ -3111,9 +3073,7 @@ class FreeplayState extends MusicBeatSubstate
 		});
 	}
 
-	// ═══════════════════════════════════════════
 	//  SEÇİM HATIRLA
-	// ═══════════════════════════════════════════
 
 	function rememberSelection():Void
 	{
@@ -3135,9 +3095,7 @@ class FreeplayState extends MusicBeatSubstate
 			currentDifficulty = rememberedDifficulty;
 	}
 
-	// ═══════════════════════════════════════════
 	//  SEÇİM DEĞİŞTİRME
-	// ═══════════════════════════════════════════
 
 	function changeSelectionFractal(change:Float)
 	{
@@ -3244,9 +3202,7 @@ class FreeplayState extends MusicBeatSubstate
 			tweenCurSongColor(daSongCapsule);
 	}
 
-	// ═══════════════════════════════════════════
 	//  MÜZİK ÖNİZLEME
-	// ═══════════════════════════════════════════
 
 	public function playCurSongPreview(?daSongCapsule:SongMenuItem):Void
 	{
@@ -3321,9 +3277,7 @@ class FreeplayState extends MusicBeatSubstate
 		}
 	}
 
-	// ═══════════════════════════════════════════
 	//  STATİK BUILD
-	// ═══════════════════════════════════════════
 
 	public static function build(?params:FreeplayStateParams, ?stickers:StickerSubState):MusicBeatState
 	{
@@ -3331,9 +3285,7 @@ class FreeplayState extends MusicBeatSubstate
 	}
 }
 
-// ═══════════════════════════════════════════
 //  YARDIMCI TİPLER
-// ═══════════════════════════════════════════
 
 typedef SongFilter =
 {
