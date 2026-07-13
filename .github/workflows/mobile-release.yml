@@ -7,7 +7,7 @@ permissions:
 
 env:
   PROJECT_NAME: PsychEngine
-  REPO_PATH: SametGkTe/Psych-Engine-1.0.4-Android
+  REPO_PATH: SametGkTe/Further-Engine
 
 jobs:
   get-commit-hash:
