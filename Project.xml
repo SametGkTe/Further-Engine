@@ -22,9 +22,6 @@
 
 	<define name="MODS_ALLOWED" if="desktop || mobile" />
 	<define name="HSCRIPT_ALLOWED" if="desktop || mobile" />
-	
-	<!-- define name="POLYMOD_SUPPORT" if="MODS_ALLOWED" -->
-	
 	<define name="LUA_ALLOWED" if="cpp" />
 	<define name="ACHIEVEMENTS_ALLOWED" />
 	<define name="DISCORD_ALLOWED" if="desktop" />
@@ -116,8 +113,6 @@
 	<haxelib name="flixel-addons" version="3.3.2"/>
 	<haxelib name="tjson" version="1.4.0"/>
 	
-	<!-- haxelib name="polymod"-->
-	
 	<haxelib name="htmlparser" />
 
 	<!--Psych stuff needed-->
@@ -126,8 +121,6 @@
 	<haxelib name="hxvlc" if="VIDEOS_ALLOWED"/>
 	<haxelib name="hxdiscord_rpc" if="DISCORD_ALLOWED"/>
 	<haxelib name="flxanimate"/>
-	<haxelib name="flixel-animate" />
-	<haxelib name="hscript" />
 
 	<!-- Disable Discord IO Thread -->
 	<haxedef name="DISCORD_DISABLE_IO_THREAD" if="hxdiscord_rpc" />
@@ -162,13 +155,6 @@
 
 	<!--Disable the Flixel sound management code-->
 	<!--<haxedef name="FLX_NO_SOUND_SYSTEM" />-->
-	
-	<!-- Performance -->
-	<section unless="debug">
-		<haxedef name="HXCPP_GC_MOVING" />
-		<haxedef name="HXCPP_GC_BIG_BLOCKS" />
-		<haxedef name="analyzer-optimize" />
-	</section>
 
 	<!--Disable the Flixel core focus lost screen-->
 	<haxedef name="FLX_NO_FOCUS_LOST_SCREEN" />
@@ -212,6 +198,7 @@
 
 	<!--Macro fixes-->
 	<haxeflag name="--macro" value="allowPackage('flash')" />
+	<haxeflag name="--macro" value="include('my.pack')" />
 
 	<haxedef name="hscriptPos" if="HSCRIPT_ALLOWED" />
 
