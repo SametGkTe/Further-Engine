@@ -667,14 +667,34 @@ class ProfileBox extends FlxSpriteGroup {
 
 		if (newHover != _dropHoverIdx) {
 			_dropHoverIdx = newHover;
-			if (dropSettingsBg != null)
+
+			// Ayarlar butonu
+			if (dropSettingsBg != null) {
+				FlxTween.cancelTweensOf(dropSettingsBg);
 				dropSettingsBg.color = (_dropHoverIdx == 0) ? COL_DROP_HOVER : COL_DROP_BG;
-			if (dropLogoutBg != null)
+			}
+			if (dropSettingsIcon != null) {
+				FlxTween.cancelTweensOf(dropSettingsIcon);
+				dropSettingsIcon.alpha = (_dropHoverIdx == 0) ? 1.0 : 0.7;
+			}
+			if (dropSettingsText != null) {
+				FlxTween.cancelTweensOf(dropSettingsText);
+				dropSettingsText.color = (_dropHoverIdx == 0) ? FlxColor.WHITE : COL_TEXT;
+			}
+
+			// Çıkış butonu
+			if (dropLogoutBg != null) {
+				FlxTween.cancelTweensOf(dropLogoutBg);
 				dropLogoutBg.color = (_dropHoverIdx == 1) ? COL_DROP_HOVER : COL_DROP_BG;
-			if (dropSettingsText != null)
-				dropSettingsText.color = (_dropHoverIdx == 0) ? FlxColor.WHITE : COL_SETTINGS;
-			if (dropLogoutText != null)
+			}
+			if (dropLogoutIcon != null) {
+				FlxTween.cancelTweensOf(dropLogoutIcon);
+				dropLogoutIcon.alpha = (_dropHoverIdx == 1) ? 1.0 : 0.7;
+			}
+			if (dropLogoutText != null) {
+				FlxTween.cancelTweensOf(dropLogoutText);
 				dropLogoutText.color = (_dropHoverIdx == 1) ? 0xFFff6b6b : COL_LOGOUT;
+			}
 		}
 
 		var clicked = FlxG.mouse.justPressed;

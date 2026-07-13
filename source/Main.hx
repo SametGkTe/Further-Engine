@@ -59,17 +59,22 @@ class Main extends Sprite
 		hl.Gc.enable(true);
 		#end
 	}
-
+	
 	public function new()
 	{
 		super();
+		backend.CrashHandler.init();
+
 		#if mobile
 		#if android
 		StorageUtil.requestPermissions();
 		#end
-		Sys.setCwd(StorageUtil.getStorageDirectory());
+		try {
+			Sys.setCwd(StorageUtil.getStorageDirectory());
+		} catch (e:Dynamic) {
+			trace('Warning: Could not set CWD on initial startup: ' + e);
+		}
 		#end
-		backend.CrashHandler.init();
 
 		#if (cpp && windows)
 		backend.Native.fixScaling();

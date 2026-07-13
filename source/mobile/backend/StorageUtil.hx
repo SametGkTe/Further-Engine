@@ -125,9 +125,8 @@ class StorageUtil
 			&& !AndroidPermissions.getGrantedPermissions().contains('android.permission.READ_MEDIA_IMAGES'))
 			|| (AndroidVersion.SDK_INT < AndroidVersionCode.TIRAMISU
 				&& !AndroidPermissions.getGrantedPermissions().contains('android.permission.READ_EXTERNAL_STORAGE')))
-			CoolUtil.showPopUp(Language.getPhrase('permissions_message', 'İzinleri kabul ettiyseniz oyununuz sorunsuz açılacaktır, etmediyseniz izinler bölümünden tüm dosyalara erişime izin verin'),
-				Language.getPhrase('mobile_notice', "Uyarı!"));
-
+			CoolUtil.showPopUp(Language.getPhrase('permissions_message', 'izinleri kabul ettiyseniz oyununuz sorunsuz acilacaktir, etmediyseniz izinler bolumunden tum dosyalara erisime izin verin'),
+				Language.getPhrase('mobile_notice', "uyari!"));
 		try
 		{
 			if (!FileSystem.exists(StorageUtil.getStorageDirectory()))
@@ -135,8 +134,12 @@ class StorageUtil
 		}
 		catch (e:Dynamic)
 		{
-			CoolUtil.showPopUp(Language.getPhrase('create_directory_error', 'Please create directory to\n{1}\nPress OK to close the game', [StorageUtil.getStorageDirectory()]), Language.getPhrase('mobile_error', "Error!"));
-			lime.system.System.exit(1);
+			trace('Could not create storage directory: ' + e);
+			if (AndroidPermissions.getGrantedPermissions().contains('android.permission.READ_EXTERNAL_STORAGE')
+				|| AndroidPermissions.getGrantedPermissions().contains('android.permission.READ_MEDIA_IMAGES'))
+			{
+				CoolUtil.showPopUp(Language.getPhrase('create_directory_error', 'Please create directory to\n{1}\nPress OK to close the game', [StorageUtil.getStorageDirectory()]), Language.getPhrase('mobile_error', "Error!"));
+			}
 		}
 		StorageUtil.ensureModpackDirectories();
 
@@ -147,8 +150,7 @@ class StorageUtil
 		}
 		catch (e:Dynamic)
 		{
-			CoolUtil.showPopUp(Language.getPhrase('create_directory_error', 'Please create directory to\n{1}\nPress OK to close the game', [StorageUtil.getExternalStorageDirectory()]), Language.getPhrase('mobile_error', "Error!"));
-			lime.system.System.exit(1);
+			trace('Could not create mods directory: ' + e);
 		}
 	}
 	#end

@@ -400,14 +400,18 @@ class LinkSubState extends MusicBeatSubstate
 		for (i in 0...links.length)
 		{
 			var isSelected = (i == curSelected);
+			var typeColor = linkTypeColors.get(links[i].type) ?? COL_TEXT;
+
+			linkTexts[i].color = isSelected ? typeColor : COL_TEXT;
 			linkTexts[i].alpha = isSelected ? 1.0 : 0.5;
-			linkTexts[i].color = isSelected ? (linkTypeColors.get(links[i].type) ?? COL_TEXT) : COL_TEXT;
 			linkUrlTexts[i].alpha = isSelected ? 0.6 : 0.25;
+			linkDots[i].color = isSelected ? (linkTypeColors.get(links[i].type) ?? 0xFFCCCCCC) : 0xFFCCCCCC;
 			linkDots[i].alpha = isSelected ? 1.0 : 0.4;
 		}
 
 		var sepY = panelY + HEADER_H;
 		var targetY = sepY + 8 + (curSelected * LINK_ITEM_H) + 2;
+		selectBar.color = COL_BTN_SEL;
 		selectBar.alpha = 0.8;
 		FlxTween.cancelTweensOf(selectBar);
 		FlxTween.tween(selectBar, {y: targetY}, 0.1, {ease: FlxEase.quartOut});
@@ -734,12 +738,34 @@ class LinkSubStateSingle extends MusicBeatSubstate
 
 	function updateHighlight():Void
 	{
-		yesBg.color = (curSelected == 0) ? COL_BTN_SEL : COL_BTN;
-		yesText.alpha = (curSelected == 0) ? 1 : 0.6;
-		yesLine.alpha = (curSelected == 0) ? 1 : 0.6;
-		noBg.color = (curSelected == 1) ? COL_BTN_SEL : COL_BTN;
-		noText.alpha = (curSelected == 1) ? 1 : 0.6;
-		noLine.alpha = (curSelected == 1) ? 1 : 0.6;
+		if (curSelected == 0)
+		{
+			yesBg.color = COL_BTN_SEL;
+			yesText.alpha = 1;
+			yesLine.alpha = 1;
+			noBg.color = COL_BTN;
+			noText.alpha = 0.6;
+			noLine.alpha = 0.6;
+		}
+		else if (curSelected == 1)
+		{
+			yesBg.color = COL_BTN;
+			yesText.alpha = 0.6;
+			yesLine.alpha = 0.6;
+			noBg.color = COL_BTN_SEL;
+			noText.alpha = 1;
+			noLine.alpha = 1;
+		}
+		else
+		{
+			// curSelected == -1: hiçbiri seçili değil, varsayılan görünüm
+			yesBg.color = COL_BTN;
+			yesText.alpha = 0.6;
+			yesLine.alpha = 0.6;
+			noBg.color = COL_BTN;
+			noText.alpha = 0.6;
+			noLine.alpha = 0.6;
+		}
 	}
 
 	function isOver(spr:FlxSprite):Bool

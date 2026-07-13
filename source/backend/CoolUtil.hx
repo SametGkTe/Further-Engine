@@ -200,11 +200,35 @@ class CoolUtil
 
 	public static function showPopUp(message:String, title:String):Void
 	{
-		/*#if android
-		AndroidTools.showAlertDialog(title, message, {name: "OK", func: null}, null);
-		#else*/
-		FlxG.stage.window.alert(message, title);
-		//#end
+		#if android
+		try {
+			AndroidTools.showAlertDialog(title, message, {name: "OK", func: null}, null);
+			return;
+		} catch (e:Dynamic) {}
+		#end
+
+		try {
+			if (openfl.Lib.current != null && openfl.Lib.current.stage != null && openfl.Lib.current.stage.window != null) {
+				openfl.Lib.current.stage.window.alert(message, title);
+				return;
+			}
+		} catch (e:Dynamic) {}
+
+		try {
+			if (openfl.Lib.application != null && openfl.Lib.application.window != null) {
+				openfl.Lib.application.window.alert(message, title);
+				return;
+			}
+		} catch (e:Dynamic) {}
+
+		try {
+			if (FlxG.stage != null && FlxG.stage.window != null) {
+				FlxG.stage.window.alert(message, title);
+				return;
+			}
+		} catch (e:Dynamic) {}
+
+		trace('$title: $message');
 	}
 
 	#if cpp
