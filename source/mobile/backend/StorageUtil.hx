@@ -113,20 +113,34 @@ class StorageUtil
 
 	public static function requestPermissions():Void
 	{
+		var hasStoragePermission:Bool = false;
 		if (AndroidVersion.SDK_INT >= AndroidVersionCode.TIRAMISU)
-			AndroidPermissions.requestPermissions(['READ_MEDIA_IMAGES', 'READ_MEDIA_VIDEO', 'READ_MEDIA_AUDIO', 'READ_MEDIA_VISUAL_USER_SELECTED']);
+		{
+			hasStoragePermission = AndroidPermissions.getGrantedPermissions().contains('android.permission.READ_MEDIA_IMAGES')
+				|| AndroidPermissions.getGrantedPermissions().contains('android.permission.READ_EXTERNAL_STORAGE');
+		}
 		else
-			AndroidPermissions.requestPermissions(['READ_EXTERNAL_STORAGE', 'WRITE_EXTERNAL_STORAGE']);
+		{
+			hasStoragePermission = AndroidPermissions.getGrantedPermissions().contains('android.permission.READ_EXTERNAL_STORAGE')
+				&& AndroidPermissions.getGrantedPermissions().contains('android.permission.WRITE_EXTERNAL_STORAGE');
+		}
 
 		if (!AndroidEnvironment.isExternalStorageManager())
+		{
 			AndroidSettings.requestSetting('MANAGE_APP_ALL_FILES_ACCESS_PERMISSION');
+		}
+		else if (!hasStoragePermission)
+		{
+			if (AndroidVersion.SDK_INT >= AndroidVersionCode.TIRAMISU)
+				AndroidPermissions.requestPermissions(['READ_MEDIA_IMAGES', 'READ_MEDIA_VIDEO', 'READ_MEDIA_AUDIO', 'READ_MEDIA_VISUAL_USER_SELECTED']);
+			else
+				AndroidPermissions.requestPermissions(['READ_EXTERNAL_STORAGE', 'WRITE_EXTERNAL_STORAGE']);
+		}
 
-		if ((AndroidVersion.SDK_INT >= AndroidVersionCode.TIRAMISU
-			&& !AndroidPermissions.getGrantedPermissions().contains('android.permission.READ_MEDIA_IMAGES'))
-			|| (AndroidVersion.SDK_INT < AndroidVersionCode.TIRAMISU
-				&& !AndroidPermissions.getGrantedPermissions().contains('android.permission.READ_EXTERNAL_STORAGE')))
-			CoolUtil.showPopUp(Language.getPhrase('permissions_message', 'izinleri kabul ettiyseniz oyununuz sorunsuz acilacaktir, etmediyseniz izinler bolumunden tum dosyalara erisime izin verin'),
-				Language.getPhrase('mobile_notice', "uyari!"));
+		if (!AndroidEnvironment.isExternalStorageManager() && !hasStoragePermission)
+			CoolUtil.showPopUp(Language.getPhrase('permissions_message', 'İzinleri kabul ettiyseniz oyununuz sorunsuz açılacaktır, etmediyseniz izinler bölümünden tüm dosyalara erişime izin verin'),
+				Language.getPhrase('mobile_notice', "Uyarı!"));
+
 		try
 		{
 			if (!FileSystem.exists(StorageUtil.getStorageDirectory()))

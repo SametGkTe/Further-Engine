@@ -1812,10 +1812,7 @@ class GalleryState extends MusicBeatState {
 	override function destroy() {
 		stopAllMedia();
 		#if mobile
-		if (galleryPad != null) {
-			galleryPad.destroy();
-			galleryPad = null;
-		}
+		galleryPad = null;
 		#end
 		super.destroy();
 	}
