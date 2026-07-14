@@ -113,7 +113,7 @@
 	<haxelib name="flixel-addons" version="3.3.2"/>
 	<haxelib name="tjson" version="1.4.0"/>
 	
-	<haxelib name="htmlparser" />
+	<haxelib name="HtmlParser" />
 
 	<!--Psych stuff needed-->
 	<haxelib name="linc_luajit" if="LUA_ALLOWED"/>

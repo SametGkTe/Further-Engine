@@ -56,8 +56,34 @@ jobs:
           ${{ inputs.setupCommand }}
           echo "=== Haxe Version ==="
           haxe -version
-          echo "=== Haxelib List ==="
+          echo "=== Haxelib List (before force set) ==="
           haxelib list
+
+      - name: Force correct haxelib versions
+        run: |
+          haxelib set hxcpp git
+          haxelib set lime git
+          haxelib set flixel git
+          haxelib set openfl 9.4.1
+          haxelib set HtmlParser 3.4.0
+          echo "=== Haxelib List (after force set) ==="
+          haxelib list
+
+      - name: Patch hxcpp for macOS 15 / Xcode 16
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          ZUTIL="$HOME/haxelib/hxcpp/git/project/thirdparty/zlib-1.2.13/zutil.h"
+
+          if [ ! -f "$ZUTIL" ]; then
+            echo "zutil.h not found: $ZUTIL"
+            exit 1
+          fi
+
+          perl -0pi -e 's/^[ \t]*#\s*define\s+fdopen\(fd,mode\)\s+NULL.*\R//m' "$ZUTIL"
+
+          echo "=== fdopen check after patch ==="
+          grep -n "fdopen" "$ZUTIL" || true
 
       - name: Configure Android
         if: inputs.name == 'Android'

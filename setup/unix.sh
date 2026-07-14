@@ -34,14 +34,13 @@ haxelib git grig.audio https://gitlab.com/haxe-grig/grig.audio.git cbf91e2180fd2
 haxelib git mobile-controls https://github.com/Prohack101010/mobile-controls-dev --quiet
 haxelib git flixel-animate https://github.com/MaybeMaru/flixel-animate --quiet
 
-# KRITIK: Dogru versiyonlari aktif et
-echo Setting correct library versions...
+echo Forcing correct library versions...
+
+# Force selected versions after dependency installs
+haxelib set hxcpp git
 haxelib set lime git
 haxelib set flixel git
-haxelib set hxcpp git
 haxelib set openfl 9.4.1
-
-# HtmlParser icin sembolik link olustur (buyuk/kucuk harf sorunu)
-ln -sf ~/haxelib/HtmlParser ~/haxelib/htmlparser
+haxelib set HtmlParser 3.4.0
 
 echo Finished!
