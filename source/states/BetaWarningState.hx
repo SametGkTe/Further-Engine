@@ -62,7 +62,7 @@ class BetaWarningState extends MusicBeatState
 	static inline final CENTER_IMAGE_SIZE:Int = 160;
 	static inline final CENTER_IMAGE_Y_RATIO:Float = 0.5;
 
-	static inline final WARNING_TITLE:String = "BETA VERSİYONU";
+	static inline final WARNING_TITLE:String = "BETA VERSİYON 2";
 	static inline final WARNING_BODY:String =
 		"DİKKAT: Bu proje yapılma aşamasındadır.\n" +
 		"bitirilmemiş sistemler ve bug'lar vs. bulunmaktadır,\n" +
