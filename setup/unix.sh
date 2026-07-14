@@ -22,7 +22,7 @@ haxelib install flixel-tools 1.5.1 --quiet
 haxelib install hscript-iris 1.1.3 --quiet
 haxelib install hscript 2.7.0 --quiet
 haxelib install tjson 1.4.0 --quiet
-haxelib install htmlparser 3.4.0 --quiet
+haxelib install HtmlParser 3.4.0 --quiet
 
 # Other libs
 haxelib git flxanimate https://github.com/Dot-Stuff/flxanimate 768740a56b26aa0c072720e0d1236b94afe68e3e --quiet
@@ -33,5 +33,15 @@ haxelib git funkin.vis https://github.com/FunkinCrew/funkVis 22b1ce089dd924f15cd
 haxelib git grig.audio https://gitlab.com/haxe-grig/grig.audio.git cbf91e2180fd2e374924fe74844086aab7891666 --quiet
 haxelib git mobile-controls https://github.com/Prohack101010/mobile-controls-dev --quiet
 haxelib git flixel-animate https://github.com/MaybeMaru/flixel-animate --quiet
+
+# KRITIK: Dogru versiyonlari aktif et
+echo Setting correct library versions...
+haxelib set lime git
+haxelib set flixel git
+haxelib set hxcpp git
+haxelib set openfl 9.4.1
+
+# HtmlParser icin sembolik link olustur (buyuk/kucuk harf sorunu)
+ln -sf ~/haxelib/HtmlParser ~/haxelib/htmlparser
 
 echo Finished!
