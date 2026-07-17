@@ -114,6 +114,9 @@
 	<haxelib name="tjson" version="1.4.0"/>
 	
 	<haxelib name="HtmlParser" />
+	
+	<!-- Legacy SScript 0.7.3 Desteği (Snirozu fork) -->
+	<haxelib name="SScript" if="LEGACY_SSCRIPT"/>
 
 	<!--Psych stuff needed-->
 	<haxelib name="linc_luajit" if="LUA_ALLOWED"/>

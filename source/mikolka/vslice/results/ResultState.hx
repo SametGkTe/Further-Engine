@@ -252,7 +252,6 @@ class ResultState extends MusicBeatSubState
             {
               // Animation is not looped.
               animation.onAnimationComplete.add((_name:String) -> {
-                trace("AHAHAH 2");
                 if (animation != null)
                 {
                   animation.anim.pause();
@@ -262,7 +261,6 @@ class ResultState extends MusicBeatSubState
             else if (animData.loopFrameLabel != null)
             {
               animation.onAnimationComplete.add((_name:String) -> {
-                trace("AHAHAH 2");
                 if (animation != null)
                 {
                   animation.playAnimation(animData.loopFrameLabel ?? '', true, false, true); // unpauses this anim, since it's on PlayOnce!
@@ -274,7 +272,6 @@ class ResultState extends MusicBeatSubState
               animation.onAnimationComplete.add((_name:String) -> {
                 if (animation != null)
                 {
-                  trace("AHAHAH");
                   animation.anim.curFrame = animData.loopFrame ?? 0;
                   animation.anim.play(); // unpauses this anim, since it's on PlayOnce!
                 }

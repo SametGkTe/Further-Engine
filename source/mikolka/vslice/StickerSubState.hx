@@ -80,8 +80,6 @@ class StickerSubState extends MusicBeatSubstate
       soundSelections.push(i);
     }
 
-    trace(soundSelections);
-
     soundSelection = FlxG.random.getObject(soundSelections);
 
     var filterFunc = function(a:String) {
@@ -94,8 +92,6 @@ class StickerSubState extends MusicBeatSubstate
       sounds[i] = sounds[i].replace('assets/shared/sounds/', '');
       sounds[i] = sounds[i].substring(0, sounds[i].lastIndexOf('.'));
     }
-
-    trace(sounds);
 
     grpStickers = new FlxTypedGroup<StickerSprite>();
     add(grpStickers);
@@ -181,7 +177,6 @@ class StickerSubState extends MusicBeatSubstate
     catch (x:Dynamic)
     {
       trace('FAILED TO LOAD STICKER SET: ' + STICKER_SET);
-      trace(x);
       UserErrorSubstate.makeMessage('Sticker load error', 'Could not load sticker set "$STICKER_SET"\n\n$x');
       stickers = null;
     }
@@ -213,7 +208,6 @@ class StickerSubState extends MusicBeatSubstate
         if (stickerSetCollection.length > 0)
         {
           var sticker:String = FlxG.random.getObject(stickerSetCollection);
-          trace('Selected sticker: ' + sticker);
           sticky = new StickerSprite(0, 0, STICKER_SET, sticker);
         }
         else

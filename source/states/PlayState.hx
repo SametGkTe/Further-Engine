@@ -1597,8 +1597,14 @@ class PlayState extends MusicBeatState
 		if (Math.isNaN(submitPercent))
 			submitPercent = 0;
 
+		var botplay:Bool = cpuControlled || ClientPrefs.getGameplaySetting('botplay');
+		var allowSave:Bool = !practiceMode && !botplay;
+
 		trace('[LeaderboardAPI] submitLeaderboardOnce()');
-		trace('[LeaderboardAPI] canSaveScore=' + canSaveScore
+		trace('[LeaderboardAPI] allowSave=' + allowSave
+			+ ' practiceMode=' + practiceMode
+			+ ' cpuControlled=' + cpuControlled
+			+ ' gameplayBotplay=' + ClientPrefs.getGameplaySetting('botplay')
 			+ ' loggedIn=' + backend.AuthManager.isLoggedIn
 			+ ' score=' + songScore
 			+ ' percent=' + submitPercent
@@ -1606,9 +1612,9 @@ class PlayState extends MusicBeatState
 			+ ' combo=' + combo
 			+ ' song=' + (PlayState.SONG != null ? PlayState.SONG.song : 'null'));
 
-		if (!canSaveScore)
+		if (!allowSave)
 		{
-			trace('[LeaderboardAPI] SKIP: canSaveScore false');
+			trace('[LeaderboardAPI] SKIP: allowSave false');
 			return;
 		}
 
@@ -2750,30 +2756,12 @@ class PlayState extends MusicBeatState
 			}
 
 			var botplay:Bool = cpuControlled || ClientPrefs.getGameplaySetting('botplay');
-			var canSaveScore:Bool = !practiceMode && !botplay;
+			canSaveScore = !practiceMode && !botplay;
 
 			var currentTallies:SaveScoreData = buildCurrentSaveScoreData();
 
-			if (canSaveScore && backend.AuthManager.isLoggedIn && ClientPrefs.data.serverConnection)
-			{
-				var submitPercent:Float = ratingPercent;
-				if (Math.isNaN(submitPercent)) submitPercent = 0;
-
-				if (songScore > 0 && submitPercent > 0)
-				{
-					LeaderboardAPI.submitScore(
-						backend.AuthManager.currentUsername,
-						PlayState.SONG.song,
-						Difficulty.getString(storyDifficulty),
-						songScore,
-						submitPercent * 100,
-						ratingName,
-						songMisses,
-						combo
-					);
-				}
-			}
-
+			submitLeaderboardOnce();
+			
 			if (isStoryMode)
 			{
 				campaignScore += songScore;
@@ -2841,7 +2829,6 @@ class PlayState extends MusicBeatState
 			}
 			else
 			{
-				submitLeaderboardOnce();
 				trace('WENT BACK TO FREEPLAY??');
 				Mods.loadTopMod();
 

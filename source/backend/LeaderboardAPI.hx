@@ -112,19 +112,66 @@ class LeaderboardAPI {
                     result = arr[0];
             }
 
+            // Save previous streak BEFORE updating AuthManager
+            var previousUltraStreak:Int = AuthManager.currentUltraStreak;
+
             trace('[LeaderboardAPI] Parsed result=' + Std.string(result));
 
             if (result != null && result.success == true) {
+                // earned_up (total = base + bonus)
                 var earnedUP:Int = 0;
-
                 if (Reflect.hasField(result, "earned_up") && Reflect.field(result, "earned_up") != null)
                     earnedUP = Std.int(Reflect.field(result, "earned_up"));
 
+                // streak_bonus_up
+                var streakBonusUP:Int = 0;
+                if (Reflect.hasField(result, "streak_bonus_up") && Reflect.field(result, "streak_bonus_up") != null)
+                    streakBonusUP = Std.int(Reflect.field(result, "streak_bonus_up"));
+
+                // base_earned_up
+                var baseEarnedUP:Int = 0;
+                if (Reflect.hasField(result, "base_earned_up") && Reflect.field(result, "base_earned_up") != null)
+                    baseEarnedUP = Std.int(Reflect.field(result, "base_earned_up"));
+
+                // ultra_streak_count
+                var ultraStreakCount:Int = 0;
+                if (Reflect.hasField(result, "ultra_streak_count") && Reflect.field(result, "ultra_streak_count") != null)
+                    ultraStreakCount = Std.int(Reflect.field(result, "ultra_streak_count"));
+
+                // ultra_streak_best
+                var ultraStreakBest:Int = 0;
+                if (Reflect.hasField(result, "ultra_streak_best") && Reflect.field(result, "ultra_streak_best") != null)
+                    ultraStreakBest = Std.int(Reflect.field(result, "ultra_streak_best"));
+
+                // ultra_streak_required_acc_next
+                var ultraRequiredNext:Float = 90;
+                if (Reflect.hasField(result, "ultra_streak_required_acc_next") && Reflect.field(result, "ultra_streak_required_acc_next") != null)
+                    ultraRequiredNext = Std.parseFloat(Std.string(Reflect.field(result, "ultra_streak_required_acc_next")));
+
+                // ultra_streak_broken
+                var ultraBroken:Bool = false;
+                if (Reflect.hasField(result, "ultra_streak_broken") && Reflect.field(result, "ultra_streak_broken") != null)
+                    ultraBroken = Reflect.field(result, "ultra_streak_broken") == true;
+
+                // ultra_streak_activated
+                var ultraActivated:Bool = false;
+                if (Reflect.hasField(result, "ultra_streak_activated") && Reflect.field(result, "ultra_streak_activated") != null)
+                    ultraActivated = Reflect.field(result, "ultra_streak_activated") == true;
+
+                // Update AuthManager
                 AuthManager.currentScore = Std.int(result.new_total_score);
                 AuthManager.currentUltraPoints = result.new_ultra_points;
                 AuthManager.currentLevel = Std.int(result.new_level);
+                AuthManager.currentUltraStreak = ultraStreakCount;
+                AuthManager.currentUltraStreakBest = ultraStreakBest;
+                AuthManager.currentUltraStreakRequiredAcc = ultraRequiredNext;
 
-                trace('[LeaderboardAPI] Success! earned=' + Std.string(earnedUP) + ' UP, total UP=' + Std.string(result.new_ultra_points) + ', level=' + Std.string(result.new_level));
+                trace('[LeaderboardAPI] Success! base=' + Std.string(baseEarnedUP)
+                    + ' bonus=' + Std.string(streakBonusUP)
+                    + ' total=' + Std.string(earnedUP)
+                    + ' UP, streak=' + Std.string(ultraStreakCount)
+                    + ', broken=' + Std.string(ultraBroken)
+                    + ', activated=' + Std.string(ultraActivated));
 
                 if (objects.ProfileBox.instance != null)
                     objects.ProfileBox.instance.refresh();
@@ -134,7 +181,13 @@ class LeaderboardAPI {
                     objects.UPPopup.show(
                         earnedUP,
                         AuthManager.currentUltraPoints,
-                        AuthManager.currentLevel
+                        AuthManager.currentLevel,
+                        streakBonusUP,
+                        ultraStreakCount,
+                        ultraRequiredNext,
+                        ultraBroken,
+                        ultraActivated,
+                        previousUltraStreak
                     );
                 }
             } else {

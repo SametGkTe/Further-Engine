@@ -19,6 +19,7 @@ enum PopupPosition
 	BOTTOM_LEFT;
 	BOTTOM_CENTER;
 	BOTTOM_RIGHT;
+	BOTTOM_RIGHT_LEFT; // FOR US CARD
 }
 
 enum PopupState
@@ -216,6 +217,12 @@ class PopupThing extends Sprite
 				_restY = winH - totalH - m;
 				_slideStartX = winW + m;
 				_slideStartY = _restY;
+			case BOTTOM_RIGHT_LEFT:
+				var upCardW:Float = 280 * s;
+				_restX = winW - totalW - upCardW - m - (m * 0.5);
+				_restY = winH - totalH - m;
+				_slideStartX = _restX;
+				_slideStartY = winH + m;
 		}
 	}
 

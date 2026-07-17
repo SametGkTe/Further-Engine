@@ -14,6 +14,11 @@ class AuthManager {
     public static var currentRole:String = "player";
     public static var currentBadge:String = null;
 
+    // Ultra Streak
+    public static var currentUltraStreak:Int = 0;
+    public static var currentUltraStreakBest:Int = 0;
+    public static var currentUltraStreakRequiredAcc:Float = 90.0;
+
     static function dynToFloat(v:Dynamic, ?def:Float = 0.0):Float {
         if (v == null) return def;
         if (Std.isOfType(v, Float)) return cast v;
@@ -36,10 +41,6 @@ class AuthManager {
         if (v == null) return def;
         return Std.string(v);
     }
-
-    // ============================================
-    // REGISTER (her zaman çalışır)
-    // ============================================
 
     public static function register(
         email:String, password:String,
@@ -95,10 +96,6 @@ class AuthManager {
         });
     }
 
-    // ============================================
-    // LOGIN WITH USERNAME (her zaman çalışır)
-    // ============================================
-
     public static function loginWithUsername(
         username:String, password:String,
         callback:Bool->String->Void
@@ -109,21 +106,17 @@ class AuthManager {
                 try {
                     var arr:Array<Dynamic> = haxe.Json.parse(data);
                     if (arr.length == 0 || arr[0].email == null) {
-                        callback(false, "Kullanıcı bulunamadı.");
+                        callback(false, "Kullanici bulunamadi.");
                         return;
                     }
                     var email:String = arr[0].email;
                     login(email, password, callback);
                 } catch(e) {
-                    callback(false, "Bağlantı hatası.");
+                    callback(false, "Baglanti hatasi.");
                 }
             }
         );
     }
-
-    // ============================================
-    // LOGIN WITH EMAIL (her zaman çalışır)
-    // ============================================
 
     public static function login(
         email:String, password:String,
@@ -154,10 +147,6 @@ class AuthManager {
             }
         });
     }
-
-    // ============================================
-    // AUTO LOGIN (her zaman çalışır)
-    // ============================================
 
     public static function autoLogin(callback:Bool->Void):Void {
         if (!SupabaseClient.hasToken()) {
@@ -215,10 +204,6 @@ class AuthManager {
             }
         });
     }
-
-    // ============================================
-    // TOKEN REFRESH (her zaman çalışır)
-    // ============================================
 
     public static function refreshAccessToken(callback:Bool->Void):Void {
         var refreshTk = SupabaseClient.getRefreshToken();
@@ -279,19 +264,11 @@ class AuthManager {
         }
     }
 
-    // ============================================
-    // FORGOT PASSWORD (her zaman çalışır)
-    // ============================================
-
     public static function forgotPassword(email:String, callback:Bool->String->Void):Void {
         SupabaseClient.postAsync("/auth/v1/recover", { email: email }, "", function(_, data) {
             callback(true, "Password reset email sent!");
         });
     }
-
-    // ============================================
-    // DELETE ACCOUNT (her zaman çalışır)
-    // ============================================
 
     public static function deleteAccount(callback:Bool->String->Void):Void {
         var token = SupabaseClient.getToken();
@@ -308,10 +285,6 @@ class AuthManager {
         http.customRequest(false, new haxe.io.BytesOutput(), null, "DELETE");
     }
 
-    // ============================================
-    // LOGOUT (her zaman çalışır)
-    // ============================================
-
     public static function logout():Void {
         SupabaseClient.clearToken();
         currentUsername = "Player";
@@ -323,6 +296,9 @@ class AuthManager {
         currentCountry = "";
         currentRole = "player";
         currentBadge = null;
+        currentUltraStreak = 0;
+        currentUltraStreakBest = 0;
+        currentUltraStreakRequiredAcc = 90.0;
         isLoggedIn = false;
     }
 
@@ -383,12 +359,29 @@ class AuthManager {
         else
             currentUltraPoints = 0.0;
 
+        // Ultra Streak
+        if (Reflect.hasField(p, "ultra_streak_count"))
+            currentUltraStreak = dynToInt(Reflect.field(p, "ultra_streak_count"), 0);
+        else
+            currentUltraStreak = 0;
+
+        if (Reflect.hasField(p, "ultra_streak_best"))
+            currentUltraStreakBest = dynToInt(Reflect.field(p, "ultra_streak_best"), 0);
+        else
+            currentUltraStreakBest = 0;
+
+        if (Reflect.hasField(p, "ultra_streak_required_acc"))
+            currentUltraStreakRequiredAcc = dynToFloat(Reflect.field(p, "ultra_streak_required_acc"), 90.0);
+        else
+            currentUltraStreakRequiredAcc = 90.0;
+
         isLoggedIn = true;
 
         trace('[AuthManager] Profile loaded -> username=$currentUsername'
             + ', level=$currentLevel'
             + ', score=$currentScore'
             + ', ultraPoints=$currentUltraPoints'
+            + ', streak=$currentUltraStreak'
             + ', role=$currentRole'
             + ', badge=$currentBadge');
     }
