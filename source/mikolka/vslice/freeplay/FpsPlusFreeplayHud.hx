@@ -31,6 +31,7 @@ class FpsPlusFreeplayHud extends FlxTypedGroup<FlxSprite>
 	var hint:FlxText;
 	var spectrum:Array<FlxSprite> = [];
 	var spectrumPhase:Float = 0;
+	var lastDisplayKey:String = null;
 
 	public function new(x:Float, y:Float)
 	{
@@ -83,10 +84,17 @@ class FpsPlusFreeplayHud extends FlxTypedGroup<FlxSprite>
 
 	public function refresh(songName:Null<String>, difficultyId:Null<String>, intendedScore:Int, intendedAccuracy:Float):Void
 	{
-		song.text = songName == null || songName.length == 0 ? 'RANDOM' : songName.toUpperCase();
-		difficulty.text = 'DIFFICULTY: ' + (difficultyId == null ? 'NORMAL' : difficultyId.toUpperCase());
+		var safeSong = songName == null || songName.length == 0 ? 'RANDOM' : songName.toUpperCase();
+		var safeDifficulty = difficultyId == null ? 'NORMAL' : difficultyId.toUpperCase();
+		var safeAccuracy = Std.string(Math.round(intendedAccuracy * 10000) / 100) + '%';
+		var displayKey = safeSong + '|' + safeDifficulty + '|' + intendedScore + '|' + safeAccuracy;
+		if (displayKey == lastDisplayKey)
+			return;
+		lastDisplayKey = displayKey;
+		song.text = safeSong;
+		difficulty.text = 'DIFFICULTY: ' + safeDifficulty;
 		score.text = 'SCORE ' + Std.string(intendedScore);
-		accuracy.text = Std.string(Math.round(intendedAccuracy * 10000) / 100) + '%';
+		accuracy.text = safeAccuracy;
 	}
 
 	override public function update(elapsed:Float):Void

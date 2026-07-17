@@ -830,6 +830,10 @@ class FreeplayState extends MusicBeatSubstate
 		// The original capsule group remains the authoritative interaction model.
 		// Hide only its drawing and let the FPS Plus renderer mirror it.
 		grpCapsules.visible = false;
+		// Cards are now mirrored by FpsPlusSongList, so avoid updating hidden
+		// capsule animations every frame on mobile. The group remains the data
+		// and callback owner for selection/confirmation.
+		grpCapsules.active = false;
 		fpsPlusSongList = new FpsPlusSongList((CUTOUT_WIDTH * SONGS_POS_MULTI) + 20, 190);
 		fpsPlusSongList.cameras = [funnyCam];
 		add(fpsPlusSongList);

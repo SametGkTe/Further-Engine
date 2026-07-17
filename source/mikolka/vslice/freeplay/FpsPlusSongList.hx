@@ -63,6 +63,7 @@ class FpsPlusSongRow extends FlxSpriteGroup
 	var nameText:FlxText;
 	var metaText:FlxText;
 	var selected:Bool = false;
+	var lastDisplayKey:String = null;
 
 	public function new(x:Float, y:Float)
 	{
@@ -87,8 +88,12 @@ class FpsPlusSongRow extends FlxSpriteGroup
 
 	public function setSong(item:SongMenuItem, isSelected:Bool, isRandom:Bool):Void
 	{
-		selected = isSelected;
 		var data = item.songData;
+		var displayKey = (data == null ? 'random' : data.songId + '|' + data.currentDifficulty) + '|' + isSelected;
+		if (displayKey == lastDisplayKey)
+			return;
+		lastDisplayKey = displayKey;
+		selected = isSelected;
 		var color:FlxColor = isRandom || data == null ? 0xFFFFD166 : data.color;
 		accent.color = color;
 		card.color = isSelected ? FlxColor.WHITE : 0xFF4D4A63;

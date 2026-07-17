@@ -21,6 +21,7 @@ class FpsPlusBackdrop extends FlxTypedGroup<FlxSprite>
 	var djStatus:FlxText;
 	var bars:Array<FlxSprite> = [];
 	var phase:Float = 0;
+	var lastDjState:String = null;
 
 	public function new()
 	{
@@ -69,7 +70,11 @@ class FpsPlusBackdrop extends FlxTypedGroup<FlxSprite>
 
 	public function setDjState(animation:Null<String>):Void
 	{
-		djStatus.text = animation == null || animation.length == 0 ? 'DJ: STANDBY' : 'DJ: ' + animation.toUpperCase();
+		var state = animation == null || animation.length == 0 ? 'DJ: STANDBY' : 'DJ: ' + animation.toUpperCase();
+		if (state == lastDjState)
+			return;
+		lastDjState = state;
+		djStatus.text = state;
 	}
 
 	override public function update(elapsed:Float):Void
