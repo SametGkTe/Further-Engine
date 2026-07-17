@@ -183,6 +183,10 @@ class FreeplayState extends MusicBeatSubstate
 	
 	var rankAnimPlaying:Bool = false;
 
+	// FPS Plus presentation layer. It intentionally consumes the existing
+	// P-Slice data model instead of replacing it with legacy SongMetadata.
+	var fpsPlusHud:FpsPlusFreeplayHud;
+
 	// Dropdown UI
 	var dropdownBG:FlxSprite;
 	var dropdownHighlight:FlxSprite;
@@ -812,6 +816,11 @@ class FreeplayState extends MusicBeatSubstate
 
 		// ── Arama Barını Oluştur ──
 		createSearchBar();
+
+		// FPS Plus-style score/difficulty panel, fed by the current P-Slice song.
+		fpsPlusHud = new FpsPlusFreeplayHud(FlxG.width - FpsPlusFreeplayHud.PANEL_WIDTH - 18 - MobileScaleMode.gameNotchSize.x, 132);
+		fpsPlusHud.cameras = [funnyCam];
+		add(fpsPlusHud);
 
 		#if TOUCH_CONTROLS_ALLOWED
 		addFreeplayTouchPad();
@@ -2426,8 +2435,18 @@ class FreeplayState extends MusicBeatSubstate
 		lerpScoreDisplays(elapsed);
 		handleInputs(elapsed);
 
+		refreshFpsPlusHud();
+
 		if (dj != null)
 			FlxG.watch.addQuick('dj-anim', dj.getCurrentAnimation());
+	}
+
+	function refreshFpsPlusHud():Void
+	{
+		if (fpsPlusHud == null)
+			return;
+		var selectedSong:Null<FreeplaySongData> = curCapsule != null ? curCapsule.songData : null;
+		fpsPlusHud.refresh(selectedSong?.songName, currentDifficulty, intendedScore, intendedCompletion);
 	}
 
 	// ═══════════════════════════════════════════
@@ -2873,6 +2892,7 @@ class FreeplayState extends MusicBeatSubstate
 			albumRoll.skipIntro();
 		}
 		albumRoll?.setDifficultyStars(daSong?.difficultyRating);
+		refreshFpsPlusHud();
 	}
 
 	function updateCapsuleDifficulties()
