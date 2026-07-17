@@ -183,6 +183,12 @@ class FreeplayState extends MusicBeatSubstate
 	
 	var rankAnimPlaying:Bool = false;
 
+	// FPS Plus presentation layer. It intentionally consumes the existing
+	// P-Slice data model instead of replacing it with legacy SongMetadata.
+	var fpsPlusHud:FpsPlusFreeplayHud;
+	var fpsPlusSongList:FpsPlusSongList;
+	var fpsPlusBackdrop:FpsPlusBackdrop;
+
 	// Dropdown UI
 	var dropdownBG:FlxSprite;
 	var dropdownHighlight:FlxSprite;
@@ -812,6 +818,29 @@ class FreeplayState extends MusicBeatSubstate
 
 		// ── Arama Barını Oluştur ──
 		createSearchBar();
+
+		// FPS Plus-style stage. Insert it behind the P-Slice interaction objects;
+		// FreeplayDJ stays intact and is displayed on top of this deck.
+		fpsPlusBackdrop = new FpsPlusBackdrop();
+		fpsPlusBackdrop.cameras = [funnyCam];
+		var fpsBackdropIndex:Int = dj != null ? members.indexOf(dj) : members.indexOf(grpCapsules);
+		insert(fpsBackdropIndex, fpsPlusBackdrop);
+
+		// FPS Plus-style score/difficulty panel, fed by the current P-Slice song.
+		// The original capsule group remains the authoritative interaction model.
+		// Hide only its drawing and let the FPS Plus renderer mirror it.
+		grpCapsules.visible = false;
+		// Cards are now mirrored by FpsPlusSongList, so avoid updating hidden
+		// capsule animations every frame on mobile. The group remains the data
+		// and callback owner for selection/confirmation.
+		grpCapsules.active = false;
+		fpsPlusSongList = new FpsPlusSongList((CUTOUT_WIDTH * SONGS_POS_MULTI) + 20, 190);
+		fpsPlusSongList.cameras = [funnyCam];
+		add(fpsPlusSongList);
+
+		fpsPlusHud = new FpsPlusFreeplayHud(FlxG.width - FpsPlusFreeplayHud.PANEL_WIDTH - 18 - MobileScaleMode.gameNotchSize.x, 132);
+		fpsPlusHud.cameras = [funnyCam];
+		add(fpsPlusHud);
 
 		#if TOUCH_CONTROLS_ALLOWED
 		addFreeplayTouchPad();
@@ -2426,8 +2455,27 @@ class FreeplayState extends MusicBeatSubstate
 		lerpScoreDisplays(elapsed);
 		handleInputs(elapsed);
 
+		refreshFpsPlusHud();
+		refreshFpsPlusSongList();
+		if (fpsPlusBackdrop != null)
+			fpsPlusBackdrop.setDjState(dj?.getCurrentAnimation());
+
 		if (dj != null)
 			FlxG.watch.addQuick('dj-anim', dj.getCurrentAnimation());
+	}
+
+	function refreshFpsPlusSongList():Void
+	{
+		if (fpsPlusSongList != null && grpCapsules != null)
+			fpsPlusSongList.refresh(grpCapsules.activeSongItems, curSelected);
+	}
+
+	function refreshFpsPlusHud():Void
+	{
+		if (fpsPlusHud == null)
+			return;
+		var selectedSong:Null<FreeplaySongData> = curCapsule != null ? curCapsule.songData : null;
+		fpsPlusHud.refresh(selectedSong?.songName, currentDifficulty, intendedScore, intendedCompletion);
 	}
 
 	// ═══════════════════════════════════════════
@@ -2873,6 +2921,7 @@ class FreeplayState extends MusicBeatSubstate
 			albumRoll.skipIntro();
 		}
 		albumRoll?.setDifficultyStars(daSong?.difficultyRating);
+		refreshFpsPlusHud();
 	}
 
 	function updateCapsuleDifficulties()
