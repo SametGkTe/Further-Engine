@@ -187,6 +187,7 @@ class FreeplayState extends MusicBeatSubstate
 	// P-Slice data model instead of replacing it with legacy SongMetadata.
 	var fpsPlusHud:FpsPlusFreeplayHud;
 	var fpsPlusSongList:FpsPlusSongList;
+	var fpsPlusBackdrop:FpsPlusBackdrop;
 
 	// Dropdown UI
 	var dropdownBG:FlxSprite;
@@ -817,6 +818,13 @@ class FreeplayState extends MusicBeatSubstate
 
 		// ── Arama Barını Oluştur ──
 		createSearchBar();
+
+		// FPS Plus-style stage. Insert it behind the P-Slice interaction objects;
+		// FreeplayDJ stays intact and is displayed on top of this deck.
+		fpsPlusBackdrop = new FpsPlusBackdrop();
+		fpsPlusBackdrop.cameras = [funnyCam];
+		var fpsBackdropIndex:Int = dj != null ? members.indexOf(dj) : members.indexOf(grpCapsules);
+		insert(fpsBackdropIndex, fpsPlusBackdrop);
 
 		// FPS Plus-style score/difficulty panel, fed by the current P-Slice song.
 		// The original capsule group remains the authoritative interaction model.
@@ -2445,6 +2453,8 @@ class FreeplayState extends MusicBeatSubstate
 
 		refreshFpsPlusHud();
 		refreshFpsPlusSongList();
+		if (fpsPlusBackdrop != null)
+			fpsPlusBackdrop.setDjState(dj?.getCurrentAnimation());
 
 		if (dj != null)
 			FlxG.watch.addQuick('dj-anim', dj.getCurrentAnimation());
